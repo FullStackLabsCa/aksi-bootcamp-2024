@@ -4,7 +4,9 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.reactivestax.service.TradeProcessorTask;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,7 +20,7 @@ public class MultithreadTradeProcessorUtility {
     public static void configureLogger(){
         {
             try {
-                fileHandler = new FileHandler("error.txt", true);
+                fileHandler = new FileHandler(readPropertiesFile().getProperty("errorLoggerFilePath"), true);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -31,11 +33,11 @@ public class MultithreadTradeProcessorUtility {
         logger.setLevel(Level.INFO);
     }
 
-    public static void configureHikariCP(int portNum) {
+    public static void configureHikariCP(String portNum, String dbName) {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:"+portNum+"/bootcamp");
-        config.setUsername("root");
-        config.setPassword("password123");
+        config.setJdbcUrl("jdbc:mysql://localhost:"+portNum+"/"+dbName);
+        config.setUsername(readPropertiesFile().getProperty("dbUsername"));
+        config.setPassword(readPropertiesFile().getProperty("dbPassword"));
 
         // Optional HikariCP settings
         config.setMaximumPoolSize(10); // Max 10 connections in the pool
@@ -44,6 +46,18 @@ public class MultithreadTradeProcessorUtility {
         config.setIdleTimeout(600000); // 10 minutes idle timeout
 
         dataSource = new HikariDataSource(config);
+    }
+
+    public static Properties readPropertiesFile(){
+        Properties properties = new Properties();
+
+        try (FileInputStream fis = new FileInputStream("src/main/resources/application.properties")) {
+            properties.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return properties;
     }
 
 

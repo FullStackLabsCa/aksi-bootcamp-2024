@@ -2,16 +2,15 @@ package io.reactivestax.service;
 
 import io.reactivestax.interfaces.chunksPathAndNumberOfChunks;
 
-import static io.reactivestax.utility.MultithreadTradeProcessorUtility.configureHikariCP;
-import static io.reactivestax.utility.MultithreadTradeProcessorUtility.configureLogger;
+import static io.reactivestax.utility.MultithreadTradeProcessorUtility.*;
 
 public class TradeProcessingAppRunner {
 
     public static void main(String[] args) {
-        String folderPath = "boca-bc24-java-core-problems/src/multithread_trade_processing";
+        String folderPath = readPropertiesFile().getProperty("resourcesFolderPath");
 
         configureLogger();
-        configureHikariCP(3306);
+        configureHikariCP(readPropertiesFile().getProperty("dbPortNum"), readPropertiesFile().getProperty("dbName"));
 
         //This is 1 thread
         TradeProcessor processor = new TradeProcessor();

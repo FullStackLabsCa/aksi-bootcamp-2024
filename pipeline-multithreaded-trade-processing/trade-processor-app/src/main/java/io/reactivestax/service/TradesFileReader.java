@@ -2,10 +2,11 @@ package io.reactivestax.service;
 
 import io.reactivestax.interfaces.TradesFileReading;
 import io.reactivestax.interfaces.chunksPathAndNumberOfChunks;
+import static io.reactivestax.utility.MultithreadTradeProcessorUtility.readPropertiesFile;
 
 import java.io.*;
-import java.util.Properties;
 import java.util.Scanner;
+
 
 public class TradesFileReader implements TradesFileReading {
     @Override
@@ -13,11 +14,11 @@ public class TradesFileReader implements TradesFileReading {
           try(Scanner fileReader = new Scanner(new FileReader(filePath))){
 
               int numOfFilesGenerated = 0;
-              int maxNumOfLines = getChunkSizeFromPropertiesFile();
+              int maxNumOfLines = Integer.parseInt(readPropertiesFile().getProperty("chunkSize"));
               boolean newFileCreationNeeded = true;
               String fileNameUnderProcessing = null;
               int linesRead = 0;
-              String folderPath = "boca-bc24-java-core-problems/src/multithread_trade_processing/data/";
+              String folderPath = readPropertiesFile().getProperty("chunkPath");
 
               if(fileReader.hasNextLine()) {
                   fileReader.nextLine();
@@ -49,15 +50,5 @@ public class TradesFileReader implements TradesFileReading {
           }
     }
 
-    public Integer getChunkSizeFromPropertiesFile(){
-            Properties properties = new Properties();
 
-            try (FileInputStream fis = new FileInputStream("boca-bc24-java-core-problems/src/multithread_trade_processing/application.properties")) {
-                properties.load(fis);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return Integer.valueOf(properties.getProperty("chunkSize"));
-        }
 }
