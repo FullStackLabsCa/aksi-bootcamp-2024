@@ -26,7 +26,7 @@ public class TradesFileReader implements TradesFileReading {
               while(fileReader.hasNextLine()) {
 
                   if(newFileCreationNeeded){
-                    fileNameUnderProcessing = folderPath+"trade_chunk_" + numOfFilesGenerated + ".csv";
+                    fileNameUnderProcessing = folderPath+"/trade_chunk_" + numOfFilesGenerated + ".csv";
                     newFileCreationNeeded = false;
                   }
                   try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileNameUnderProcessing, true))) {
