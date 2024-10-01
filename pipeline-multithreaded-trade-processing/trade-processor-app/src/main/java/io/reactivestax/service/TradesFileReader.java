@@ -31,7 +31,6 @@ public class TradesFileReader implements TradesFileReading {
                   }
                   try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileNameUnderProcessing, true))) {
                       if ((linesRead >= maxNumOfLines) || !fileReader.hasNextLine()) {
-                          writer.close();
                           numOfFilesGenerated++;
                           newFileCreationNeeded = true;
                           linesRead = 0;

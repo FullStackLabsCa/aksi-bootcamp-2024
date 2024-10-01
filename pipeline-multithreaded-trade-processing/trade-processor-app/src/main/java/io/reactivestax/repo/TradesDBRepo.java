@@ -89,7 +89,6 @@ public class TradesDBRepo {
 
                 psSmartQueryCredit.executeUpdate();
             } else {
-//                throw new UnrecognisedActivityOperationException();
                 System.out.println("UnrecognisedActivityOperationException");
             }
 

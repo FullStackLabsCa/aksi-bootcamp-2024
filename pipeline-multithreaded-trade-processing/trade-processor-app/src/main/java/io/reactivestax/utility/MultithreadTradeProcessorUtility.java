@@ -13,17 +13,19 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public class MultithreadTradeProcessorUtility {
+
+    private MultithreadTradeProcessorUtility() {
+    }
+
     static FileHandler fileHandler;
-    public static final Logger logger = Logger.getLogger(TradeProcessorTask.class.getName());
+    public static final Logger logger = Logger.getLogger(MultithreadTradeProcessorUtility.class.getName());
     public static HikariDataSource dataSource;
 
     public static void configureLogger(){
-        {
-            try {
-                fileHandler = new FileHandler(readPropertiesFile().getProperty("errorLoggerFilePath"), true);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            fileHandler = new FileHandler(readPropertiesFile().getProperty("errorLoggerFilePath"), true);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         SimpleFormatter formatter = new SimpleFormatter();

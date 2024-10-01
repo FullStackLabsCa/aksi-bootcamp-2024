@@ -10,7 +10,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 public class ChunkProcessor{
 
-    public static ConcurrentHashMap<String, Integer> accToQueueMap = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<String, Integer> accToQueueMap = new ConcurrentHashMap<>();
 
     public static final LinkedBlockingDeque<String> tradeIdQueue1 = new LinkedBlockingDeque<>();
     public static final LinkedBlockingDeque<String> tradeIdQueue2 = new LinkedBlockingDeque<>();

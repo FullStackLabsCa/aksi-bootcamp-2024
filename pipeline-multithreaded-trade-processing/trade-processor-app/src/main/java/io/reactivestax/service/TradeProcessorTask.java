@@ -94,8 +94,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
         SimpleDateFormat formatter = new SimpleDateFormat(format);
         try {
-            Date date = formatter.parse(dateString);
-            return date;
+            return formatter.parse(dateString);
         } catch (ParseException e) {
             e.printStackTrace();
         }
