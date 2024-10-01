@@ -2,7 +2,7 @@ package io.reactivestax.utility;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import multithread_trade_processing.service.TradeProcessorTask;
+import io.reactivestax.service.TradeProcessorTask;
 
 import java.io.IOException;
 import java.util.logging.FileHandler;

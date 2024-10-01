@@ -1,7 +1,7 @@
 package io.reactivestax.service;
 
-import multithread_trade_processing.interfaces.TradesFileReading;
-import multithread_trade_processing.interfaces.chunksPathAndNumberOfChunks;
+import io.reactivestax.interfaces.TradesFileReading;
+import io.reactivestax.interfaces.chunksPathAndNumberOfChunks;
 
 import java.io.*;
 import java.util.Properties;

@@ -1,14 +1,14 @@
 package io.reactivestax.service;
 
-import multithread_trade_processing.interfaces.ChunkProcessing;
-import multithread_trade_processing.interfaces.tradeIdAndAccNum;
-import multithread_trade_processing.repo.PayloadDatabaseRepo;
+import io.reactivestax.interfaces.ChunkProcessing;
+import io.reactivestax.interfaces.tradeIdAndAccNum;
+import io.reactivestax.repo.PayloadDatabaseRepo;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
 
-import static multithread_trade_processing.service.ChunkProcessor.*;
+import static io.reactivestax.service.ChunkProcessor.*;
 
 public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 

@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static multithread_trade_processing.utility.MultithreadTradeProcessorUtility.dataSource;
+import static io.reactivestax.utility.MultithreadTradeProcessorUtility.dataSource;
 
 public class PayloadDatabaseRepo {
 

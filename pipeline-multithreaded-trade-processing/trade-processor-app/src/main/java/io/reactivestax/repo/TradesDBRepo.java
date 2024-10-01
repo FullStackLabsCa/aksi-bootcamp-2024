@@ -1,6 +1,6 @@
 package io.reactivestax.repo;
 
-import multithread_trade_processing.model.Trade;
+import io.reactivestax.model.Trade;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,9 +1,9 @@
 package io.reactivestax.service;
 
-import multithread_trade_processing.interfaces.TradeProcessing;
-import multithread_trade_processing.model.Trade;
-import multithread_trade_processing.repo.PayloadDatabaseRepo;
-import multithread_trade_processing.repo.TradesDBRepo;
+import io.reactivestax.interfaces.TradeProcessing;
+import io.reactivestax.model.Trade;
+import io.reactivestax.repo.PayloadDatabaseRepo;
+import io.reactivestax.repo.TradesDBRepo;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static multithread_trade_processing.utility.MultithreadTradeProcessorUtility.*;
+import static io.reactivestax.utility.MultithreadTradeProcessorUtility.*;
 
 @SuppressWarnings("java:S2189")
 public class TradeProcessorTask implements Runnable, TradeProcessing {

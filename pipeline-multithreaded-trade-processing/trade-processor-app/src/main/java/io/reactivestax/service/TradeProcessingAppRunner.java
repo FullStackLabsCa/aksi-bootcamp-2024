@@ -1,9 +1,9 @@
 package io.reactivestax.service;
 
-import multithread_trade_processing.interfaces.chunksPathAndNumberOfChunks;
+import io.reactivestax.interfaces.chunksPathAndNumberOfChunks;
 
-import static multithread_trade_processing.utility.MultithreadTradeProcessorUtility.configureHikariCP;
-import static multithread_trade_processing.utility.MultithreadTradeProcessorUtility.configureLogger;
+import static io.reactivestax.utility.MultithreadTradeProcessorUtility.configureHikariCP;
+import static io.reactivestax.utility.MultithreadTradeProcessorUtility.configureLogger;
 
 public class TradeProcessingAppRunner {
 

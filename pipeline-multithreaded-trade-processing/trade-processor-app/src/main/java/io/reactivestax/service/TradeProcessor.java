@@ -3,7 +3,7 @@ package io.reactivestax.service;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static multithread_trade_processing.service.ChunkProcessor.*;
+import static io.reactivestax.service.ChunkProcessor.*;
 
 public class TradeProcessor {
 
