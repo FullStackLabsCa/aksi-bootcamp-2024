@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.reactivestax.utility.MultithreadTradeProcessorUtility.*;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @SuppressWarnings("java:S2189")
 public class TradeProcessorTask implements Runnable, TradeProcessing {
@@ -29,6 +30,8 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             String tradeID;
             try {
                 tradeID = readTradeIdFromQueue();
+
+                if(tradeID == null) break;
 
                 String payload = readPayloadFromRawDatabase(tradeID);
                 Trade trade = validatePayloadAndCreateTrade(payload);
@@ -60,7 +63,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public String readTradeIdFromQueue() throws InterruptedException {
-        return tradeIdQueue.takeFirst();
+        return tradeIdQueue.poll(2, SECONDS);
     }
 
     @Override
