@@ -1,32 +1,28 @@
 package io.reactivestax.service;
 
+import io.reactivestax.utility.MultithreadTradeProcessorUtility;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.*;
 
 public class ChunkProcessor{
 
     public static final ConcurrentHashMap<String, Integer> accToQueueMap = new ConcurrentHashMap<>();
 
-    public static final LinkedBlockingDeque<String> tradeIdQueue1 = new LinkedBlockingDeque<>();
-    public static final LinkedBlockingDeque<String> tradeIdQueue2 = new LinkedBlockingDeque<>();
-    public static final LinkedBlockingDeque<String> tradeIdQueue3 = new LinkedBlockingDeque<>();
-
-    public void startChunkProcessorPool(String folderPath, int numberOfFiles) {
+    public void startChunkProcessorPool(String folderPath) {
         List<String> filePaths = getFilesFromFolder(folderPath);
 
-        int numberOfThreads = 10;
+        int numberOfThreads = Integer.parseInt(MultithreadTradeProcessorUtility.readPropertiesFile().getProperty("threadPoolSizeOfChunkProcessor"));
         int filesSubmitted = 0;
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
 
-        for (int i = 0; i < numberOfThreads; i++) {
-            if(filesSubmitted <= numberOfFiles) {
+        while (filesSubmitted < filePaths.size()){
+            for (int i = 0; i < numberOfThreads; i++) {
                 executorService.submit(new ChunkProcessorTask(filePaths.get(filesSubmitted)));
                 filesSubmitted++;
+                if(filesSubmitted >= filePaths.size()) break;
             }
         }
 

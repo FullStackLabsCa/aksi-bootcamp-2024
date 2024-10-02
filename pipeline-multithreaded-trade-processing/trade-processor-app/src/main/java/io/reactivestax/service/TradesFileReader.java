@@ -26,12 +26,12 @@ public class TradesFileReader implements TradesFileReading {
               while(fileReader.hasNextLine()) {
 
                   if(newFileCreationNeeded){
-                    fileNameUnderProcessing = folderPath+"/trade_chunk_" + numOfFilesGenerated + ".csv";
-                    newFileCreationNeeded = false;
+                      fileNameUnderProcessing = folderPath+"/trade_chunk_" + numOfFilesGenerated + ".csv";
+                      numOfFilesGenerated++;
+                      newFileCreationNeeded = false;
                   }
                   try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileNameUnderProcessing, true))) {
                       if ((linesRead >= maxNumOfLines) || !fileReader.hasNextLine()) {
-                          numOfFilesGenerated++;
                           newFileCreationNeeded = true;
                           linesRead = 0;
                       } else {

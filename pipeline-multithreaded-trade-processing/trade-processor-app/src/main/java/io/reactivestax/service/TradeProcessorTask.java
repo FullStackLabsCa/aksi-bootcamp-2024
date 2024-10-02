@@ -30,6 +30,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             try {
                 tradeID = readTradeIdFromQueue();
             } catch (InterruptedException e) {
+                System.out.println(e.getMessage());
                 throw new RuntimeException(e);
             }
             String payload = readPayloadFromRawDatabase(tradeID);
@@ -42,7 +43,8 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                             writeToJournalTable(trade, connection);
                             writeToPositionsTable(trade, connection);
                             connection.commit();
-                        } catch (SQLException e){
+                        }
+                        catch (SQLException e){
                             System.out.println(e.getMessage());
                             connection.rollback();
                         }

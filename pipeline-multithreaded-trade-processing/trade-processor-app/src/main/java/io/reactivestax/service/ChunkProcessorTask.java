@@ -7,20 +7,24 @@ import io.reactivestax.repo.PayloadDatabaseRepo;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.reactivestax.service.ChunkProcessor.*;
+import static io.reactivestax.service.TradeProcessor.listOfQueues;
+import static io.reactivestax.utility.MultithreadTradeProcessorUtility.readPropertiesFile;
 
 public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     String filePath;
-
+    static int counter = 0;
     public ChunkProcessorTask(String filePath) {
         this.filePath = filePath;
     }
 
+
     @Override
     public void run() {
-            processChunk(filePath);
+            processChunk(this.filePath);
     }
 
     @Override
@@ -29,7 +33,11 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
             while (chunkReader.hasNextLine()) {
                 processPayload(chunkReader.nextLine());
             }
-            System.out.println("End Of File Reached!!!");
+//            for (int i = 0; i < 4; i++) {
+//                System.out.println("listOfQueues.get(i).size() = " + listOfQueues.get(i).size());
+//            }
+//            System.out.println("-------------------");
+//            System.out.println("End Of File Reached!!!");
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -78,7 +86,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
         if (accToQueueMap.containsKey(accountNumber)) {
             return accToQueueMap.get(accountNumber);
         } else {
-            int randomQueueNum = (int) (Math.random() * 3) + 1;
+            int randomQueueNum = (int) (Math.random() * Integer.parseInt(readPropertiesFile().getProperty("numberOfQueues")));
             accToQueueMap.put(accountNumber, randomQueueNum);
             return randomQueueNum;
         }
@@ -87,21 +95,11 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     @Override
     public void writeToQueue(String tradeID, int queueID) {
         try {
-            switch (queueID) {
-                case 1:
-                    tradeIdQueue1.putFirst(tradeID);
-                    break;
-                case 2:
-                    tradeIdQueue2.putFirst(tradeID);
-                    break;
-                case 3:
-                    tradeIdQueue3.putFirst(tradeID);
-                    break;
-                default:
-                    System.out.println("Unable to add to Queue. Please Debug the Issue.");
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            LinkedBlockingDeque<String> tempQ = listOfQueues.get(queueID);
+            tempQ.put(tradeID);
+        } catch (InterruptedException |  NullPointerException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

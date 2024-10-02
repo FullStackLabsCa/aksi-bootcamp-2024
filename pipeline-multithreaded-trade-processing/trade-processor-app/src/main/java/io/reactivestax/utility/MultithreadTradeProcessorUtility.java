@@ -56,7 +56,7 @@ public class MultithreadTradeProcessorUtility {
         try (FileInputStream fis = new FileInputStream("src/main/resources/application.properties")) {
             properties.load(fis);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
         return properties;
