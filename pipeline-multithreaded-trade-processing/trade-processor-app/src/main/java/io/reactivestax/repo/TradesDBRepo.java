@@ -2,10 +2,7 @@ package io.reactivestax.repo;
 
 import io.reactivestax.model.Trade;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class TradesDBRepo {
 
@@ -29,8 +26,8 @@ public class TradesDBRepo {
 
     public void writeTradeToJournalTable(Trade trade, Connection connection){
         String writeToJournalQuery = """
-                insert into journal_entry (account_number, security_id, direction, quantity, posted_status)
-                values (?,?,?,?,?)
+                insert into journal_entry (account_number, security_id, direction, quantity, posted_status, trade_execution_time)
+                values (?,?,?,?,?,?)
                 """;
 
         try(PreparedStatement insertionQuery = connection.prepareStatement(writeToJournalQuery)){
@@ -39,6 +36,7 @@ public class TradesDBRepo {
             insertionQuery.setString(3,trade.getActivity());
             insertionQuery.setInt(4,trade.getQuantity());
             insertionQuery.setString(5,"Not Posted");
+            insertionQuery.setTimestamp(6, new Timestamp(trade.getTransactionTime().getTime()));
 
             insertionQuery.executeUpdate();
 

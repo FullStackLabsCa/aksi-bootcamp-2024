@@ -12,19 +12,18 @@ import static io.reactivestax.utility.MultithreadTradeProcessorUtility.readPrope
 
 public class TradeProcessor {
     public static final List<LinkedBlockingDeque<String>> listOfQueues = new ArrayList<>();
+    int numberOfQueues = Integer.parseInt(readPropertiesFile().getProperty("numberOfQueues"));
+    int threadPoolSize = Integer.parseInt(readPropertiesFile().getProperty("threadPoolSizeOfTradeProcessor"));
+    ExecutorService executorServiceTradeProcessor = Executors.newFixedThreadPool(threadPoolSize);
 
     public void startTradeProcessingFromQueues(){
         bringUpQueues();
-        int numberOfQueues = Integer.parseInt(readPropertiesFile().getProperty("numberOfQueues"));
-        int threadPoolSize = Integer.parseInt(readPropertiesFile().getProperty("threadPoolSizeOfTradeProcessor"));
-        ExecutorService executorServiceTradeProcessor = Executors.newFixedThreadPool(threadPoolSize);
 
         for (int i = 0; i < numberOfQueues; i++) {
             executorServiceTradeProcessor.submit(new TradeProcessorTask(listOfQueues.get(i % numberOfQueues)));
         }
 
         executorServiceTradeProcessor.shutdown();
-
     }
 
     public static void bringUpQueues(){
