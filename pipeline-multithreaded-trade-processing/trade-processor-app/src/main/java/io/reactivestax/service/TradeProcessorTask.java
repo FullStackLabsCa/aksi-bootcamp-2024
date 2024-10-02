@@ -29,31 +29,31 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             String tradeID;
             try {
                 tradeID = readTradeIdFromQueue();
+
+                String payload = readPayloadFromRawDatabase(tradeID);
+                Trade trade = validatePayloadAndCreateTrade(payload);
+                if (trade != null) {
+                    try (Connection connection = dataSource.getConnection()) {
+                        if (validateBusinessLogic(trade, connection).equals("Valid")) {
+                            try {
+                                connection.setAutoCommit(false);
+                                writeToJournalTable(trade, connection);
+                                writeToPositionsTable(trade, connection);
+                                connection.commit();
+                            } catch (SQLException e) {
+                                System.out.println(e.getMessage());
+                                connection.rollback();
+                            }
+                        } else {
+                            logger.info(trade.toString());
+                        }
+                    } catch (SQLException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
             } catch (InterruptedException e) {
                 System.out.println(e.getMessage());
                 throw new RuntimeException(e);
-            }
-            String payload = readPayloadFromRawDatabase(tradeID);
-            Trade trade = validatePayloadAndCreateTrade(payload);
-            if (trade != null) {
-                try (Connection connection = dataSource.getConnection()) {
-                    if (validateBusinessLogic(trade, connection).equals("Valid")) {
-                        try {
-                            connection.setAutoCommit(false);
-                            writeToJournalTable(trade, connection);
-                            writeToPositionsTable(trade, connection);
-                            connection.commit();
-                        }
-                        catch (SQLException e){
-                            System.out.println(e.getMessage());
-                            connection.rollback();
-                        }
-                    } else {
-                        logger.info(trade.toString());
-                    }
-                } catch (SQLException e) {
-                    System.out.println(e.getMessage());
-                }
             }
         }
     }

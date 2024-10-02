@@ -7,7 +7,6 @@ import io.reactivestax.repo.PayloadDatabaseRepo;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
-import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.reactivestax.service.ChunkProcessor.*;
 import static io.reactivestax.service.TradeProcessor.listOfQueues;
@@ -33,11 +32,6 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
             while (chunkReader.hasNextLine()) {
                 processPayload(chunkReader.nextLine());
             }
-//            for (int i = 0; i < 4; i++) {
-//                System.out.println("listOfQueues.get(i).size() = " + listOfQueues.get(i).size());
-//            }
-//            System.out.println("-------------------");
-//            System.out.println("End Of File Reached!!!");
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
