@@ -4,6 +4,7 @@ import io.reactivestax.utility.MultithreadTradeProcessorUtility;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -15,6 +16,8 @@ public class TradeProcessor {
     int numberOfQueues = Integer.parseInt(readPropertiesFile().getProperty("numberOfQueues"));
     int threadPoolSize = Integer.parseInt(readPropertiesFile().getProperty("threadPoolSizeOfTradeProcessor"));
     ExecutorService executorServiceTradeProcessor = Executors.newFixedThreadPool(threadPoolSize);
+    public static final ConcurrentHashMap<String, Integer> retryCountMapping = new ConcurrentHashMap<>();
+    public static final LinkedBlockingDeque<String> dlq = new LinkedBlockingDeque<>();
 
     public void startTradeProcessingFromQueues(){
         bringUpQueues();

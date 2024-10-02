@@ -1,0 +1,2 @@
+Oct. 02, 2024 4:23:41 P.M. io.reactivestax.service.TradeProcessorTask run
+INFO: Trade{tradeID='TDB_00000000', transactionTime=Thu Sep 19 22:16:18 EDT 2024, accountNumber='TDB_CUST_5214938', cusip='V', activity='SELL', quantity=683, price=638.02}

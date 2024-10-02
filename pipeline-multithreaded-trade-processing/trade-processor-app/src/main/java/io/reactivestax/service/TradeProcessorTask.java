@@ -12,6 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import static io.reactivestax.service.TradeProcessor.dlq;
+import static io.reactivestax.service.TradeProcessor.retryCountMapping;
 import static io.reactivestax.utility.MultithreadTradeProcessorUtility.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -45,6 +47,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                             } catch (SQLException e) {
                                 System.out.println(e.getMessage());
                                 connection.rollback();
+                                checkRetryCountAndManageDLQ(trade);
                             }
                         } else {
                             logger.info(trade.toString());
@@ -57,6 +60,22 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                 System.out.println(e.getMessage());
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    private void checkRetryCountAndManageDLQ(Trade trade) throws InterruptedException {
+        if(retryCountMapping.containsKey(trade.getTradeID())){
+             retryCountMapping.put(trade.getTradeID(),retryCountMapping.get(trade.getTradeID()) - 1);
+        } else {
+            retryCountMapping.put(trade.getTradeID(), Integer.parseInt(readPropertiesFile().getProperty("retryCount")) - 1);
+        }
+
+        //DLQ
+        if(retryCountMapping.get(trade.getTradeID()) == 0){
+            dlq.put(trade.getTradeID());
+            System.out.println("Failed To Insert after 3 Retries: "+trade.getTradeID());
+        } else {
+            tradeIdQueue.putFirst(trade.getTradeID());
         }
     }
 
