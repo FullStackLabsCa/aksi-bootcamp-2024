@@ -95,8 +95,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     @Override
     public void writeToQueue(String tradeID, int queueID) {
         try {
-            LinkedBlockingDeque<String> tempQ = listOfQueues.get(queueID);
-            tempQ.put(tradeID);
+            listOfQueues.get(queueID).put(tradeID);
         } catch (InterruptedException |  NullPointerException e) {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());

@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static io.reactivestax.service.ChunkProcessor.*;
 import static io.reactivestax.utility.MultithreadTradeProcessorUtility.readPropertiesFile;
 
 public class TradeProcessor {

@@ -2,6 +2,8 @@ package io.reactivestax.service;
 
 import io.reactivestax.interfaces.TradesFileReading;
 import io.reactivestax.interfaces.chunksPathAndNumberOfChunks;
+
+import static io.reactivestax.service.ChunkProcessor.chunksPaths;
 import static io.reactivestax.utility.MultithreadTradeProcessorUtility.readPropertiesFile;
 
 import java.io.*;
@@ -10,7 +12,7 @@ import java.util.Scanner;
 
 public class TradesFileReader implements TradesFileReading {
     @Override
-    public chunksPathAndNumberOfChunks readFileAndCreateChunks(String filePath, String fileType) {
+    public void readFileAndCreateChunks(String filePath, String fileType) {
           try(Scanner fileReader = new Scanner(new FileReader(filePath))){
 
               int numOfFilesGenerated = 0;
@@ -32,6 +34,12 @@ public class TradesFileReader implements TradesFileReading {
                   }
                   try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileNameUnderProcessing, true))) {
                       if ((linesRead >= maxNumOfLines) || !fileReader.hasNextLine()) {
+                          try {
+                              chunksPaths.put(new File(fileNameUnderProcessing).getAbsolutePath());
+                          } catch (InterruptedException e) {
+                              e.printStackTrace();
+                              System.out.println(e.getMessage());
+                          }
                           newFileCreationNeeded = true;
                           linesRead = 0;
                       } else {
@@ -43,7 +51,6 @@ public class TradesFileReader implements TradesFileReading {
                   }
               }
 
-              return new chunksPathAndNumberOfChunks(folderPath, numOfFilesGenerated);
           } catch (IOException e) {
               throw new RuntimeException(e);
           }
