@@ -15,7 +15,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import static io.reactivestax.utility.MultithreadTradeProcessorUtility.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-@SuppressWarnings("java:S2189")
 public class TradeProcessorTask implements Runnable, TradeProcessing {
     LinkedBlockingDeque<String> tradeIdQueue;
 

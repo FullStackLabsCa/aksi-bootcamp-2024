@@ -1,6 +1,5 @@
 package io.reactivestax;
 
-import io.reactivestax.interfaces.chunksPathAndNumberOfChunks;
 import io.reactivestax.service.ChunkProcessor;
 import io.reactivestax.service.TradeProcessor;
 import io.reactivestax.service.TradesFileReader;

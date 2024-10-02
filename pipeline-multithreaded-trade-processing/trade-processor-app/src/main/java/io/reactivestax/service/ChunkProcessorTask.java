@@ -46,7 +46,13 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
         writePayloadToPayloadDatabase(tradeIdentifiers.tradeID(), tradeValidity, payload);
 
         if (tradeValidity.equals("Valid")) {
-            int queueMapping = getQueueMapping(tradeIdentifiers.accountNumber());
+            String criteria = readPropertiesFile().getProperty("tradeDistributionCriteria");
+            int queueMapping;
+            if (criteria.equals("tradeID")) {
+                queueMapping = getQueueMapping(tradeIdentifiers.tradeID());
+            } else {
+                queueMapping = getQueueMapping(tradeIdentifiers.accountNumber());
+            }
             writeToQueue(tradeIdentifiers.tradeID(), queueMapping);
         }
     }
@@ -76,12 +82,12 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     }
 
     @Override
-    public int getQueueMapping(String accountNumber) {
-        if (accToQueueMap.containsKey(accountNumber)) {
-            return accToQueueMap.get(accountNumber);
+    public int getQueueMapping(String criteria) {
+        if (accToQueueMap.containsKey(criteria)) {
+            return accToQueueMap.get(criteria);
         } else {
             int randomQueueNum = (int) (Math.random() * Integer.parseInt(readPropertiesFile().getProperty("numberOfQueues")));
-            accToQueueMap.put(accountNumber, randomQueueNum);
+            accToQueueMap.put(criteria, randomQueueNum);
             return randomQueueNum;
         }
     }
