@@ -50,7 +50,9 @@ public class TradesFileReader implements TradesFileReading {
                       }
                   }
               }
-
+              try{chunksPaths.put(new File(fileNameUnderProcessing).getAbsolutePath());} catch (InterruptedException e) {
+                  System.out.println(e.getMessage());
+              }
           } catch (IOException e) {
               throw new RuntimeException(e);
           }
