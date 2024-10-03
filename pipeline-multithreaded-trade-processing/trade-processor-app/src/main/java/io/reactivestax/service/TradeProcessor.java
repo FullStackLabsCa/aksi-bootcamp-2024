@@ -12,8 +12,13 @@ public class TradeProcessor {
 
     public void startTradeProcessingFromQueues(){
 
-        for (int i = 0; i < numberOfQueues; i++) {
-            executorServiceTradeProcessor.submit(new TradeProcessorTask(TradesStream.getQueue(i % numberOfQueues)));
+        int threadsRunning=0;
+        while(threadsRunning < threadPoolSize) {
+            for (int i = 0; i < numberOfQueues; i++) {
+                executorServiceTradeProcessor.submit(new TradeProcessorTask(TradesStream.getQueue(i % numberOfQueues)));
+                threadsRunning++;
+                if(threadsRunning >= threadPoolSize) break;
+            }
         }
 
         executorServiceTradeProcessor.shutdown();
