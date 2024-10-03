@@ -1,5 +1,7 @@
 package io.reactivestax.repo;
 
+import io.reactivestax.model.Trade;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,5 +43,23 @@ public class PayloadDatabaseRepo {
         }
 
         return null;
+    }
+
+    public void updateSecurityLookupStatus(Trade trade, String validityStatus){
+        String lookupUpdateQuery = "Update trades_payload set lookup_status = ? where trade_id = ?";
+
+        try(Connection connection = dataSource.getConnection();
+        PreparedStatement psLookupQuery = connection.prepareStatement(lookupUpdateQuery)){
+
+            psLookupQuery.setString(2, trade.getTradeID());
+            if(validityStatus.equals("Valid")){
+                psLookupQuery.setString(1,"Succeeded");
+            } else {psLookupQuery.setString(1, "Failed");}
+
+            psLookupQuery.executeUpdate();
+
+        } catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 }

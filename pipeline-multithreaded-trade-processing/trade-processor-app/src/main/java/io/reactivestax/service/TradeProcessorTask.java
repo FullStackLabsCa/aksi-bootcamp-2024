@@ -34,9 +34,11 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
                 String payload = readPayloadFromRawDatabase(tradeID);
                 Trade trade = validatePayloadAndCreateTrade(payload);
+                String lookupStatus;
                 if (trade != null) {
                     try (Connection connection = dataSource.getConnection()) {
-                        if (validateBusinessLogic(trade, connection).equals("Valid")) {
+                        lookupStatus = validateBusinessLogic(trade, connection);
+                        if (lookupStatus.equals("Valid")) {
                             try {
                                 connection.setAutoCommit(false);
                                 writeToJournalTable(trade, connection);
@@ -50,6 +52,9 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                         } else {
                             logger.info(trade.toString());
                         }
+
+                        updateTradeSecurityLookupInPayloadTable(trade, lookupStatus);
+
                     } catch (SQLException e) {
                         System.out.println(e.getMessage());
                     }
@@ -125,4 +130,8 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
         tradeDbAccess.updatePositionsTable(trade, connection);
     }
 
+    public void updateTradeSecurityLookupInPayloadTable(Trade trade, String lookupStatus){
+        PayloadDatabaseRepo dbObject = new PayloadDatabaseRepo();
+        dbObject.updateSecurityLookupStatus(trade, lookupStatus);
+    }
 }
