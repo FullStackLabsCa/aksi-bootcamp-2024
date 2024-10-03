@@ -1,8 +1,6 @@
 package io.reactivestax;
 
-import io.reactivestax.service.ChunkProcessor;
-import io.reactivestax.service.TradeProcessor;
-import io.reactivestax.service.TradesFileReader;
+import io.reactivestax.service.*;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,10 +14,12 @@ public class TradeProcessingAppRunner {
         configureLogger();
         configureHikariCP(readPropertiesFile().getProperty("dbPortNum"), readPropertiesFile().getProperty("dbName"));
 
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
 
         executorService.submit(new FileReaderRunner());
+        executorService.submit(new ChunksStreamRunner());
         executorService.submit(new ChunkProcessorRunner());
+        executorService.submit(new TradesStream());
         executorService.submit(new TradeProcessorRunner());
 
         executorService.shutdown();
@@ -32,6 +32,12 @@ class FileReaderRunner implements Runnable{
         String folderPath = readPropertiesFile().getProperty("resourcesFolderPath");
         TradesFileReader reader = new TradesFileReader();
         reader.readFileAndCreateChunks(folderPath+"/"+readPropertiesFile().getProperty("dataFileName"), null);
+    }
+}
+class ChunksStreamRunner implements Runnable{
+    @Override
+    public void run() {
+        ChunksStream chunksStream = new ChunksStream();
     }
 }
 class ChunkProcessorRunner implements Runnable{

@@ -8,14 +8,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
 
-import static io.reactivestax.service.ChunkProcessor.*;
-import static io.reactivestax.service.TradeProcessor.listOfQueues;
 import static io.reactivestax.utility.MultithreadTradeProcessorUtility.readPropertiesFile;
 
 public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     String filePath;
-    static int counter = 0;
     public ChunkProcessorTask(String filePath) {
         this.filePath = filePath;
     }
@@ -46,14 +43,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
         writePayloadToPayloadDatabase(tradeIdentifiers.tradeID(), tradeValidity, payload);
 
         if (tradeValidity.equals("Valid")) {
-            String criteria = readPropertiesFile().getProperty("tradeDistributionCriteria");
-            int queueMapping;
-            if (criteria.equals("tradeID")) {
-                queueMapping = getQueueMapping(tradeIdentifiers.tradeID());
-            } else {
-                queueMapping = getQueueMapping(tradeIdentifiers.accountNumber());
-            }
-            writeToQueue(tradeIdentifiers.tradeID(), queueMapping);
+            writeToQueue(tradeIdentifiers);
         }
     }
 
@@ -82,23 +72,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     }
 
     @Override
-    public int getQueueMapping(String criteria) {
-        if (accToQueueMap.containsKey(criteria)) {
-            return accToQueueMap.get(criteria);
-        } else {
-            int randomQueueNum = (int) (Math.random() * Integer.parseInt(readPropertiesFile().getProperty("numberOfQueues")));
-            accToQueueMap.put(criteria, randomQueueNum);
-            return randomQueueNum;
-        }
-    }
-
-    @Override
-    public void writeToQueue(String tradeID, int queueID) {
-        try {
-            listOfQueues.get(queueID).put(tradeID);
-        } catch (InterruptedException |  NullPointerException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
-        }
+    public void writeToQueue(tradeIdAndAccNum tradeIdentifiers) {
+        TradesStream.insertIntoQueue(tradeIdentifiers);
     }
 }
