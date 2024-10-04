@@ -3,6 +3,7 @@ package io.reactivestax.service;
 import io.reactivestax.interfaces.ChunkProcessing;
 import io.reactivestax.interfaces.tradeIdAndAccNum;
 import io.reactivestax.repo.PayloadDatabaseRepo;
+import io.reactivestax.utility.InvalidChunkPathException;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.util.Scanner;
 public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     String filePath;
+    String invalidString = "Invalid";
     public ChunkProcessorTask(String filePath) {
         this.filePath = filePath;
     }
@@ -28,7 +30,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
                 processPayload(chunkReader.nextLine());
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            throw new InvalidChunkPathException("Unable to find chunk at the provided path");
         }
     }
 
@@ -49,7 +51,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     public String checkPayloadValidity(String payload) {
         String[] fieldsOfTrade = payload.split(",");
         if (fieldsOfTrade.length != 7) {
-            return "Invalid";
+            return invalidString;
         } else return "Valid";
     }
 
@@ -58,9 +60,9 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
         String[] fieldsOfTrade = payload.split(",");
         if ((fieldsOfTrade[0] != null) && (fieldsOfTrade[1] != null))
             return new tradeIdAndAccNum(fieldsOfTrade[0], fieldsOfTrade[2]);
-        else if (fieldsOfTrade[0] == null) return new tradeIdAndAccNum("Invalid", fieldsOfTrade[1]);
-        else if (fieldsOfTrade[1] == null) return new tradeIdAndAccNum(fieldsOfTrade[0], "Invalid");
-        else return new tradeIdAndAccNum("Invalid", "Invalid");
+        else if (fieldsOfTrade[0] == null) return new tradeIdAndAccNum(invalidString, fieldsOfTrade[1]);
+        else if (fieldsOfTrade[1] == null) return new tradeIdAndAccNum(fieldsOfTrade[0], invalidString);
+        else return new tradeIdAndAccNum(invalidString, invalidString);
     }
 
     @Override
