@@ -11,7 +11,7 @@ public class TradeProcessingAppRunner {
 
     public static void main(String[] args) {
 
-        configureLogger();
+//        configureLogger();
         configureHikariCP(readPropertiesFile().getProperty("dbPortNum"), readPropertiesFile().getProperty("dbName"));
 
         ExecutorService executorService = Executors.newFixedThreadPool(5);
