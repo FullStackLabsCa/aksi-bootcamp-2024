@@ -4,6 +4,7 @@ import io.reactivestax.interfaces.TradeProcessing;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.PayloadDatabaseRepo;
 import io.reactivestax.repo.TradesDBRepo;
+import io.reactivestax.utility.ReadFromQueueFailedException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -17,10 +18,13 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class TradeProcessorTask implements Runnable, TradeProcessing {
     LinkedBlockingDeque<String> tradeIdQueue;
-
+    PayloadDatabaseRepo payloadDbAccess;
+    TradesDBRepo tradesDbAccess;
 
     public TradeProcessorTask(LinkedBlockingDeque<String> tradeIdQueue) {
         this.tradeIdQueue = tradeIdQueue;
+        if(payloadDbAccess == null) payloadDbAccess = new PayloadDatabaseRepo();
+        if(tradesDbAccess == null) tradesDbAccess = new TradesDBRepo();
     }
 
     @Override
@@ -44,14 +48,17 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                                 writeToJournalTable(trade, connection);
                                 writeToPositionsTable(trade, connection);
                                 connection.commit();
+                                updatePayloadDbForJournalEntry(trade);
                             } catch (SQLException e) {
                                 System.out.println(e.getMessage());
                                 connection.rollback();
                                 TradesStream.checkRetryCountAndManageDLQ(trade, tradeIdQueue);
                             }
-                        } else {
-                            logger.info(trade.toString());
                         }
+                        //Disabled Logging to the Log File - No one looks at error log files
+//                        else{
+//                            logger.info(trade.toString());
+//                        }
 
                         updateTradeSecurityLookupInPayloadTable(trade, lookupStatus);
 
@@ -60,8 +67,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                     }
                 }
             } catch (InterruptedException e) {
-                System.out.println(e.getMessage());
-                throw new RuntimeException(e);
+                throw new ReadFromQueueFailedException(e);
             }
         }
     }
@@ -73,7 +79,6 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public String readPayloadFromRawDatabase(String tradeID) {
-        PayloadDatabaseRepo payloadDbAccess = new PayloadDatabaseRepo();
         return payloadDbAccess.readPayloadFromDB(tradeID);
     }
 
@@ -113,25 +118,24 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public String validateBusinessLogic(Trade trade, Connection connection) {
-        TradesDBRepo tradeDbAccess = new TradesDBRepo();
-
-        return tradeDbAccess.checkIfValidCUSIP(trade, connection);
+        return tradesDbAccess.checkIfValidCUSIP(trade, connection);
     }
 
     @Override
     public void writeToJournalTable(Trade trade, Connection connection) {
-        TradesDBRepo tradeDbAccess = new TradesDBRepo();
-        tradeDbAccess.writeTradeToJournalTable(trade, connection);
+        tradesDbAccess.writeTradeToJournalTable(trade, connection);
     }
 
     @Override
     public void writeToPositionsTable(Trade trade, Connection connection) {
-        TradesDBRepo tradeDbAccess = new TradesDBRepo();
-        tradeDbAccess.updatePositionsTable(trade, connection);
+        tradesDbAccess.updatePositionsTable(trade, connection);
     }
 
     public void updateTradeSecurityLookupInPayloadTable(Trade trade, String lookupStatus){
-        PayloadDatabaseRepo dbObject = new PayloadDatabaseRepo();
-        dbObject.updateSecurityLookupStatus(trade, lookupStatus);
+        payloadDbAccess.updateSecurityLookupStatus(trade, lookupStatus);
+    }
+
+    public void updatePayloadDbForJournalEntry(Trade trade){
+        payloadDbAccess.updateJournalEntryStatus(trade);
     }
 }
