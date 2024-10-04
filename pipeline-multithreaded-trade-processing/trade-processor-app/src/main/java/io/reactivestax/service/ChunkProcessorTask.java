@@ -8,8 +8,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
 
-import static io.reactivestax.utility.MultithreadTradeProcessorUtility.readPropertiesFile;
-
 public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     String filePath;

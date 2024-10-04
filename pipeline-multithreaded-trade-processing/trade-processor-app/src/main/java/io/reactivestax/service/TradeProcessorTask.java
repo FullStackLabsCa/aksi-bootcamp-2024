@@ -56,9 +56,6 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                             }
                         }
                         //Disabled Logging to the Log File - No one looks at error log files
-//                        else{
-//                            logger.info(trade.toString());
-//                        }
 
                         updateTradeSecurityLookupInPayloadTable(trade, lookupStatus);
 
