@@ -11,11 +11,10 @@ import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.dataSourc
 
 public class PayloadDatabaseRepo {
 
-    public void writeToDatabase(String tradeID, String status, String payload){
+    public void writeToDatabase(String tradeID, String status, String payload, Connection connection){
         String query = "Insert into trades_payload (trade_id, status, payload, posted_status) values (?,?,?, 'Not Posted')";
 
-        try(Connection connection = dataSource.getConnection();
-            PreparedStatement psQuery = connection.prepareStatement(query)){
+        try(PreparedStatement psQuery = connection.prepareStatement(query)){
 
             psQuery.setString(1,tradeID);
             psQuery.setString(2,status);
@@ -27,11 +26,10 @@ public class PayloadDatabaseRepo {
         }
     }
 
-    public String readPayloadFromDB(String tradeID){
+    public String readPayloadFromDB(String tradeID, Connection connection){
         String query = "Select payload from trades_payload where trade_id=?";
 
-        try(Connection connection = dataSource.getConnection();
-            PreparedStatement psQuery = connection.prepareStatement(query)){
+        try(PreparedStatement psQuery = connection.prepareStatement(query)){
 
             psQuery.setString(1, tradeID);
             ResultSet rsQuery = psQuery.executeQuery();
@@ -45,11 +43,10 @@ public class PayloadDatabaseRepo {
         return null;
     }
 
-    public void updateSecurityLookupStatus(Trade trade, String validityStatus){
+    public void updateSecurityLookupStatus(Trade trade, String validityStatus, Connection connection){
         String lookupUpdateQuery = "Update trades_payload set lookup_status = ? where trade_id = ?";
 
-        try(Connection connection = dataSource.getConnection();
-        PreparedStatement psLookupQuery = connection.prepareStatement(lookupUpdateQuery)){
+        try(PreparedStatement psLookupQuery = connection.prepareStatement(lookupUpdateQuery)){
 
             psLookupQuery.setString(2, trade.getTradeID());
             if(validityStatus.equals("Valid")){
@@ -63,11 +60,10 @@ public class PayloadDatabaseRepo {
         }
     }
 
-    public void updateJournalEntryStatus(Trade trade){
+    public void updateJournalEntryStatus(Trade trade, Connection connection){
         String updateJEQuery = "Update trades_payload set posted_status = 'Posted' where trade_id = ?";
 
-        try(Connection connection = dataSource.getConnection();
-            PreparedStatement updateJEps = connection.prepareStatement(updateJEQuery)){
+        try(PreparedStatement updateJEps = connection.prepareStatement(updateJEQuery)){
 
             updateJEps.setString(1, trade.getTradeID());
 

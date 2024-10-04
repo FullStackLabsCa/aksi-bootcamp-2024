@@ -7,7 +7,7 @@ import java.sql.*;
 public class TradesDBRepo {
 
     public TradesDBRepo() {
-        //This will allow caller to create a new dbAccess????
+        //I don't really know what to enter here. I am trying to resolve sonar lint warning here...
     }
 
     public String checkIfValidCUSIP(Trade trade, Connection connection){
@@ -30,8 +30,8 @@ public class TradesDBRepo {
 
     public void writeTradeToJournalTable(Trade trade, Connection connection){
         String writeToJournalQuery = """
-                insert into journal_entry (account_number, security_id, direction, quantity, posted_status, trade_execution_time)
-                values (?,?,?,?,?,?)
+                insert into journal_entry (account_number, security_id, direction, quantity, position_posted_status, trade_execution_time, trade_id)
+                values (?,?,?,?,?,?,?)
                 """;
 
         try(PreparedStatement insertionQuery = connection.prepareStatement(writeToJournalQuery)){
@@ -41,6 +41,7 @@ public class TradesDBRepo {
             insertionQuery.setInt(4,trade.getQuantity());
             insertionQuery.setString(5,"Not Posted");
             insertionQuery.setTimestamp(6, new Timestamp(trade.getTransactionTime().getTime()));
+            insertionQuery.setString(7, trade.getTradeID());
 
             insertionQuery.executeUpdate();
 
@@ -99,4 +100,17 @@ public class TradesDBRepo {
         }
     }
 
+    public void updateJEForPositionsUpdate(Trade trade, Connection connection){
+        String updateJEQuery = "update journal_entry set position_posted_status = ? where trade_id = ?";
+
+        try(PreparedStatement psUpdateJe = connection.prepareStatement(updateJEQuery)){
+            psUpdateJe.setString(1,"Posted");
+            psUpdateJe.setString(2, trade.getTradeID());
+
+            psUpdateJe.executeUpdate();
+
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
 }

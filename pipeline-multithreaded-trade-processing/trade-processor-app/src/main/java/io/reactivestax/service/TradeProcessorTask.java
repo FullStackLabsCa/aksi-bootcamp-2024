@@ -35,17 +35,27 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             String tradeID;
             try {
                 tradeID = readTradeIdFromQueue();
-
                 if(tradeID == null) break;
-
-                String payload = readPayloadFromRawDatabase(tradeID);
-                Trade trade = validatePayloadAndCreateTrade(payload);
-                processTrade(trade);
+                String payload = readPayload(tradeID);
+                if((payload != null) && (!payload.isEmpty())) {
+                    Trade trade = validatePayloadAndCreateTrade(payload);
+                    processTrade(trade);
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new ReadFromQueueFailedException(e);
             }
         }
+    }
+
+    private String readPayload(String tradeID) {
+        String payload=  "";
+        try(Connection connection = dataSource.getConnection()) {
+            payload = readPayloadFromRawDatabase(tradeID, connection);
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return payload;
     }
 
     private void processTrade(Trade trade) throws InterruptedException {
@@ -55,7 +65,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
                 lookupStatus = validateBusinessLogic(trade, connection);
                 updateJournalEntryAndPositions(lookupStatus, connection, trade);
-                updateTradeSecurityLookupInPayloadTable(trade, lookupStatus);
+                updateTradeSecurityLookupInPayloadTable(trade, lookupStatus, connection);
 
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
@@ -71,7 +81,6 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                 writeToJournalTable(trade, connection);
                 writeToPositionsTable(trade, connection);
                 connection.commit();
-                updatePayloadDbForJournalEntry(trade);
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
                 connection.rollback();
@@ -79,6 +88,10 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             } finally {
                 connection.setAutoCommit(originalAutoCommit);
             }
+
+            updatePayloadDbForJournalEntry(trade, connection);
+            updateJEForPositionsUpdate(trade, connection);
+
         }
         //Disabled Logging to the Log File - No one looks at error log files
     }
@@ -89,8 +102,8 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     @Override
-    public String readPayloadFromRawDatabase(String tradeID) {
-        return payloadDbAccess.readPayloadFromDB(tradeID);
+    public String readPayloadFromRawDatabase(String tradeID, Connection connection) {
+        return payloadDbAccess.readPayloadFromDB(tradeID, connection);
     }
 
     @Override
@@ -142,11 +155,15 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
         tradesDbAccess.updatePositionsTable(trade, connection);
     }
 
-    public void updateTradeSecurityLookupInPayloadTable(Trade trade, String lookupStatus){
-        payloadDbAccess.updateSecurityLookupStatus(trade, lookupStatus);
+    public void updateTradeSecurityLookupInPayloadTable(Trade trade, String lookupStatus, Connection connection){
+        payloadDbAccess.updateSecurityLookupStatus(trade, lookupStatus, connection);
     }
 
-    public void updatePayloadDbForJournalEntry(Trade trade){
-        payloadDbAccess.updateJournalEntryStatus(trade);
+    public void updatePayloadDbForJournalEntry(Trade trade, Connection connection){
+        payloadDbAccess.updateJournalEntryStatus(trade, connection);
+    }
+
+    public void updateJEForPositionsUpdate(Trade trade, Connection connection){
+        tradesDbAccess.updateJEForPositionsUpdate(trade, connection);
     }
 }

@@ -7,7 +7,11 @@ import io.reactivestax.utility.InvalidChunkPathException;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Scanner;
+
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.dataSource;
 
 public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
@@ -68,7 +72,11 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     @Override
     public void writePayloadToPayloadDatabase(String tradeID, String tradeStatus, String payload) {
         PayloadDatabaseRepo payloadRepo = new PayloadDatabaseRepo();
-        payloadRepo.writeToDatabase(tradeID, tradeStatus, payload);
+        try(Connection connection = dataSource.getConnection()) {
+            payloadRepo.writeToDatabase(tradeID, tradeStatus, payload, connection);
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
