@@ -6,6 +6,9 @@ import java.sql.*;
 
 public class TradesDBRepo {
 
+    public TradesDBRepo() {
+    }
+
     public String checkIfValidCUSIP(Trade trade, Connection connection){
         String lookupQuery = "select 1 from SecuritiesReferenceV2 where cusip = ?";
 
