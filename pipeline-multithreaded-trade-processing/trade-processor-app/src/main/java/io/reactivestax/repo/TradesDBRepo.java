@@ -7,6 +7,7 @@ import java.sql.*;
 public class TradesDBRepo {
 
     public TradesDBRepo() {
+        //This will allow caller to create a new dbAccess????
     }
 
     public String checkIfValidCUSIP(Trade trade, Connection connection){

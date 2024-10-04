@@ -2,13 +2,12 @@ package io.reactivestax.repo;
 
 import io.reactivestax.model.Trade;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static io.reactivestax.utility.MultithreadTradeProcessorUtility.dataSource;
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.dataSource;
 
 public class PayloadDatabaseRepo {
 

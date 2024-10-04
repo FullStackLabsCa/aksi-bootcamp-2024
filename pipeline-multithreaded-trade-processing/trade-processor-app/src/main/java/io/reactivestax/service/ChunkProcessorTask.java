@@ -1,7 +1,7 @@
 package io.reactivestax.service;
 
 import io.reactivestax.interfaces.ChunkProcessing;
-import io.reactivestax.interfaces.tradeIdAndAccNum;
+import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.repo.PayloadDatabaseRepo;
 import io.reactivestax.utility.InvalidChunkPathException;
 
@@ -38,7 +38,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     public void processPayload(String payload) {
 
         String tradeValidity = checkPayloadValidity(payload);
-        tradeIdAndAccNum tradeIdentifiers = getIdentifierFromPayload(payload);
+        TradeIdAndAccNum tradeIdentifiers = getIdentifierFromPayload(payload);
 
         writePayloadToPayloadDatabase(tradeIdentifiers.tradeID(), tradeValidity, payload);
 
@@ -56,13 +56,13 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     }
 
     @Override
-    public tradeIdAndAccNum getIdentifierFromPayload(String payload) {
+    public TradeIdAndAccNum getIdentifierFromPayload(String payload) {
         String[] fieldsOfTrade = payload.split(",");
         if ((fieldsOfTrade[0] != null) && (fieldsOfTrade[1] != null))
-            return new tradeIdAndAccNum(fieldsOfTrade[0], fieldsOfTrade[2]);
-        else if (fieldsOfTrade[0] == null) return new tradeIdAndAccNum(invalidString, fieldsOfTrade[1]);
-        else if (fieldsOfTrade[1] == null) return new tradeIdAndAccNum(fieldsOfTrade[0], invalidString);
-        else return new tradeIdAndAccNum(invalidString, invalidString);
+            return new TradeIdAndAccNum(fieldsOfTrade[0], fieldsOfTrade[2]);
+        else if (fieldsOfTrade[0] == null) return new TradeIdAndAccNum(invalidString, fieldsOfTrade[1]);
+        else if (fieldsOfTrade[1] == null) return new TradeIdAndAccNum(fieldsOfTrade[0], invalidString);
+        else return new TradeIdAndAccNum(invalidString, invalidString);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     }
 
     @Override
-    public void writeToQueue(tradeIdAndAccNum tradeIdentifiers) {
+    public void writeToQueue(TradeIdAndAccNum tradeIdentifiers) {
         TradesStream.insertIntoQueue(tradeIdentifiers);
     }
 }

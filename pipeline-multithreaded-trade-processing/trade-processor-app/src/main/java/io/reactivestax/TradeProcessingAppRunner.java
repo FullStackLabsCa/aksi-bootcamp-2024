@@ -5,13 +5,12 @@ import io.reactivestax.service.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static io.reactivestax.utility.MultithreadTradeProcessorUtility.*;
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 
 public class TradeProcessingAppRunner {
 
     public static void main(String[] args) {
 
-//        configureLogger();
         configureHikariCP(readPropertiesFile().getProperty("dbPortNum"), readPropertiesFile().getProperty("dbName"));
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);

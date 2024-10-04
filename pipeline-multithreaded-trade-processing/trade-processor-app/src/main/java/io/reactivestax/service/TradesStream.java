@@ -1,21 +1,21 @@
 package io.reactivestax.service;
 
-import io.reactivestax.interfaces.tradeIdAndAccNum;
+import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.model.Trade;
-import io.reactivestax.utility.MultithreadTradeProcessorUtility;
+import io.reactivestax.utility.MultiThreadTradeProcessorUtility;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static io.reactivestax.utility.MultithreadTradeProcessorUtility.readPropertiesFile;
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.readPropertiesFile;
 
 public class TradesStream implements Runnable{
-    public static final ConcurrentHashMap<String, Integer> accToQueueMap = new ConcurrentHashMap<>();
-    public static final List<LinkedBlockingDeque<String>> listOfQueues = new ArrayList<>();
-    public static final ConcurrentHashMap<String, Integer> retryCountMapping = new ConcurrentHashMap<>();
-    public static final LinkedBlockingDeque<String> dlq = new LinkedBlockingDeque<>();
+    private static final ConcurrentHashMap<String, Integer> accToQueueMap = new ConcurrentHashMap<>();
+    private static final List<LinkedBlockingDeque<String>> listOfQueues = new ArrayList<>();
+    private static final ConcurrentHashMap<String, Integer> retryCountMapping = new ConcurrentHashMap<>();
+    private static final LinkedBlockingDeque<String> dlq = new LinkedBlockingDeque<>();
 
     @Override
     public void run(){
@@ -24,7 +24,7 @@ public class TradesStream implements Runnable{
 
 
     public static void bringUpQueues(){
-        int numberOfQueues = Integer.parseInt(MultithreadTradeProcessorUtility.readPropertiesFile().getProperty("numberOfQueues"));
+        int numberOfQueues = Integer.parseInt(MultiThreadTradeProcessorUtility.readPropertiesFile().getProperty("numberOfQueues"));
 
         for (int i = 0; i < numberOfQueues; i++) {
             listOfQueues.add(new LinkedBlockingDeque<>());
@@ -35,7 +35,7 @@ public class TradesStream implements Runnable{
         return listOfQueues.get(index);
     }
 
-    public static int getQueueMapping(tradeIdAndAccNum tradeIdentifiers) {
+    public static int getQueueMapping(TradeIdAndAccNum tradeIdentifiers) {
         String criteria = readPropertiesFile().getProperty("tradeDistributionCriteria");
 
         String criteriaField;
@@ -54,13 +54,14 @@ public class TradesStream implements Runnable{
         }
     }
 
-    public static void insertIntoQueue(tradeIdAndAccNum tradeIdentifiers){
+    public static void insertIntoQueue(TradeIdAndAccNum tradeIdentifiers){
         int queueIndex = getQueueMapping(tradeIdentifiers);
 
         try {
             listOfQueues.get(queueIndex).put(tradeIdentifiers.tradeID());
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
 

@@ -1,7 +1,9 @@
 package io.reactivestax.service;
 
 import io.reactivestax.interfaces.TradesFileReading;
-import static io.reactivestax.utility.MultithreadTradeProcessorUtility.readPropertiesFile;
+import io.reactivestax.utility.InvalidFilePathException;
+
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.readPropertiesFile;
 
 import java.io.*;
 import java.util.Scanner;
@@ -43,11 +45,11 @@ public class TradesFileReader implements TradesFileReading {
                 }
             }
 
+            assert fileNameUnderProcessing != null;
             ChunksStream.produceChunkPath(new File(fileNameUnderProcessing).getAbsolutePath());
 
         } catch (IOException e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException(e);
+            throw new InvalidFilePathException("Unable to find Trades File");
         }
     }
 

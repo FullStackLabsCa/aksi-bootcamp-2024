@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static io.reactivestax.utility.MultithreadTradeProcessorUtility.*;
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class TradeProcessorTask implements Runnable, TradeProcessing {

@@ -3,7 +3,7 @@ package io.reactivestax.service;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static io.reactivestax.utility.MultithreadTradeProcessorUtility.readPropertiesFile;
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.readPropertiesFile;
 
 public class TradeProcessor {
     int numberOfQueues = Integer.parseInt(readPropertiesFile().getProperty("numberOfQueues"));

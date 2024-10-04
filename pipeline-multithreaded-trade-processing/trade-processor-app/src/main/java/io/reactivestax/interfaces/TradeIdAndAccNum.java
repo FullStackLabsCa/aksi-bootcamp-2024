@@ -1,6 +1,6 @@
 package io.reactivestax.interfaces;
 
-public record tradeIdAndAccNum(String tradeID, String accountNumber) {
+public record TradeIdAndAccNum(String tradeID, String accountNumber) {
 
     @Override
     public String toString() {

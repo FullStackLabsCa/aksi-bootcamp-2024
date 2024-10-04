@@ -2,7 +2,6 @@ package io.reactivestax.utility;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.reactivestax.service.TradeProcessorTask;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,20 +11,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-public class MultithreadTradeProcessorUtility {
+public class MultiThreadTradeProcessorUtility {
 
-    private MultithreadTradeProcessorUtility() {
+    private MultiThreadTradeProcessorUtility() {
     }
 
     static FileHandler fileHandler;
-    public static final Logger logger = Logger.getLogger(MultithreadTradeProcessorUtility.class.getName());
+    public static final Logger logger = Logger.getLogger(MultiThreadTradeProcessorUtility.class.getName());
     public static HikariDataSource dataSource;
 
     public static void configureLogger(){
         try {
             fileHandler = new FileHandler(readPropertiesFile().getProperty("errorLoggerFilePath"), true);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new InvalidFilePathException("Unable to Access Error Log File Path.");
         }
 
         SimpleFormatter formatter = new SimpleFormatter();

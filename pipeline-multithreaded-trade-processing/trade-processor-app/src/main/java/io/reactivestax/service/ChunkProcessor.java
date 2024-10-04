@@ -1,12 +1,12 @@
 package io.reactivestax.service;
 
-import io.reactivestax.utility.MultithreadTradeProcessorUtility;
+import io.reactivestax.utility.MultiThreadTradeProcessorUtility;
 
 import java.util.concurrent.*;
 
 public class ChunkProcessor{
 
-    int numberOfThreads = Integer.parseInt(MultithreadTradeProcessorUtility.readPropertiesFile().getProperty("threadPoolSizeOfChunkProcessor"));
+    int numberOfThreads = Integer.parseInt(MultiThreadTradeProcessorUtility.readPropertiesFile().getProperty("threadPoolSizeOfChunkProcessor"));
     ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
 
     public void startChunkProcessorPool() {
