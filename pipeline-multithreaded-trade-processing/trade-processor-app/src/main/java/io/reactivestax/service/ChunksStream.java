@@ -1,6 +1,7 @@
 package io.reactivestax.service;
 
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 public class ChunksStream {
     private static final LinkedBlockingDeque<String> chunksPaths = new LinkedBlockingDeque<>();
@@ -12,7 +13,8 @@ public class ChunksStream {
         String chunkPath = "";
 
         try {
-            chunkPath = chunksPaths.take();
+            chunkPath = chunksPaths.poll(2, TimeUnit.SECONDS);
+            if (chunkPath == null ) return null;
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
             Thread.currentThread().interrupt();
