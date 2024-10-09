@@ -1,5 +1,5 @@
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/trade_records.csv
-
+.DS_Store
 target
 sql-files/
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/data/
