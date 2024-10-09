@@ -64,8 +64,9 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             try (Connection connection = dataSource.getConnection()) {
 
                 lookupStatus = validateBusinessLogic(trade, connection);
-                updateJournalEntryAndPositions(lookupStatus, connection, trade);
                 updateTradeSecurityLookupInPayloadTable(trade, lookupStatus, connection);
+
+                updateJournalEntryAndPositions(lookupStatus, connection, trade);
 
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
@@ -98,7 +99,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public String readTradeIdFromQueue() throws InterruptedException {
-        return tradeIdQueue.poll(2, SECONDS);
+        return tradeIdQueue.poll(60, SECONDS);
     }
 
     @Override

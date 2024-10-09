@@ -13,7 +13,7 @@ public class ChunksStream {
         String chunkPath = "";
 
         try {
-            chunkPath = chunksPaths.poll(2, TimeUnit.SECONDS);
+            chunkPath = chunksPaths.poll(60, TimeUnit.SECONDS);
             if (chunkPath == null ) return null;
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
