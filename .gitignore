@@ -1,2 +1,3 @@
-src/main/resources/trade_records.csv
+pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/trade_records.csv
+
 target
