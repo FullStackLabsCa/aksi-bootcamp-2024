@@ -1,3 +1,6 @@
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/trade_records.csv
 
 target
+sql-files/
+src/main/resources/data/
+src/main/resources/trades_all_duplicates.csv
