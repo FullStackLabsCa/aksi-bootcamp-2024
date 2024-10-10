@@ -7,8 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.dataSource;
-
 public class PayloadDatabaseRepo {
 
     public void writeToDatabase(String tradeID, String status, String payload, Connection connection){

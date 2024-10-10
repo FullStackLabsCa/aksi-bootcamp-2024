@@ -1,6 +1,7 @@
 package io.reactivestax.repo;
 
 import io.reactivestax.model.Trade;
+import io.reactivestax.utility.OptimisticLockingException;
 
 import java.sql.*;
 
@@ -68,36 +69,66 @@ public class TradesDBRepo {
         return 0;
     }
 
-    public void updatePositionsTable(Trade trade, Connection connection){
+    public void updatePositionsTable(Trade trade, Connection connection) throws OptimisticLockingException{
         int securityID = getSecurityIdForCusip(trade.getCusip(), connection);
+        int version = getAccountVersion(trade, securityID, connection);
 
-        String smartInsertionAndUpdateQueryCredit = "Insert into positions (account_number, security_id, position) values (?,?,?) on duplicate key update position = (position - ?)";
-        String smartInsertionAndUpdateQueryDebit = "Insert into positions (account_number, security_id, position) values (?,?,?) on duplicate key update position = (position + ?)";
+        String positionInsertQuery = "Insert into positions (account_number, security_id, position, version) values (?,?,?,0)";
+        String positionUpdateQuery = "update positions set position = (position + ?), version = (version + 1) where version = ?";
 
-        try(PreparedStatement psSmartQueryCredit  = connection.prepareStatement(smartInsertionAndUpdateQueryCredit);
-        PreparedStatement psSmartQueryDebit = connection.prepareStatement(smartInsertionAndUpdateQueryDebit)){
+        try(PreparedStatement psPositionInsertQuery = connection.prepareStatement(positionInsertQuery);
+                PreparedStatement psPositionUpdateQuery = connection.prepareStatement(positionUpdateQuery)){
 
-            if(trade.getActivity().equals("BUY")){
-                psSmartQueryDebit.setString(1,trade.getAccountNumber());
-                psSmartQueryDebit.setInt(2, securityID);
-                psSmartQueryDebit.setInt(3, trade.getQuantity());
-                psSmartQueryDebit.setInt(4, trade.getQuantity());
+            if(version == -1) {
+                //Perform Insertion Logic
+                psPositionInsertQuery.setString(1,trade.getAccountNumber());
+                psPositionInsertQuery.setInt(2, securityID);
 
-                psSmartQueryDebit.executeUpdate();
-            }else if(trade.getActivity().equals("SELL")){
-                psSmartQueryCredit.setString(1,trade.getAccountNumber());
-                psSmartQueryCredit.setInt(2, securityID);
-                psSmartQueryCredit.setInt(3, -trade.getQuantity());
-                psSmartQueryCredit.setInt(4, trade.getQuantity());
+                if(trade.getActivity().equals("BUY")){
+                    psPositionInsertQuery.setInt(3, trade.getQuantity());
+                }else if(trade.getActivity().equals("SELL")){
+                    psPositionInsertQuery.setInt(3, -trade.getQuantity());
+                } else {
+                    System.out.println("UnrecognisedActivityOperationException");
+                }
 
-                psSmartQueryCredit.executeUpdate();
+                psPositionInsertQuery.executeUpdate();
+
             } else {
-                System.out.println("UnrecognisedActivityOperationException");
-            }
+                //Perform Update Logic
+                if(trade.getActivity().equals("BUY")){
+                    psPositionUpdateQuery.setInt(1, trade.getQuantity());
+                }else if(trade.getActivity().equals("SELL")){
+                    psPositionUpdateQuery.setInt(1, -trade.getQuantity());
+                } else {
+                    System.out.println("UnrecognisedActivityOperationException");
+                }
+                psPositionUpdateQuery.setInt(2, version);
 
+                if(psPositionUpdateQuery.executeUpdate() == 0) throw new OptimisticLockingException("Optimistic Locking Occurring!!!!!");
+            }
         }catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    private int getAccountVersion(Trade trade, int securityId, Connection connection) {
+        String query = "SELECT version FROM positions WHERE account_number = ? and security_id = ?";
+        try(PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, trade.getAccountNumber());
+            stmt.setInt(2, securityId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("version");
+            } else {
+                // Return 0 if no account exists for the given credit card number
+                return -1;
+            }
+        } catch (SQLException e){
             System.out.println(e.getMessage());
         }
+
+        return 0;
     }
 
     public void updateJEForPositionsUpdate(Trade trade, Connection connection){

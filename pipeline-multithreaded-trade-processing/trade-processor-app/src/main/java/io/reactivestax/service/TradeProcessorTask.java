@@ -5,6 +5,7 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.repo.PayloadDatabaseRepo;
 import io.reactivestax.repo.TradesDBRepo;
 import io.reactivestax.utility.NullPayloadException;
+import io.reactivestax.utility.OptimisticLockingException;
 import io.reactivestax.utility.ReadFromQueueFailedException;
 import io.reactivestax.utility.TradeCreationFailedException;
 
@@ -82,8 +83,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                 writeToJournalTable(trade, connection);
                 writeToPositionsTable(trade, connection);
                 connection.commit();
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
+            } catch (OptimisticLockingException | SQLException e) {
                 connection.rollback();
                 TradesStream.checkRetryCountAndManageDLQ(trade, tradeIdQueue);
             } finally {
@@ -152,7 +152,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     @Override
-    public void writeToPositionsTable(Trade trade, Connection connection) {
+    public void writeToPositionsTable(Trade trade, Connection connection) throws OptimisticLockingException {
         tradesDbAccess.updatePositionsTable(trade, connection);
     }
 
