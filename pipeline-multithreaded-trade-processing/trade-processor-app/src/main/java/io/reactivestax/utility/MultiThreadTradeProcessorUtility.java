@@ -53,7 +53,7 @@ public class MultiThreadTradeProcessorUtility {
         dataSource = new HikariDataSource(config);
     }
 
-    private static void readPropertiesFile(){
+    public static void readPropertiesFile(){
         Properties properties = new Properties();
 
         try (FileInputStream fis = new FileInputStream("src/main/resources/application.properties")) {

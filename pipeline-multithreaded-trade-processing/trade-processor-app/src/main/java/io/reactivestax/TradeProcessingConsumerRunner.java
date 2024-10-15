@@ -13,6 +13,7 @@ public class TradeProcessingConsumerRunner {
 
         configureHikariCP(getFileProperty("dbPortNum"), getFileProperty("dbName"));
         configureRabbitMQ(getFileProperty("rabbitMQ.hostName"), getFileProperty("rabbitMQ.guest"), getFileProperty("rabbitMQ.pass"));
+        readPropertiesFile();
 
         ExecutorService executorService = Executors.newFixedThreadPool(1);
 
