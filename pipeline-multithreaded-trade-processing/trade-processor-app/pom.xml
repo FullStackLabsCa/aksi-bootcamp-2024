@@ -31,6 +31,12 @@
             <artifactId>amqp-client</artifactId>
             <version>5.22.0</version> <!-- You can use the latest version -->
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.rainerhahnekamp/sneakythrow -->
+        <dependency>
+            <groupId>com.rainerhahnekamp</groupId>
+            <artifactId>sneakythrow</artifactId>
+            <version>1.2.0</version>
+        </dependency>
 
         <dependency>
             <groupId>com.zaxxer</groupId>

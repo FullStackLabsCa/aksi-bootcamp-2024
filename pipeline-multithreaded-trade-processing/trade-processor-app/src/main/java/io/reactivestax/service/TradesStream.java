@@ -1,6 +1,7 @@
 package io.reactivestax.service;
 
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.GetResponse;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.model.Trade;
@@ -12,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.rabbitMQFactory;
 
 public class TradesStream implements Runnable {
     private static final ConcurrentHashMap<String, Integer> accToQueueMap = new ConcurrentHashMap<>();
@@ -86,22 +86,22 @@ public class TradesStream implements Runnable {
         return "cc_partition_" + getQueueMapping(tradeIdentifiers);
     }
 
-    public static String readFromRabbitMQ(com.rabbitmq.client.Connection rabbitMQConnection, String exchangeName, String queueName, String routingKey){
-        try (Channel channel = rabbitMQConnection.createChannel()) {
+    public static String readFromRabbitMQ(Connection connection, String exchangeName, String queueName, String routingKey){
+        try (Channel rabbitMQChannel = connection.createChannel()) {
 
-            channel.exchangeDeclare(exchangeName, "direct");
-            channel.queueDeclare(queueName, true, false, false, null);
-            channel.queueBind(queueName, exchangeName, routingKey);
+            rabbitMQChannel.exchangeDeclare(exchangeName, "direct");
+            rabbitMQChannel.queueDeclare(queueName, true, false, false, null);
+            rabbitMQChannel.queueBind(queueName, exchangeName, routingKey);
 
             System.out.println(" [*] Waiting for messages in '" + queueName + "'.");
 
-            GetResponse response = channel.basicGet(queueName, false);  // Fetch one message without auto-acknowledgment
+            GetResponse response = rabbitMQChannel.basicGet(queueName, false);  // Fetch one message without auto-acknowledgment
             if (response != null) {
                 String message = new String(response.getBody(), "UTF-8");
                 System.out.println(" [x] Received '" + message + "'");
 
                 // Manually acknowledge the message after processing
-                channel.basicAck(response.getEnvelope().getDeliveryTag(), false);
+                rabbitMQChannel.basicAck(response.getEnvelope().getDeliveryTag(), false);
 
                 // Return the received message
                 return message;
@@ -109,8 +109,9 @@ public class TradesStream implements Runnable {
                 System.out.println(" [x] No messages available in the queue.");
                 return null;  // No message was available at the moment
             }
-        } catch (Exception e) {
-            System.out.println("Some issues in RabbitMQ Consumer...");
+        }
+        catch (Exception e) {
+            System.out.println("Some issues in RabbitMQ Consumer...readFromRabbitMQ");
             throw new RuntimeException(e);
         }
     }

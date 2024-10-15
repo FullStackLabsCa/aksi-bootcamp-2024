@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static io.reactivestax.service.TradesStream.readFromRabbitMQ;
+import static io.reactivestax.service.TradesStream.*;
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 
 public class TradeProcessorTask implements Runnable, TradeProcessing {
@@ -26,14 +26,14 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     PayloadDatabaseRepo payloadDbAccess;
     TradesDBRepo tradesDbAccess;
     Connection sqlConnection;
-    com.rabbitmq.client.Connection rabbitMqConnection;
+    com.rabbitmq.client.Connection rabbitMQConnection;
 
     public TradeProcessorTask(LinkedBlockingDeque<String> tradeIdQueue, Connection sqlConnection, com.rabbitmq.client.Connection rabbitMQConnection) {
         this.tradeIdQueue = tradeIdQueue;
         payloadDbAccess = new PayloadDatabaseRepo();
         tradesDbAccess = new TradesDBRepo();
         this.sqlConnection = sqlConnection;
-        this.rabbitMqConnection = rabbitMQConnection;
+        this.rabbitMQConnection = rabbitMQConnection;
     }
 
     @Override
@@ -42,9 +42,9 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             String tradeID;
             try {
                 tradeID = readTradeIdFromQueue();
-                if(tradeID == null || tradeID.trim().isEmpty()) break;
+                if (tradeID == null || tradeID.trim().isEmpty()) break;
                 String payload = readPayload(tradeID);
-                if((payload != null) && (!payload.isEmpty())) {
+                if ((payload != null) && (!payload.isEmpty())) {
                     Trade trade = validatePayloadAndCreateTrade(payload);
                     processTrade(trade);
                 }
@@ -99,10 +99,10 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public String readTradeIdFromQueue() throws InterruptedException {
-        return readFromRabbitMQ(rabbitMqConnection,
-                                getFileProperty("rabbitMQ.exchangeName"),
-                                getFileProperty("rabbitMQ.queueName"),
-                                getFileProperty("rabbitMQ.routingKey"));
+        return readFromRabbitMQ(rabbitMQConnection,
+                getFileProperty("rabbitMQ.exchangeName"),
+                getFileProperty("rabbitMQ.queueName"),
+                getFileProperty("rabbitMQ.routingKey"));
     }
 
     @Override
@@ -159,15 +159,15 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
         tradesDbAccess.updatePositionsTable(connection, trade);
     }
 
-    private void updateTradeSecurityLookupInPayloadTable(Connection connection, Trade trade, String lookupStatus){
+    private void updateTradeSecurityLookupInPayloadTable(Connection connection, Trade trade, String lookupStatus) {
         payloadDbAccess.updateSecurityLookupStatus(connection, trade, lookupStatus);
     }
 
-    private void updatePayloadDbForJournalEntry(Connection connection, Trade trade){
+    private void updatePayloadDbForJournalEntry(Connection connection, Trade trade) {
         payloadDbAccess.updateJournalEntryStatus(connection, trade);
     }
 
-    private void updateJEForPositionsUpdate(Connection connection, Trade trade){
+    private void updateJEForPositionsUpdate(Connection connection, Trade trade) {
         tradesDbAccess.updateJEForPositionsUpdate(connection, trade);
     }
 }
