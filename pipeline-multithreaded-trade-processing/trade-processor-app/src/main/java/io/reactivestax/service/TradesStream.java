@@ -67,9 +67,7 @@ public class TradesStream implements Runnable{
             Thread.currentThread().interrupt();
         }
     }
-     public static void insertIntoRabbitMQQueue(TradeIdAndAccNum tradeIdentifiers){
-
-        String EXCHANGE_NAME = "credit_card_transactions";
+     public static void insertIntoRabbitMQQueue(String EXCHANGE_NAME, TradeIdAndAccNum tradeIdentifiers){
 
          try (Connection connection = rabbitMQFactory.newConnection();
               Channel channel = connection.createChannel()) {

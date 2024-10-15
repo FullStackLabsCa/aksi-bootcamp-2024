@@ -1,5 +1,7 @@
 package io.reactivestax.service;
 
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.DeliverCallback;
 import io.reactivestax.interfaces.TradeProcessing;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.PayloadDatabaseRepo;
@@ -14,10 +16,10 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class TradeProcessorTask implements Runnable, TradeProcessing {
     LinkedBlockingDeque<String> tradeIdQueue;
@@ -99,7 +101,44 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public String readTradeIdFromQueue() throws InterruptedException {
-        return tradeIdQueue.poll(60, SECONDS);
+        String exchangeName = "credit_card_transactions";
+        String queueName = "cc_partition_1_queue";
+        String queueId = "cc_partition_1";
+        return readFromRabbitMQ(exchangeName, queueName, queueId);
+//        return tradeIdQueue.poll(60, SECONDS);
+    }
+
+    private static String readFromRabbitMQ(String exchangeName, String queueName, String queueId){
+        try (com.rabbitmq.client.Connection connection = rabbitMQFactory.newConnection();
+             Channel channel = connection.createChannel()) {
+
+            channel.exchangeDeclare(exchangeName, "direct");
+
+            channel.queueDeclare(queueName, true, false, false, null);
+            channel.queueBind(queueName, exchangeName, queueId);
+
+            System.out.println(" [*] Waiting for messages in '" + queueName + "'.");
+
+            // Callback to handle the messages
+            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+                String message = new String(delivery.getBody(), "UTF-8");
+                System.out.println(" [x] Received '" + message + "'");
+                // Add logic here to process the transaction
+            };
+
+            // Start consuming messages
+            channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
+            });
+
+            // Use a CountDownLatch to wait indefinitely
+            CountDownLatch latch = new CountDownLatch(1);
+            latch.await(); // This will block the main thread forever until countDown() is called
+
+        } catch (Exception e) {
+            System.out.println("Some issues in RabbitMQ Consumer...");
+            throw new RuntimeException(e);
+        }
+        return "";
     }
 
     @Override

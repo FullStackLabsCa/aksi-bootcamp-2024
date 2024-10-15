@@ -81,6 +81,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     @Override
     public void writeToQueue(TradeIdAndAccNum tradeIdentifiers) {
-        TradesStream.insertIntoRabbitMQQueue(tradeIdentifiers);
+        String exchangeName = "credit_card_transactions";
+        TradesStream.insertIntoRabbitMQQueue(exchangeName, tradeIdentifiers);
     }
 }

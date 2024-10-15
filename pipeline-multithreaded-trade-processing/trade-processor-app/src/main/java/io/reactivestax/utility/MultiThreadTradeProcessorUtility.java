@@ -68,9 +68,9 @@ public class MultiThreadTradeProcessorUtility {
 
     public static void configureRabbitMQ(String host, String guest, String password){
         rabbitMQFactory = new ConnectionFactory();
-        rabbitMQFactory.setHost("localhost"); // Or the RabbitMQ server IP/hostname
-        rabbitMQFactory.setUsername("guest"); // RabbitMQ username
-        rabbitMQFactory.setPassword("guest"); // RabbitMQ password
+        rabbitMQFactory.setHost(host); // Or the RabbitMQ server IP/hostname
+        rabbitMQFactory.setUsername(guest); // RabbitMQ username
+        rabbitMQFactory.setPassword(password); // RabbitMQ password
 
     }
 
