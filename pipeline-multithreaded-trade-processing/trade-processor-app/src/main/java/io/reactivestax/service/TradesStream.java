@@ -78,7 +78,7 @@ public class TradesStream implements Runnable{
 
              // Publish multiple messages (e.g., credit card transactions)
              String routingKey = getRoutingKeyBasedOnCreditCard(tradeIdentifiers);
-             String message = "Transaction #" + tradeIdentifiers.tradeID();
+             String message = tradeIdentifiers.tradeID();
              channel.basicPublish(exchangeName, routingKey, null, message.getBytes("UTF-8"));
              System.out.println(" [x] Sent '" + message + "' with routing key '" + routingKey + "'");
          } catch (Exception e) {

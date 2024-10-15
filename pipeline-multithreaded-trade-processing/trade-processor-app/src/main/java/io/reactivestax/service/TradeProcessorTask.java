@@ -1,7 +1,6 @@
 package io.reactivestax.service;
 
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.DeliverCallback;
 import com.rabbitmq.client.GetResponse;
 import io.reactivestax.interfaces.TradeProcessing;
 import io.reactivestax.model.Trade;
@@ -17,7 +16,6 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
