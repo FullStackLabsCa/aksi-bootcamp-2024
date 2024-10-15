@@ -4,3 +4,4 @@ target
 sql-files/
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/data/
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/trades_all_duplicates.csv
+pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/application.properties
