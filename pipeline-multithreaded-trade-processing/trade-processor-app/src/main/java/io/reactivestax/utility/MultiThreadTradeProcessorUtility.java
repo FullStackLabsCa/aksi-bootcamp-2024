@@ -11,6 +11,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
 public class MultiThreadTradeProcessorUtility {
 
     private MultiThreadTradeProcessorUtility() {
@@ -19,6 +23,7 @@ public class MultiThreadTradeProcessorUtility {
     static FileHandler fileHandler;
     public static final Logger logger = Logger.getLogger(MultiThreadTradeProcessorUtility.class.getName());
     public static HikariDataSource dataSource;
+    public static ConnectionFactory rabbitMQFactory;
 
     public static void configureLogger(){
         try {
@@ -61,5 +66,12 @@ public class MultiThreadTradeProcessorUtility {
         return properties;
     }
 
+    public static void configureRabbitMQ(String host, String guest, String password){
+        rabbitMQFactory = new ConnectionFactory();
+        rabbitMQFactory.setHost("localhost"); // Or the RabbitMQ server IP/hostname
+        rabbitMQFactory.setUsername("guest"); // RabbitMQ username
+        rabbitMQFactory.setPassword("guest"); // RabbitMQ password
+
+    }
 
 }

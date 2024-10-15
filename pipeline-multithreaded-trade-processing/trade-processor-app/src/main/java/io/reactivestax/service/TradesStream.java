@@ -1,5 +1,7 @@
 package io.reactivestax.service;
 
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.MultiThreadTradeProcessorUtility;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.rabbitMQFactory;
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.readPropertiesFile;
 
 public class TradesStream implements Runnable{
@@ -63,6 +66,31 @@ public class TradesStream implements Runnable{
             System.out.println(e.getMessage());
             Thread.currentThread().interrupt();
         }
+    }
+     public static void insertIntoRabbitMQQueue(TradeIdAndAccNum tradeIdentifiers){
+
+        String EXCHANGE_NAME = "credit_card_transactions";
+
+         try (Connection connection = rabbitMQFactory.newConnection();
+              Channel channel = connection.createChannel()) {
+
+             // Declare an exchange of type direct (or other types based on your routing
+             // strategy)
+             channel.exchangeDeclare(EXCHANGE_NAME, "direct");
+
+             // Publish multiple messages (e.g., credit card transactions)
+             String routingKey = getRoutingKeyBasedOnCreditCard(tradeIdentifiers);
+             String message = "Transaction #" + tradeIdentifiers.tradeID();
+             channel.basicPublish(EXCHANGE_NAME, routingKey, null, message.getBytes("UTF-8"));
+             System.out.println(" [x] Sent '" + message + "' with routing key '" + routingKey + "'");
+         } catch (Exception e) {
+             System.out.println("RabbitMQ Connection/Chanel Issues...");
+             throw new RuntimeException(e);
+         }
+     }
+
+    private static String getRoutingKeyBasedOnCreditCard(TradeIdAndAccNum tradeIdentifiers) {
+        return "cc_partition_" + getQueueMapping(tradeIdentifiers);
     }
 
     public static void checkRetryCountAndManageDLQ(Trade trade, LinkedBlockingDeque<String> tradeIdQueue) throws InterruptedException {

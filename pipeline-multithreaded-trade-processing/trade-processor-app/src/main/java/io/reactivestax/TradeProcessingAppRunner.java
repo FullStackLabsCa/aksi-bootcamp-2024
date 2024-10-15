@@ -12,7 +12,7 @@ public class TradeProcessingAppRunner {
     public static void main(String[] args) {
 
         configureHikariCP(readPropertiesFile().getProperty("dbPortNum"), readPropertiesFile().getProperty("dbName"));
-
+        configureRabbitMQ(readPropertiesFile().getProperty("rabbitMQHostName"), readPropertiesFile().getProperty("rabbitMQUsername"), readPropertiesFile().getProperty("rabbitMQPass"));
         ExecutorService executorService = Executors.newFixedThreadPool(4);
 
         executorService.submit(new FileReaderRunner());
