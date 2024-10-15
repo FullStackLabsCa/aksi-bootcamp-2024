@@ -1,9 +1,6 @@
 package io.reactivestax;
 
-import io.reactivestax.service.ChunkProcessor;
 import io.reactivestax.service.TradeProcessor;
-import io.reactivestax.service.TradesFileReader;
-import io.reactivestax.service.TradesStream;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

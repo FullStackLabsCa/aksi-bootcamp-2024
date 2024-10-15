@@ -2,6 +2,7 @@ package io.reactivestax.service;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.GetResponse;
 import io.reactivestax.interfaces.TradeProcessing;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.PayloadDatabaseRepo;
@@ -16,7 +17,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
@@ -38,7 +39,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             String tradeID;
             try {
                 tradeID = readTradeIdFromQueue();
-                if(tradeID == null) break;
+                if(tradeID == null || tradeID.trim().isEmpty()) break;
                 String payload = readPayload(tradeID);
                 if((payload != null) && (!payload.isEmpty())) {
                     Trade trade = validatePayloadAndCreateTrade(payload);
@@ -101,44 +102,41 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public String readTradeIdFromQueue() throws InterruptedException {
-        String exchangeName = "credit_card_transactions";
-        String queueName = "cc_partition_1_queue";
-        String queueId = "cc_partition_1";
-        return readFromRabbitMQ(exchangeName, queueName, queueId);
-//        return tradeIdQueue.poll(60, SECONDS);
+        String exchangeName = readPropertiesFile().getProperty("rabbitMQ.exchangeName");
+        String queueName = readPropertiesFile().getProperty("rabbitMQ.queueName");
+        String routingKey = readPropertiesFile().getProperty("rabbitMQ.routingKey");
+
+        return readFromRabbitMQ(exchangeName, queueName, routingKey);
     }
 
-    private static String readFromRabbitMQ(String exchangeName, String queueName, String queueId){
+    private static String readFromRabbitMQ(String exchangeName, String queueName, String routingKey){
         try (com.rabbitmq.client.Connection connection = rabbitMQFactory.newConnection();
              Channel channel = connection.createChannel()) {
 
             channel.exchangeDeclare(exchangeName, "direct");
-
             channel.queueDeclare(queueName, true, false, false, null);
-            channel.queueBind(queueName, exchangeName, queueId);
+            channel.queueBind(queueName, exchangeName, routingKey);
 
             System.out.println(" [*] Waiting for messages in '" + queueName + "'.");
 
-            // Callback to handle the messages
-            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-                String message = new String(delivery.getBody(), "UTF-8");
+            GetResponse response = channel.basicGet(queueName, false);  // Fetch one message without auto-acknowledgment
+            if (response != null) {
+                String message = new String(response.getBody(), "UTF-8");
                 System.out.println(" [x] Received '" + message + "'");
-                // Add logic here to process the transaction
-            };
 
-            // Start consuming messages
-            channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
-            });
+                // Manually acknowledge the message after processing
+                channel.basicAck(response.getEnvelope().getDeliveryTag(), false);
 
-            // Use a CountDownLatch to wait indefinitely
-            CountDownLatch latch = new CountDownLatch(1);
-            latch.await(); // This will block the main thread forever until countDown() is called
-
+                // Return the received message
+                return message;
+            } else {
+                System.out.println(" [x] No messages available in the queue.");
+                return null;  // No message was available at the moment
+            }
         } catch (Exception e) {
             System.out.println("Some issues in RabbitMQ Consumer...");
             throw new RuntimeException(e);
         }
-        return "";
     }
 
     @Override

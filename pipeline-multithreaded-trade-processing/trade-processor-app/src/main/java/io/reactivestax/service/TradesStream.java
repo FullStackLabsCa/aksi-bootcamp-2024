@@ -67,19 +67,19 @@ public class TradesStream implements Runnable{
             Thread.currentThread().interrupt();
         }
     }
-     public static void insertIntoRabbitMQQueue(String EXCHANGE_NAME, TradeIdAndAccNum tradeIdentifiers){
+     public static void insertIntoRabbitMQQueue(String exchangeName, TradeIdAndAccNum tradeIdentifiers){
 
          try (Connection connection = rabbitMQFactory.newConnection();
               Channel channel = connection.createChannel()) {
 
              // Declare an exchange of type direct (or other types based on your routing
              // strategy)
-             channel.exchangeDeclare(EXCHANGE_NAME, "direct");
+             channel.exchangeDeclare(exchangeName, "direct");
 
              // Publish multiple messages (e.g., credit card transactions)
              String routingKey = getRoutingKeyBasedOnCreditCard(tradeIdentifiers);
              String message = "Transaction #" + tradeIdentifiers.tradeID();
-             channel.basicPublish(EXCHANGE_NAME, routingKey, null, message.getBytes("UTF-8"));
+             channel.basicPublish(exchangeName, routingKey, null, message.getBytes("UTF-8"));
              System.out.println(" [x] Sent '" + message + "' with routing key '" + routingKey + "'");
          } catch (Exception e) {
              System.out.println("RabbitMQ Connection/Chanel Issues...");

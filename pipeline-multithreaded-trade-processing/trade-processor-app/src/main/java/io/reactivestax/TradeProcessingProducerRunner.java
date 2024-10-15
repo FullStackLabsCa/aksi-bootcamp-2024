@@ -18,7 +18,6 @@ public class TradeProcessingProducerRunner {
 
         executorService.submit(new FileReaderRunner());
         executorService.submit(new ChunkProcessorRunner());
-//        executorService.submit(new TradesStream());
 
         executorService.shutdown();
     }
