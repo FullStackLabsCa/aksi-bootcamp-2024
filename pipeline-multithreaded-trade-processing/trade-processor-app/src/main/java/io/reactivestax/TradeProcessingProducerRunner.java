@@ -11,10 +11,10 @@ public class TradeProcessingProducerRunner {
 
     public static void main(String[] args) {
 
+        readPropertiesFile();
         configureHikariCP(getFileProperty("dbPortNum"), getFileProperty("dbName"));
         configureRabbitMQ(getFileProperty("rabbitMQ.hostName"), getFileProperty("rabbitMQ.guest"), getFileProperty("rabbitMQ.pass"));
-        readPropertiesFile();
-        
+
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         executorService.submit(new FileReaderRunner());
