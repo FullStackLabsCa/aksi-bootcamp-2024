@@ -9,7 +9,6 @@ import io.reactivestax.utility.InvalidChunkPathException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Scanner;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
@@ -18,11 +17,13 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     String filePath;
     String invalidString = "Invalid";
-    com.rabbitmq.client.Connection connection;
+    com.rabbitmq.client.Connection rabbitMQConnection;
+    Connection sqlConnection;
 
-    public ChunkProcessorTask(String filePath, com.rabbitmq.client.Connection connection) {
+    public ChunkProcessorTask(String filePath, com.rabbitmq.client.Connection rabbitMQConnection, Connection sqlConnection) {
         this.filePath = filePath;
-        this.connection = connection;
+        this.rabbitMQConnection = rabbitMQConnection;
+        this.sqlConnection = sqlConnection;
     }
 
 
@@ -34,7 +35,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     @Override
     public void processChunk(String filePath) {
         try (Scanner chunkReader = new Scanner(new FileReader(filePath));
-             Channel channel = connection.createChannel()) {
+             Channel channel = rabbitMQConnection.createChannel()) {
             while (chunkReader.hasNextLine()) {
                 processPayload(chunkReader.nextLine(), channel);
             }
@@ -51,7 +52,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
         String tradeValidity = checkPayloadValidity(payload);
         TradeIdAndAccNum tradeIdentifiers = getIdentifierFromPayload(payload);
 
-        writePayloadToPayloadDatabase(tradeIdentifiers.tradeID(), tradeValidity, payload);
+        writePayloadToPayloadDatabase(sqlConnection, tradeIdentifiers.tradeID(), tradeValidity, payload);
 
         if (tradeValidity.equals("Valid")) {
             writeToQueue(tradeIdentifiers, channel);
@@ -77,13 +78,9 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     }
 
     @Override
-    public void writePayloadToPayloadDatabase(String tradeID, String tradeStatus, String payload) {
+    public void writePayloadToPayloadDatabase(Connection connection, String tradeID, String tradeStatus, String payload) {
         PayloadDatabaseRepo payloadRepo = new PayloadDatabaseRepo();
-        try (Connection connection = dataSource.getConnection()) {
-            payloadRepo.writeToDatabase(tradeID, tradeStatus, payload, connection);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+        payloadRepo.writeToDatabase(connection, tradeID, tradeStatus, payload);
     }
 
     @Override

@@ -18,17 +18,22 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import static io.reactivestax.service.TradesStream.readFromRabbitMQ;
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 
 public class TradeProcessorTask implements Runnable, TradeProcessing {
     LinkedBlockingDeque<String> tradeIdQueue;
     PayloadDatabaseRepo payloadDbAccess;
     TradesDBRepo tradesDbAccess;
+    Connection sqlConnection;
+    com.rabbitmq.client.Connection rabbitMqConnection;
 
-    public TradeProcessorTask(LinkedBlockingDeque<String> tradeIdQueue) {
+    public TradeProcessorTask(LinkedBlockingDeque<String> tradeIdQueue, Connection sqlConnection, com.rabbitmq.client.Connection rabbitMQConnection) {
         this.tradeIdQueue = tradeIdQueue;
         payloadDbAccess = new PayloadDatabaseRepo();
         tradesDbAccess = new TradesDBRepo();
+        this.sqlConnection = sqlConnection;
+        this.rabbitMqConnection = rabbitMQConnection;
     }
 
     @Override
@@ -51,38 +56,32 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     private String readPayload(String tradeID) {
-        String payload=  "";
-        try(Connection connection = dataSource.getConnection()) {
-            payload = readPayloadFromRawDatabase(tradeID, connection);
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        return payload;
+        return readPayloadFromRawDatabase(sqlConnection, tradeID);
     }
 
     private void processTrade(Trade trade) throws InterruptedException {
         if (trade != null) {
             String lookupStatus;
-            try (Connection connection = dataSource.getConnection()) {
+            lookupStatus = validateBusinessLogic(sqlConnection, trade);
+            updateTradeSecurityLookupInPayloadTable(sqlConnection, trade, lookupStatus);
 
-                lookupStatus = validateBusinessLogic(trade, connection);
-                updateTradeSecurityLookupInPayloadTable(trade, lookupStatus, connection);
-
-                updateJournalEntryAndPositions(lookupStatus, connection, trade);
-
+            try {
+                updateJournalEntryAndPositions(sqlConnection, lookupStatus, trade);
             } catch (SQLException e) {
-                System.out.println(e.getMessage());
+                System.out.println("Failed updateJournalEntryAndPositions...");
+                throw new RuntimeException(e);
             }
+
         }
     }
 
-    private void updateJournalEntryAndPositions(String lookupStatus, Connection connection, Trade trade) throws SQLException, InterruptedException {
+    private void updateJournalEntryAndPositions(Connection connection, String lookupStatus, Trade trade) throws SQLException, InterruptedException {
         boolean originalAutoCommit = connection.getAutoCommit();
         if (lookupStatus.equals("Valid")) {
             try {
                 connection.setAutoCommit(false);
-                writeToJournalTable(trade, connection);
-                writeToPositionsTable(trade, connection);
+                writeToJournalTable(connection, trade);
+                writeToPositionsTable(connection, trade);
                 connection.commit();
             } catch (OptimisticLockingException | SQLException e) {
                 connection.rollback();
@@ -91,8 +90,8 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                 connection.setAutoCommit(originalAutoCommit);
             }
 
-            updatePayloadDbForJournalEntry(trade, connection);
-            updateJEForPositionsUpdate(trade, connection);
+            updatePayloadDbForJournalEntry(connection, trade);
+            updateJEForPositionsUpdate(connection, trade);
 
         }
         //Disabled Logging to the Log File - No one looks at error log files
@@ -100,46 +99,15 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public String readTradeIdFromQueue() throws InterruptedException {
-        String exchangeName = getFileProperty("rabbitMQ.exchangeName");
-        String queueName = getFileProperty("rabbitMQ.queueName");
-        String routingKey = getFileProperty("rabbitMQ.routingKey");
-
-        return readFromRabbitMQ(exchangeName, queueName, routingKey);
-    }
-
-    private static String readFromRabbitMQ(String exchangeName, String queueName, String routingKey){
-        try (com.rabbitmq.client.Connection connection = rabbitMQFactory.newConnection();
-             Channel channel = connection.createChannel()) {
-
-            channel.exchangeDeclare(exchangeName, "direct");
-            channel.queueDeclare(queueName, true, false, false, null);
-            channel.queueBind(queueName, exchangeName, routingKey);
-
-            System.out.println(" [*] Waiting for messages in '" + queueName + "'.");
-
-            GetResponse response = channel.basicGet(queueName, false);  // Fetch one message without auto-acknowledgment
-            if (response != null) {
-                String message = new String(response.getBody(), "UTF-8");
-                System.out.println(" [x] Received '" + message + "'");
-
-                // Manually acknowledge the message after processing
-                channel.basicAck(response.getEnvelope().getDeliveryTag(), false);
-
-                // Return the received message
-                return message;
-            } else {
-                System.out.println(" [x] No messages available in the queue.");
-                return null;  // No message was available at the moment
-            }
-        } catch (Exception e) {
-            System.out.println("Some issues in RabbitMQ Consumer...");
-            throw new RuntimeException(e);
-        }
+        return readFromRabbitMQ(rabbitMqConnection,
+                                getFileProperty("rabbitMQ.exchangeName"),
+                                getFileProperty("rabbitMQ.queueName"),
+                                getFileProperty("rabbitMQ.routingKey"));
     }
 
     @Override
-    public String readPayloadFromRawDatabase(String tradeID, Connection connection) {
-        return payloadDbAccess.readPayloadFromDB(tradeID, connection);
+    public String readPayloadFromRawDatabase(Connection connection, String tradeID) {
+        return payloadDbAccess.readPayloadFromDB(connection, tradeID);
     }
 
     @Override
@@ -177,29 +145,29 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     @Override
-    public String validateBusinessLogic(Trade trade, Connection connection) {
-        return tradesDbAccess.checkIfValidCUSIP(trade, connection);
+    public String validateBusinessLogic(Connection connection, Trade trade) {
+        return tradesDbAccess.checkIfValidCUSIP(connection, trade);
     }
 
     @Override
-    public void writeToJournalTable(Trade trade, Connection connection) {
-        tradesDbAccess.writeTradeToJournalTable(trade, connection);
+    public void writeToJournalTable(Connection connection, Trade trade) {
+        tradesDbAccess.writeTradeToJournalTable(connection, trade);
     }
 
     @Override
-    public void writeToPositionsTable(Trade trade, Connection connection) throws OptimisticLockingException {
-        tradesDbAccess.updatePositionsTable(trade, connection);
+    public void writeToPositionsTable(Connection connection, Trade trade) throws OptimisticLockingException {
+        tradesDbAccess.updatePositionsTable(connection, trade);
     }
 
-    public void updateTradeSecurityLookupInPayloadTable(Trade trade, String lookupStatus, Connection connection){
-        payloadDbAccess.updateSecurityLookupStatus(trade, lookupStatus, connection);
+    private void updateTradeSecurityLookupInPayloadTable(Connection connection, Trade trade, String lookupStatus){
+        payloadDbAccess.updateSecurityLookupStatus(connection, trade, lookupStatus);
     }
 
-    public void updatePayloadDbForJournalEntry(Trade trade, Connection connection){
-        payloadDbAccess.updateJournalEntryStatus(trade, connection);
+    private void updatePayloadDbForJournalEntry(Connection connection, Trade trade){
+        payloadDbAccess.updateJournalEntryStatus(connection, trade);
     }
 
-    public void updateJEForPositionsUpdate(Trade trade, Connection connection){
-        tradesDbAccess.updateJEForPositionsUpdate(trade, connection);
+    private void updateJEForPositionsUpdate(Connection connection, Trade trade){
+        tradesDbAccess.updateJEForPositionsUpdate(connection, trade);
     }
 }

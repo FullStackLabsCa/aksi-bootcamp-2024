@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 public class PayloadDatabaseRepo {
 
-    public void writeToDatabase(String tradeID, String status, String payload, Connection connection){
+    public void writeToDatabase(Connection connection, String tradeID, String status, String payload){
         String query = "Insert into trades_payload (trade_id, status, payload, posted_status) values (?,?,?, 'Not Posted')";
 
         try(PreparedStatement psQuery = connection.prepareStatement(query)){
@@ -24,7 +24,7 @@ public class PayloadDatabaseRepo {
         }
     }
 
-    public String readPayloadFromDB(String tradeID, Connection connection){
+    public String readPayloadFromDB(Connection connection, String tradeID){
         String query = "Select payload from trades_payload where trade_id=?";
 
         try(PreparedStatement psQuery = connection.prepareStatement(query)){
@@ -41,7 +41,7 @@ public class PayloadDatabaseRepo {
         return null;
     }
 
-    public void updateSecurityLookupStatus(Trade trade, String validityStatus, Connection connection){
+    public void updateSecurityLookupStatus(Connection connection, Trade trade, String validityStatus){
         String lookupUpdateQuery = "Update trades_payload set lookup_status = ? where trade_id = ?";
 
         try(PreparedStatement psLookupQuery = connection.prepareStatement(lookupUpdateQuery)){
@@ -58,7 +58,7 @@ public class PayloadDatabaseRepo {
         }
     }
 
-    public void updateJournalEntryStatus(Trade trade, Connection connection){
+    public void updateJournalEntryStatus(Connection connection, Trade trade){
         String updateJEQuery = "Update trades_payload set posted_status = 'Posted' where trade_id = ?";
 
         try(PreparedStatement updateJEps = connection.prepareStatement(updateJEQuery)){

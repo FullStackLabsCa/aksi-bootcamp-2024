@@ -11,7 +11,7 @@ public class TradesDBRepo {
         //I don't really know what to enter here. I am trying to resolve sonar lint warning here...
     }
 
-    public String checkIfValidCUSIP(Trade trade, Connection connection){
+    public String checkIfValidCUSIP(Connection connection, Trade trade){
         String lookupQuery = "select 1 from SecuritiesReferenceV2 where cusip = ?";
 
         try(PreparedStatement psLookUp = connection.prepareStatement(lookupQuery)){
@@ -29,7 +29,7 @@ public class TradesDBRepo {
         return "Unable to Check CUSIP.";
     }
 
-    public void writeTradeToJournalTable(Trade trade, Connection connection){
+    public void writeTradeToJournalTable(Connection connection, Trade trade){
         String writeToJournalQuery = """
                 insert into journal_entry (account_number, security_id, direction, quantity, position_posted_status, trade_execution_time, trade_id)
                 values (?,?,?,?,?,?,?)
@@ -37,7 +37,7 @@ public class TradesDBRepo {
 
         try(PreparedStatement insertionQuery = connection.prepareStatement(writeToJournalQuery)){
             insertionQuery.setString(1,trade.getAccountNumber());
-            insertionQuery.setInt(2,getSecurityIdForCusip(trade.getCusip(),connection));
+            insertionQuery.setInt(2,getSecurityIdForCusip(connection, trade.getCusip()));
             insertionQuery.setString(3,trade.getActivity());
             insertionQuery.setInt(4,trade.getQuantity());
             insertionQuery.setString(5,"Not Posted");
@@ -51,7 +51,7 @@ public class TradesDBRepo {
         }
     }
 
-    public int getSecurityIdForCusip(String cusip, Connection connection){
+    public int getSecurityIdForCusip(Connection connection, String cusip){
 
         String lookUpSecurityQuery = "Select security_id from SecuritiesReferenceV2 where cusip = ?";
 
@@ -69,9 +69,9 @@ public class TradesDBRepo {
         return 0;
     }
 
-    public void updatePositionsTable(Trade trade, Connection connection) throws OptimisticLockingException{
-        int securityID = getSecurityIdForCusip(trade.getCusip(), connection);
-        int version = getAccountVersion(trade, securityID, connection);
+    public void updatePositionsTable(Connection connection, Trade trade) throws OptimisticLockingException{
+        int securityID = getSecurityIdForCusip(connection, trade.getCusip());
+        int version = getAccountVersion(connection, trade, securityID);
 
         String positionInsertQuery = "Insert into positions (account_number, security_id, position, version) values (?,?,?,0)";
         String positionUpdateQuery = "update positions set position = (position + ?), version = (version + 1) where version = ?";
@@ -112,7 +112,7 @@ public class TradesDBRepo {
         }
     }
 
-    private int getAccountVersion(Trade trade, int securityId, Connection connection) {
+    private int getAccountVersion(Connection connection, Trade trade, int securityId) {
         String query = "SELECT version FROM positions WHERE account_number = ? and security_id = ?";
         try(PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, trade.getAccountNumber());
@@ -131,7 +131,7 @@ public class TradesDBRepo {
         return 0;
     }
 
-    public void updateJEForPositionsUpdate(Trade trade, Connection connection){
+    public void updateJEForPositionsUpdate(Connection connection, Trade trade){
         String updateJEQuery = "update journal_entry set position_posted_status = ? where trade_id = ?";
 
         try(PreparedStatement psUpdateJe = connection.prepareStatement(updateJEQuery)){

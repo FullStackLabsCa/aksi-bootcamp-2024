@@ -7,10 +7,10 @@ import java.sql.Connection;
 public interface TradeProcessing {
 
     String readTradeIdFromQueue() throws InterruptedException;
-    String readPayloadFromRawDatabase(String tradeID, Connection connection);
+    String readPayloadFromRawDatabase(Connection connection, String tradeID);
     Trade validatePayloadAndCreateTrade(String payload);
-    String validateBusinessLogic(Trade trade, Connection connection);
-    void writeToJournalTable(Trade trade, Connection connection);
-    void writeToPositionsTable(Trade trade, Connection connection);
+    String validateBusinessLogic(Connection connection, Trade trade);
+    void writeToJournalTable(Connection connection, Trade trade);
+    void writeToPositionsTable(Connection connection, Trade trade);
 
 }

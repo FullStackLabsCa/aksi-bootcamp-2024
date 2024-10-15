@@ -1,9 +1,10 @@
 package io.reactivestax.service;
 
+import java.sql.Connection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 
 public class TradeProcessor {
     int numberOfQueues = Integer.parseInt(getFileProperty("numberOfQueues"));
@@ -12,10 +13,16 @@ public class TradeProcessor {
 
     public void startTradeProcessingFromQueues(){
 
-        int threadsRunning=0;
-        while(threadsRunning < threadPoolSize) {
-                executorServiceTradeProcessor.submit(new TradeProcessorTask(null));
+        try(Connection sqlConnection = dataSource.getConnection();
+            com.rabbitmq.client.Connection rabbitMQConnection = rabbitMQFactory.newConnection()) {
+            int threadsRunning = 0;
+            while (threadsRunning < threadPoolSize) {
+                executorServiceTradeProcessor.submit(new TradeProcessorTask(null, sqlConnection, rabbitMQConnection));
                 threadsRunning++;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            System.out.println("startTradeProcessingFromQueues");
         }
 
         executorServiceTradeProcessor.shutdown();
