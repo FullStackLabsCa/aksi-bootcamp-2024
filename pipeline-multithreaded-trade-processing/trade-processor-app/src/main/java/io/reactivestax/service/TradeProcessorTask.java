@@ -100,9 +100,9 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public String readTradeIdFromQueue() throws InterruptedException {
-        String exchangeName = readPropertiesFile().getProperty("rabbitMQ.exchangeName");
-        String queueName = readPropertiesFile().getProperty("rabbitMQ.queueName");
-        String routingKey = readPropertiesFile().getProperty("rabbitMQ.routingKey");
+        String exchangeName = getFileProperty("rabbitMQ.exchangeName");
+        String queueName = getFileProperty("rabbitMQ.queueName");
+        String routingKey = getFileProperty("rabbitMQ.routingKey");
 
         return readFromRabbitMQ(exchangeName, queueName, routingKey);
     }

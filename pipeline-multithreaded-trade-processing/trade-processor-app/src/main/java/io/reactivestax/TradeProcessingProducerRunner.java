@@ -11,8 +11,8 @@ public class TradeProcessingProducerRunner {
 
     public static void main(String[] args) {
 
-        configureHikariCP(readPropertiesFile().getProperty("dbPortNum"), readPropertiesFile().getProperty("dbName"));
-        configureRabbitMQ(readPropertiesFile().getProperty("rabbitMQ.hostName"), readPropertiesFile().getProperty("rabbitMQ.guest"), readPropertiesFile().getProperty("rabbitMQ.pass"));
+        configureHikariCP(getFileProperty("dbPortNum"), getFileProperty("dbName"));
+        configureRabbitMQ(getFileProperty("rabbitMQ.hostName"), getFileProperty("rabbitMQ.guest"), getFileProperty("rabbitMQ.pass"));
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
@@ -26,9 +26,9 @@ public class TradeProcessingProducerRunner {
 class FileReaderRunner implements Runnable{
     @Override
     public void run(){
-        String folderPath = readPropertiesFile().getProperty("resourcesFolderPath");
+        String folderPath = getFileProperty("resourcesFolderPath");
         TradesFileReader reader = new TradesFileReader();
-        reader.readFileAndCreateChunks(folderPath+"/"+readPropertiesFile().getProperty("dataFileName"), null);
+        reader.readFileAndCreateChunks(folderPath+"/"+getFileProperty("dataFileName"), null);
     }
 }
 class ChunkProcessorRunner implements Runnable{

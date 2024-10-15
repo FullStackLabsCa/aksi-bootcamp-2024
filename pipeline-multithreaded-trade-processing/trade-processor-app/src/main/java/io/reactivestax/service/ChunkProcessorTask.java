@@ -11,8 +11,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.dataSource;
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.readPropertiesFile;
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 
 public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
@@ -82,7 +81,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     @Override
     public void writeToQueue(TradeIdAndAccNum tradeIdentifiers) {
-        String exchangeName = readPropertiesFile().getProperty("rabbitMQ.exchangeName");
+        String exchangeName = getFileProperty("rabbitMQ.exchangeName");
         TradesStream.insertIntoRabbitMQQueue(exchangeName, tradeIdentifiers);
     }
 }

@@ -11,8 +11,8 @@ public class TradeProcessingConsumerRunner {
 
     public static void main(String[] args) {
 
-        configureHikariCP(readPropertiesFile().getProperty("dbPortNum"), readPropertiesFile().getProperty("dbName"));
-        configureRabbitMQ(readPropertiesFile().getProperty("rabbitMQ.hostName"), readPropertiesFile().getProperty("rabbitMQ.guest"), readPropertiesFile().getProperty("rabbitMQ.pass"));
+        configureHikariCP(getFileProperty("dbPortNum"), getFileProperty("dbName"));
+        configureRabbitMQ(getFileProperty("rabbitMQ.hostName"), getFileProperty("rabbitMQ.guest"), getFileProperty("rabbitMQ.pass"));
 
         ExecutorService executorService = Executors.newFixedThreadPool(1);
 

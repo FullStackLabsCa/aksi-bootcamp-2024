@@ -3,7 +3,7 @@ package io.reactivestax.service;
 import io.reactivestax.interfaces.TradesFileReading;
 import io.reactivestax.utility.InvalidFilePathException;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.readPropertiesFile;
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
 
 import java.io.*;
 import java.util.Scanner;
@@ -15,11 +15,11 @@ public class TradesFileReader implements TradesFileReading {
         try (Scanner fileReader = new Scanner(new FileReader(filePath))) {
 
             int numOfFilesGenerated = 0;
-            int maxNumOfLines = Integer.parseInt(readPropertiesFile().getProperty("chunkSize"));
+            int maxNumOfLines = Integer.parseInt(getFileProperty("chunkSize"));
             boolean newFileCreationNeeded = true;
             String fileNameUnderProcessing = null;
             int linesRead = 0;
-            String folderPath = readPropertiesFile().getProperty("chunkPath");
+            String folderPath = getFileProperty("chunkPath");
 
             if (fileReader.hasNextLine()) {
                 fileReader.nextLine();

@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.rabbitMQFactory;
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.readPropertiesFile;
 
 public class TradesStream implements Runnable{
     private static final ConcurrentHashMap<String, Integer> accToQueueMap = new ConcurrentHashMap<>();
@@ -27,7 +27,7 @@ public class TradesStream implements Runnable{
 
 
     public static void bringUpQueues(){
-        int numberOfQueues = Integer.parseInt(MultiThreadTradeProcessorUtility.readPropertiesFile().getProperty("numberOfQueues"));
+        int numberOfQueues = Integer.parseInt(getFileProperty("numberOfQueues"));
 
         for (int i = 0; i < numberOfQueues; i++) {
             listOfQueues.add(new LinkedBlockingDeque<>());
@@ -39,7 +39,7 @@ public class TradesStream implements Runnable{
     }
 
     public static int getQueueMapping(TradeIdAndAccNum tradeIdentifiers) {
-        String criteria = readPropertiesFile().getProperty("tradeDistributionCriteria");
+        String criteria = getFileProperty("tradeDistributionCriteria");
 
         String criteriaField;
         if (criteria.equals("tradeID")) {
@@ -51,7 +51,7 @@ public class TradesStream implements Runnable{
         if (accToQueueMap.containsKey(criteriaField)) {
             return accToQueueMap.get(criteriaField);
         } else {
-            int randomQueueNum = (int) (Math.random() * Integer.parseInt(readPropertiesFile().getProperty("numberOfQueues")));
+            int randomQueueNum = (int) (Math.random() * Integer.parseInt(getFileProperty("numberOfQueues")));
             accToQueueMap.put(criteriaField, randomQueueNum);
             return randomQueueNum;
         }
@@ -72,15 +72,13 @@ public class TradesStream implements Runnable{
          try (Connection connection = rabbitMQFactory.newConnection();
               Channel channel = connection.createChannel()) {
 
-             // Declare an exchange of type direct (or other types based on your routing
-             // strategy)
              channel.exchangeDeclare(exchangeName, "direct");
 
-             // Publish multiple messages (e.g., credit card transactions)
              String routingKey = getRoutingKeyBasedOnCreditCard(tradeIdentifiers);
              String message = tradeIdentifiers.tradeID();
              channel.basicPublish(exchangeName, routingKey, null, message.getBytes("UTF-8"));
              System.out.println(" [x] Sent '" + message + "' with routing key '" + routingKey + "'");
+
          } catch (Exception e) {
              System.out.println("RabbitMQ Connection/Chanel Issues...");
              throw new RuntimeException(e);
@@ -95,7 +93,7 @@ public class TradesStream implements Runnable{
         if(retryCountMapping.containsKey(trade.getTradeID())){
             retryCountMapping.put(trade.getTradeID(),retryCountMapping.get(trade.getTradeID()) - 1);
         } else {
-            retryCountMapping.put(trade.getTradeID(), Integer.parseInt(readPropertiesFile().getProperty("retryCount")) - 1);
+            retryCountMapping.put(trade.getTradeID(), Integer.parseInt(getFileProperty("retryCount")) - 1);
         }
 
         //DLQ

@@ -14,6 +14,7 @@ import java.util.logging.SimpleFormatter;
 import com.rabbitmq.client.ConnectionFactory;
 
 public class MultiThreadTradeProcessorUtility {
+    public static Properties fileProperties;
 
     private MultiThreadTradeProcessorUtility() {
     }
@@ -25,7 +26,7 @@ public class MultiThreadTradeProcessorUtility {
 
     public static void configureLogger(){
         try {
-            fileHandler = new FileHandler(readPropertiesFile().getProperty("errorLoggerFilePath"), true);
+            fileHandler = new FileHandler(getFileProperty("errorLoggerFilePath"), true);
         } catch (IOException e) {
             throw new InvalidFilePathException("Unable to Access Error Log File Path.");
         }
@@ -40,8 +41,8 @@ public class MultiThreadTradeProcessorUtility {
     public static void configureHikariCP(String portNum, String dbName) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:mysql://localhost:"+portNum+"/"+dbName);
-        config.setUsername(readPropertiesFile().getProperty("dbUsername"));
-        config.setPassword(readPropertiesFile().getProperty("dbPassword"));
+        config.setUsername(getFileProperty("dbUsername"));
+        config.setPassword(getFileProperty("dbPassword"));
 
         // Optional HikariCP settings
         config.setMaximumPoolSize(10); // Max 10 connections in the pool
@@ -52,7 +53,7 @@ public class MultiThreadTradeProcessorUtility {
         dataSource = new HikariDataSource(config);
     }
 
-    public static Properties readPropertiesFile(){
+    private static void readPropertiesFile(){
         Properties properties = new Properties();
 
         try (FileInputStream fis = new FileInputStream("src/main/resources/application.properties")) {
@@ -61,7 +62,11 @@ public class MultiThreadTradeProcessorUtility {
             System.out.println(e.getMessage());
         }
 
-        return properties;
+        fileProperties = properties;
+    }
+
+    public static String getFileProperty(String propertyName){
+        return fileProperties.getProperty(propertyName);
     }
 
     public static void configureRabbitMQ(String host, String guest, String password){

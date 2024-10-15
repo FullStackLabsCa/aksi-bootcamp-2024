@@ -3,11 +3,11 @@ package io.reactivestax.service;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.readPropertiesFile;
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
 
 public class TradeProcessor {
-    int numberOfQueues = Integer.parseInt(readPropertiesFile().getProperty("numberOfQueues"));
-    int threadPoolSize = Integer.parseInt(readPropertiesFile().getProperty("threadPoolSizeOfTradeProcessor"));
+    int numberOfQueues = Integer.parseInt(getFileProperty("numberOfQueues"));
+    int threadPoolSize = Integer.parseInt(getFileProperty("threadPoolSizeOfTradeProcessor"));
     ExecutorService executorServiceTradeProcessor = Executors.newFixedThreadPool(threadPoolSize);
 
     public void startTradeProcessingFromQueues(){
