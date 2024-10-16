@@ -13,6 +13,7 @@ import io.reactivestax.utility.TradeCreationFailedException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,13 +29,14 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     PayloadDatabaseRepo payloadDbAccess;
     TradesDBRepo tradesDbAccess;
     Session hibernateSession;
-    private static AtomicInteger count = new AtomicInteger(0);
+    Connection sqlConnection;
 
-    public TradeProcessorTask(LinkedBlockingDeque<String> tradeIdQueue) {
+    public TradeProcessorTask(LinkedBlockingDeque<String> tradeIdQueue, Connection sqlConnection) {
         this.tradeIdQueue = tradeIdQueue;
         payloadDbAccess = new PayloadDatabaseRepo();
         tradesDbAccess = new TradesDBRepo();
         this.hibernateSession = hibernateSessionFactory.openSession();
+        this.sqlConnection = sqlConnection;
     }
 
     @Override
@@ -45,13 +47,10 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                 tradeID = readTradeIdFromQueue();
                 if (tradeID == null || tradeID.trim().isEmpty()) break;
                 String payload = readPayload(tradeID);
-                System.out.println("payload = " + payload);
-                System.out.println("count = " + count);
-                count.getAndIncrement();
-//                if ((payload != null) && (!payload.isEmpty())) {
-//                    Trade trade = validatePayloadAndCreateTrade(payload);
-//                    processTrade(trade);
-//                }
+                if ((payload != null) && (!payload.isEmpty())) {
+                    Trade trade = validatePayloadAndCreateTrade(payload);
+                    processTrade(trade);
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new ReadFromQueueFailedException(e);
@@ -66,15 +65,15 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     private void processTrade(Trade trade) throws InterruptedException {
         if (trade != null) {
             String lookupStatus;
-            lookupStatus = validateBusinessLogic(hibernateSession, trade);
-            updateTradeSecurityLookupInPayloadTable(hibernateSession, trade, lookupStatus);
-
-            try {
-                updateJournalEntryAndPositions(hibernateSession, lookupStatus, trade);
-            } catch (SQLException e) {
-                System.out.println("Failed updateJournalEntryAndPositions...");
-                throw new RuntimeException(e);
-            }
+            lookupStatus = validateBusinessLogic(sqlConnection, trade);
+//            updateTradeSecurityLookupInPayloadTable(hibernateSession, trade, lookupStatus);
+//
+//            try {
+//                updateJournalEntryAndPositions(hibernateSession, lookupStatus, trade);
+//            } catch (SQLException e) {
+//                System.out.println("Failed updateJournalEntryAndPositions...");
+//                throw new RuntimeException(e);
+//            }
 
         }
     }
@@ -148,8 +147,8 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     @Override
-    public String validateBusinessLogic(Session hibernateSession, Trade trade) {
-        return tradesDbAccess.checkIfValidCUSIPUsingHibernate(hibernateSession, trade);
+    public String validateBusinessLogic(Connection sqlConnection, Trade trade) {
+        return tradesDbAccess.checkIfValidCUSIP(sqlConnection, trade);
     }
 
     @Override

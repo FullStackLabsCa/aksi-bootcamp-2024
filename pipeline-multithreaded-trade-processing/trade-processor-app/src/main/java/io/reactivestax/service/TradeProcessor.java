@@ -1,6 +1,7 @@
 package io.reactivestax.service;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,11 +14,15 @@ public class TradeProcessor {
 
     public void startTradeProcessingFromQueues(){
 
+        try(Connection sqlConnection = dataSource.getConnection()) {
             int threadsRunning = 0;
             while (threadsRunning < threadPoolSize) {
-                executorServiceTradeProcessor.submit(new TradeProcessorTask(null));
+                executorServiceTradeProcessor.submit(new TradeProcessorTask(null, sqlConnection));
                 threadsRunning++;
             }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
 
         executorServiceTradeProcessor.shutdown();
     }

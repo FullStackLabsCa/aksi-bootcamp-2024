@@ -149,6 +149,9 @@ public class TradesDBRepo {
     // ------------ Hibernate --------------
 
     public String checkIfValidCUSIPUsingHibernate(Session hibernateSession, Trade trade) {
+        String lookupQuery = "select 1 from SecuritiesReferenceV2 where cusip = ?";
+
+
         return null;
     }
 
