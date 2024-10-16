@@ -13,17 +13,11 @@ public class TradeProcessor {
 
     public void startTradeProcessingFromQueues(){
 
-        try(Connection sqlConnection = dataSource.getConnection();
-            com.rabbitmq.client.Connection rabbitMQConnection = rabbitMQFactory.newConnection()) {
             int threadsRunning = 0;
             while (threadsRunning < threadPoolSize) {
-                executorServiceTradeProcessor.submit(new TradeProcessorTask(null, sqlConnection, rabbitMQConnection));
+                executorServiceTradeProcessor.submit(new TradeProcessorTask(null));
                 threadsRunning++;
             }
-        } catch (Exception e){
-            e.printStackTrace();
-            System.out.println("startTradeProcessingFromQueues");
-        }
 
         executorServiceTradeProcessor.shutdown();
     }

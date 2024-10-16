@@ -2,6 +2,7 @@ package io.reactivestax.repo;
 
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.OptimisticLockingException;
+import org.hibernate.Session;
 
 import java.sql.*;
 
@@ -143,5 +144,36 @@ public class TradesDBRepo {
         } catch (SQLException e){
             System.out.println(e.getMessage());
         }
+    }
+
+    // ------------ Hibernate --------------
+
+    public String checkIfValidCUSIPUsingHibernate(Session hibernateSession, Trade trade) {
+        return null;
+    }
+
+    public void writeTradeToJournalTableUsingHibernate(Session hibernateSession, Trade trade) {
+
+    }
+
+    public int getSecurityIdForCusipUsingHibernate(Session hibernateSession, String cusip){
+
+        String lookUpSecurityQuery = "Select security_id from SecuritiesReferenceV2 where cusip = ?";
+
+        return 0;
+    }
+
+    private int getAccountVersionUsingHibernate(Session hibernateSession, Trade trade, int securityId) {
+        String query = "SELECT version FROM positions WHERE account_number = ? and security_id = ?";
+
+        return 0;
+    }
+
+    public void updatePositionsTableUsingHibernate(Session hibernateSession, Trade trade) {
+
+    }
+
+    public void updateJEForPositionsUpdateUsingHibernate(Session hibernateSession, Trade trade) {
+
     }
 }

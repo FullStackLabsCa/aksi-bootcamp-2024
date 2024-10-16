@@ -9,7 +9,6 @@ import org.hibernate.Session;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.Scanner;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
@@ -18,14 +17,10 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     String filePath;
     String invalidString = "Invalid";
-    com.rabbitmq.client.Connection rabbitMQConnection;
-    Connection sqlConnection;
     org.hibernate.Session hibernateSession;
 
-    public ChunkProcessorTask(String filePath, com.rabbitmq.client.Connection rabbitMQConnection, Connection sqlConnection) {
+    public ChunkProcessorTask(String filePath) {
         this.filePath = filePath;
-        this.rabbitMQConnection = rabbitMQConnection;
-        this.sqlConnection = sqlConnection;
         this.hibernateSession = hibernateSessionFactory.openSession();
     }
 
@@ -38,7 +33,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     @Override
     public void processChunk(String filePath) {
         try (Scanner chunkReader = new Scanner(new FileReader(filePath));
-             Channel channel = rabbitMQConnection.createChannel()) {
+             Channel channel = getRabbitMQChannel()) {
             while (chunkReader.hasNextLine()) {
                 processPayload(chunkReader.nextLine(), channel);
             }

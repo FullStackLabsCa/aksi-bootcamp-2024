@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getRabbitMQChannel;
 
 public class TradesStream implements Runnable {
     private static final ConcurrentHashMap<String, Integer> accToQueueMap = new ConcurrentHashMap<>();
@@ -86,8 +87,8 @@ public class TradesStream implements Runnable {
         return "cc_partition_" + getQueueMapping(tradeIdentifiers);
     }
 
-    public static String readFromRabbitMQ(Connection connection, String exchangeName, String queueName, String routingKey){
-        try (Channel rabbitMQChannel = connection.createChannel()) {
+    public static String readFromRabbitMQ(String exchangeName, String queueName, String routingKey){
+        try (Channel rabbitMQChannel = getRabbitMQChannel()) {
 
             rabbitMQChannel.exchangeDeclare(exchangeName, "direct");
             rabbitMQChannel.queueDeclare(queueName, true, false, false, null);
@@ -112,6 +113,7 @@ public class TradesStream implements Runnable {
         }
         catch (Exception e) {
             System.out.println("Some issues in RabbitMQ Consumer...readFromRabbitMQ");
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

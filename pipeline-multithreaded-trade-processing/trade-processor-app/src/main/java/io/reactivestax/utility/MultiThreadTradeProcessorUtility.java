@@ -1,5 +1,7 @@
 package io.reactivestax.utility;
 
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -25,7 +27,8 @@ public class MultiThreadTradeProcessorUtility {
     static FileHandler fileHandler;
     public static final Logger logger = Logger.getLogger(MultiThreadTradeProcessorUtility.class.getName());
     public static HikariDataSource dataSource;
-    public static ConnectionFactory rabbitMQFactory;
+    private static ConnectionFactory rabbitMQFactory;
+    private static Connection rabbitMQConnection;
     public static SessionFactory hibernateSessionFactory;
 
     public static void configureLogger(){
@@ -78,7 +81,19 @@ public class MultiThreadTradeProcessorUtility {
         rabbitMQFactory.setHost(host); // Or the RabbitMQ server IP/hostname
         rabbitMQFactory.setUsername(guest); // RabbitMQ username
         rabbitMQFactory.setPassword(password); // RabbitMQ password
+    }
 
+    public static Channel getRabbitMQChannel(){
+        try {
+            if (rabbitMQConnection != null) return rabbitMQConnection.createChannel();
+            else {
+                rabbitMQConnection = rabbitMQFactory.newConnection();
+                return rabbitMQConnection.createChannel();
+            }
+        } catch (Exception e) {
+            System.out.println("Unable to provide Channel from the Rabbit MQ Connection...");
+        }
+        return null;
     }
 
     public static void configureHibernateSessionFactory(){

@@ -2,6 +2,9 @@ package io.reactivestax.repo;
 
 import io.reactivestax.entity.RawPayload;
 import io.reactivestax.model.Trade;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -9,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class PayloadDatabaseRepo {
 
@@ -75,7 +79,8 @@ public class PayloadDatabaseRepo {
         }
     }
 
-    //Using Hibernate
+    // ------------ Hibernate --------------
+
     public void writeToDatabaseUsingHibernate(Session session, String tradeID, String status, String payload){
         try {
             RawPayload rawPayload = new RawPayload();
@@ -94,5 +99,26 @@ public class PayloadDatabaseRepo {
         } catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+
+    public String readPayloadFromDBUsingHibernate(Session hibernateSession, String tradeID) {
+
+        CriteriaBuilder builder = hibernateSession.getCriteriaBuilder();
+        CriteriaQuery<RawPayload> query = builder.createQuery(RawPayload.class);
+        Root<RawPayload> root = query.from(RawPayload.class);
+        query.select(root).where(builder.equal(root.get("tradeID"), tradeID));
+        List<RawPayload> students = hibernateSession.createQuery(query).getResultList();
+
+        if(students != null) return students.get(0).getPayload();
+        else return null;
+    }
+
+    public void updateSecurityLookupStatusUsingHibernate(Session hibernateSession, Trade trade, String lookupStatus) {
+
+    }
+
+    public void updateJournalEntryStatusUsingHibernate(Session hibernateSession, Trade trade) {
+
     }
 }
