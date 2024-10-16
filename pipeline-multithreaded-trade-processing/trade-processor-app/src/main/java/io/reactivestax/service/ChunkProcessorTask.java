@@ -5,6 +5,7 @@ import io.reactivestax.interfaces.ChunkProcessing;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.repo.PayloadDatabaseRepo;
 import io.reactivestax.utility.InvalidChunkPathException;
+import org.hibernate.Session;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -19,11 +20,13 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     String invalidString = "Invalid";
     com.rabbitmq.client.Connection rabbitMQConnection;
     Connection sqlConnection;
+    org.hibernate.Session hibernateSession;
 
     public ChunkProcessorTask(String filePath, com.rabbitmq.client.Connection rabbitMQConnection, Connection sqlConnection) {
         this.filePath = filePath;
         this.rabbitMQConnection = rabbitMQConnection;
         this.sqlConnection = sqlConnection;
+        this.hibernateSession = hibernateSessionFactory.openSession();
     }
 
 
@@ -52,7 +55,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
         String tradeValidity = checkPayloadValidity(payload);
         TradeIdAndAccNum tradeIdentifiers = getIdentifierFromPayload(payload);
 
-        writePayloadToPayloadDatabase(sqlConnection, tradeIdentifiers.tradeID(), tradeValidity, payload);
+        writePayloadToPayloadDatabase(hibernateSession, tradeIdentifiers.tradeID(), tradeValidity, payload);
 
         if (tradeValidity.equals("Valid")) {
             writeToQueue(tradeIdentifiers, channel);
@@ -78,9 +81,9 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     }
 
     @Override
-    public void writePayloadToPayloadDatabase(Connection connection, String tradeID, String tradeStatus, String payload) {
+    public void writePayloadToPayloadDatabase(Session session, String tradeID, String tradeStatus, String payload) {
         PayloadDatabaseRepo payloadRepo = new PayloadDatabaseRepo();
-        payloadRepo.writeToDatabase(connection, tradeID, tradeStatus, payload);
+        payloadRepo.writeToDatabaseUsingHibernate(session, tradeID, tradeStatus, payload);
     }
 
     @Override

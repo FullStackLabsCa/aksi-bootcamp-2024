@@ -13,16 +13,20 @@ import java.util.logging.SimpleFormatter;
 
 import com.rabbitmq.client.ConnectionFactory;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
 public class MultiThreadTradeProcessorUtility {
-    public static Properties fileProperties;
 
     private MultiThreadTradeProcessorUtility() {
     }
 
+    public static Properties fileProperties;
     static FileHandler fileHandler;
     public static final Logger logger = Logger.getLogger(MultiThreadTradeProcessorUtility.class.getName());
     public static HikariDataSource dataSource;
     public static ConnectionFactory rabbitMQFactory;
+    public static SessionFactory hibernateSessionFactory;
 
     public static void configureLogger(){
         try {
@@ -77,4 +81,9 @@ public class MultiThreadTradeProcessorUtility {
 
     }
 
+    public static void configureHibernateSessionFactory(){
+        hibernateSessionFactory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .buildSessionFactory();
+    }
 }

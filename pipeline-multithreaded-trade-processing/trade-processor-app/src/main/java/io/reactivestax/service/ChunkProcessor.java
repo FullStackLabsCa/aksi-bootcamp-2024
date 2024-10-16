@@ -5,8 +5,7 @@ import io.reactivestax.utility.MultiThreadTradeProcessorUtility;
 import java.sql.Connection;
 import java.util.concurrent.*;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.dataSource;
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.rabbitMQFactory;
+import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 
 public class ChunkProcessor{
 

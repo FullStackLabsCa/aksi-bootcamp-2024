@@ -1,6 +1,9 @@
 package io.reactivestax.repo;
 
+import io.reactivestax.entity.RawPayload;
 import io.reactivestax.model.Trade;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -69,6 +72,27 @@ public class PayloadDatabaseRepo {
 
         } catch(SQLException e){
             System.out.println(e.getMessage());
+        }
+    }
+
+    //Using Hibernate
+    public void writeToDatabaseUsingHibernate(Session session, String tradeID, String status, String payload){
+        try {
+            RawPayload rawPayload = new RawPayload();
+            rawPayload.setTradeID(tradeID);
+            rawPayload.setStatus(status);
+            rawPayload.setPayload(payload);
+            rawPayload.setLookupStatus("Non Posted");
+            Transaction transaction;
+            try {
+                transaction = session.beginTransaction();
+            } catch (Exception e) {
+                transaction = session.getTransaction();
+            }
+            session.persist(rawPayload);
+            transaction.commit();
+        } catch (Exception e){
+            e.printStackTrace();
         }
     }
 }
