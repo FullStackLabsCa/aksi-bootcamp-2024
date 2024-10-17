@@ -18,10 +18,13 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     String filePath;
     String invalidString = "Invalid";
     org.hibernate.Session hibernateSession;
+    PayloadDatabaseRepo payloadRepo;
 
     public ChunkProcessorTask(String filePath) {
         this.filePath = filePath;
         this.hibernateSession = getHibernateSessionFromFactory();
+        payloadRepo = new PayloadDatabaseRepo();
+
     }
 
 
@@ -77,7 +80,6 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     @Override
     public void writePayloadToPayloadDatabase(String tradeID, String payload, String tradeStatus) {
-        PayloadDatabaseRepo payloadRepo = new PayloadDatabaseRepo();
         payloadRepo.writeToDatabaseUsingHibernate(hibernateSession, tradeID, payload, tradeStatus);
     }
 
