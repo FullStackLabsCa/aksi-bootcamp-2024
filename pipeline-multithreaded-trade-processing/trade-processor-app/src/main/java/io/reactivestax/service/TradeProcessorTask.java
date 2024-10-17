@@ -134,8 +134,13 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             }
             try {
                 writeToJournalTable(trade);
+                updatePayloadDbForJournalEntry(trade);
+
                 writeToPositionsTable(trade);
+                updateJEForPositionsUpdate(trade);
+
                 transaction.commit();
+
             } catch (OptimisticLockingException e) {
                 if(transaction!=null) {
                     transaction.rollback();
@@ -143,8 +148,6 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 //                TradesStream.checkRetryCountAndManageDLQ(trade, tradeIdQueue);
             }
 
-            updatePayloadDbForJournalEntry(trade);
-            updateJEForPositionsUpdate(trade);
         }
         //Disabled Logging to the Log File - No one looks at error log files
     }
