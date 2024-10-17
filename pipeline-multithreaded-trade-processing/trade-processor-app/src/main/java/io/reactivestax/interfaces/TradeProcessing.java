@@ -11,7 +11,7 @@ public interface TradeProcessing {
     String readPayloadFromRawDatabase(Session hibernateSession, String tradeID);
     Trade validatePayloadAndCreateTrade(String payload);
     String validateBusinessLogic(Connection sqlConnection, Trade trade);
-    void writeToJournalTable(Session hibernateSession, Trade trade);
+    void writeToJournalTable(Session hibernateSession, Connection sqlConnection, Trade trade);
     void writeToPositionsTable(Session hibernateSession, Trade trade);
 
 }

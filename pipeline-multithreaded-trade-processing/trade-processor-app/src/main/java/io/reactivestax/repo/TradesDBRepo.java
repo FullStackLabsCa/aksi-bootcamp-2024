@@ -1,5 +1,6 @@
 package io.reactivestax.repo;
 
+import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.OptimisticLockingException;
 import org.hibernate.Session;
@@ -155,8 +156,23 @@ public class TradesDBRepo {
         return null;
     }
 
-    public void writeTradeToJournalTableUsingHibernate(Session hibernateSession, Trade trade) {
+    public void writeTradeToJournalTableUsingHibernate(Session hibernateSession,Connection sqlConnection, Trade trade) {
+        //insert into journal_entry (account_number, security_id, direction, quantity, position_posted_status, trade_execution_time, trade_id)
+        //                values (?,?,?,?,?,?,?)
+        try {
+            JournalEntry journalEntry = new JournalEntry();
+            journalEntry.setAccountNumber(trade.getAccountNumber());
+            journalEntry.setActivity(trade.getActivity());
+            journalEntry.setPositionPostedStatus("Non Posted");
+            journalEntry.setQuantity(trade.getQuantity());
+            journalEntry.setSecurityID(getSecurityIdForCusip(sqlConnection, trade.getCusip()));
+            journalEntry.setTradeExecutionTime(trade.getTransactionTime());
+            journalEntry.setTradeID(trade.getTradeID());
 
+            hibernateSession.persist(journalEntry);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public int getSecurityIdForCusipUsingHibernate(Session hibernateSession, String cusip){

@@ -30,6 +30,7 @@
 
         <!-- Entity Classes option-1 -->
         <mapping class="io.reactivestax.entity.RawPayload" />
+        <mapping class="io.reactivestax.entity.JournalEntry" />
 
     </session-factory>
 </hibernate-configuration>

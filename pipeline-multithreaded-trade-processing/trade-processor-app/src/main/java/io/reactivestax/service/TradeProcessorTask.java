@@ -72,24 +72,28 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             String lookupStatus;
             lookupStatus = validateBusinessLogic(sqlConnection, trade);
             updateTradeSecurityLookupInPayloadTable(hibernateSession, trade, lookupStatus);
-//
-//            try {
-//                updateJournalEntryAndPositions(hibernateSession, lookupStatus, trade);
-//            } catch (SQLException e) {
-//                System.out.println("Failed updateJournalEntryAndPositions...");
-//                throw new RuntimeException(e);
-//            }
+
+            try {
+                updateJournalEntryAndPositions(hibernateSession, lookupStatus, trade);
+            } catch (SQLException e) {
+                System.out.println("Failed updateJournalEntryAndPositions...");
+                throw new RuntimeException(e);
+            }
 
         }
     }
 
     private void updateJournalEntryAndPositions(Session hibernateSession, String lookupStatus, Trade trade) throws SQLException, InterruptedException {
         if (lookupStatus.equals("Valid")) {
-            Transaction transaction = null;
+            Transaction transaction;
             try {
                 transaction = hibernateSession.beginTransaction();
-                writeToJournalTable(hibernateSession, trade);
-                writeToPositionsTable(hibernateSession, trade);
+            } catch (Exception e) {
+                transaction = hibernateSession.getTransaction();
+            }
+            try {
+                writeToJournalTable(hibernateSession, sqlConnection, trade);
+//                writeToPositionsTable(hibernateSession, trade);
                 transaction.commit();
             } catch (OptimisticLockingException e) {
                 if(transaction!=null) {
@@ -98,8 +102,8 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 //                TradesStream.checkRetryCountAndManageDLQ(trade, tradeIdQueue);
             }
 
-            updatePayloadDbForJournalEntry(hibernateSession, trade);
-            updateJEForPositionsUpdate(hibernateSession, trade);
+//            updatePayloadDbForJournalEntry(hibernateSession, trade);
+//            updateJEForPositionsUpdate(hibernateSession, trade);
 
         }
         //Disabled Logging to the Log File - No one looks at error log files
@@ -123,32 +127,32 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             throw new NullPayloadException("Payload Validation Failed. Payload NULL!");
         }
         try {
+            Trade trade = new Trade();
             String[] payloadData = payload.split(",");
-            String tradeId = payloadData[0];
-            Date transactionTime = parseStringToDate(payloadData[1]);
-            String accountNumber = payloadData[2];
-            String cusip = payloadData[3];
-            String activity = payloadData[4];
-            int quantity = Integer.parseInt(payloadData[5]);
-            double price = Double.parseDouble(payloadData[6]);
+            trade.setTradeID(payloadData[0]);
+            trade.setTransactionTime(convertStringToSqlDate(payloadData[1]));
+            trade.setAccountNumber(payloadData[2]);
+            trade.setCusip(payloadData[3]);
+            trade.setActivity(payloadData[4]);
+            trade.setQuantity(Integer.parseInt(payloadData[5]));
+            trade.setPrice(Double.parseDouble(payloadData[6]));
 
-            return new Trade(tradeId, transactionTime, accountNumber, cusip, activity, quantity, price);
+            return trade;
 
         } catch (NumberFormatException e) {
             throw new TradeCreationFailedException("Trade Object Creation Failed!!!");
         }
     }
 
-    public Date parseStringToDate(String dateString) {
-        String format = "yyyy-MM-dd HH:mm:ss";
-
-        SimpleDateFormat formatter = new SimpleDateFormat(format);
+    public static Date convertStringToSqlDate(String dateString) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
-            return formatter.parse(dateString);
+            java.util.Date utilDate = dateFormat.parse(dateString);
+            return new java.sql.Date(utilDate.getTime());
         } catch (ParseException e) {
-            System.out.println(e.getMessage());
+            System.err.println("Invalid date format: " + e.getMessage());
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -157,8 +161,8 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     @Override
-    public void writeToJournalTable(Session hibernateSession, Trade trade) {
-        tradesDbAccess.writeTradeToJournalTableUsingHibernate(hibernateSession, trade);
+    public void writeToJournalTable(Session hibernateSession, Connection sqlConnection, Trade trade) {
+        tradesDbAccess.writeTradeToJournalTableUsingHibernate(hibernateSession, sqlConnection, trade);
     }
 
     @Override

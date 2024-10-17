@@ -7,7 +7,7 @@ import java.sql.Date;
 
 @Entity
 @Data
-@Table
+@Table (name = "journal_entry")
 public class JournalEntry {
 
     @Id
@@ -19,7 +19,7 @@ public class JournalEntry {
     private String accountNumber;
 
     @Column (name = "security_id")
-    private String securityID;
+    private int securityID;
 
     @Column (name = "direction")
     private String activity;
@@ -32,4 +32,7 @@ public class JournalEntry {
 
     @Column
     private String positionPostedStatus;
+
+    @Column
+    private String tradeID;
 }

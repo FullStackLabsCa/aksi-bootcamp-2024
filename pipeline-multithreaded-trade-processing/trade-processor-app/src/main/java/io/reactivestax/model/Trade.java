@@ -11,6 +11,8 @@ public class Trade {
     private int quantity;
     private double price;
 
+    public Trade(){}
+
     public Trade(String tradeID, Date transactionTime, String accountNumber, String cusip, String activity, int quantity, double price) {
         this.tradeID = tradeID;
         this.transactionTime = transactionTime;
@@ -29,8 +31,8 @@ public class Trade {
         this.tradeID = tradeID;
     }
 
-    public Date getTransactionTime() {
-        return transactionTime;
+    public java.sql.Date getTransactionTime() {
+        return (java.sql.Date) transactionTime;
     }
 
     public void setTransactionTime(Date transactionTime) {
