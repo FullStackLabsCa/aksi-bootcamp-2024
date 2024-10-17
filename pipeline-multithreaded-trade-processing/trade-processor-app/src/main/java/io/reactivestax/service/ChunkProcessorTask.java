@@ -20,7 +20,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     public ChunkProcessorTask(String filePath) {
         this.filePath = filePath;
-        this.hibernateSession = hibernateSessionFactory.openSession();
+        this.hibernateSession = getHibernateSessionFromFactory();
     }
 
 

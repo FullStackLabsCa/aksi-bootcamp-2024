@@ -104,7 +104,6 @@ public class PayloadDatabaseRepo {
         }
     }
 
-
     public String readPayloadFromDBUsingHibernate(Session hibernateSession, String tradeID) {
 
         CriteriaBuilder builder = hibernateSession.getCriteriaBuilder();

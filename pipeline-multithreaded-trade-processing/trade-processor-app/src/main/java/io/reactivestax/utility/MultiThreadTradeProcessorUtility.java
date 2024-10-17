@@ -7,6 +7,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -23,13 +24,13 @@ public class MultiThreadTradeProcessorUtility {
     private MultiThreadTradeProcessorUtility() {
     }
 
-    public static Properties fileProperties;
+    private static Properties fileProperties;
     static FileHandler fileHandler;
-    public static final Logger logger = Logger.getLogger(MultiThreadTradeProcessorUtility.class.getName());
-    public static HikariDataSource dataSource;
+    private static final Logger logger = Logger.getLogger(MultiThreadTradeProcessorUtility.class.getName());
+    private static HikariDataSource dataSource;
     private static ConnectionFactory rabbitMQFactory;
     private static Connection rabbitMQConnection;
-    public static SessionFactory hibernateSessionFactory;
+    private static SessionFactory hibernateSessionFactory;
 
     public static void configureLogger(){
         try {
@@ -58,6 +59,15 @@ public class MultiThreadTradeProcessorUtility {
         config.setIdleTimeout(600000); // 10 minutes idle timeout
 
         dataSource = new HikariDataSource(config);
+    }
+
+    public static java.sql.Connection getConnectionFromHikariDataSource(){
+        try {
+            return dataSource.getConnection();
+        } catch (SQLException e) {
+            System.out.println("Error Getting Connection from Hikari CP");
+            throw new HikariConnectionGetException(e);
+        }
     }
 
     public static void readPropertiesFile(){
@@ -100,5 +110,9 @@ public class MultiThreadTradeProcessorUtility {
         hibernateSessionFactory = new Configuration()
                 .configure("hibernate.cfg.xml")
                 .buildSessionFactory();
+    }
+
+    public static org.hibernate.Session getHibernateSessionFromFactory(){
+        return hibernateSessionFactory.openSession();
     }
 }

@@ -1,7 +1,6 @@
 package io.reactivestax.service;
 
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.GetResponse;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.model.Trade;
