@@ -4,6 +4,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.GetResponse;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.model.Trade;
+import io.reactivestax.utility.RabbitMQException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class TradesStream implements Runnable {
         catch (Exception e) {
             System.out.println("Some issues in RabbitMQ Consumer...readFromRabbitMQ");
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new RabbitMQException(e);
         }
     }
 

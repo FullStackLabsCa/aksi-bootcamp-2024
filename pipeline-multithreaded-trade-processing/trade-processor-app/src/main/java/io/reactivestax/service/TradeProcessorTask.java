@@ -12,7 +12,6 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -111,12 +110,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             lookupStatus = validateBusinessLogic(trade);
             updateTradeSecurityLookupInPayloadTable(trade, lookupStatus);
 
-            try {
-                updateJournalEntryAndPositions(trade, lookupStatus);
-            } catch (SQLException e) {
-                System.out.println("Failed updateJournalEntryAndPositions...");
-                throw new RuntimeException(e);
-            }
+            updateJournalEntryAndPositions(trade, lookupStatus);
 
         }
     }
@@ -130,7 +124,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
         payloadDbAccess.updateSecurityLookupStatusUsingHibernate(hibernateSession, trade, lookupStatus);
     }
 
-    private void updateJournalEntryAndPositions(Trade trade, String lookupStatus) throws SQLException{
+    private void updateJournalEntryAndPositions(Trade trade, String lookupStatus){
         if (lookupStatus.equals("Valid")) {
             Transaction transaction;
             try {

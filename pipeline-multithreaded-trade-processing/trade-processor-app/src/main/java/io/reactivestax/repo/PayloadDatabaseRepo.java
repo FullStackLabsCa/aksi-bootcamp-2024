@@ -1,6 +1,5 @@
 package io.reactivestax.repo;
 
-import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.entity.RawPayload;
 import io.reactivestax.model.Trade;
 import jakarta.persistence.criteria.CriteriaBuilder;

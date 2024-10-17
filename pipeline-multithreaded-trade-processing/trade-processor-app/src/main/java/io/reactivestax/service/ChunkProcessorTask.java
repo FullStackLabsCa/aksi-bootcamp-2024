@@ -5,6 +5,7 @@ import io.reactivestax.interfaces.ChunkProcessing;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.repo.PayloadDatabaseRepo;
 import io.reactivestax.utility.InvalidChunkPathException;
+import io.reactivestax.utility.RabbitMQException;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
             throw new InvalidChunkPathException("Unable to find chunk at the provided path");
         } catch (Exception e) {
             System.out.println("Some Issues with the RabbitMQ in Process Chunk...");
-            throw new RuntimeException(e);
+            throw new RabbitMQException(e);
         }
     }
 

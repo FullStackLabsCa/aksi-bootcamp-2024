@@ -2,7 +2,6 @@ package io.reactivestax.repo;
 
 import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.entity.Position;
-import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.OptimisticLockingException;
 import jakarta.persistence.Query;
