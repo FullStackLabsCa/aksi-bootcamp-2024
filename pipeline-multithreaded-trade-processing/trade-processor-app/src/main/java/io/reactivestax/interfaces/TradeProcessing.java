@@ -8,10 +8,10 @@ import org.hibernate.Session;
 public interface TradeProcessing {
 
     String readTradeIdFromQueue() throws InterruptedException;
-    String readPayloadFromRawDatabase(Session hibernateSession, String tradeID);
+    String readPayloadFromRawDatabase(String tradeID);
     Trade validatePayloadAndCreateTrade(String payload);
-    String validateBusinessLogic(Connection sqlConnection, Trade trade);
-    void writeToJournalTable(Session hibernateSession, Connection sqlConnection, Trade trade);
-    void writeToPositionsTable(Session hibernateSession, Trade trade);
+    String validateBusinessLogic(Trade trade);
+    void writeToJournalTable(Trade trade);
+    void writeToPositionsTable(Trade trade);
 
 }

@@ -1,7 +1,5 @@
 package io.reactivestax.service;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.GetResponse;
 import io.reactivestax.interfaces.TradeProcessing;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.PayloadDatabaseRepo;
@@ -19,7 +17,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.reactivestax.service.TradesStream.*;
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
@@ -64,17 +61,17 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     private String readPayload(String tradeID) {
-        return readPayloadFromRawDatabase(hibernateSession, tradeID);
+        return readPayloadFromRawDatabase(tradeID);
     }
 
     private void processTrade(Trade trade) throws InterruptedException {
         if (trade != null) {
             String lookupStatus;
-            lookupStatus = validateBusinessLogic(sqlConnection, trade);
-            updateTradeSecurityLookupInPayloadTable(hibernateSession, trade, lookupStatus);
+            lookupStatus = validateBusinessLogic(trade);
+            updateTradeSecurityLookupInPayloadTable(trade, lookupStatus);
 
             try {
-                updateJournalEntryAndPositions(hibernateSession, lookupStatus, trade);
+                updateJournalEntryAndPositions(trade, lookupStatus);
             } catch (SQLException e) {
                 System.out.println("Failed updateJournalEntryAndPositions...");
                 throw new RuntimeException(e);
@@ -83,7 +80,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
         }
     }
 
-    private void updateJournalEntryAndPositions(Session hibernateSession, String lookupStatus, Trade trade) throws SQLException, InterruptedException {
+    private void updateJournalEntryAndPositions(Trade trade, String lookupStatus) throws SQLException{
         if (lookupStatus.equals("Valid")) {
             Transaction transaction;
             try {
@@ -92,8 +89,8 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                 transaction = hibernateSession.getTransaction();
             }
             try {
-                writeToJournalTable(hibernateSession, sqlConnection, trade);
-//                writeToPositionsTable(hibernateSession, trade);
+                writeToJournalTable(trade);
+//                writeToPositionsTable(trade);
                 transaction.commit();
             } catch (OptimisticLockingException e) {
                 if(transaction!=null) {
@@ -117,7 +114,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     @Override
-    public String readPayloadFromRawDatabase(Session hibernateSession, String tradeID) {
+    public String readPayloadFromRawDatabase(String tradeID) {
         return payloadDbAccess.readPayloadFromDBUsingHibernate(hibernateSession, tradeID);
     }
 
@@ -156,29 +153,29 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     @Override
-    public String validateBusinessLogic(Connection sqlConnection, Trade trade) {
+    public String validateBusinessLogic(Trade trade) {
         return tradesDbAccess.checkIfValidCUSIP(sqlConnection, trade);
     }
 
     @Override
-    public void writeToJournalTable(Session hibernateSession, Connection sqlConnection, Trade trade) {
+    public void writeToJournalTable(Trade trade) {
         tradesDbAccess.writeTradeToJournalTableUsingHibernate(hibernateSession, sqlConnection, trade);
     }
 
     @Override
-    public void writeToPositionsTable(Session hibernateSession, Trade trade) throws OptimisticLockingException {
-        tradesDbAccess.updatePositionsTableUsingHibernate(hibernateSession, trade);
+    public void writeToPositionsTable(Trade trade) throws OptimisticLockingException {
+//        tradesDbAccess.updatePositionsTableUsingHibernate(hibernateSession, sqlConnection, trade);
     }
 
-    private void updateTradeSecurityLookupInPayloadTable(Session hibernateSession, Trade trade, String lookupStatus) {
+    private void updateTradeSecurityLookupInPayloadTable(Trade trade, String lookupStatus) {
         payloadDbAccess.updateSecurityLookupStatusUsingHibernate(hibernateSession, trade, lookupStatus);
     }
 
-    private void updatePayloadDbForJournalEntry(Session hibernateSession, Trade trade) {
+    private void updatePayloadDbForJournalEntry(Trade trade) {
         payloadDbAccess.updateJournalEntryStatusUsingHibernate(hibernateSession, trade);
     }
 
-    private void updateJEForPositionsUpdate(Session hibernateSession, Trade trade) {
+    private void updateJEForPositionsUpdate(Trade trade) {
         tradesDbAccess.updateJEForPositionsUpdateUsingHibernate(hibernateSession, trade);
     }
 

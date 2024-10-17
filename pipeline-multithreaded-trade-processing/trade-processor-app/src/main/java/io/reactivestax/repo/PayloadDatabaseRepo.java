@@ -1,6 +1,5 @@
 package io.reactivestax.repo;
 
-import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.entity.RawPayload;
 import io.reactivestax.model.Trade;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -85,7 +84,7 @@ public class PayloadDatabaseRepo {
 
     // ------------ Hibernate --------------
 
-    public void writeToDatabaseUsingHibernate(Session session, String tradeID, String status, String payload) {
+    public void writeToDatabaseUsingHibernate(Session session, String tradeID, String payload, String status) {
         try {
             RawPayload rawPayload = new RawPayload();
             rawPayload.setTradeID(tradeID);
