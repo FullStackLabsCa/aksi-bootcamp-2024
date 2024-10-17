@@ -14,15 +14,11 @@ public class TradeProcessor {
 
     public void startTradeProcessingFromQueues(){
 
-        try(Connection sqlConnection = dataSource.getConnection()) {
             int threadsRunning = 0;
             while (threadsRunning < threadPoolSize) {
-                executorServiceTradeProcessor.submit(new TradeProcessorTask(null, sqlConnection));
+                executorServiceTradeProcessor.submit(new TradeProcessorTask(null));
                 threadsRunning++;
             }
-        } catch (SQLException e){
-            e.printStackTrace();
-        }
 
         executorServiceTradeProcessor.shutdown();
     }

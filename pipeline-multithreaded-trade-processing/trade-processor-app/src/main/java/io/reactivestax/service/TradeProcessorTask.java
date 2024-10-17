@@ -31,12 +31,17 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     Session hibernateSession;
     Connection sqlConnection;
 
-    public TradeProcessorTask(LinkedBlockingDeque<String> tradeIdQueue, Connection sqlConnection) {
+    public TradeProcessorTask(LinkedBlockingDeque<String> tradeIdQueue) {
         this.tradeIdQueue = tradeIdQueue;
         payloadDbAccess = new PayloadDatabaseRepo();
         tradesDbAccess = new TradesDBRepo();
         this.hibernateSession = hibernateSessionFactory.openSession();
-        this.sqlConnection = sqlConnection;
+        try {
+            this.sqlConnection = dataSource.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -66,7 +71,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
         if (trade != null) {
             String lookupStatus;
             lookupStatus = validateBusinessLogic(sqlConnection, trade);
-//            updateTradeSecurityLookupInPayloadTable(hibernateSession, trade, lookupStatus);
+            updateTradeSecurityLookupInPayloadTable(hibernateSession, trade, lookupStatus);
 //
 //            try {
 //                updateJournalEntryAndPositions(hibernateSession, lookupStatus, trade);
