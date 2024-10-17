@@ -216,7 +216,7 @@ public class TradesDBRepo {
 
             } else {
                 //Perform Update Logic
-                String updateHQL = "update positions p set p.position = (p.position + :positionIncrement), p.version = (p.version +1) where p.version = :currentVersion";
+                String updateHQL = "update Position p set p.positionAmount = (p.positionAmount + :positionIncrement), p.version = (p.version +1) where p.version = :currentVersion";
                 Query updatePositionQuery = hibernateSession.createQuery(updateHQL);
 
                 if (trade.getActivity().equals("BUY")) {
