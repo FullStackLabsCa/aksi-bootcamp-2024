@@ -2,13 +2,16 @@ package io.reactivestax.repo;
 
 import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.entity.Position;
+import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.OptimisticLockingException;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import java.sql.*;
 import java.util.List;
@@ -234,6 +237,24 @@ public class TradesDBRepo {
     }
 
     public void updateJEForPositionsUpdateUsingHibernate(Session hibernateSession, Trade trade) {
+        Transaction transaction;
+        try {
+            transaction = hibernateSession.beginTransaction();
+        } catch (Exception e) {
+            transaction = hibernateSession.getTransaction();
+        }
+        try {
+            CriteriaBuilder builder = hibernateSession.getCriteriaBuilder();
+            CriteriaUpdate<JournalEntry> positionStatusUpdate = builder.createCriteriaUpdate(JournalEntry.class);
+            Root<JournalEntry> root = positionStatusUpdate.from(JournalEntry.class);
+            positionStatusUpdate.set(root.get("positionPostedStatus"), "Posted");
+            positionStatusUpdate.where(builder.equal(root.get("tradeID"), trade.getTradeID()));
+
+            hibernateSession.createQuery(positionStatusUpdate).executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 }

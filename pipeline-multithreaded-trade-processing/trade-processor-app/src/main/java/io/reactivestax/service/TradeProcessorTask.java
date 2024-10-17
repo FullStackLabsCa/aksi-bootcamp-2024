@@ -150,8 +150,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
             }
 
             updatePayloadDbForJournalEntry(trade);
-//            updateJEForPositionsUpdate(hibernateSession, trade);
-
+            updateJEForPositionsUpdate(trade);
         }
         //Disabled Logging to the Log File - No one looks at error log files
     }
