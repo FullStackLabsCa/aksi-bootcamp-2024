@@ -1,5 +1,6 @@
 package io.reactivestax.repo;
 
+import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.entity.RawPayload;
 import io.reactivestax.model.Trade;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -91,6 +92,7 @@ public class PayloadDatabaseRepo {
             rawPayload.setStatus(status);
             rawPayload.setPayload(payload);
             rawPayload.setLookupStatus("Non Posted");
+            rawPayload.setPostedStatus("Non Posted");
             Transaction transaction;
             try {
                 transaction = session.beginTransaction();
@@ -141,6 +143,23 @@ public class PayloadDatabaseRepo {
     }
 
     public void updateJournalEntryStatusUsingHibernate(Session hibernateSession, Trade trade) {
+        Transaction transaction;
+        try {
+            transaction = hibernateSession.beginTransaction();
+        } catch (Exception e) {
+            transaction = hibernateSession.getTransaction();
+        }
+        try {
+            CriteriaBuilder builder = hibernateSession.getCriteriaBuilder();
+            CriteriaUpdate<RawPayload> jeStatusUpdate = builder.createCriteriaUpdate(RawPayload.class);
+            Root<RawPayload> root = jeStatusUpdate.from(RawPayload.class);
+            jeStatusUpdate.set(root.get("postedStatus"), "Posted");
+            jeStatusUpdate.where(builder.equal(root.get("tradeID"), trade.getTradeID()));
 
+            hibernateSession.createQuery(jeStatusUpdate).executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

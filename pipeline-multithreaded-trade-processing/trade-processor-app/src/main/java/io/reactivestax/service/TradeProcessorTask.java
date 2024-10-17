@@ -149,7 +149,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 //                TradesStream.checkRetryCountAndManageDLQ(trade, tradeIdQueue);
             }
 
-//            updatePayloadDbForJournalEntry(hibernateSession, trade);
+            updatePayloadDbForJournalEntry(trade);
 //            updateJEForPositionsUpdate(hibernateSession, trade);
 
         }
