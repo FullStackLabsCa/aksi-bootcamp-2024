@@ -236,12 +236,6 @@ public class TradesDBRepo {
     }
 
     public void updateJEForPositionsUpdateUsingHibernate(Session hibernateSession, Trade trade) {
-        Transaction transaction;
-        try {
-            transaction = hibernateSession.beginTransaction();
-        } catch (Exception e) {
-            transaction = hibernateSession.getTransaction();
-        }
         try {
             CriteriaBuilder builder = hibernateSession.getCriteriaBuilder();
             CriteriaUpdate<JournalEntry> positionStatusUpdate = builder.createCriteriaUpdate(JournalEntry.class);
@@ -250,7 +244,6 @@ public class TradesDBRepo {
             positionStatusUpdate.where(builder.equal(root.get("tradeID"), trade.getTradeID()));
 
             hibernateSession.createQuery(positionStatusUpdate).executeUpdate();
-            transaction.commit();
         } catch (Exception e) {
             e.printStackTrace();
         }

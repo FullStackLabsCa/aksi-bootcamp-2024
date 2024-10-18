@@ -142,12 +142,6 @@ public class PayloadDatabaseRepo {
     }
 
     public void updateJournalEntryStatusUsingHibernate(Session hibernateSession, Trade trade) {
-        Transaction transaction;
-        try {
-            transaction = hibernateSession.beginTransaction();
-        } catch (Exception e) {
-            transaction = hibernateSession.getTransaction();
-        }
         try {
             CriteriaBuilder builder = hibernateSession.getCriteriaBuilder();
             CriteriaUpdate<RawPayload> jeStatusUpdate = builder.createCriteriaUpdate(RawPayload.class);
@@ -156,7 +150,6 @@ public class PayloadDatabaseRepo {
             jeStatusUpdate.where(builder.equal(root.get("tradeID"), trade.getTradeID()));
 
             hibernateSession.createQuery(jeStatusUpdate).executeUpdate();
-            transaction.commit();
         } catch (Exception e) {
             e.printStackTrace();
         }

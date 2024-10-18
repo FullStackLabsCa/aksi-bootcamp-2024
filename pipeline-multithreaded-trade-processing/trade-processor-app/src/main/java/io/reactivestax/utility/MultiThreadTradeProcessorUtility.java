@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +32,7 @@ public class MultiThreadTradeProcessorUtility {
     private static ConnectionFactory rabbitMQFactory;
     private static Connection rabbitMQConnection;
     private static SessionFactory hibernateSessionFactory;
+    private static AtomicInteger count = new AtomicInteger(0);
 
     public static void configureLogger(){
         try {
@@ -113,6 +115,9 @@ public class MultiThreadTradeProcessorUtility {
     }
 
     public static org.hibernate.Session getHibernateSessionFromFactory(){
+        count.getAndIncrement();
+        System.out.println("hibernate session count = " + count);
+        System.out.println("------------------");
         return hibernateSessionFactory.openSession();
     }
 }
