@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
@@ -28,7 +29,7 @@ public class TradesStream implements Runnable {
 
 
     public static void bringUpQueues() {
-        int numberOfQueues = Integer.parseInt(getFileProperty("numberOfQueues"));
+        int numberOfQueues = Integer.parseInt(getFileProperty("trade.processor.queue.count"));
 
         for (int i = 0; i < numberOfQueues; i++) {
             listOfQueues.add(new LinkedBlockingDeque<>());
@@ -40,7 +41,7 @@ public class TradesStream implements Runnable {
     }
 
     public static int getQueueMapping(TradeIdAndAccNum tradeIdentifiers) {
-        String criteria = getFileProperty("tradeDistributionCriteria");
+        String criteria = getFileProperty("trade.distribution.criteria");
 
         String criteriaField;
         if (criteria.equals("tradeID")) {
@@ -52,7 +53,7 @@ public class TradesStream implements Runnable {
         if (accToQueueMap.containsKey(criteriaField)) {
             return accToQueueMap.get(criteriaField);
         } else {
-            int randomQueueNum = (int) (Math.random() * Integer.parseInt(getFileProperty("numberOfQueues")));
+            int randomQueueNum = (int) (Math.random() * Integer.parseInt(getFileProperty("trade.processor.queue.count")));
             accToQueueMap.put(criteriaField, randomQueueNum);
             return randomQueueNum;
         }
@@ -122,7 +123,7 @@ public class TradesStream implements Runnable {
         if (retryCountMapping.containsKey(trade.getTradeID())) {
             retryCountMapping.put(trade.getTradeID(), retryCountMapping.get(trade.getTradeID()) - 1);
         } else {
-            retryCountMapping.put(trade.getTradeID(), Integer.parseInt(getFileProperty("retryCount")) - 1);
+            retryCountMapping.put(trade.getTradeID(), Integer.parseInt(getFileProperty("retry.count")) - 1);
         }
 
         //DLQ

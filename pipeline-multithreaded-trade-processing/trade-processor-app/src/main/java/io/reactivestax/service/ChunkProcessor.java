@@ -6,7 +6,7 @@ import java.util.concurrent.*;
 
 public class ChunkProcessor {
 
-    int numberOfThreads = Integer.parseInt(MultiThreadTradeProcessorUtility.getFileProperty("threadPoolSizeOfChunkProcessor"));
+    int numberOfThreads = Integer.parseInt(MultiThreadTradeProcessorUtility.getFileProperty("thread.pool.size.chunk.processor"));
     ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
 
     public void startChunkProcessorPool() {

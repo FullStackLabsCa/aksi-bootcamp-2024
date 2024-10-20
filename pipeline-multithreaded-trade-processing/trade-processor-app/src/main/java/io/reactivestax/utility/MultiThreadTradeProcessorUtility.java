@@ -51,8 +51,8 @@ public class MultiThreadTradeProcessorUtility {
     public static void configureHikariCP(String portNum, String dbName) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:mysql://localhost:"+portNum+"/"+dbName);
-        config.setUsername(getFileProperty("dbUsername"));
-        config.setPassword(getFileProperty("dbPassword"));
+        config.setUsername(getFileProperty("db.username"));
+        config.setPassword(getFileProperty("db.password"));
 
         // Optional HikariCP settings
         config.setMaximumPoolSize(10); // Max 10 connections in the pool
@@ -115,9 +115,6 @@ public class MultiThreadTradeProcessorUtility {
     }
 
     public static org.hibernate.Session getHibernateSessionFromFactory(){
-        count.getAndIncrement();
-        System.out.println("hibernate session count = " + count);
-        System.out.println("------------------");
         return hibernateSessionFactory.openSession();
     }
 }

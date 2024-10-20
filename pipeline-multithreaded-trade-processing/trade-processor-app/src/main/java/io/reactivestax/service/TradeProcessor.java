@@ -6,8 +6,8 @@ import java.util.concurrent.Executors;
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 
 public class TradeProcessor {
-    int numberOfQueues = Integer.parseInt(getFileProperty("numberOfQueues"));
-    int threadPoolSize = Integer.parseInt(getFileProperty("threadPoolSizeOfTradeProcessor"));
+    int numberOfQueues = Integer.parseInt(getFileProperty("trade.processor.queue.count"));
+    int threadPoolSize = Integer.parseInt(getFileProperty("thread.pool.size.trade.processor"));
     ExecutorService executorServiceTradeProcessor = Executors.newFixedThreadPool(threadPoolSize);
 
     public void startTradeProcessingFromQueues(){
