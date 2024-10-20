@@ -11,7 +11,6 @@ import io.reactivestax.utility.exceptions.NullPayloadException;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import io.reactivestax.utility.exceptions.ReadFromQueueFailedException;
 import io.reactivestax.utility.exceptions.TradeCreationFailedException;
-import org.hibernate.Transaction;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
