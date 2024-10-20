@@ -1,7 +1,7 @@
 package io.reactivestax.service;
 
 import io.reactivestax.interfaces.TradesFileReading;
-import io.reactivestax.utility.InvalidFilePathException;
+import io.reactivestax.utility.exceptions.InvalidFilePathException;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
 

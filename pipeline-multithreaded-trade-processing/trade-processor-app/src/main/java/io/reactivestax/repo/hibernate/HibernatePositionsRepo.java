@@ -3,7 +3,7 @@ package io.reactivestax.repo.hibernate;
 import io.reactivestax.entity.Position;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.interfaces.PositionsRepo;
-import io.reactivestax.utility.OptimisticLockingException;
+import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -12,13 +12,13 @@ import jakarta.persistence.criteria.Root;
 import java.util.List;
 
 public class HibernatePositionsRepo implements PositionsRepo {
-    private HibernatePositionsRepo instance;
+    private static HibernatePositionsRepo instance;
 
     private HibernatePositionsRepo(){
         // Private Constructor to avoid anyone creating instance of this class
     }
 
-    public HibernatePositionsRepo getInstance(){
+    public static synchronized HibernatePositionsRepo getInstance(){
         if(instance == null) instance = new HibernatePositionsRepo();
         return instance;
     }

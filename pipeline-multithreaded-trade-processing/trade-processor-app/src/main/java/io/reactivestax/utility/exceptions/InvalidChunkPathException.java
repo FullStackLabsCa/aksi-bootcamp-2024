@@ -1,4 +1,4 @@
-package io.reactivestax.utility;
+package io.reactivestax.utility.exceptions;
 
 public class InvalidChunkPathException extends RuntimeException {
     public InvalidChunkPathException(String s) {

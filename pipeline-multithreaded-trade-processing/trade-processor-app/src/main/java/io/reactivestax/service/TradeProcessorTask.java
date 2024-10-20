@@ -4,10 +4,10 @@ import io.reactivestax.interfaces.TradeProcessing;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.PayloadDatabaseRepo;
 import io.reactivestax.repo.TradesDBRepo;
-import io.reactivestax.utility.NullPayloadException;
-import io.reactivestax.utility.OptimisticLockingException;
-import io.reactivestax.utility.ReadFromQueueFailedException;
-import io.reactivestax.utility.TradeCreationFailedException;
+import io.reactivestax.utility.exceptions.NullPayloadException;
+import io.reactivestax.utility.exceptions.OptimisticLockingException;
+import io.reactivestax.utility.exceptions.ReadFromQueueFailedException;
+import io.reactivestax.utility.exceptions.TradeCreationFailedException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 

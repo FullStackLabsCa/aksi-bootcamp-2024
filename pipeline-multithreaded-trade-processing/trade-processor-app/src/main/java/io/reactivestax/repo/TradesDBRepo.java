@@ -3,14 +3,13 @@ package io.reactivestax.repo;
 import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.entity.Position;
 import io.reactivestax.model.Trade;
-import io.reactivestax.utility.OptimisticLockingException;
+import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import java.sql.*;
 import java.util.List;

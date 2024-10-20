@@ -14,13 +14,13 @@ public class JDBCRawPayloadRepo implements RawPayloadRepo {
     private static final String LOOKUP_UPDATE_QUERY = "Update trades_payload set lookup_status = ? where trade_id = ?";
     private static final String UPDATE_JE_QUERY = "Update trades_payload set posted_status = 'Posted' where trade_id = ?";
     private Connection connection = null;
-    private JDBCRawPayloadRepo instance;
+    private static JDBCRawPayloadRepo instance;
 
     private JDBCRawPayloadRepo() {
         //Private Constructor to avoid anyone creating instance of this Class
     }
 
-    public JDBCRawPayloadRepo getInstance(){
+    public static synchronized JDBCRawPayloadRepo getInstance(){
         if(instance == null) instance = new JDBCRawPayloadRepo();
         return instance;
     }

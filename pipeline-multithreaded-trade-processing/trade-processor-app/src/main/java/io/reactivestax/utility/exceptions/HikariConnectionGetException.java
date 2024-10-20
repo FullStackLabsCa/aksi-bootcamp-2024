@@ -1,4 +1,4 @@
-package io.reactivestax.utility;
+package io.reactivestax.utility.exceptions;
 
 import java.sql.SQLException;
 

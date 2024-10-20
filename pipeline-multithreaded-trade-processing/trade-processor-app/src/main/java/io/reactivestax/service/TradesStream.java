@@ -4,13 +4,12 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.GetResponse;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.model.Trade;
-import io.reactivestax.utility.RabbitMQException;
+import io.reactivestax.utility.exceptions.RabbitMQException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;

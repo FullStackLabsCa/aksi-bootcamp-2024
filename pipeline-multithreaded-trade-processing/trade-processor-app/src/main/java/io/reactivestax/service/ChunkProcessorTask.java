@@ -4,8 +4,8 @@ import com.rabbitmq.client.Channel;
 import io.reactivestax.interfaces.ChunkProcessing;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.repo.PayloadDatabaseRepo;
-import io.reactivestax.utility.InvalidChunkPathException;
-import io.reactivestax.utility.RabbitMQException;
+import io.reactivestax.utility.exceptions.InvalidChunkPathException;
+import io.reactivestax.utility.exceptions.RabbitMQException;
 
 import java.io.FileReader;
 import java.io.IOException;

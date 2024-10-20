@@ -8,13 +8,13 @@ import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Root;
 
 public class HibernateJournalEntryRepo implements JournalEntryRepo {
-    private HibernateJournalEntryRepo instance;
+    private static HibernateJournalEntryRepo instance;
 
     private HibernateJournalEntryRepo(){
         // Private Constructor to avoid anyone creating instance of this class
     }
 
-    public HibernateJournalEntryRepo getInstance(){
+    public static synchronized HibernateJournalEntryRepo getInstance(){
         if(instance == null) instance = new HibernateJournalEntryRepo();
         return instance;
     }

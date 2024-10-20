@@ -12,13 +12,13 @@ public class JDBCSecuritiesReferenceRepo implements SecuritiesReferenceRepo {
     private static final String CUSIP_LOOKUP_QUERY = "select 1 from SecuritiesReferenceV2 where cusip = ?";
     private static final String LOOKUP_SECURITY_ID_QUERY = "Select security_id from SecuritiesReferenceV2 where cusip = ?";
     private Connection connection  = null;
-    private JDBCSecuritiesReferenceRepo instance;
+    private static JDBCSecuritiesReferenceRepo instance;
 
     private JDBCSecuritiesReferenceRepo() {
         //Private Constructor to avoid anyone creating instance of this Class
     }
 
-    public JDBCSecuritiesReferenceRepo getInstance(){
+    public static synchronized JDBCSecuritiesReferenceRepo getInstance(){
         if(instance == null) instance = new JDBCSecuritiesReferenceRepo();
         return instance;
     }

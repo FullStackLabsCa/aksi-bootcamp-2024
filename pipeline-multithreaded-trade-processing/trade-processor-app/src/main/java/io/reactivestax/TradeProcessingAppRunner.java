@@ -3,7 +3,7 @@ package io.reactivestax;
 import io.reactivestax.service.ChunkProcessor;
 import io.reactivestax.service.TradeProcessor;
 import io.reactivestax.service.TradesFileReader;
-import io.reactivestax.utility.InvalidAppModeException;
+import io.reactivestax.utility.exceptions.InvalidAppModeException;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 
@@ -12,9 +12,9 @@ public class TradeProcessingAppRunner {
     public static void main(String[] args) {
 
         readPropertiesFile();
-        configureHikariCP(getFileProperty("db.port.num"), getFileProperty("db.name"));
+//        configureHikariCP(getFileProperty("db.port.num"), getFileProperty("db.name"));
         configureRabbitMQ(getFileProperty("rabbitMQ.hostName"), getFileProperty("rabbitMQ.guest"), getFileProperty("rabbitMQ.pass"));
-        configureHibernateSessionFactory();
+//        configureHibernateSessionFactory();
 
         if(getFileProperty("trading.app.mode").equals("producer")) {
             (new Thread(new FileReaderRunner())).start();

@@ -12,13 +12,13 @@ import org.hibernate.Transaction;
 import java.util.List;
 
 public class HibernateRawPayloadRepo implements RawPayloadRepo {
-    private HibernateRawPayloadRepo instance;
+    private static HibernateRawPayloadRepo instance;
 
     private HibernateRawPayloadRepo(){
         // Private Constructor to avoid anyone creating instance of this class
     }
 
-    public HibernateRawPayloadRepo getInstance(){
+    public static synchronized HibernateRawPayloadRepo getInstance(){
         if(instance == null) instance = new HibernateRawPayloadRepo();
         return instance;
     }

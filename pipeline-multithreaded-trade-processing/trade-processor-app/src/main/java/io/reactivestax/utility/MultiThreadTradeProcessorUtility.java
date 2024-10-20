@@ -17,6 +17,8 @@ import java.util.logging.SimpleFormatter;
 
 import com.rabbitmq.client.ConnectionFactory;
 
+import io.reactivestax.utility.exceptions.HikariConnectionGetException;
+import io.reactivestax.utility.exceptions.InvalidFilePathException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 

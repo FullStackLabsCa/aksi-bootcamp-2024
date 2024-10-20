@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 
 public class JDBCJournalEntryRepo implements JournalEntryRepo {
 
-    private JDBCJournalEntryRepo instance;
+    private static JDBCJournalEntryRepo instance;
     private static final String WRITE_TO_JOURNAL_ENTRY_QUERY = """
                 insert into journal_entry (account_number, security_id, direction, quantity, position_posted_status, trade_execution_time, trade_id)
                 values (?,?,?,?,?,?,?)
@@ -20,7 +20,7 @@ public class JDBCJournalEntryRepo implements JournalEntryRepo {
         //Private Constructor to avoid anyone creating instance of this Class
     }
 
-    public JDBCJournalEntryRepo getInstance(){
+    public static synchronized JDBCJournalEntryRepo getInstance(){
         if(instance == null) instance = new JDBCJournalEntryRepo();
         return instance;
     }

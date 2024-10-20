@@ -1,4 +1,4 @@
-package io.reactivestax.utility;
+package io.reactivestax.utility.exceptions;
 
 public class TradeCreationFailedException extends RuntimeException {
     public TradeCreationFailedException(String s) {

@@ -2,7 +2,7 @@ package io.reactivestax.repo.jdbc;
 
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.interfaces.PositionsRepo;
-import io.reactivestax.utility.OptimisticLockingException;
+import io.reactivestax.utility.exceptions.OptimisticLockingException;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,13 +12,13 @@ public class JDBCPositionsRepo implements PositionsRepo {
     private static final String POSITION_INSERT_QUERY = "Insert into positions (account_number, security_id, position, version) values (?,?,?,0)";
     private static final String POSITION_UPDATE_QUERY = "update positions set position = (position + ?), version = (version + 1) where version = ?";
     private static final String GET_VERSION_ID = "SELECT version FROM positions WHERE account_number = ? and security_id = ?";
-    private JDBCPositionsRepo instance;
+    private static JDBCPositionsRepo instance;
 
     private JDBCPositionsRepo() {
         //Private Constructor to avoid anyone creating instance of this Class
     }
 
-    public JDBCPositionsRepo getInstance(){
+    public static synchronized JDBCPositionsRepo getInstance(){
         if(instance == null) instance = new JDBCPositionsRepo();
         return instance;
     }
