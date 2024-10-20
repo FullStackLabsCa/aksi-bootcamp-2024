@@ -12,9 +12,7 @@ public class TradeProcessingAppRunner {
     public static void main(String[] args) {
 
         readPropertiesFile();
-//        configureHikariCP(getFileProperty("db.port.num"), getFileProperty("db.name"));
         configureRabbitMQ(getFileProperty("rabbitMQ.hostName"), getFileProperty("rabbitMQ.guest"), getFileProperty("rabbitMQ.pass"));
-//        configureHibernateSessionFactory();
 
         if(getFileProperty("trading.app.mode").equals("producer")) {
             (new Thread(new FileReaderRunner())).start();
