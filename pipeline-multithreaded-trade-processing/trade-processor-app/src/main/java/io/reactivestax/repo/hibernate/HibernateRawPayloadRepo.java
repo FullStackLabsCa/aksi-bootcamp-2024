@@ -12,14 +12,14 @@ import org.hibernate.Transaction;
 import java.util.List;
 
 public class HibernateRawPayloadRepo implements RawPayloadRepo {
-    private HibernateJournalEntryRepo instance;
+    private HibernateRawPayloadRepo instance;
 
-    private HibernateJournalEntryRepo(){
+    private HibernateRawPayloadRepo(){
         // Private Constructor to avoid anyone creating instance of this class
     }
 
-    public HibernateJournalEntryRepo getInstance(){
-        if(instance == null) instance = new HibernateJournalEntryRepo();
+    public HibernateRawPayloadRepo getInstance(){
+        if(instance == null) instance = new HibernateRawPayloadRepo();
         return instance;
     }
 

@@ -4,14 +4,14 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.repo.interfaces.SecuritiesReferenceRepo;
 
 public class HibernateSecuritiesReferenceRepo implements SecuritiesReferenceRepo {
-    private HibernateJournalEntryRepo instance;
+    private HibernateSecuritiesReferenceRepo instance;
 
-    private HibernateJournalEntryRepo(){
+    private HibernateSecuritiesReferenceRepo(){
         // Private Constructor to avoid anyone creating instance of this class
     }
 
-    public HibernateJournalEntryRepo getInstance(){
-        if(instance == null) instance = new HibernateJournalEntryRepo();
+    public HibernateSecuritiesReferenceRepo getInstance(){
+        if(instance == null) instance = new HibernateSecuritiesReferenceRepo();
         return instance;
     }
 
