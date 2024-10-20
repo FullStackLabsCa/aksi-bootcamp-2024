@@ -22,7 +22,8 @@ public class HibernateUtils implements ConnectionUtil<Session>, TransactionUtil 
     public Session getConnection() {
         Session session = sessionHolder.get();
         if(session == null) {
-            sessionHolder.set(getSessionFactory().openSession());
+            session = getSessionFactory().openSession();
+            sessionHolder.set(session);
         }
         return session;
     }

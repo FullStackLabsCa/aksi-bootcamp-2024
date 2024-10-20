@@ -35,12 +35,13 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
             rawPayload.setPayload(payload);
             rawPayload.setLookupStatus("Non Posted");
             rawPayload.setPostedStatus("Non Posted");
-            Transaction transaction;
+
             session.persist(rawPayload);
 
             HibernateUtils.getInstance().commitTransaction();
         } catch (Exception e) {
             e.printStackTrace();
+            HibernateUtils.getInstance().rollbackTransaction();
         }
     }
 

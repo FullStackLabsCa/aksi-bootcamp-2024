@@ -31,7 +31,8 @@ public class JDBCUtils implements ConnectionUtil<Connection>, TransactionUtil {
         if(connection == null) {
             dataSource = getHikariDataSource();
             try {
-                connectionHolder.set(dataSource.getConnection());
+                connection = dataSource.getConnection();
+                connectionHolder.set(connection);
             } catch (SQLException e) {
                 System.out.println("Error Getting Connection from Datasource....");
                 throw new HikariConnectionGetException(e);
