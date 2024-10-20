@@ -5,7 +5,6 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.repo.interfaces.PositionsRepo;
 import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.database.HibernateUtils;
-import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -13,7 +12,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
 
-import java.sql.Connection;
 import java.util.List;
 
 public class HibernatePositionsRepo implements PositionsRepo {

@@ -20,16 +20,18 @@ import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFilePr
 
 public class BeanFactory {
 
+    private static final String JDBC_PERSISTENCE_TECH = "jdbc";
+    private static final String HIBERNATE_PERSISTENCE_TECH = "hibernate";
 
     public static TransactionUtil getTransactionUtil(){
         TransactionUtil transactionUtil;
 
-        if(getFileProperty("persistence.technology").equals("jdbc")){
+        if(getFileProperty("persistence.technology").equals(JDBC_PERSISTENCE_TECH)){
             transactionUtil = JDBCUtils.getInstance();
-        } else if (getFileProperty("persistence.technology").equals("hibernate")){
+        } else if (getFileProperty("persistence.technology").equals(HIBERNATE_PERSISTENCE_TECH)){
             transactionUtil = HibernateUtils.getInstance();
         } else {
-            throw new InvalidPersistenceTechException("Invalid persistence technology");
+            throw new InvalidPersistenceTechException();
         }
 
         return transactionUtil;
@@ -38,12 +40,12 @@ public class BeanFactory {
     public static RawPayloadRepo getRawPayloadRepo() {
         RawPayloadRepo rawPayloadRepo;
 
-        if(getFileProperty("persistence.technology").equals("jdbc")){
+        if(getFileProperty("persistence.technology").equals(JDBC_PERSISTENCE_TECH)){
             rawPayloadRepo = JDBCRawPayloadRepo.getInstance();
-        } else if (getFileProperty("persistence.technology").equals("hibernate")){
+        } else if (getFileProperty("persistence.technology").equals(HIBERNATE_PERSISTENCE_TECH)){
             rawPayloadRepo = HibernateRawPayloadRepo.getInstance();
         } else {
-            throw new InvalidPersistenceTechException("Invalid persistence technology");
+            throw new InvalidPersistenceTechException();
         }
 
         return rawPayloadRepo;
@@ -52,12 +54,12 @@ public class BeanFactory {
     public static JournalEntryRepo getJournalEntryRepo() {
         JournalEntryRepo journalEntryRepo;
 
-        if(getFileProperty("persistence.technology").equals("jdbc")){
+        if(getFileProperty("persistence.technology").equals(JDBC_PERSISTENCE_TECH)){
             journalEntryRepo = JDBCJournalEntryRepo.getInstance();
-        } else if (getFileProperty("persistence.technology").equals("hibernate")){
+        } else if (getFileProperty("persistence.technology").equals(HIBERNATE_PERSISTENCE_TECH)){
             journalEntryRepo = HibernateJournalEntryRepo.getInstance();
         } else {
-            throw new InvalidPersistenceTechException("Invalid persistence technology");
+            throw new InvalidPersistenceTechException();
         }
 
         return journalEntryRepo;
@@ -66,12 +68,12 @@ public class BeanFactory {
     public static PositionsRepo getPositionsRepo() {
         PositionsRepo positionsRepo;
 
-        if(getFileProperty("persistence.technology").equals("jdbc")){
+        if(getFileProperty("persistence.technology").equals(JDBC_PERSISTENCE_TECH)){
             positionsRepo = JDBCPositionsRepo.getInstance();
-        } else if (getFileProperty("persistence.technology").equals("hibernate")){
+        } else if (getFileProperty("persistence.technology").equals(HIBERNATE_PERSISTENCE_TECH)){
             positionsRepo = HibernatePositionsRepo.getInstance();
         } else {
-            throw new InvalidPersistenceTechException("Invalid persistence technology");
+            throw new InvalidPersistenceTechException();
         }
 
         return positionsRepo;
@@ -80,13 +82,7 @@ public class BeanFactory {
     public static SecuritiesReferenceRepo getSecuritiesReferenceRepo() {
         SecuritiesReferenceRepo securitiesReferenceRepo;
 
-//        if(getFileProperty("persistence.technology").equals("jdbc")){
-            securitiesReferenceRepo = JDBCSecuritiesReferenceRepo.getInstance();
-//        } else if (getFileProperty("persistence.technology").equals("hibernate")){
-//            securitiesReferenceRepo = HibernateSecuritiesReferenceRepo.getInstance();
-//        } else {
-//            throw new InvalidPersistenceTechException("Invalid persistence technology");
-//        }
+        securitiesReferenceRepo = JDBCSecuritiesReferenceRepo.getInstance();
 
         return securitiesReferenceRepo;
     }

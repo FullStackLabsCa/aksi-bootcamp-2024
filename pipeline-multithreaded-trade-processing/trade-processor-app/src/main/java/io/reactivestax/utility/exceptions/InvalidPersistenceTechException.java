@@ -1,7 +1,7 @@
 package io.reactivestax.utility.exceptions;
 
 public class InvalidPersistenceTechException extends RuntimeException {
-    public InvalidPersistenceTechException(String invalidPersistenceTechnology) {
-        System.out.println("invalidPersistenceTechnology = " + invalidPersistenceTechnology);
+    public InvalidPersistenceTechException() {
+        System.out.println("Invalid persistence technology");
     }
 }
