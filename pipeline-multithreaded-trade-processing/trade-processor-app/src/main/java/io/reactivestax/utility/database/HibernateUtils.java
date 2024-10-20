@@ -4,8 +4,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-import java.sql.Connection;
-
 public class HibernateUtils implements ConnectionUtil<Session>, TransactionUtil {
     private static HibernateUtils instance;
     private static SessionFactory sessionFactory;

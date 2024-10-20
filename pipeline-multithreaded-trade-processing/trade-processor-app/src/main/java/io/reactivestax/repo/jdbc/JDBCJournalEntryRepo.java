@@ -2,7 +2,9 @@ package io.reactivestax.repo.jdbc;
 
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.interfaces.JournalEntryRepo;
+import io.reactivestax.utility.database.JDBCUtils;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -27,9 +29,11 @@ public class JDBCJournalEntryRepo implements JournalEntryRepo {
 
     @Override
     public void writeTradeToJournalEntryTable(Trade trade) {
+        Connection connection = JDBCUtils.getInstance().getConnection();
+        JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         try (PreparedStatement insertionQuery = connection.prepareStatement(WRITE_TO_JOURNAL_ENTRY_QUERY)) {
             insertionQuery.setString(1, trade.getAccountNumber());
-            insertionQuery.setInt(2, getSecurityIdForCusip(connection, trade.getCusip()));
+            insertionQuery.setInt(2, securitiesReference.getSecurityIdForCusip(trade.getCusip()));
             insertionQuery.setString(3, trade.getActivity());
             insertionQuery.setInt(4, trade.getQuantity());
             insertionQuery.setString(5, "Not Posted");
@@ -45,6 +49,7 @@ public class JDBCJournalEntryRepo implements JournalEntryRepo {
 
     @Override
     public void updateJournalEntryForPositionUpdateStatus(Trade trade) {
+        Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement psUpdateJe = connection.prepareStatement(UPDATE_JE_POSITION_POSTING_STATUS_QUERY)) {
             psUpdateJe.setString(1, "Posted");
             psUpdateJe.setString(2, trade.getTradeID());

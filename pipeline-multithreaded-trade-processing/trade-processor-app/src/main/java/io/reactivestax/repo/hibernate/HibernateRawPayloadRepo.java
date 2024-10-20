@@ -3,6 +3,7 @@ package io.reactivestax.repo.hibernate;
 import io.reactivestax.entity.RawPayload;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.interfaces.RawPayloadRepo;
+import io.reactivestax.utility.database.HibernateUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
@@ -25,6 +26,8 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
 
     @Override
     public void writeToRawPayloadTable(String tradeID, String payload, String validityStatus) {
+        Session session = HibernateUtils.getInstance().getConnection();
+        HibernateUtils.getInstance().startTransaction();
         try {
             RawPayload rawPayload = new RawPayload();
             rawPayload.setTradeID(tradeID);
@@ -33,13 +36,9 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
             rawPayload.setLookupStatus("Non Posted");
             rawPayload.setPostedStatus("Non Posted");
             Transaction transaction;
-            try {
-                transaction = session.beginTransaction();
-            } catch (Exception e) {
-                transaction = session.getTransaction();
-            }
             session.persist(rawPayload);
-            transaction.commit();
+
+            HibernateUtils.getInstance().commitTransaction();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -47,6 +46,7 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
 
     @Override
     public String readPayloadFromRawPayloadsTable(String tradeID) {
+        Session session = HibernateUtils.getInstance().getConnection();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<RawPayload> query = builder.createQuery(RawPayload.class);
         Root<RawPayload> root = query.from(RawPayload.class);
@@ -59,12 +59,8 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
 
     @Override
     public void updateSecurityLookupStatusInRawPayloadsTable(Trade trade, String lookupStatus) {
-        Transaction transaction;
-        try {
-            transaction = session.beginTransaction();
-        } catch (Exception e) {
-            transaction = session.getTransaction();
-        }
+        Session session = HibernateUtils.getInstance().getConnection();
+        HibernateUtils.getInstance().startTransaction();
         try {
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaUpdate<RawPayload> criteriaUpdate = builder.createCriteriaUpdate(RawPayload.class);
@@ -76,7 +72,8 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
             }
             criteriaUpdate.where(builder.equal(root.get("tradeID"), trade.getTradeID()));
             session.createQuery(criteriaUpdate).executeUpdate();
-            transaction.commit();
+
+            HibernateUtils.getInstance().commitTransaction();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -84,6 +81,7 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
 
     @Override
     public void updateJournalEntryStatusInRawPayloadsTable(Trade trade) {
+        Session session = HibernateUtils.getInstance().getConnection();
         try {
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaUpdate<RawPayload> jeStatusUpdate = builder.createCriteriaUpdate(RawPayload.class);

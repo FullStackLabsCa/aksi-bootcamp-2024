@@ -2,8 +2,10 @@ package io.reactivestax.repo.jdbc;
 
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.interfaces.PositionsRepo;
+import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,8 +27,12 @@ public class JDBCPositionsRepo implements PositionsRepo {
 
     @Override
     public void updatePositionsTable(Trade trade) {
-        int securityID = getSecurityIdForCusip(connection, trade.getCusip());
-        int version = getAccountVersion(connection, trade, securityID);
+        Connection connection = JDBCUtils.getInstance().getConnection();
+        JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
+        JDBCPositionsRepo positionsReference = JDBCPositionsRepo.getInstance();
+
+        int securityID = securitiesReference.getSecurityIdForCusip(trade.getCusip());
+        int version = positionsReference.getVersionIdForPosition(trade, securityID);
 
         try (PreparedStatement psPositionInsertQuery = connection.prepareStatement(POSITION_INSERT_QUERY);
              PreparedStatement psPositionUpdateQuery = connection.prepareStatement(POSITION_UPDATE_QUERY)) {
@@ -67,6 +73,7 @@ public class JDBCPositionsRepo implements PositionsRepo {
 
     @Override
     public int getVersionIdForPosition(Trade trade, int securityId) {
+        Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement stmt = connection.prepareStatement(GET_VERSION_ID)) {
             stmt.setString(1, trade.getAccountNumber());
             stmt.setInt(2, securityId);

@@ -3,12 +3,17 @@ package io.reactivestax.repo.hibernate;
 import io.reactivestax.entity.Position;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.interfaces.PositionsRepo;
+import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
+import io.reactivestax.utility.database.HibernateUtils;
+import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import org.hibernate.Session;
 
+import java.sql.Connection;
 import java.util.List;
 
 public class HibernatePositionsRepo implements PositionsRepo {
@@ -25,9 +30,13 @@ public class HibernatePositionsRepo implements PositionsRepo {
 
     @Override
     public void updatePositionsTable(Trade trade) {
+        Session session = HibernateUtils.getInstance().getConnection();
+        JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
+        HibernatePositionsRepo positionsReference = HibernatePositionsRepo.getInstance();
+
         try {
-            int securityID = getSecurityIdForCusip(sqlConnection, trade.getCusip());
-            int version = getAccountVersionUsingHibernate(session, trade, securityID);
+            int securityID = securitiesReference.getSecurityIdForCusip(trade.getCusip());
+            int version = positionsReference.getVersionIdForPosition(trade, securityID);
 
             if (version == -1) {
                 //Perform Insertion Logic
@@ -67,6 +76,7 @@ public class HibernatePositionsRepo implements PositionsRepo {
 
     @Override
     public int getVersionIdForPosition(Trade trade, int securityId) {
+        Session session = HibernateUtils.getInstance().getConnection();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Position> getPositionVersionQuery = builder.createQuery(Position.class);
         Root<Position> root = getPositionVersionQuery.from(Position.class);
