@@ -1,17 +1,18 @@
 package io.reactivestax.service;
 
+import io.reactivestax.factory.BeanFactory;
 import io.reactivestax.interfaces.TradeProcessing;
 import io.reactivestax.model.Trade;
-import io.reactivestax.repo.PayloadDatabaseRepo;
-import io.reactivestax.repo.TradesDBRepo;
+import io.reactivestax.repo.interfaces.JournalEntryRepo;
+import io.reactivestax.repo.interfaces.PositionsRepo;
+import io.reactivestax.repo.interfaces.RawPayloadRepo;
+import io.reactivestax.repo.interfaces.SecuritiesReferenceRepo;
 import io.reactivestax.utility.exceptions.NullPayloadException;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import io.reactivestax.utility.exceptions.ReadFromQueueFailedException;
 import io.reactivestax.utility.exceptions.TradeCreationFailedException;
-import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import java.sql.Connection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,17 +23,9 @@ import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 
 public class TradeProcessorTask implements Runnable, TradeProcessing {
     LinkedBlockingDeque<String> tradeIdQueue;
-    PayloadDatabaseRepo payloadDbAccess;
-    TradesDBRepo tradesDbAccess;
-    Session hibernateSession;
-    Connection sqlConnection;
 
     public TradeProcessorTask(LinkedBlockingDeque<String> tradeIdQueue) {
         this.tradeIdQueue = tradeIdQueue;
-        payloadDbAccess = new PayloadDatabaseRepo();
-        tradesDbAccess = new TradesDBRepo();
-        this.hibernateSession = getHibernateSessionFromFactory();
-        this.sqlConnection = getConnectionFromHikariDataSource();
     }
 
     @Override
@@ -67,7 +60,8 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public String readPayloadFromRawDatabase(String tradeID) {
-        return payloadDbAccess.readPayloadFromDBUsingHibernate(hibernateSession, tradeID);
+        RawPayloadRepo rawPayloadRepo = BeanFactory.getRawPayloadRepo();
+        return rawPayloadRepo.readPayloadFromRawPayloadsTable(tradeID);
     }
 
     @Override
@@ -117,21 +111,18 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public String validateBusinessLogic(Trade trade) {
-        return tradesDbAccess.checkIfValidCUSIP(sqlConnection, trade);
+        SecuritiesReferenceRepo securitiesReferenceRepo = BeanFactory.getSecuritiesReferenceRepo();
+        return securitiesReferenceRepo.checkIfValidCusip(trade);
     }
 
     private void updateTradeSecurityLookupInPayloadTable(Trade trade, String lookupStatus) {
-        payloadDbAccess.updateSecurityLookupStatusUsingHibernate(hibernateSession, trade, lookupStatus);
+        RawPayloadRepo rawPayloadRepo = BeanFactory.getRawPayloadRepo();
+        rawPayloadRepo.updateSecurityLookupStatusInRawPayloadsTable(trade, lookupStatus);
     }
 
     private void updateJournalEntryAndPositions(Trade trade, String lookupStatus){
         if (lookupStatus.equals("Valid")) {
-            Transaction transaction;
-            try {
-                transaction = hibernateSession.beginTransaction();
-            } catch (Exception e) {
-                transaction = hibernateSession.getTransaction();
-            }
+            BeanFactory.getTransactionUtil().startTransaction();
             try {
                 writeToJournalTable(trade);
                 updatePayloadDbForJournalEntry(trade);
@@ -139,12 +130,10 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
                 writeToPositionsTable(trade);
                 updateJEForPositionsUpdate(trade);
 
-                transaction.commit();
+                BeanFactory.getTransactionUtil().commitTransaction();
 
             } catch (OptimisticLockingException e) {
-                if(transaction!=null) {
-                    transaction.rollback();
-                }
+                BeanFactory.getTransactionUtil().rollbackTransaction();
 //                TradesStream.checkRetryCountAndManageDLQ(trade, tradeIdQueue);
             }
 
@@ -154,20 +143,24 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public void writeToJournalTable(Trade trade) {
-        tradesDbAccess.writeTradeToJournalTableUsingHibernate(hibernateSession, sqlConnection, trade);
+        JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
+        journalEntryRepo.writeTradeToJournalEntryTable(trade);
     }
 
     @Override
     public void writeToPositionsTable(Trade trade) throws OptimisticLockingException {
-        tradesDbAccess.updatePositionsTableUsingHibernate(hibernateSession, sqlConnection, trade);
+        PositionsRepo positionsRepo = BeanFactory.getPositionsRepo();
+        positionsRepo.updatePositionsTable(trade);
     }
 
     private void updatePayloadDbForJournalEntry(Trade trade) {
-        payloadDbAccess.updateJournalEntryStatusUsingHibernate(hibernateSession, trade);
+        RawPayloadRepo rawPayloadRepo = BeanFactory.getRawPayloadRepo();
+        rawPayloadRepo.updateJournalEntryStatusInRawPayloadsTable(trade);
     }
 
     private void updateJEForPositionsUpdate(Trade trade) {
-        tradesDbAccess.updateJEForPositionsUpdateUsingHibernate(hibernateSession, trade);
+        JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
+        journalEntryRepo.updateJournalEntryForPositionUpdateStatus(trade);
     }
 
 }

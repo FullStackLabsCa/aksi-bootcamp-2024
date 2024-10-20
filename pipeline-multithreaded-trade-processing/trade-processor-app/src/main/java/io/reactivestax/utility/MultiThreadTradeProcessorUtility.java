@@ -50,29 +50,29 @@ public class MultiThreadTradeProcessorUtility {
         logger.setLevel(Level.INFO);
     }
 
-    public static void configureHikariCP(String portNum, String dbName) {
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:"+portNum+"/"+dbName);
-        config.setUsername(getFileProperty("db.username"));
-        config.setPassword(getFileProperty("db.password"));
-
-        // Optional HikariCP settings
-        config.setMaximumPoolSize(10); // Max 10 connections in the pool
-        config.setMinimumIdle(5); // Minimum idle connections
-        config.setConnectionTimeout(30000); // 30 seconds timeout for obtaining a connection
-        config.setIdleTimeout(600000); // 10 minutes idle timeout
-
-        dataSource = new HikariDataSource(config);
-    }
-
-    public static java.sql.Connection getConnectionFromHikariDataSource(){
-        try {
-            return dataSource.getConnection();
-        } catch (SQLException e) {
-            System.out.println("Error Getting Connection from Hikari CP");
-            throw new HikariConnectionGetException(e);
-        }
-    }
+//    public static void configureHikariCP(String portNum, String dbName) {
+//        HikariConfig config = new HikariConfig();
+//        config.setJdbcUrl("jdbc:mysql://localhost:"+portNum+"/"+dbName);
+//        config.setUsername(getFileProperty("db.username"));
+//        config.setPassword(getFileProperty("db.password"));
+//
+//        // Optional HikariCP settings
+//        config.setMaximumPoolSize(10); // Max 10 connections in the pool
+//        config.setMinimumIdle(5); // Minimum idle connections
+//        config.setConnectionTimeout(30000); // 30 seconds timeout for obtaining a connection
+//        config.setIdleTimeout(600000); // 10 minutes idle timeout
+//
+//        dataSource = new HikariDataSource(config);
+//    }
+//
+//    public static java.sql.Connection getConnectionFromHikariDataSource(){
+//        try {
+//            return dataSource.getConnection();
+//        } catch (SQLException e) {
+//            System.out.println("Error Getting Connection from Hikari CP");
+//            throw new HikariConnectionGetException(e);
+//        }
+//    }
 
     public static void readPropertiesFile(){
         Properties properties = new Properties();
@@ -110,13 +110,13 @@ public class MultiThreadTradeProcessorUtility {
         return null;
     }
 
-    public static void configureHibernateSessionFactory(){
-        hibernateSessionFactory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .buildSessionFactory();
-    }
-
-    public static org.hibernate.Session getHibernateSessionFromFactory(){
-        return hibernateSessionFactory.openSession();
-    }
+//    public static void configureHibernateSessionFactory(){
+//        hibernateSessionFactory = new Configuration()
+//                .configure("hibernate.cfg.xml")
+//                .buildSessionFactory();
+//    }
+//
+//    public static org.hibernate.Session getHibernateSessionFromFactory(){
+//        return hibernateSessionFactory.openSession();
+//    }
 }

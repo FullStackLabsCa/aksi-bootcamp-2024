@@ -1,9 +1,11 @@
 package io.reactivestax.service;
 
 import com.rabbitmq.client.Channel;
+import io.reactivestax.factory.BeanFactory;
 import io.reactivestax.interfaces.ChunkProcessing;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
-import io.reactivestax.repo.PayloadDatabaseRepo;
+import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
+import io.reactivestax.repo.interfaces.RawPayloadRepo;
 import io.reactivestax.utility.exceptions.InvalidChunkPathException;
 import io.reactivestax.utility.exceptions.RabbitMQException;
 
@@ -17,14 +19,9 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     String filePath;
     String invalidString = "Invalid";
-    org.hibernate.Session hibernateSession;
-    PayloadDatabaseRepo payloadRepo;
 
     public ChunkProcessorTask(String filePath) {
         this.filePath = filePath;
-        this.hibernateSession = getHibernateSessionFromFactory();
-        payloadRepo = new PayloadDatabaseRepo();
-
     }
 
 
@@ -80,7 +77,8 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     @Override
     public void writePayloadToPayloadDatabase(String tradeID, String payload, String tradeStatus) {
-        payloadRepo.writeToDatabaseUsingHibernate(hibernateSession, tradeID, payload, tradeStatus);
+        RawPayloadRepo payloadRepo = BeanFactory.getRawPayloadRepo();
+        payloadRepo.writeToRawPayloadTable(tradeID, payload, tradeStatus);
     }
 
     @Override
