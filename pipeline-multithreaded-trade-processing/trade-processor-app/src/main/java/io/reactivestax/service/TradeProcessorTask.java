@@ -28,7 +28,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
         while (true) {
             String tradeID;
             try {
-                tradeID = readTradeIdFromQueue();
+                tradeID = getTradeID();
                 if (tradeID == null || tradeID.trim().isEmpty()) break;
                 String payload = readPayload(tradeID);
                 if ((payload != null) && (!payload.isEmpty())) {
@@ -43,7 +43,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     @Override
-    public String readTradeIdFromQueue() throws InterruptedException {
+    public String getTradeID() throws InterruptedException {
         return BeanFactory.getMessageReceiver().receiveMessage();
     }
 
@@ -125,7 +125,8 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
                 BeanFactory.getTransactionUtil().commitTransaction();
 
-            } catch (OptimisticLockingException e) {
+            } catch (Exception e) {
+                e.printStackTrace();
                 BeanFactory.getTransactionUtil().rollbackTransaction();
                 BeanFactory.getMessageRetryer().retryMessage(trade);
             }

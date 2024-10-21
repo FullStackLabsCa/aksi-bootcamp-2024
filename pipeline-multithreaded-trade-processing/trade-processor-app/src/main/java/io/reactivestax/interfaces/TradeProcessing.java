@@ -4,7 +4,7 @@ import io.reactivestax.model.Trade;
 
 public interface TradeProcessing {
 
-    String readTradeIdFromQueue() throws InterruptedException;
+    String getTradeID() throws InterruptedException;
     String readPayloadFromRawDatabase(String tradeID);
     Trade validatePayloadAndCreateTrade(String payload);
     String validateBusinessLogic(Trade trade);

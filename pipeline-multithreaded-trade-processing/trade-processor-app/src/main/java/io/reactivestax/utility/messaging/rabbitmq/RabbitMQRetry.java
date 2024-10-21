@@ -1,5 +1,6 @@
 package io.reactivestax.utility.messaging.rabbitmq;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.exceptions.RabbitMQException;
@@ -24,31 +25,12 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
         return instance;
     }
 
-    private static void initializeRabbitMQ(){
-        try {
-            Channel rabbitMQChannel = RabbitMQUtils.getRabbitMQChannel();
-            rabbitMQChannel.exchangeDeclare(getFileProperty("rabbitMQ.dlx.exchange.name"), "direct");
-
-            Map<String, Object> dlqArguments = new HashMap<>();
-            dlqArguments.put("x-message-ttl", 5000); // Retry delay in milliseconds (5 seconds)
-            dlqArguments.put("x-dead-letter-exchange", getFileProperty("rabbitMQ.main.exchange.name")); // Requeue to main exchange
-            dlqArguments.put("x-dead-letter-routing-key", getFileProperty("rabbitMQ.main.routingKey")); // Requeue to the main queue
-
-            rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.dl.queue.name"), true, false, false, dlqArguments);
-            rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.dl.queue.name"), getFileProperty("rabbitMQ.dlx.exchange.name"), getFileProperty("rabbitMQ.dlx.routingKey"));
-
-            RabbitMQUtils.closeRabbitMQChannel();
-        } catch (Exception e) {
-            System.out.println("Error Initializing RabbitMQ Retry....");
-        }
-    }
-
-    private static void ensureRabbitMQInitialized() {
+    private static void ensureRabbitMQExchangeInitialized() {
         if (!isInitialized) {
             lock.lock();
             try {
                 if (!isInitialized) {
-                    initializeRabbitMQ();
+                    initializeRabbitMQDLXExchange();
                     isInitialized = true;
                 }
             } finally {
@@ -57,10 +39,59 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
         }
     }
 
+    private static void initializeRabbitMQDLXExchange(){
+        try {
+            Channel rabbitMQChannel = RabbitMQUtils.getRabbitMQChannel();
+
+            //Retry Exchange Initialization
+            rabbitMQChannel.exchangeDeclare(getFileProperty("rabbitMQ.retry.exchange.name"), "direct");
+
+            Map<String, Object> dlqArguments = new HashMap<>();
+            dlqArguments.put("x-message-ttl", 5000); // Retry delay in milliseconds (5 seconds)
+            dlqArguments.put("x-dead-letter-exchange", getFileProperty("rabbitMQ.main.exchange.name")); // Requeue to main exchange
+            dlqArguments.put("x-dead-letter-routing-key", getFileProperty("rabbitMQ.main.routingKey")); // Requeue to the main queue
+
+            rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.retry.queue.name"), true, false, false, dlqArguments);
+            rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.retry.queue.name"), getFileProperty("rabbitMQ.retry.exchange.name"), getFileProperty("rabbitMQ.retry.routingKey"));
+
+            //Dead Letter Exchange Initialization
+            rabbitMQChannel.exchangeDeclare(getFileProperty("rabbitMQ.dlx.exchange.name"), "direct", true);
+            rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.dlx.queue.name"), true, false, false, null);
+            rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.dlx.queue.name"), getFileProperty("rabbitMQ.dlx.exchange.name"), getFileProperty("rabbitMQ.dlx.routingKey"));
+
+            RabbitMQUtils.closeRabbitMQChannel();
+        } catch (Exception e) {
+            System.out.println("Error Initializing RabbitMQ Retry....");
+        }
+    }
+
     @Override
     public void retryMessage(Trade trade) {
         try {
-            ensureRabbitMQInitialized();
+            ensureRabbitMQExchangeInitialized();
+            Channel rabbitMQChannel = RabbitMQUtils.getRabbitMQChannel();
+
+            int retryCount = getMessageRetryCount();
+
+            if (retryCount < Integer.parseInt(getFileProperty("retry.count"))) {
+                retryCount++;
+
+                Map<String, Object> updatedHeaders = new HashMap<>();
+                updatedHeaders.put("x-retry-count", retryCount);
+
+                AMQP.BasicProperties retryProperties = new AMQP.BasicProperties.Builder()
+                        .headers(updatedHeaders)
+                        .build();
+
+                // Re-Publish Message to Retry Exchange
+                rabbitMQChannel.basicPublish(getFileProperty("rabbitMQ.retry.exchange.name"), getFileProperty("rabbitMQ.retry.queue.name"), retryProperties, trade.getTradeID().getBytes());
+                System.out.println("Message retried. Retry count: " + retryCount);
+
+            } else {
+                // Move Message to Dead Letter Queue
+                rabbitMQChannel.basicPublish(getFileProperty("rabbitMQ.dlx.exchange.name"), getFileProperty("rabbitMQ.dlx.queue.name"), null, trade.getTradeID().getBytes());
+                System.out.println("Max retries reached. Message sent to DLQ.");
+            }
 
         } catch (Exception e) {
             System.out.println("Some issues in RabbitMQ Consumer...readFromRabbitMQ");
