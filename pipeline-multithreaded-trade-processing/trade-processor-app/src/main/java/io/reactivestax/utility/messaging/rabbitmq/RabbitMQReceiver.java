@@ -27,7 +27,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
 
     private static void initializeRabbitMQMainExchange(){
         try {
-            Channel rabbitMQChannel = RabbitMQUtils.getRabbitMQChannel();
+            Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
             rabbitMQChannel.exchangeDeclare(getFileProperty("rabbitMQ.main.exchange.name"), "direct");
 
             Map<String, Object> mainQueueArguments = new HashMap<>();
@@ -38,7 +38,6 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
             rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.main.queue.name"), true, false, false, mainQueueArguments);
             rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.main.queue.name"), getFileProperty("rabbitMQ.main.exchange.name"), getFileProperty("rabbitMQ.main.routingKey"));
 
-            RabbitMQUtils.closeRabbitMQChannel();
         } catch (Exception e) {
             System.out.println("Error Initializing RabbitMQ Receiver Main....");
         }
@@ -63,7 +62,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
         try{
             ensureRabbitMQExchangeInitialized();
 
-            Channel rabbitMQChannel = RabbitMQUtils.getRabbitMQChannel();
+            Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
 
             System.out.println(" [*] Waiting for messages in '" + getFileProperty("rabbitMQ.main.queue.name") + "'.");
 
@@ -75,7 +74,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
                 // Manually acknowledge the message after processing
                 rabbitMQChannel.basicAck(response.getEnvelope().getDeliveryTag(), false);
 
-                RabbitMQUtils.closeRabbitMQChannel();
+//                RabbitMQUtils.closeRabbitMQChannel();
                 // Return the received message
                 return message;
             } else {

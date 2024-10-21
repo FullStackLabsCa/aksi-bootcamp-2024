@@ -42,7 +42,7 @@ public class RabbitMQUtils {
         }
     }
 
-    public static Channel getRabbitMQChannel(){
+    public Channel getRabbitMQChannel(){
         Channel channel = channelThreadLocal.get();
         if(channel == null) {
             try {
@@ -58,7 +58,7 @@ public class RabbitMQUtils {
         return channel;
     }
 
-    public static void closeRabbitMQChannel(){
+    public void closeRabbitMQChannel(){
         try {
             getRabbitMQChannel().close();
             channelThreadLocal.remove();
