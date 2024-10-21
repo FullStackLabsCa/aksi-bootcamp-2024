@@ -7,11 +7,14 @@ import io.reactivestax.utility.messaging.MessageReceiver;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
 
 public class RabbitMQReceiver implements MessageReceiver<String> {
     private static RabbitMQReceiver instance;
+    private static volatile boolean isInitialized = false;
+    private static final ReentrantLock lock = new ReentrantLock();
 
     private RabbitMQReceiver() {
     }
@@ -21,9 +24,8 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
         return instance;
     }
 
-    @Override
-    public String receiveMessage() {
-        try{
+    private static void initializeRabbitMQ(){
+        try {
             Channel rabbitMQChannel = RabbitMQUtils.getRabbitMQChannel();
             rabbitMQChannel.exchangeDeclare(getFileProperty("rabbitMQ.main.exchange.name"), "direct");
 
@@ -34,6 +36,33 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
 
             rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.queueName"), true, false, false, mainQueueArguments);
             rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.queueName"), getFileProperty("rabbitMQ.main.exchange.name"), getFileProperty("rabbitMQ.main.routingKey"));
+
+            RabbitMQUtils.closeRabbitMQChannel();
+        } catch (Exception e) {
+            System.out.println("Error Initializing RabbitMQ Receiver Main....");
+        }
+    }
+
+    private static void ensureRabbitMQInitialized(){
+        if (!isInitialized) {
+            lock.lock();
+            try {
+                if (!isInitialized) {
+                    initializeRabbitMQ();
+                    isInitialized = true;
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+
+    @Override
+    public String receiveMessage() {
+        try{
+            ensureRabbitMQInitialized();
+
+            Channel rabbitMQChannel = RabbitMQUtils.getRabbitMQChannel();
 
             System.out.println(" [*] Waiting for messages in '" + getFileProperty("rabbitMQ.queueName") + "'.");
 
