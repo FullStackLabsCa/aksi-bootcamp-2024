@@ -26,7 +26,7 @@ public class RabbitMQSender implements MessageSender<TradeIdAndAccNum> {
         try {
             RabbitMQUtils.getInstance();
             Objects.requireNonNull(RabbitMQUtils.getRabbitMQChannel()).exchangeDeclare(getFileProperty("rabbitMQ.exchangeName"), "direct");
-gi
+
             String routingKey = getRoutingKey(tradeIdAndAccNum);
             String message = tradeIdAndAccNum.tradeID();
             RabbitMQUtils.getRabbitMQChannel().basicPublish(getFileProperty("rabbitMQ.exchangeName"), routingKey, null, message.getBytes("UTF-8"));
