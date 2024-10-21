@@ -11,15 +11,10 @@ import io.reactivestax.utility.exceptions.NullPayloadException;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import io.reactivestax.utility.exceptions.ReadFromQueueFailedException;
 import io.reactivestax.utility.exceptions.TradeCreationFailedException;
-import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
-import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.LinkedBlockingDeque;
-
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 
 public class TradeProcessorTask implements Runnable, TradeProcessing {
     LinkedBlockingDeque<String> tradeIdQueue;

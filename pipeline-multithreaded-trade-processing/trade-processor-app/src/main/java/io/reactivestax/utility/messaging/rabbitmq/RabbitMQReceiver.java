@@ -20,8 +20,8 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
 
     @Override
     public String receiveMessage() {
-        try (Channel rabbitMQChannel = RabbitMQUtils.getRabbitMQChannel()) {
-
+        try{
+            Channel rabbitMQChannel = RabbitMQUtils.getRabbitMQChannel();
             rabbitMQChannel.exchangeDeclare(getFileProperty("rabbitMQ.exchangeName"), "direct");
             rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.queueName"), true, false, false, null);
             rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.queueName"), getFileProperty("rabbitMQ.exchangeName"), getFileProperty("rabbitMQ.routingKey"));
@@ -36,6 +36,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
                 // Manually acknowledge the message after processing
                 rabbitMQChannel.basicAck(response.getEnvelope().getDeliveryTag(), false);
 
+                RabbitMQUtils.closeRabbitMQChannel();
                 // Return the received message
                 return message;
             } else {

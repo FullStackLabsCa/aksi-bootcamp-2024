@@ -14,6 +14,7 @@ public class RabbitMQUtils {
     private static ConnectionFactory rabbitMQFactory;
     private static Connection rabbitMQConnection;
     private static RabbitMQUtils instance;
+    private static final ThreadLocal<Channel> channelThreadLocal = new ThreadLocal<>();
 
     private RabbitMQUtils() {
     }
@@ -42,12 +43,27 @@ public class RabbitMQUtils {
     }
 
     public static Channel getRabbitMQChannel(){
-        try {
-            if(rabbitMQConnection == null) getRabbitMQConnection();
-            return rabbitMQConnection.createChannel();
-        } catch (Exception e) {
-            System.out.println("Unable to provide Channel from the Rabbit MQ Connection...");
+        Channel channel = channelThreadLocal.get();
+        if(channel == null) {
+            try {
+                if (rabbitMQConnection == null) getRabbitMQConnection();
+                channel = rabbitMQConnection.createChannel();
+                channelThreadLocal.set(channel);
+            } catch (Exception e) {
+                System.out.println("Unable to provide Channel from the Rabbit MQ Connection...");
+                e.printStackTrace();
+                throw new RabbitMQException(e);
+            }
         }
-        return null;
+        return channel;
+    }
+
+    public static void closeRabbitMQChannel(){
+        try {
+            getRabbitMQChannel().close();
+            channelThreadLocal.remove();
+        } catch (IOException | TimeoutException e) {
+            throw new RabbitMQException(e);
+        }
     }
 }

@@ -1,10 +1,9 @@
 package io.reactivestax.utility.messaging.rabbitmq;
 
+import com.rabbitmq.client.Channel;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.utility.messaging.MessageSender;
 
-import java.io.IOException;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
@@ -24,15 +23,17 @@ public class RabbitMQSender implements MessageSender<TradeIdAndAccNum> {
     @Override
     public void sendMessage(TradeIdAndAccNum tradeIdAndAccNum) {
         try {
-            RabbitMQUtils.getInstance();
-            Objects.requireNonNull(RabbitMQUtils.getRabbitMQChannel()).exchangeDeclare(getFileProperty("rabbitMQ.exchangeName"), "direct");
+            Channel channel = RabbitMQUtils.getRabbitMQChannel();
+            channel.exchangeDeclare(getFileProperty("rabbitMQ.exchangeName"), "direct");
 
             String routingKey = getRoutingKey(tradeIdAndAccNum);
             String message = tradeIdAndAccNum.tradeID();
+
             RabbitMQUtils.getRabbitMQChannel().basicPublish(getFileProperty("rabbitMQ.exchangeName"), routingKey, null, message.getBytes("UTF-8"));
             System.out.println(" [x] Sent '" + message + "' with routing key '" + routingKey + "'");
 
-        } catch (IOException e) {
+            RabbitMQUtils.closeRabbitMQChannel();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
