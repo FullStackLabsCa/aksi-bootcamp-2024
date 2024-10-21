@@ -1,19 +1,14 @@
-package io.reactivestax.service;
+package io.reactivestax.utility.messaging;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.GetResponse;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.model.Trade;
-import io.reactivestax.utility.exceptions.RabbitMQException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getRabbitMQChannel;
 
 public class TradesStream implements Runnable {
     private static final ConcurrentHashMap<String, Integer> accToQueueMap = new ConcurrentHashMap<>();
@@ -39,7 +34,7 @@ public class TradesStream implements Runnable {
         return listOfQueues.get(index);
     }
 
-    public static int getQueueMapping(TradeIdAndAccNum tradeIdentifiers) {
+    private static int getQueueMapping(TradeIdAndAccNum tradeIdentifiers) {
         String criteria = getFileProperty("trade.distribution.criteria");
 
         String criteriaField;
@@ -66,55 +61,6 @@ public class TradesStream implements Runnable {
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
             Thread.currentThread().interrupt();
-        }
-    }
-
-    public static void insertIntoRabbitMQQueue(String exchangeName, TradeIdAndAccNum tradeIdentifiers, Channel channel) {
-        try {
-            channel.exchangeDeclare(exchangeName, "direct");
-
-            String routingKey = getRoutingKey(tradeIdentifiers);
-            String message = tradeIdentifiers.tradeID();
-            channel.basicPublish(exchangeName, routingKey, null, message.getBytes("UTF-8"));
-            System.out.println(" [x] Sent '" + message + "' with routing key '" + routingKey + "'");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static String getRoutingKey(TradeIdAndAccNum tradeIdentifiers) {
-        return "cc_partition_" + getQueueMapping(tradeIdentifiers);
-    }
-
-    public static String readFromRabbitMQ(String exchangeName, String queueName, String routingKey){
-        try (Channel rabbitMQChannel = getRabbitMQChannel()) {
-
-            rabbitMQChannel.exchangeDeclare(exchangeName, "direct");
-            rabbitMQChannel.queueDeclare(queueName, true, false, false, null);
-            rabbitMQChannel.queueBind(queueName, exchangeName, routingKey);
-
-            System.out.println(" [*] Waiting for messages in '" + queueName + "'.");
-
-            GetResponse response = rabbitMQChannel.basicGet(queueName, false);  // Fetch one message without auto-acknowledgment
-            if (response != null) {
-                String message = new String(response.getBody(), "UTF-8");
-                System.out.println(" [x] Received '" + message + "'");
-
-                // Manually acknowledge the message after processing
-                rabbitMQChannel.basicAck(response.getEnvelope().getDeliveryTag(), false);
-
-                // Return the received message
-                return message;
-            } else {
-                System.out.println(" [x] No messages available in the queue.");
-                return null;  // No message was available at the moment
-            }
-        }
-        catch (Exception e) {
-            System.out.println("Some issues in RabbitMQ Consumer...readFromRabbitMQ");
-            e.printStackTrace();
-            throw new RabbitMQException(e);
         }
     }
 

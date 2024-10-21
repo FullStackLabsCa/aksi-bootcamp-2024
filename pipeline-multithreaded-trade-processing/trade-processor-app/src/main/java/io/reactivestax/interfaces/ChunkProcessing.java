@@ -1,14 +1,12 @@
 package io.reactivestax.interfaces;
 
-import com.rabbitmq.client.Channel;
-
 public interface ChunkProcessing {
 
     void processChunk(String filePath);
-    void processPayload(String payload, Channel channel);
+    void processPayload(String payload);
     String checkPayloadValidity(String payload);
     TradeIdAndAccNum getIdentifierFromPayload(String payload);
     void writePayloadToPayloadDatabase(String tradeID, String payload, String tradeStatus);
-    void writeToQueue(TradeIdAndAccNum tradeIdentifiers, Channel channel);
+    void writeToQueue(TradeIdAndAccNum tradeIdentifiers);
 
 }

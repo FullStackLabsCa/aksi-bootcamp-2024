@@ -11,9 +11,6 @@ public class TradeProcessingAppRunner {
 
     public static void main(String[] args) {
 
-        readPropertiesFile();
-        configureRabbitMQ(getFileProperty("rabbitMQ.hostName"), getFileProperty("rabbitMQ.guest"), getFileProperty("rabbitMQ.pass"));
-
         if(getFileProperty("trading.app.mode").equals("producer")) {
             (new Thread(new FileReaderRunner())).start();
             (new Thread(new ChunkProcessorRunner())).start();

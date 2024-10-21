@@ -1,18 +1,15 @@
 package io.reactivestax.service;
 
-import com.rabbitmq.client.Channel;
 import io.reactivestax.factory.BeanFactory;
 import io.reactivestax.interfaces.ChunkProcessing;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.repo.interfaces.RawPayloadRepo;
 import io.reactivestax.utility.exceptions.InvalidChunkPathException;
-import io.reactivestax.utility.exceptions.RabbitMQException;
+import io.reactivestax.utility.messaging.MessageSender;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
-
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 
 public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
@@ -31,28 +28,24 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
 
     @Override
     public void processChunk(String filePath) {
-        try (Scanner chunkReader = new Scanner(new FileReader(filePath));
-             Channel channel = getRabbitMQChannel()) {
+        try (Scanner chunkReader = new Scanner(new FileReader(filePath))) {
             while (chunkReader.hasNextLine()) {
-                processPayload(chunkReader.nextLine(), channel);
+                processPayload(chunkReader.nextLine());
             }
         } catch (IOException e) {
             throw new InvalidChunkPathException("Unable to find chunk at the provided path");
-        } catch (Exception e) {
-            System.out.println("Some Issues with the RabbitMQ in Process Chunk...");
-            throw new RabbitMQException(e);
         }
     }
 
     @Override
-    public void processPayload(String payload, Channel channel) {
+    public void processPayload(String payload) {
         String tradeValidity = checkPayloadValidity(payload);
         TradeIdAndAccNum tradeIdentifiers = getIdentifierFromPayload(payload);
 
         writePayloadToPayloadDatabase(tradeIdentifiers.tradeID(), payload, tradeValidity);
 
         if (tradeValidity.equals("Valid")) {
-            writeToQueue(tradeIdentifiers, channel);
+            writeToQueue(tradeIdentifiers);
         }
     }
 
@@ -81,8 +74,8 @@ public class ChunkProcessorTask implements Runnable, ChunkProcessing {
     }
 
     @Override
-    public void writeToQueue(TradeIdAndAccNum tradeIdentifiers, Channel channel) {
-        String exchangeName = getFileProperty("rabbitMQ.exchangeName");
-        TradesStream.insertIntoRabbitMQQueue(exchangeName, tradeIdentifiers, channel);
+    public void writeToQueue(TradeIdAndAccNum tradeIdentifiers) {
+        MessageSender<TradeIdAndAccNum> sender = BeanFactory.getMessageSender();
+        sender.sendMessage(tradeIdentifiers);
     }
 }

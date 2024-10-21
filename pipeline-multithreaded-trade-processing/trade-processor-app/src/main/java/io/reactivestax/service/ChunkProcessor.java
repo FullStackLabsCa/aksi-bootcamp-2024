@@ -1,6 +1,7 @@
 package io.reactivestax.service;
 
 import io.reactivestax.utility.MultiThreadTradeProcessorUtility;
+import io.reactivestax.utility.messaging.ChunksStream;
 
 import java.util.concurrent.*;
 

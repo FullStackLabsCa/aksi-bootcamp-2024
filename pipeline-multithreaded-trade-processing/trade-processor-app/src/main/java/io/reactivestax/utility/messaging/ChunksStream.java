@@ -1,4 +1,4 @@
-package io.reactivestax.service;
+package io.reactivestax.utility.messaging;
 
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;

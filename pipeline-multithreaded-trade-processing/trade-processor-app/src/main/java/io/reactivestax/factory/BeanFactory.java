@@ -1,5 +1,6 @@
 package io.reactivestax.factory;
 
+import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.repo.hibernate.HibernateJournalEntryRepo;
 import io.reactivestax.repo.hibernate.HibernatePositionsRepo;
 import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
@@ -14,7 +15,14 @@ import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.database.TransactionUtil;
+import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
+import io.reactivestax.utility.messaging.MessageReceiver;
+import io.reactivestax.utility.messaging.MessageSender;
+import io.reactivestax.utility.messaging.inmemory.InMemoryReceiver;
+import io.reactivestax.utility.messaging.inmemory.InMemorySender;
+import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
+import io.reactivestax.utility.messaging.rabbitmq.RabbitMQSender;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
 
@@ -22,6 +30,8 @@ public class BeanFactory {
 
     private static final String JDBC_PERSISTENCE_TECH = "jdbc";
     private static final String HIBERNATE_PERSISTENCE_TECH = "hibernate";
+    private static final String RABBIT_MQ_QUEUE_TECH = "rabbitmq";
+    private static final String IN_MEMORY_QUEUE_TECH = "in-memory";
 
     public static TransactionUtil getTransactionUtil(){
         TransactionUtil transactionUtil;
@@ -85,5 +95,33 @@ public class BeanFactory {
         securitiesReferenceRepo = JDBCSecuritiesReferenceRepo.getInstance();
 
         return securitiesReferenceRepo;
+    }
+
+    public static MessageSender<TradeIdAndAccNum> getMessageSender() {
+        MessageSender<TradeIdAndAccNum> messageSender;
+
+        if(getFileProperty("messaging.technology").equals(RABBIT_MQ_QUEUE_TECH)){
+            messageSender = RabbitMQSender.getInstance();
+        } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){
+            messageSender = InMemorySender.getInstance();
+        } else {
+            throw new InvalidMessagingTechnologyException();
+        }
+
+        return messageSender;
+    }
+
+    public static MessageReceiver<String> getMessageReceiver(){
+        MessageReceiver<String> messageReceiver;
+
+        if(getFileProperty("messaging.technology").equals(RABBIT_MQ_QUEUE_TECH)){
+            messageReceiver = RabbitMQReceiver.getInstance();
+        } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){
+            messageReceiver = InMemoryReceiver.getInstance();
+        } else {
+            throw new InvalidMessagingTechnologyException();
+        }
+
+        return messageReceiver;
     }
 }

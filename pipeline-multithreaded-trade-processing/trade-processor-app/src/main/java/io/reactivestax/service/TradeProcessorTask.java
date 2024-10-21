@@ -11,13 +11,14 @@ import io.reactivestax.utility.exceptions.NullPayloadException;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import io.reactivestax.utility.exceptions.ReadFromQueueFailedException;
 import io.reactivestax.utility.exceptions.TradeCreationFailedException;
+import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
+import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static io.reactivestax.service.TradesStream.*;
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
 
 public class TradeProcessorTask implements Runnable, TradeProcessing {
@@ -48,9 +49,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
     @Override
     public String readTradeIdFromQueue() throws InterruptedException {
-        return readFromRabbitMQ(getFileProperty("rabbitMQ.exchangeName"),
-                getFileProperty("rabbitMQ.queueName"),
-                getFileProperty("rabbitMQ.routingKey"));
+        return BeanFactory.getMessageReceiver().receiveMessage();
     }
 
     private String readPayload(String tradeID) {
