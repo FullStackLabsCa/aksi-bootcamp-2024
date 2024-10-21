@@ -68,13 +68,14 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
 
             GetResponse response = rabbitMQChannel.basicGet(getFileProperty("rabbitMQ.main.queue.name"), false);  // Fetch one message without auto-acknowledgment
             if (response != null) {
+                RabbitMQUtils.getInstance().setThreadResponse(response);
+
                 String message = new String(response.getBody(), StandardCharsets.UTF_8);
                 System.out.println(" [x] Received '" + message + "'");
 
                 // Manually acknowledge the message after processing
                 rabbitMQChannel.basicAck(response.getEnvelope().getDeliveryTag(), false);
 
-//                RabbitMQUtils.closeRabbitMQChannel();
                 // Return the received message
                 return message;
             } else {

@@ -3,6 +3,8 @@ package io.reactivestax.utility.messaging.rabbitmq;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.GetResponse;
+import io.reactivestax.utility.exceptions.NullResponseForThreadException;
 import io.reactivestax.utility.exceptions.RabbitMQException;
 
 import java.io.IOException;
@@ -15,6 +17,7 @@ public class RabbitMQUtils {
     private static Connection rabbitMQConnection;
     private static RabbitMQUtils instance;
     private static final ThreadLocal<Channel> channelThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<GetResponse> getResponseThreadLocal = new ThreadLocal<>();
 
     private RabbitMQUtils() {
     }
@@ -62,8 +65,21 @@ public class RabbitMQUtils {
         try {
             getRabbitMQChannel().close();
             channelThreadLocal.remove();
+            getResponseThreadLocal.remove();
         } catch (IOException | TimeoutException e) {
             throw new RabbitMQException(e);
         }
+    }
+
+    public GetResponse getThreadResponse(){
+        GetResponse response = getResponseThreadLocal.get();
+
+        if(response!=null) return response;
+        else throw new NullResponseForThreadException();
+    }
+
+    public void setThreadResponse(GetResponse response){
+         getResponseThreadLocal.set(response);
+
     }
 }

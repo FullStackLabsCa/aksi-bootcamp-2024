@@ -2,6 +2,7 @@ package io.reactivestax.utility.messaging.rabbitmq;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.GetResponse;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.exceptions.RabbitMQException;
 import io.reactivestax.utility.messaging.MessageRetry;
@@ -70,32 +71,40 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
             ensureRabbitMQExchangeInitialized();
             Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
 
-//            int retryCount = getMessageRetryCount();
-//
-//            if (retryCount < Integer.parseInt(getFileProperty("retry.count"))) {
-//                retryCount++;
-//
-//                Map<String, Object> updatedHeaders = new HashMap<>();
-//                updatedHeaders.put("x-retry-count", retryCount);
-//
-//                AMQP.BasicProperties retryProperties = new AMQP.BasicProperties.Builder()
-//                        .headers(updatedHeaders)
-//                        .build();
-//
-//                // Re-Publish Message to Retry Exchange
-//                rabbitMQChannel.basicPublish(getFileProperty("rabbitMQ.retry.exchange.name"), getFileProperty("rabbitMQ.retry.queue.name"), retryProperties, trade.getTradeID().getBytes());
-//                System.out.println("Message retried. Retry count: " + retryCount);
-//
-//            } else {
-//                // Move Message to Dead Letter Queue
-//                rabbitMQChannel.basicPublish(getFileProperty("rabbitMQ.dlx.exchange.name"), getFileProperty("rabbitMQ.dlx.queue.name"), null, trade.getTradeID().getBytes());
-//                System.out.println("Max retries reached. Message sent to DLQ.");
-//            }
+            GetResponse response = RabbitMQUtils.getInstance().getThreadResponse();
+            int retryCount = getMessageRetryCount(response);
+
+            if (retryCount < Integer.parseInt(getFileProperty("retry.count"))) {
+                retryCount++;
+
+                Map<String, Object> updatedHeaders = new HashMap<>();
+                updatedHeaders.put("x-retry-count", retryCount);
+
+                AMQP.BasicProperties retryProperties = new AMQP.BasicProperties.Builder()
+                        .headers(updatedHeaders)
+                        .build();
+
+                // Re-Publish Message to Retry Exchange
+                rabbitMQChannel.basicPublish(getFileProperty("rabbitMQ.retry.exchange.name"), getFileProperty("rabbitMQ.retry.queue.name"), retryProperties, trade.getTradeID().getBytes());
+                System.out.println("Message retried. Retry count: " + retryCount);
+
+            } else {
+                // Move Message to Dead Letter Queue
+                rabbitMQChannel.basicPublish(getFileProperty("rabbitMQ.dlx.exchange.name"), getFileProperty("rabbitMQ.dlx.queue.name"), null, trade.getTradeID().getBytes());
+                System.out.println("Max retries reached. Message sent to DLQ.");
+            }
 
         } catch (Exception e) {
             System.out.println("Some issues in RabbitMQ Consumer...readFromRabbitMQ");
             e.printStackTrace();
             throw new RabbitMQException(e);
         }
+    }
+
+    private int getMessageRetryCount(GetResponse response){
+        Map<String, Object> headers = response.getProps().getHeaders();
+        return (headers != null && headers.containsKey("x-retry-count"))
+                ? (int) headers.get("x-retry-count")
+                : 0;
     }
 }
