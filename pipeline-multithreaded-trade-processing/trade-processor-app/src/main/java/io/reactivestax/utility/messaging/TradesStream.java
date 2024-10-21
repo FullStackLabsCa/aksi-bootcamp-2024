@@ -1,6 +1,6 @@
 package io.reactivestax.utility.messaging;
 
-import io.reactivestax.interfaces.TradeIdAndAccNum;
+import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 import io.reactivestax.model.Trade;
 
 import java.util.ArrayList;

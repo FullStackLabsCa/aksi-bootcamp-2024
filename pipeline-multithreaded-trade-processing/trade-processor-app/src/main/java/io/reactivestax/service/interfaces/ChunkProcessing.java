@@ -1,4 +1,4 @@
-package io.reactivestax.interfaces;
+package io.reactivestax.service.interfaces;
 
 public interface ChunkProcessing {
 

@@ -1,7 +1,7 @@
 package io.reactivestax.repo.jdbc;
 
 import io.reactivestax.model.Trade;
-import io.reactivestax.repo.interfaces.SecuritiesReferenceRepo;
+import io.reactivestax.repo.SecuritiesReferenceRepo;
 import io.reactivestax.utility.database.JDBCUtils;
 
 import java.sql.PreparedStatement;

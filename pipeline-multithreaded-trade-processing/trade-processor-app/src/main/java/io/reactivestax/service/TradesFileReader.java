@@ -1,6 +1,6 @@
 package io.reactivestax.service;
 
-import io.reactivestax.interfaces.TradesFileReading;
+import io.reactivestax.service.interfaces.TradesFileReading;
 import io.reactivestax.utility.exceptions.InvalidFilePathException;
 import io.reactivestax.utility.messaging.ChunksStream;
 

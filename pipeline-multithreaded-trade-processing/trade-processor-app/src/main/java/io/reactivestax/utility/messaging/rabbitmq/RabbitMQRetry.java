@@ -52,8 +52,8 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
             dlqArguments.put("x-dead-letter-exchange", getFileProperty("rabbitMQ.main.exchange.name")); // Requeue to main exchange
             dlqArguments.put("x-dead-letter-routing-key", getFileProperty("rabbitMQ.main.routingKey")); // Requeue to the main queue
 
-            rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.retry.queue.name"), true, false, false, dlqArguments);
-            rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.retry.queue.name"), getFileProperty("rabbitMQ.retry.exchange.name"), getFileProperty("rabbitMQ.retry.routingKey"));
+            rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.main.queue.name") + "_retry", true, false, false, dlqArguments);
+            rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.main.queue.name") + "_retry", getFileProperty("rabbitMQ.retry.exchange.name"), getFileProperty("rabbitMQ.main.routingKey")+"_retry");
 
             //Dead Letter Exchange Initialization
             rabbitMQChannel.exchangeDeclare(getFileProperty("rabbitMQ.dlx.exchange.name"), "direct", true);
@@ -61,6 +61,7 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
             rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.dlx.queue.name"), getFileProperty("rabbitMQ.dlx.exchange.name"), getFileProperty("rabbitMQ.dlx.routingKey"));
 
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Error Initializing RabbitMQ Retry....");
         }
     }
@@ -74,6 +75,9 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
             GetResponse response = RabbitMQUtils.getInstance().getThreadResponse();
             int retryCount = getMessageRetryCount(response);
 
+            if(retryCount > 1) {
+                System.out.println("ssss");
+            }
             if (retryCount < Integer.parseInt(getFileProperty("retry.count"))) {
                 retryCount++;
 
@@ -85,12 +89,12 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
                         .build();
 
                 // Re-Publish Message to Retry Exchange
-                rabbitMQChannel.basicPublish(getFileProperty("rabbitMQ.retry.exchange.name"), getFileProperty("rabbitMQ.retry.queue.name"), retryProperties, trade.getTradeID().getBytes());
+                rabbitMQChannel.basicPublish(getFileProperty("rabbitMQ.retry.exchange.name"), getFileProperty("rabbitMQ.main.routingKey")+"_retry", retryProperties, trade.getTradeID().getBytes());
                 System.out.println("Message retried. Retry count: " + retryCount);
 
             } else {
                 // Move Message to Dead Letter Queue
-                rabbitMQChannel.basicPublish(getFileProperty("rabbitMQ.dlx.exchange.name"), getFileProperty("rabbitMQ.dlx.queue.name"), null, trade.getTradeID().getBytes());
+                rabbitMQChannel.basicPublish(getFileProperty("rabbitMQ.dlx.exchange.name"), getFileProperty("rabbitMQ.dlx.routingKey"), null, trade.getTradeID().getBytes());
                 System.out.println("Max retries reached. Message sent to DLQ.");
             }
 

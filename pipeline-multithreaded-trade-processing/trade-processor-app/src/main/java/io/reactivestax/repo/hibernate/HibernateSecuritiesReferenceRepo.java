@@ -1,7 +1,7 @@
 package io.reactivestax.repo.hibernate;
 
 import io.reactivestax.model.Trade;
-import io.reactivestax.repo.interfaces.SecuritiesReferenceRepo;
+import io.reactivestax.repo.SecuritiesReferenceRepo;
 
 public class HibernateSecuritiesReferenceRepo implements SecuritiesReferenceRepo {
     private static HibernateSecuritiesReferenceRepo instance;

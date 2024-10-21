@@ -1,14 +1,14 @@
 package io.reactivestax.factory;
 
-import io.reactivestax.interfaces.TradeIdAndAccNum;
+import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.hibernate.HibernateJournalEntryRepo;
 import io.reactivestax.repo.hibernate.HibernatePositionsRepo;
 import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
-import io.reactivestax.repo.interfaces.JournalEntryRepo;
-import io.reactivestax.repo.interfaces.PositionsRepo;
-import io.reactivestax.repo.interfaces.RawPayloadRepo;
-import io.reactivestax.repo.interfaces.SecuritiesReferenceRepo;
+import io.reactivestax.repo.JournalEntryRepo;
+import io.reactivestax.repo.PositionsRepo;
+import io.reactivestax.repo.RawPayloadRepo;
+import io.reactivestax.repo.SecuritiesReferenceRepo;
 import io.reactivestax.repo.jdbc.JDBCJournalEntryRepo;
 import io.reactivestax.repo.jdbc.JDBCPositionsRepo;
 import io.reactivestax.repo.jdbc.JDBCRawPayloadRepo;

@@ -1,9 +1,9 @@
 package io.reactivestax.service;
 
 import io.reactivestax.factory.BeanFactory;
-import io.reactivestax.interfaces.ChunkProcessing;
-import io.reactivestax.interfaces.TradeIdAndAccNum;
-import io.reactivestax.repo.interfaces.RawPayloadRepo;
+import io.reactivestax.repo.RawPayloadRepo;
+import io.reactivestax.service.interfaces.ChunkProcessing;
+import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 import io.reactivestax.utility.exceptions.InvalidChunkPathException;
 import io.reactivestax.utility.messaging.MessageSender;
 

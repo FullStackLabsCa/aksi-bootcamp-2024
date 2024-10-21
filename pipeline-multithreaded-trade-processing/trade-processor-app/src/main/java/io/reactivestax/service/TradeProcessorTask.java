@@ -1,14 +1,14 @@
 package io.reactivestax.service;
 
 import io.reactivestax.factory.BeanFactory;
-import io.reactivestax.interfaces.TradeProcessing;
 import io.reactivestax.model.Trade;
-import io.reactivestax.repo.interfaces.JournalEntryRepo;
-import io.reactivestax.repo.interfaces.PositionsRepo;
-import io.reactivestax.repo.interfaces.RawPayloadRepo;
-import io.reactivestax.repo.interfaces.SecuritiesReferenceRepo;
+import io.reactivestax.repo.JournalEntryRepo;
+import io.reactivestax.repo.PositionsRepo;
+import io.reactivestax.repo.RawPayloadRepo;
+import io.reactivestax.repo.SecuritiesReferenceRepo;
+import io.reactivestax.service.interfaces.TradeProcessing;
 import io.reactivestax.utility.exceptions.NullPayloadException;
-import io.reactivestax.utility.exceptions.OptimisticLockingException;
+import io.reactivestax.utility.exceptions.OptimisticLockingExceptionThrowable;
 import io.reactivestax.utility.exceptions.ReadFromQueueFailedException;
 import io.reactivestax.utility.exceptions.TradeCreationFailedException;
 import java.text.ParseException;
@@ -125,7 +125,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
                 BeanFactory.getTransactionUtil().commitTransaction();
 
-            } catch (Exception e) {
+            } catch (OptimisticLockingExceptionThrowable | Exception e) {
                 e.printStackTrace();
                 BeanFactory.getTransactionUtil().rollbackTransaction();
                 BeanFactory.getMessageRetryer().retryMessage(trade);
@@ -142,7 +142,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     @Override
-    public void writeToPositionsTable(Trade trade) throws OptimisticLockingException {
+    public void writeToPositionsTable(Trade trade) throws OptimisticLockingExceptionThrowable {
         PositionsRepo positionsRepo = BeanFactory.getPositionsRepo();
         positionsRepo.updatePositionsTable(trade);
     }

@@ -2,7 +2,7 @@ package io.reactivestax.repo.hibernate;
 
 import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.model.Trade;
-import io.reactivestax.repo.interfaces.JournalEntryRepo;
+import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.database.HibernateUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;

@@ -2,10 +2,10 @@ package io.reactivestax.repo.hibernate;
 
 import io.reactivestax.entity.Position;
 import io.reactivestax.model.Trade;
-import io.reactivestax.repo.interfaces.PositionsRepo;
+import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.database.HibernateUtils;
-import io.reactivestax.utility.exceptions.OptimisticLockingException;
+import io.reactivestax.utility.exceptions.OptimisticLockingExceptionThrowable;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -27,7 +27,7 @@ public class HibernatePositionsRepo implements PositionsRepo {
     }
 
     @Override
-    public void updatePositionsTable(Trade trade) {
+    public void updatePositionsTable(Trade trade) throws OptimisticLockingExceptionThrowable {
         Session session = HibernateUtils.getInstance().getConnection();
         JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         HibernatePositionsRepo positionsReference = HibernatePositionsRepo.getInstance();
@@ -65,14 +65,13 @@ public class HibernatePositionsRepo implements PositionsRepo {
                 updatePositionQuery.setParameter("currentVersion", version);
 
                 if (updatePositionQuery.executeUpdate() == 0)
-                    throw new OptimisticLockingException("Optimistic Locking Occurring!!!!!");
+                    throw new OptimisticLockingExceptionThrowable("Optimistic Locking Occurring!!!!!");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @Override
     public int getVersionIdForPosition(Trade trade, int securityId) {
         Session session = HibernateUtils.getInstance().getConnection();
         CriteriaBuilder builder = session.getCriteriaBuilder();

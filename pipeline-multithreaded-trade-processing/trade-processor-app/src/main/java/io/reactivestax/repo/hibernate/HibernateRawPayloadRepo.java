@@ -2,7 +2,7 @@ package io.reactivestax.repo.hibernate;
 
 import io.reactivestax.entity.RawPayload;
 import io.reactivestax.model.Trade;
-import io.reactivestax.repo.interfaces.RawPayloadRepo;
+import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.utility.database.HibernateUtils;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

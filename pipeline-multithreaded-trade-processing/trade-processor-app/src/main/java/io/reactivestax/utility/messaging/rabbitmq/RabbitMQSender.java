@@ -1,7 +1,7 @@
 package io.reactivestax.utility.messaging.rabbitmq;
 
 import com.rabbitmq.client.Channel;
-import io.reactivestax.interfaces.TradeIdAndAccNum;
+import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 import io.reactivestax.utility.messaging.MessageSender;
 
 import java.nio.charset.StandardCharsets;

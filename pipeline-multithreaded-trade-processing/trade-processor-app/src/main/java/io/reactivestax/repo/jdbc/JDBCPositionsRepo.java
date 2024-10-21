@@ -1,9 +1,9 @@
 package io.reactivestax.repo.jdbc;
 
 import io.reactivestax.model.Trade;
-import io.reactivestax.repo.interfaces.PositionsRepo;
+import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.utility.database.JDBCUtils;
-import io.reactivestax.utility.exceptions.OptimisticLockingException;
+import io.reactivestax.utility.exceptions.OptimisticLockingExceptionThrowable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,7 +26,7 @@ public class JDBCPositionsRepo implements PositionsRepo {
     }
 
     @Override
-    public void updatePositionsTable(Trade trade) {
+    public void updatePositionsTable(Trade trade) throws OptimisticLockingExceptionThrowable {
         Connection connection = JDBCUtils.getInstance().getConnection();
         JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         JDBCPositionsRepo positionsReference = JDBCPositionsRepo.getInstance();
@@ -64,14 +64,13 @@ public class JDBCPositionsRepo implements PositionsRepo {
                 psPositionUpdateQuery.setInt(2, version);
 
                 if (psPositionUpdateQuery.executeUpdate() == 0)
-                    throw new OptimisticLockingException("Optimistic Locking Occurring!!!!!");
+                    throw new OptimisticLockingExceptionThrowable("Optimistic Locking Occurring!!!!!");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
     public int getVersionIdForPosition(Trade trade, int securityId) {
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement stmt = connection.prepareStatement(GET_VERSION_ID)) {

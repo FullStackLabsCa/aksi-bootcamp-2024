@@ -33,7 +33,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
             Map<String, Object> mainQueueArguments = new HashMap<>();
             mainQueueArguments.put("x-queue-type", "quorum"); // Declare quorum queue
             mainQueueArguments.put("x-dead-letter-exchange", getFileProperty("rabbitMQ.retry.exchange.name")); // If a message is rejected, send to DLX
-            mainQueueArguments.put("x-dead-letter-routing-key", getFileProperty("rabbitMQ.retry.routingKey"));
+            mainQueueArguments.put("x-dead-letter-routing-key", getFileProperty("rabbitMQ.main.routingKey") + "_retry");
 
             rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.main.queue.name"), true, false, false, mainQueueArguments);
             rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.main.queue.name"), getFileProperty("rabbitMQ.main.exchange.name"), getFileProperty("rabbitMQ.main.routingKey"));
@@ -80,7 +80,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
                 return message;
             } else {
                 System.out.println(" [x] No messages available in the queue.");
-                return null;  // No message was available at the moment
+                return receiveMessage();  // No message was available at the moment
             }
         }
         catch (Exception e) {

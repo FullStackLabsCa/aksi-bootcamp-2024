@@ -1,7 +1,7 @@
 package io.reactivestax.repo.jdbc;
 
 import io.reactivestax.model.Trade;
-import io.reactivestax.repo.interfaces.JournalEntryRepo;
+import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.utility.database.JDBCUtils;
 
 import java.sql.Connection;

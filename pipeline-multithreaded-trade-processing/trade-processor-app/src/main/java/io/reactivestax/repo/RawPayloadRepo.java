@@ -1,4 +1,4 @@
-package io.reactivestax.repo.interfaces;
+package io.reactivestax.repo;
 
 import io.reactivestax.model.Trade;
 

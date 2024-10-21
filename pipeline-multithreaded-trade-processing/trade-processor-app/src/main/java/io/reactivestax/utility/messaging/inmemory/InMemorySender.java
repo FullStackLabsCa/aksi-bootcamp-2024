@@ -1,6 +1,6 @@
 package io.reactivestax.utility.messaging.inmemory;
 
-import io.reactivestax.interfaces.TradeIdAndAccNum;
+import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 import io.reactivestax.utility.messaging.MessageSender;
 
 public class InMemorySender implements MessageSender<TradeIdAndAccNum> {
