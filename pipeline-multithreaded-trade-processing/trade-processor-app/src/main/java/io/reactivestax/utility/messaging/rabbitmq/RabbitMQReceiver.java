@@ -5,6 +5,9 @@ import com.rabbitmq.client.GetResponse;
 import io.reactivestax.utility.exceptions.RabbitMQException;
 import io.reactivestax.utility.messaging.MessageReceiver;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
 
 public class RabbitMQReceiver implements MessageReceiver<String> {
@@ -22,9 +25,15 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
     public String receiveMessage() {
         try{
             Channel rabbitMQChannel = RabbitMQUtils.getRabbitMQChannel();
-            rabbitMQChannel.exchangeDeclare(getFileProperty("rabbitMQ.exchangeName"), "direct");
-            rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.queueName"), true, false, false, null);
-            rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.queueName"), getFileProperty("rabbitMQ.exchangeName"), getFileProperty("rabbitMQ.routingKey"));
+            rabbitMQChannel.exchangeDeclare(getFileProperty("rabbitMQ.main.exchange.name"), "direct");
+
+            Map<String, Object> mainQueueArguments = new HashMap<>();
+            mainQueueArguments.put("x-queue-type", "quorum"); // Declare quorum queue
+            mainQueueArguments.put("x-dead-letter-exchange", getFileProperty("rabbitMQ.dlx.exchange.name")); // If a message is rejected, send to DLX
+            mainQueueArguments.put("x-dead-letter-routing-key", getFileProperty("rabbitMQ.dlx.routingKey"));
+
+            rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.queueName"), true, false, false, mainQueueArguments);
+            rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.queueName"), getFileProperty("rabbitMQ.main.exchange.name"), getFileProperty("rabbitMQ.main.routingKey"));
 
             System.out.println(" [*] Waiting for messages in '" + getFileProperty("rabbitMQ.queueName") + "'.");
 

@@ -1,6 +1,7 @@
 package io.reactivestax.factory;
 
 import io.reactivestax.interfaces.TradeIdAndAccNum;
+import io.reactivestax.model.Trade;
 import io.reactivestax.repo.hibernate.HibernateJournalEntryRepo;
 import io.reactivestax.repo.hibernate.HibernatePositionsRepo;
 import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
@@ -18,10 +19,13 @@ import io.reactivestax.utility.database.TransactionUtil;
 import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
 import io.reactivestax.utility.messaging.MessageReceiver;
+import io.reactivestax.utility.messaging.MessageRetry;
 import io.reactivestax.utility.messaging.MessageSender;
 import io.reactivestax.utility.messaging.inmemory.InMemoryReceiver;
+import io.reactivestax.utility.messaging.inmemory.InMemoryRetry;
 import io.reactivestax.utility.messaging.inmemory.InMemorySender;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
+import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQSender;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
@@ -123,5 +127,19 @@ public class BeanFactory {
         }
 
         return messageReceiver;
+    }
+
+    public static MessageRetry<Trade> getMessageRetryer(){
+        MessageRetry<Trade> messageRetryer;
+
+        if(getFileProperty("messaging.technology").equals(RABBIT_MQ_QUEUE_TECH)){
+            messageRetryer = RabbitMQRetry.getInstance();
+        } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){
+            messageRetryer = InMemoryRetry.getInstance();
+        } else {
+            throw new InvalidMessagingTechnologyException();
+        }
+
+        return messageRetryer;
     }
 }

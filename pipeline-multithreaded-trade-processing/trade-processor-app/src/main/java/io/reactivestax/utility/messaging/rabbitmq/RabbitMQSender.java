@@ -24,12 +24,12 @@ public class RabbitMQSender implements MessageSender<TradeIdAndAccNum> {
     public void sendMessage(TradeIdAndAccNum tradeIdAndAccNum) {
         try {
             Channel channel = RabbitMQUtils.getRabbitMQChannel();
-            channel.exchangeDeclare(getFileProperty("rabbitMQ.exchangeName"), "direct");
+            channel.exchangeDeclare(getFileProperty("rabbitMQ.main.exchange.name"), "direct");
 
             String routingKey = getRoutingKey(tradeIdAndAccNum);
             String message = tradeIdAndAccNum.tradeID();
 
-            RabbitMQUtils.getRabbitMQChannel().basicPublish(getFileProperty("rabbitMQ.exchangeName"), routingKey, null, message.getBytes("UTF-8"));
+            RabbitMQUtils.getRabbitMQChannel().basicPublish(getFileProperty("rabbitMQ.main.exchange.name"), routingKey, null, message.getBytes("UTF-8"));
             System.out.println(" [x] Sent '" + message + "' with routing key '" + routingKey + "'");
 
             RabbitMQUtils.closeRabbitMQChannel();

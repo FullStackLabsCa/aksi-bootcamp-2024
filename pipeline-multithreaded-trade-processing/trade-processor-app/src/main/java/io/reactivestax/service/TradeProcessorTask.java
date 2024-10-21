@@ -127,7 +127,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
             } catch (OptimisticLockingException e) {
                 BeanFactory.getTransactionUtil().rollbackTransaction();
-//                TradesStream.checkRetryCountAndManageDLQ(trade, tradeIdQueue);
+                BeanFactory.getMessageRetryer().retryMessage(trade);
             }
 
         }
