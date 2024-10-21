@@ -61,7 +61,6 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
     public String receiveMessage() {
         try{
             ensureRabbitMQExchangeInitialized();
-
             Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
 
             System.out.println(" [*] Waiting for messages in '" + getFileProperty("rabbitMQ.main.queue.name") + "'.");

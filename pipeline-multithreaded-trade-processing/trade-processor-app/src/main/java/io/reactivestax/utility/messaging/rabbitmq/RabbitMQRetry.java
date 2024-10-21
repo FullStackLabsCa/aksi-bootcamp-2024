@@ -75,9 +75,6 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
             GetResponse response = RabbitMQUtils.getInstance().getThreadResponse();
             int retryCount = getMessageRetryCount(response);
 
-            if(retryCount > 1) {
-                System.out.println("ssss");
-            }
             if (retryCount < Integer.parseInt(getFileProperty("retry.count"))) {
                 retryCount++;
 
