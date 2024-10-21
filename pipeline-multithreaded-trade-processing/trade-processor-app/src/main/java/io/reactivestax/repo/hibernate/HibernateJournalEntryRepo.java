@@ -23,11 +23,10 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
     }
 
     @Override
-    public void writeTradeToJournalEntryTable(Trade trade) {
+    public void writeTradeToJournalEntryTable(Trade trade) throws Exception {
         Session session = HibernateUtils.getInstance().getConnection();
         JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
 
-        try {
             JournalEntry journalEntry = new JournalEntry();
             journalEntry.setAccountNumber(trade.getAccountNumber());
             journalEntry.setActivity(trade.getActivity());
@@ -38,13 +37,10 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
             journalEntry.setTradeID(trade.getTradeID());
 
             session.persist(journalEntry);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
-    public void updateJournalEntryForPositionUpdateStatus(Trade trade) {
+    public void updateJournalEntryForPositionUpdateStatus(Trade trade) throws Exception{
         Session session = HibernateUtils.getInstance().getConnection();
         try {
             CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -56,6 +52,7 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
             session.createQuery(positionStatusUpdate).executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+            throw new Exception();
         }
     }
 }

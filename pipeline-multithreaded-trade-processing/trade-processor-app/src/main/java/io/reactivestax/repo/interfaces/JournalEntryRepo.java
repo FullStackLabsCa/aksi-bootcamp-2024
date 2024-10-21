@@ -4,7 +4,7 @@ import io.reactivestax.model.Trade;
 
 public interface JournalEntryRepo {
 
-    void writeTradeToJournalEntryTable(Trade trade);
-    void updateJournalEntryForPositionUpdateStatus(Trade trade);
+    void writeTradeToJournalEntryTable(Trade trade) throws Exception;
+    void updateJournalEntryForPositionUpdateStatus(Trade trade) throws Exception;
 
 }

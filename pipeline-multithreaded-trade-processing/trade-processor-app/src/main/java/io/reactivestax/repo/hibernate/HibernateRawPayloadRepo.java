@@ -9,17 +9,18 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
+
 import java.util.List;
 
 public class HibernateRawPayloadRepo implements RawPayloadRepo {
     private static HibernateRawPayloadRepo instance;
 
-    private HibernateRawPayloadRepo(){
+    private HibernateRawPayloadRepo() {
         // Private Constructor to avoid anyone creating instance of this class
     }
 
-    public static synchronized HibernateRawPayloadRepo getInstance(){
-        if(instance == null) instance = new HibernateRawPayloadRepo();
+    public static synchronized HibernateRawPayloadRepo getInstance() {
+        if (instance == null) instance = new HibernateRawPayloadRepo();
         return instance;
     }
 
@@ -80,18 +81,14 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
     }
 
     @Override
-    public void updateJournalEntryStatusInRawPayloadsTable(Trade trade) {
+    public void updateJournalEntryStatusInRawPayloadsTable(Trade trade) throws Exception {
         Session session = HibernateUtils.getInstance().getConnection();
-        try {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaUpdate<RawPayload> jeStatusUpdate = builder.createCriteriaUpdate(RawPayload.class);
-            Root<RawPayload> root = jeStatusUpdate.from(RawPayload.class);
-            jeStatusUpdate.set(root.get("postedStatus"), "Posted");
-            jeStatusUpdate.where(builder.equal(root.get("tradeID"), trade.getTradeID()));
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaUpdate<RawPayload> jeStatusUpdate = builder.createCriteriaUpdate(RawPayload.class);
+        Root<RawPayload> root = jeStatusUpdate.from(RawPayload.class);
+        jeStatusUpdate.set(root.get("postedStatus"), "Posted");
+        jeStatusUpdate.where(builder.equal(root.get("tradeID"), trade.getTradeID()));
 
-            session.createQuery(jeStatusUpdate).executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        session.createQuery(jeStatusUpdate).executeUpdate();
     }
 }

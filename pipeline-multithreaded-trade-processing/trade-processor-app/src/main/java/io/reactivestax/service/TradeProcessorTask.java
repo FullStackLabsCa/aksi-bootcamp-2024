@@ -136,7 +136,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     @Override
-    public void writeToJournalTable(Trade trade) {
+    public void writeToJournalTable(Trade trade) throws Exception{
         JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
         journalEntryRepo.writeTradeToJournalEntryTable(trade);
     }
@@ -147,12 +147,12 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
         positionsRepo.updatePositionsTable(trade);
     }
 
-    private void updatePayloadDbForJournalEntry(Trade trade) {
+    private void updatePayloadDbForJournalEntry(Trade trade) throws Exception{
         RawPayloadRepo rawPayloadRepo = BeanFactory.getRawPayloadRepo();
         rawPayloadRepo.updateJournalEntryStatusInRawPayloadsTable(trade);
     }
 
-    private void updateJEForPositionsUpdate(Trade trade) {
+    private void updateJEForPositionsUpdate(Trade trade) throws Exception {
         JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
         journalEntryRepo.updateJournalEntryForPositionUpdateStatus(trade);
     }
