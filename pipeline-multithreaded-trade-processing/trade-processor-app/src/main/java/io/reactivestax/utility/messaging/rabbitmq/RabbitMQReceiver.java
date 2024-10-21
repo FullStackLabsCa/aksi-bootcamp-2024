@@ -5,6 +5,7 @@ import com.rabbitmq.client.GetResponse;
 import io.reactivestax.utility.exceptions.RabbitMQException;
 import io.reactivestax.utility.messaging.MessageReceiver;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
@@ -68,7 +69,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
 
             GetResponse response = rabbitMQChannel.basicGet(getFileProperty("rabbitMQ.main.queue.name"), false);  // Fetch one message without auto-acknowledgment
             if (response != null) {
-                String message = new String(response.getBody(), "UTF-8");
+                String message = new String(response.getBody(), StandardCharsets.UTF_8);
                 System.out.println(" [x] Received '" + message + "'");
 
                 // Manually acknowledge the message after processing

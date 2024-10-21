@@ -15,6 +15,6 @@ public class InMemorySender implements MessageSender<TradeIdAndAccNum> {
     }
     @Override
     public void sendMessage(TradeIdAndAccNum message) {
-
+        //This is for later, not processing in memory stuff right now.
     }
 }

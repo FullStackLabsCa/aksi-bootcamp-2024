@@ -32,6 +32,9 @@ import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFilePr
 
 public class BeanFactory {
 
+    private BeanFactory() {
+    }
+
     private static final String JDBC_PERSISTENCE_TECH = "jdbc";
     private static final String HIBERNATE_PERSISTENCE_TECH = "hibernate";
     private static final String RABBIT_MQ_QUEUE_TECH = "rabbitmq";

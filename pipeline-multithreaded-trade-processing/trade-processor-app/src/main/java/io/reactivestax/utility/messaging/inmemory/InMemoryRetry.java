@@ -17,6 +17,6 @@ public class InMemoryRetry implements MessageRetry<Trade> {
 
     @Override
     public void retryMessage(Trade trade) {
-
+//This is for later, not processing in memory stuff right now.
     }
 }

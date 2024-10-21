@@ -4,6 +4,7 @@ import com.rabbitmq.client.Channel;
 import io.reactivestax.interfaces.TradeIdAndAccNum;
 import io.reactivestax.utility.messaging.MessageSender;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
@@ -29,7 +30,7 @@ public class RabbitMQSender implements MessageSender<TradeIdAndAccNum> {
             String routingKey = getRoutingKey(tradeIdAndAccNum);
             String message = tradeIdAndAccNum.tradeID();
 
-            RabbitMQUtils.getRabbitMQChannel().basicPublish(getFileProperty("rabbitMQ.main.exchange.name"), routingKey, null, message.getBytes("UTF-8"));
+            RabbitMQUtils.getRabbitMQChannel().basicPublish(getFileProperty("rabbitMQ.main.exchange.name"), routingKey, null, message.getBytes(StandardCharsets.UTF_8));
             System.out.println(" [x] Sent '" + message + "' with routing key '" + routingKey + "'");
 
             RabbitMQUtils.closeRabbitMQChannel();
