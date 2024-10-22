@@ -1,6 +1,7 @@
 package io.reactivestax.repo.hibernate;
 
 import io.reactivestax.entity.Position;
+import io.reactivestax.entity.PositionCompositeKey;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
@@ -40,8 +41,7 @@ public class HibernatePositionsRepo implements PositionsRepo {
                 //Perform Insertion Logic
                 Position position = new Position();
 
-                position.setAccountNumber(trade.getAccountNumber());
-                position.setSecurityID(securityID);
+                position.setPositionID(new PositionCompositeKey(trade.getAccountNumber(), securityID));
                 position.setVersion(0);
                 if (trade.getActivity().equals("BUY")) {
                     position.setPositionAmount(trade.getQuantity());
@@ -79,8 +79,7 @@ public class HibernatePositionsRepo implements PositionsRepo {
         Root<Position> root = getPositionVersionQuery.from(Position.class);
         getPositionVersionQuery.select(root).where(
                 builder.and(
-                        builder.equal(root.get("accountNumber"), trade.getAccountNumber()),
-                        builder.equal(root.get("securityID"), securityId)
+                        builder.equal(root.get("positionID"), new PositionCompositeKey(trade.getAccountNumber(), securityId))
                 ));
         List<Position> result = session.createQuery(getPositionVersionQuery).getResultList();
 

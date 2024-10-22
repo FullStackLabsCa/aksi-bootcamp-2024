@@ -3,6 +3,11 @@ package io.reactivestax.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.sql.Time;
+import java.sql.Timestamp;
 
 @Entity
 @NoArgsConstructor
@@ -12,16 +17,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class Position {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
-    private int positionID;
-
-    @Column (name = "account_number")
-    private String accountNumber;
-
-    @Column (name = "security_id")
-    private int securityID;
+    @EmbeddedId
+    private PositionCompositeKey positionID;
 
     @Column (name = "position")
     private int positionAmount;
