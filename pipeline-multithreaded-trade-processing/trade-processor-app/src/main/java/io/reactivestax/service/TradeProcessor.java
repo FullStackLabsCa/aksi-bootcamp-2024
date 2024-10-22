@@ -14,7 +14,7 @@ public class TradeProcessor {
 
             int threadsRunning = 0;
             while (threadsRunning < threadPoolSize) {
-                executorServiceTradeProcessor.submit(new TradeProcessorTask(null));
+                executorServiceTradeProcessor.submit(new TradeProcessorRunnable());
                 threadsRunning++;
             }
 
@@ -22,4 +22,12 @@ public class TradeProcessor {
     }
 
 
+}
+
+class TradeProcessorRunnable implements Runnable{
+    @Override
+    public void run() {
+        TradeProcessorService tradeProcessorService = TradeProcessorService.getInstance();
+        tradeProcessorService.runTradeProcessor();
+    }
 }

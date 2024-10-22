@@ -11,19 +11,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class ChunkProcessorTask implements Runnable, ChunkProcessing {
+public class ChunkProcessorService implements ChunkProcessing {
+    private static ChunkProcessorService instance;
+    static String invalidString = "Invalid";
 
-    String filePath;
-    String invalidString = "Invalid";
-
-    public ChunkProcessorTask(String filePath) {
-        this.filePath = filePath;
+    private ChunkProcessorService() {
     }
 
-
-    @Override
-    public void run() {
-        processChunk(this.filePath);
+    public static synchronized ChunkProcessorService getInstance(){
+        if(instance == null) instance = new ChunkProcessorService();
+        return instance;
     }
 
     @Override

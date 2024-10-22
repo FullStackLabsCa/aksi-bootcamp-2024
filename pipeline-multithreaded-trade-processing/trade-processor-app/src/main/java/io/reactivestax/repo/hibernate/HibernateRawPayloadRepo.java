@@ -4,6 +4,7 @@ import io.reactivestax.entity.RawPayload;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.utility.database.HibernateUtils;
+import io.reactivestax.utility.exceptions.UpdateJournalEntryStatusInRawPayloadFailed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
@@ -81,14 +82,18 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
     }
 
     @Override
-    public void updateJournalEntryStatusInRawPayloadsTable(Trade trade) throws Exception {
-        Session session = HibernateUtils.getInstance().getConnection();
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaUpdate<RawPayload> jeStatusUpdate = builder.createCriteriaUpdate(RawPayload.class);
-        Root<RawPayload> root = jeStatusUpdate.from(RawPayload.class);
-        jeStatusUpdate.set(root.get("postedStatus"), "Posted");
-        jeStatusUpdate.where(builder.equal(root.get("tradeID"), trade.getTradeID()));
+    public void updateJournalEntryStatusInRawPayloadsTable(Trade trade) throws UpdateJournalEntryStatusInRawPayloadFailed {
+        try {
+            Session session = HibernateUtils.getInstance().getConnection();
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaUpdate<RawPayload> jeStatusUpdate = builder.createCriteriaUpdate(RawPayload.class);
+            Root<RawPayload> root = jeStatusUpdate.from(RawPayload.class);
+            jeStatusUpdate.set(root.get("postedStatus"), "Posted");
+            jeStatusUpdate.where(builder.equal(root.get("tradeID"), trade.getTradeID()));
 
-        session.createQuery(jeStatusUpdate).executeUpdate();
+            session.createQuery(jeStatusUpdate).executeUpdate();
+        } catch (Exception e) {
+            throw new UpdateJournalEntryStatusInRawPayloadFailed();
+        }
     }
 }

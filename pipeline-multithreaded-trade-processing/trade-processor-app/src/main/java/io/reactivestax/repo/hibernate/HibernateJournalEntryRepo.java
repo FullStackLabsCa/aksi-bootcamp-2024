@@ -5,6 +5,8 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.database.HibernateUtils;
+import io.reactivestax.utility.exceptions.PositionUpdateForJournalEntryFailed;
+import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Root;
@@ -23,10 +25,10 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
     }
 
     @Override
-    public void writeTradeToJournalEntryTable(Trade trade) throws Exception {
+    public void writeTradeToJournalEntryTable(Trade trade) throws WriteToJournalEntryFailed {
         Session session = HibernateUtils.getInstance().getConnection();
         JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
-
+        try {
             JournalEntry journalEntry = new JournalEntry();
             journalEntry.setAccountNumber(trade.getAccountNumber());
             journalEntry.setActivity(trade.getActivity());
@@ -37,10 +39,13 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
             journalEntry.setTradeID(trade.getTradeID());
 
             session.persist(journalEntry);
+        } catch (Exception e) {
+            throw new WriteToJournalEntryFailed();
+        }
     }
 
     @Override
-    public void updateJournalEntryForPositionUpdateStatus(Trade trade) throws Exception{
+    public void updateJournalEntryForPositionUpdateStatus(Trade trade) throws PositionUpdateForJournalEntryFailed {
         Session session = HibernateUtils.getInstance().getConnection();
         try {
             CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -52,7 +57,7 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
             session.createQuery(positionStatusUpdate).executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception();
+            throw new PositionUpdateForJournalEntryFailed();
         }
     }
 }

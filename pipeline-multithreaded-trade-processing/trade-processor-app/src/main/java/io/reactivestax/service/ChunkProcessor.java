@@ -16,10 +16,23 @@ public class ChunkProcessor {
         while (true) {
             String chunkPath = ChunksStream.getRecentPostedChunkPath();
             if (chunkPath == null) break;
-            executorService.submit(new ChunkProcessorTask(chunkPath));
+            executorService.submit(new ChunkProcessorRunnable(chunkPath));
         }
 
         executorService.shutdown();
     }
 
+}
+
+class ChunkProcessorRunnable implements Runnable{
+
+    String chunkPath;
+    public ChunkProcessorRunnable(String chunkPath) {
+        this.chunkPath = chunkPath;
+    }
+    @Override
+    public void run() {
+        ChunkProcessorService chunkProcessorService = ChunkProcessorService.getInstance();
+        chunkProcessorService.processChunk(this.chunkPath);
+    }
 }

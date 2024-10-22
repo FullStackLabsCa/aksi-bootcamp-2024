@@ -7,24 +7,24 @@ import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.repo.SecuritiesReferenceRepo;
 import io.reactivestax.service.interfaces.TradeProcessing;
-import io.reactivestax.utility.exceptions.NullPayloadException;
-import io.reactivestax.utility.exceptions.OptimisticLockingExceptionThrowable;
-import io.reactivestax.utility.exceptions.ReadFromQueueFailedException;
-import io.reactivestax.utility.exceptions.TradeCreationFailedException;
+import io.reactivestax.utility.exceptions.*;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.LinkedBlockingDeque;
 
-public class TradeProcessorTask implements Runnable, TradeProcessing {
-    LinkedBlockingDeque<String> tradeIdQueue;
+public class TradeProcessorService implements TradeProcessing {
+    private static TradeProcessorService instance;
 
-    public TradeProcessorTask(LinkedBlockingDeque<String> tradeIdQueue) {
-        this.tradeIdQueue = tradeIdQueue;
+    private TradeProcessorService() {
     }
 
-    @Override
-    public void run() {
+    public static synchronized TradeProcessorService getInstance(){
+        if(instance == null) instance = new TradeProcessorService();
+        return instance;
+    }
+
+    public void runTradeProcessor() {
         while (true) {
             String tradeID;
             try {
@@ -80,7 +80,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
         }
     }
 
-    public static Date convertStringToSqlDate(String dateString) {
+    private static Date convertStringToSqlDate(String dateString) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
             java.util.Date utilDate = dateFormat.parse(dateString);
@@ -125,7 +125,9 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
 
                 BeanFactory.getTransactionUtil().commitTransaction();
 
-            } catch (OptimisticLockingExceptionThrowable | Exception e) {
+            } catch (WriteToJournalEntryFailed | UpdateJournalEntryStatusInRawPayloadFailed |
+                     OptimisticLockingExceptionThrowable | PositionUpdateForJournalEntryFailed |
+                     Exception e) {
                 e.printStackTrace();
                 BeanFactory.getTransactionUtil().rollbackTransaction();
                 BeanFactory.getMessageRetryer().retryMessage(trade);
@@ -136,7 +138,7 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
     }
 
     @Override
-    public void writeToJournalTable(Trade trade) throws Exception{
+    public void writeToJournalTable(Trade trade) throws WriteToJournalEntryFailed{
         JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
         journalEntryRepo.writeTradeToJournalEntryTable(trade);
     }
@@ -147,12 +149,12 @@ public class TradeProcessorTask implements Runnable, TradeProcessing {
         positionsRepo.updatePositionsTable(trade);
     }
 
-    private void updatePayloadDbForJournalEntry(Trade trade) throws Exception{
+    private void updatePayloadDbForJournalEntry(Trade trade) throws UpdateJournalEntryStatusInRawPayloadFailed{
         RawPayloadRepo rawPayloadRepo = BeanFactory.getRawPayloadRepo();
         rawPayloadRepo.updateJournalEntryStatusInRawPayloadsTable(trade);
     }
 
-    private void updateJEForPositionsUpdate(Trade trade) throws Exception {
+    private void updateJEForPositionsUpdate(Trade trade) throws PositionUpdateForJournalEntryFailed {
         JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
         journalEntryRepo.updateJournalEntryForPositionUpdateStatus(trade);
     }
