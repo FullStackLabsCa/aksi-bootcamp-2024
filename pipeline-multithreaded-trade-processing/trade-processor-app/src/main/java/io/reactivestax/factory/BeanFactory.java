@@ -20,13 +20,10 @@ import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
 import io.reactivestax.utility.messaging.MessageReceiver;
 import io.reactivestax.utility.messaging.MessageRetry;
-import io.reactivestax.utility.messaging.MessageSender;
 import io.reactivestax.utility.messaging.inmemory.InMemoryReceiver;
 import io.reactivestax.utility.messaging.inmemory.InMemoryRetry;
-import io.reactivestax.utility.messaging.inmemory.InMemorySender;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
-import io.reactivestax.utility.messaging.rabbitmq.RabbitMQSender;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
