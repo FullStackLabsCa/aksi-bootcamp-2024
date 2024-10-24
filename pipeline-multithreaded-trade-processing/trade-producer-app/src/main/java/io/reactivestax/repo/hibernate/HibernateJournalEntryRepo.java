@@ -1,6 +1,5 @@
 package io.reactivestax.repo.hibernate;
 
-import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;

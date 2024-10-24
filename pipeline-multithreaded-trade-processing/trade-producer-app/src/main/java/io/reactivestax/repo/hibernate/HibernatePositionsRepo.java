@@ -1,7 +1,5 @@
 package io.reactivestax.repo.hibernate;
 
-import io.reactivestax.entity.Position;
-import io.reactivestax.entity.PositionCompositeKey;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
