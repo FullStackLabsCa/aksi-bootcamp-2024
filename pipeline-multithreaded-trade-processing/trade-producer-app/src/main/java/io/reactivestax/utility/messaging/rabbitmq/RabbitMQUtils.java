@@ -10,7 +10,7 @@ import io.reactivestax.utility.exceptions.RabbitMQException;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
+import static io.reactivestax.utility.ApplicationPropertyUtil.getFileProperty;
 
 public class RabbitMQUtils {
     private static ConnectionFactory rabbitMQFactory;

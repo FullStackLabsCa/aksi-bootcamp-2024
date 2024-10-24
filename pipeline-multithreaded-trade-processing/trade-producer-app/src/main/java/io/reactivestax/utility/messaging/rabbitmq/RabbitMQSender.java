@@ -7,7 +7,7 @@ import io.reactivestax.utility.messaging.MessageSender;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
+import static io.reactivestax.utility.ApplicationPropertyUtil.getFileProperty;
 
 public class RabbitMQSender implements MessageSender<TradeIdAndAccNum> {
     private static RabbitMQSender instance;

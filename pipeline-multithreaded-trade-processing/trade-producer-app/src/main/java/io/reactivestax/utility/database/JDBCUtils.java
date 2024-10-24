@@ -8,7 +8,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
+import static io.reactivestax.utility.ApplicationPropertyUtil.getFileProperty;
 
 public class JDBCUtils implements ConnectionUtil<Connection>, TransactionUtil {
     private static JDBCUtils instance;

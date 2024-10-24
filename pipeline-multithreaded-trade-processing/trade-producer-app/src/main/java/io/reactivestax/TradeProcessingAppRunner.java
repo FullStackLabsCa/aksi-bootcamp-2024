@@ -3,7 +3,7 @@ package io.reactivestax;
 import io.reactivestax.service.ChunkProcessor;
 import io.reactivestax.service.TradesFileReader;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.*;
+import static io.reactivestax.utility.ApplicationPropertyUtil.*;
 
 public class TradeProcessingAppRunner {
 

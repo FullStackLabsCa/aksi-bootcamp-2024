@@ -4,7 +4,7 @@ import io.reactivestax.service.interfaces.TradesFileReading;
 import io.reactivestax.utility.exceptions.InvalidFilePathException;
 import io.reactivestax.utility.messaging.ChunksStream;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
+import static io.reactivestax.utility.ApplicationPropertyUtil.getFileProperty;
 
 import java.io.*;
 import java.util.Scanner;

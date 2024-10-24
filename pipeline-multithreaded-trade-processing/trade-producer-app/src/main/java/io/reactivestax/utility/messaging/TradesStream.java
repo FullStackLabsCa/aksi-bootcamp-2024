@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
+import static io.reactivestax.utility.ApplicationPropertyUtil.getFileProperty;
 
 public class TradesStream implements Runnable {
     private static final ConcurrentHashMap<String, Integer> accToQueueMap = new ConcurrentHashMap<>();
