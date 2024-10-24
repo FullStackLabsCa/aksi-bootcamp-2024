@@ -5,3 +5,4 @@ pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/d
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/trade-files
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/arch
 school-cli/.idea/
+.idea/
