@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class JDBCRawPayloadRepo implements RawPayloadRepo {
-    private static final String INSERT_INTO_TRADES_PAYLOAD_QUERY = "Insert into trades_payload (trade_id, status, payload, posted_status) values (?,?,?, 'Not Posted')";
+    private static final String INSERT_INTO_TRADES_PAYLOAD_QUERY = "Insert into trades_payload (trade_id, status, payload, postedStatus) values (?,?,?, 'Not Posted')";
     private static JDBCRawPayloadRepo instance;
 
     private JDBCRawPayloadRepo() {
