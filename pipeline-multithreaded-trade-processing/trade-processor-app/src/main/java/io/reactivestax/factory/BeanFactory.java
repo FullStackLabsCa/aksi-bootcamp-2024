@@ -101,20 +101,6 @@ public class BeanFactory {
         return securitiesReferenceRepo;
     }
 
-    public static MessageSender<TradeIdAndAccNum> getMessageSender() {
-        MessageSender<TradeIdAndAccNum> messageSender;
-
-        if(getFileProperty("messaging.technology").equals(RABBIT_MQ_QUEUE_TECH)){
-            messageSender = RabbitMQSender.getInstance();
-        } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){
-            messageSender = InMemorySender.getInstance();
-        } else {
-            throw new InvalidMessagingTechnologyException();
-        }
-
-        return messageSender;
-    }
-
     public static MessageReceiver<String> getMessageReceiver(){
         MessageReceiver<String> messageReceiver;
 
