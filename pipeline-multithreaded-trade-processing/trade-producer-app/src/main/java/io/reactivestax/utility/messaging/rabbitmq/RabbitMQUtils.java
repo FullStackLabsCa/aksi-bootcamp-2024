@@ -4,7 +4,6 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.GetResponse;
-import io.reactivestax.utility.exceptions.NullResponseForThreadException;
 import io.reactivestax.utility.exceptions.RabbitMQException;
 
 import java.io.IOException;
