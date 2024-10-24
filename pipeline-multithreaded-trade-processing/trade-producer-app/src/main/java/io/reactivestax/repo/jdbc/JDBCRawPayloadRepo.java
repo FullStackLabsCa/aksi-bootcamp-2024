@@ -1,12 +1,10 @@
 package io.reactivestax.repo.jdbc;
 
-import io.reactivestax.model.Trade;
 import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.utility.database.JDBCUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class JDBCRawPayloadRepo implements RawPayloadRepo {

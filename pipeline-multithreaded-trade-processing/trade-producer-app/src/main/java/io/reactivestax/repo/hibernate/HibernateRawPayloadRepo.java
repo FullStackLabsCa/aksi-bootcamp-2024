@@ -1,17 +1,9 @@
 package io.reactivestax.repo.hibernate;
 
 import io.reactivestax.entity.RawPayload;
-import io.reactivestax.model.Trade;
 import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.utility.database.HibernateUtils;
-import io.reactivestax.utility.exceptions.UpdateJournalEntryStatusInRawPayloadFailed;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.CriteriaUpdate;
-import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
-
-import java.util.List;
 
 public class HibernateRawPayloadRepo implements RawPayloadRepo {
     private static HibernateRawPayloadRepo instance;
