@@ -42,7 +42,7 @@ public class ChunkProcessorService implements ChunkProcessing {
         writePayloadToPayloadDatabase(tradeIdentifiers.tradeID(), payload, tradeValidity);
 
         if (tradeValidity.equals("Valid")) {
-            writeToQueue(tradeIdentifiers);
+            sendForProcessing(tradeIdentifiers);
         }
     }
 
@@ -71,7 +71,7 @@ public class ChunkProcessorService implements ChunkProcessing {
     }
 
     @Override
-    public void writeToQueue(TradeIdAndAccNum tradeIdentifiers) {
+    public void sendForProcessing(TradeIdAndAccNum tradeIdentifiers) {
         MessageSender<TradeIdAndAccNum> sender = BeanFactory.getMessageSender();
         sender.sendMessage(tradeIdentifiers);
     }
