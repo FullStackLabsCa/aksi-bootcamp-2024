@@ -28,7 +28,7 @@
         <!-- Automatically create/update tables based on entity annotations -->
         <property name="hibernate.hbm2ddl.auto">update</property>
 
-        <!-- Entity Classes option-1 -->
+        <!-- Entity Classes -->
         <mapping class="io.reactivestax.entity.RawPayload" />
 
     </session-factory>
