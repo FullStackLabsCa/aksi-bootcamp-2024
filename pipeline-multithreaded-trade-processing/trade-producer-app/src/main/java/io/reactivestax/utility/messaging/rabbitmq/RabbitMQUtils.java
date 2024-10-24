@@ -70,16 +70,4 @@ public class RabbitMQUtils {
             throw new RabbitMQException(e);
         }
     }
-
-    public GetResponse getThreadResponse(){
-        GetResponse response = getResponseThreadLocal.get();
-
-        if(response!=null) return response;
-        else throw new NullResponseForThreadException();
-    }
-
-    public void setThreadResponse(GetResponse response){
-         getResponseThreadLocal.set(response);
-
-    }
 }
