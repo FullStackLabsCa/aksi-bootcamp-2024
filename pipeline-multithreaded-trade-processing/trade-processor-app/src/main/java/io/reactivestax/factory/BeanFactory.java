@@ -28,7 +28,7 @@ import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQSender;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
+import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 public class BeanFactory {
 

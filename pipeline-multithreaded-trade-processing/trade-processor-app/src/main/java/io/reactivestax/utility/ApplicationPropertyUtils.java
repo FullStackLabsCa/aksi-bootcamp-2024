@@ -9,14 +9,14 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import io.reactivestax.utility.exceptions.InvalidFilePathException;
 
-public class MultiThreadTradeProcessorUtility {
+public class ApplicationPropertyUtils {
 
-    private MultiThreadTradeProcessorUtility() {
+    private ApplicationPropertyUtils() {
     }
 
     private static Properties fileProperties;
     static FileHandler fileHandler;
-    private static final Logger logger = Logger.getLogger(MultiThreadTradeProcessorUtility.class.getName());
+    private static final Logger logger = Logger.getLogger(ApplicationPropertyUtils.class.getName());
 
     public static void configureLogger(){
         try {

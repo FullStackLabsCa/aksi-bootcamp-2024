@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static io.reactivestax.utility.MultiThreadTradeProcessorUtility.getFileProperty;
+import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 public class RabbitMQReceiver implements MessageReceiver<String> {
     private static RabbitMQReceiver instance;
