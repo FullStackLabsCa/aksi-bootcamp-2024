@@ -1,8 +1,13 @@
 .DS_Store
-target
+target/
 sql-files/
+pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/trade-files/
+pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/trade-files/
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/data/
-pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/trade-files
-pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/arch
-school-cli/.idea/
+pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/data/
+pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/arch/
+pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/arch/
 .idea/
+school-cli/.idea/
+pipeline-multithreaded-trade-processing/trade-processor-app/.idea/
+pipeline-multithreaded-trade-processing/trade-producer-app/.idea/
