@@ -5,7 +5,7 @@ import io.reactivestax.service.TradesFileReader;
 
 import static io.reactivestax.utility.ApplicationPropertyUtil.*;
 
-public class TradeProcessingAppRunner {
+public class TradeProducerAppRunner {
 
     public static void main(String[] args) {
 
