@@ -1,5 +1,5 @@
 package io.reactivestax.utility.messaging;
 
-public interface MessageReceiver<T> {
-    T receiveMessage();
+public interface MessageReceiver<T, V> {
+    T receiveMessage(V messageProvider);
 }

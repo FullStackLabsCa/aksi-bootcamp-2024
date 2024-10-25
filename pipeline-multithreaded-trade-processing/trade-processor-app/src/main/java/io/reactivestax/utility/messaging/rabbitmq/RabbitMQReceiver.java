@@ -12,9 +12,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
-public class RabbitMQReceiver implements MessageReceiver<String> {
+public class RabbitMQReceiver implements MessageReceiver<String, RabbitMQMessageProvider> {
     private static RabbitMQReceiver instance;
-    private static volatile boolean isInitialized = false;
+    private volatile boolean isInitialized = false;
     private static final ReentrantLock lock = new ReentrantLock();
 
     private RabbitMQReceiver() {
@@ -25,30 +25,31 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
         return instance;
     }
 
-    private static void initializeRabbitMQMainExchange(){
+    private static void initializeRabbitMQMainExchange(RabbitMQMessageProvider messageProvider){
         try {
             Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
-            rabbitMQChannel.exchangeDeclare(getFileProperty("rabbitMQ.main.exchange.name"), "direct");
+            rabbitMQChannel.exchangeDeclare(messageProvider.getMainExchangeName(), "direct");
 
             Map<String, Object> mainQueueArguments = new HashMap<>();
             mainQueueArguments.put("x-queue-type", "quorum"); // Declare quorum queue
-            mainQueueArguments.put("x-dead-letter-exchange", getFileProperty("rabbitMQ.retry.exchange.name")); // If a message is rejected, send to DLX
-            mainQueueArguments.put("x-dead-letter-routing-key", getFileProperty("rabbitMQ.main.routingKey") + "_retry");
+            mainQueueArguments.put("x-dead-letter-exchange", messageProvider.getRetryExchangeName()); // If a message is rejected, send to DLX
+            mainQueueArguments.put("x-dead-letter-routing-key", messageProvider.getRetryQueueRoutingKey());
+//            mainQueueArguments.put("x-dead-letter-routing-key", getFileProperty("rabbitMQ.main.queue1.routingKey") + "_retry");
 
-            rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.main.queue.name"), true, false, false, mainQueueArguments);
-            rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.main.queue.name"), getFileProperty("rabbitMQ.main.exchange.name"), getFileProperty("rabbitMQ.main.routingKey"));
+            rabbitMQChannel.queueDeclare(messageProvider.getMainQueueName(), true, false, false, mainQueueArguments);
+            rabbitMQChannel.queueBind(messageProvider.getMainQueueName(), messageProvider.getMainExchangeName(), messageProvider.getMainQueueRoutingKey());
 
         } catch (Exception e) {
             System.out.println("Error Initializing RabbitMQ Receiver Main....");
         }
     }
 
-    private static void ensureRabbitMQExchangeInitialized(){
+    private void ensureRabbitMQExchangeInitialized(RabbitMQMessageProvider messageProvider){
         if (!isInitialized) {
             lock.lock();
             try {
                 if (!isInitialized) {
-                    initializeRabbitMQMainExchange();
+                    initializeRabbitMQMainExchange(messageProvider);
                     isInitialized = true;
                 }
             } finally {
@@ -58,14 +59,14 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
     }
 
     @Override
-    public String receiveMessage() {
+    public String receiveMessage(RabbitMQMessageProvider messageProvider) {
         try{
-            ensureRabbitMQExchangeInitialized();
+            ensureRabbitMQExchangeInitialized(messageProvider);
             Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
 
-            System.out.println(" [*] Waiting for messages in '" + getFileProperty("rabbitMQ.main.queue.name") + "'.");
+            System.out.println(" [*] Waiting for messages in '" + getFileProperty("rabbitMQ.main.queue1.name") + "'.");
 
-            GetResponse response = rabbitMQChannel.basicGet(getFileProperty("rabbitMQ.main.queue.name"), false);  // Fetch one message without auto-acknowledgment
+            GetResponse response = rabbitMQChannel.basicGet(getFileProperty("rabbitMQ.main.queue1.name"), false);  // Fetch one message without auto-acknowledgment
             if (response != null) {
                 RabbitMQUtils.getInstance().setThreadResponse(response);
 
@@ -79,7 +80,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
                 return message;
             } else {
                 System.out.println(" [x] No messages available in the queue.");
-                return receiveMessage();  // No message was available at the moment
+                return receiveMessage(messageProvider);  // No message was available at the moment
             }
         }
         catch (Exception e) {

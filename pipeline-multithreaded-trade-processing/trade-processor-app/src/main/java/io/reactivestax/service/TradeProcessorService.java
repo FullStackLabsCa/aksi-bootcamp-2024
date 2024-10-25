@@ -8,6 +8,7 @@ import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.repo.SecuritiesReferenceRepo;
 import io.reactivestax.service.interfaces.TradeProcessing;
 import io.reactivestax.utility.exceptions.*;
+import io.reactivestax.utility.messaging.MessageProvider;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,11 +25,11 @@ public class TradeProcessorService implements TradeProcessing {
         return instance;
     }
 
-    public void runTradeProcessor() {
+    public void runTradeProcessor(MessageProvider messageProvider) {
         while (true) {
             String tradeID;
             try {
-                tradeID = getTradeID();
+                tradeID = getTradeID(messageProvider);
                 if (tradeID == null || tradeID.trim().isEmpty()) break;
                 String payload = readPayload(tradeID);
                 if ((payload != null) && (!payload.isEmpty())) {
@@ -43,8 +44,8 @@ public class TradeProcessorService implements TradeProcessing {
     }
 
     @Override
-    public String getTradeID() throws InterruptedException {
-        return BeanFactory.getMessageReceiver().receiveMessage();
+    public String getTradeID(MessageProvider messageProvider) throws InterruptedException {
+        return BeanFactory.getMessageReceiver().receiveMessage(messageProvider);
     }
 
     private String readPayload(String tradeID) {
