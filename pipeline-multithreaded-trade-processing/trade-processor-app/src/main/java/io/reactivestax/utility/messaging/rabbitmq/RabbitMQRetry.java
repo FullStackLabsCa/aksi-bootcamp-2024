@@ -9,7 +9,6 @@ import io.reactivestax.utility.messaging.MessageRetry;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 

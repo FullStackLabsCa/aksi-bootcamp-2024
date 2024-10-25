@@ -7,7 +7,6 @@ import com.rabbitmq.client.GetResponse;
 import io.reactivestax.utility.exceptions.MessageProviderNotSetException;
 import io.reactivestax.utility.exceptions.NullResponseForThreadException;
 import io.reactivestax.utility.exceptions.RabbitMQException;
-import io.reactivestax.utility.messaging.MessageProvider;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
