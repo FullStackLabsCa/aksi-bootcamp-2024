@@ -3,6 +3,7 @@ package io.reactivestax.utility.messaging.rabbitmq;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.GetResponse;
 import io.reactivestax.utility.exceptions.RabbitMQException;
+import io.reactivestax.utility.messaging.MessageProvider;
 import io.reactivestax.utility.messaging.MessageReceiver;
 
 import java.nio.charset.StandardCharsets;
@@ -12,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
-public class RabbitMQReceiver implements MessageReceiver<String, RabbitMQMessageProvider> {
+public class RabbitMQReceiver implements MessageReceiver<String> {
     private static RabbitMQReceiver instance;
     private volatile boolean isInitialized = false;
     private static final ReentrantLock lock = new ReentrantLock();
@@ -59,9 +60,9 @@ public class RabbitMQReceiver implements MessageReceiver<String, RabbitMQMessage
     }
 
     @Override
-    public String receiveMessage(RabbitMQMessageProvider messageProvider) {
+    public String receiveMessage(MessageProvider messageProvider) {
         try{
-            ensureRabbitMQExchangeInitialized(messageProvider);
+            ensureRabbitMQExchangeInitialized((RabbitMQMessageProvider) messageProvider);
             Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
 
             System.out.println(" [*] Waiting for messages in '" + getFileProperty("rabbitMQ.main.queue1.name") + "'.");

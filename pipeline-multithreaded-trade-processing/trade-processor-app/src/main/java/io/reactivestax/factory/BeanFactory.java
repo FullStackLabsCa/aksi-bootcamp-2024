@@ -17,6 +17,8 @@ import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.database.TransactionUtil;
 import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
+import io.reactivestax.utility.exceptions.NoLongerSupportedException;
+import io.reactivestax.utility.messaging.MessageProvider;
 import io.reactivestax.utility.messaging.MessageReceiver;
 import io.reactivestax.utility.messaging.MessageRetry;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
@@ -104,7 +106,7 @@ public class BeanFactory {
         if(getFileProperty("messaging.technology").equals(RABBIT_MQ_QUEUE_TECH)){
             messageReceiver = RabbitMQReceiver.getInstance();
         } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){
-            throw new InvalidMessagingTechnologyException();
+            throw new NoLongerSupportedException();
         } else {
             throw new InvalidMessagingTechnologyException();
         }
