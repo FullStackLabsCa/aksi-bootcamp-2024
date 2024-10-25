@@ -9,6 +9,6 @@ pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/a
 pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/arch/
 .idea/
 school-cli/.idea/
-pipeline-multithreaded-trade-processing/trade-processor-app/.idea/
+pipeline-multithreaded-trade-processing/trade-processor-app/.idea
 pipeline-multithreaded-trade-processing/trade-producer-app/.idea/
 pipeline-multithreaded-trade-processing/trade-producer-app/target/
