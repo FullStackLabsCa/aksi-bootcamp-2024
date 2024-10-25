@@ -1,6 +1,5 @@
 package io.reactivestax.factory;
 
-import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.hibernate.HibernateJournalEntryRepo;
 import io.reactivestax.repo.hibernate.HibernatePositionsRepo;

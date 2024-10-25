@@ -1,4 +1,4 @@
-package io.reactivestax.service.interfaces;
+package io.reactivestax.model;
 
 public record TradeIdAndAccNum(String tradeID, String accountNumber) {
 
