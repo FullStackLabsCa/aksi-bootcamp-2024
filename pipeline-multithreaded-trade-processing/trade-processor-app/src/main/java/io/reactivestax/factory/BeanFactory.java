@@ -24,6 +24,7 @@ import io.reactivestax.utility.messaging.MessageRetry;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQMessageProvider;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
+import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
@@ -141,6 +142,7 @@ public class BeanFactory {
             rabbitMQMessageProvider.setRetryQueueName(getFileProperty("rabbitMQ.main.queue"+index+".name")+"_retry");
             rabbitMQMessageProvider.setRetryQueueRoutingKey(getFileProperty("rabbitMQ.main.queue"+index+".routingKey")+"_retry");
 
+            RabbitMQUtils.getInstance().setRabbitMQMessageProvider(rabbitMQMessageProvider);
             messageProvider = rabbitMQMessageProvider;
 
         } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){

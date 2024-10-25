@@ -4,8 +4,10 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.GetResponse;
+import io.reactivestax.utility.exceptions.MessageProviderNotSetException;
 import io.reactivestax.utility.exceptions.NullResponseForThreadException;
 import io.reactivestax.utility.exceptions.RabbitMQException;
+import io.reactivestax.utility.messaging.MessageProvider;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -18,6 +20,7 @@ public class RabbitMQUtils {
     private static RabbitMQUtils instance;
     private static final ThreadLocal<Channel> channelThreadLocal = new ThreadLocal<>();
     private static final ThreadLocal<GetResponse> getResponseThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<RabbitMQMessageProvider> getMessageProviderThreadLocal = new ThreadLocal<>();
 
     private RabbitMQUtils() {
     }
@@ -80,6 +83,16 @@ public class RabbitMQUtils {
 
     public void setThreadResponse(GetResponse response){
          getResponseThreadLocal.set(response);
+    }
 
+    public RabbitMQMessageProvider getRabbitMQMessageProvider(){
+        RabbitMQMessageProvider rabbitMQMessageProvider = getMessageProviderThreadLocal.get();
+
+        if(rabbitMQMessageProvider!=null) return rabbitMQMessageProvider;
+        else throw new MessageProviderNotSetException();
+    }
+
+    public void setRabbitMQMessageProvider(RabbitMQMessageProvider messageProvider){
+        getMessageProviderThreadLocal.set(messageProvider);
     }
 }

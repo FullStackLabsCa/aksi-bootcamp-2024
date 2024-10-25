@@ -15,45 +15,38 @@ import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 public class RabbitMQRetry implements MessageRetry<Trade> {
     private static RabbitMQRetry instance;
-    private static volatile boolean isInitialized = false;
-    private static final ReentrantLock lock = new ReentrantLock();
+    private volatile boolean isInitialized = false;
 
     private RabbitMQRetry() {
     }
 
-    public static synchronized RabbitMQRetry getInstance(){
-        if(instance == null) instance = new RabbitMQRetry();
+    public static synchronized RabbitMQRetry getInstance() {
+        if (instance == null) instance = new RabbitMQRetry();
         return instance;
     }
 
-    private static void ensureRabbitMQExchangeInitialized() {
+    private void ensureRabbitMQExchangeInitialized() {
         if (!isInitialized) {
-            lock.lock();
-            try {
-                if (!isInitialized) {
-                    initializeRabbitMQDLXExchange();
-                    isInitialized = true;
-                }
-            } finally {
-                lock.unlock();
-            }
+            initializeRabbitMQDLXExchange();
+            isInitialized = true;
         }
     }
 
-    private static void initializeRabbitMQDLXExchange(){
+    private void initializeRabbitMQDLXExchange() {
         try {
             Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
+            RabbitMQMessageProvider rabbitMQMessageProvider = RabbitMQUtils.getInstance().getRabbitMQMessageProvider();
 
             //Retry Exchange Initialization
-            rabbitMQChannel.exchangeDeclare(getFileProperty("rabbitMQ.retry.exchange.name"), "direct");
+            rabbitMQChannel.exchangeDeclare(rabbitMQMessageProvider.getRetryExchangeName(), "direct");
 
             Map<String, Object> dlqArguments = new HashMap<>();
             dlqArguments.put("x-message-ttl", 5000); // Retry delay in milliseconds (5 seconds)
-            dlqArguments.put("x-dead-letter-exchange", getFileProperty("rabbitMQ.main.exchange.name")); // Requeue to main exchange
-            dlqArguments.put("x-dead-letter-routing-key", getFileProperty("rabbitMQ.main.routingKey")); // Requeue to the main queue
+            dlqArguments.put("x-dead-letter-exchange", rabbitMQMessageProvider.getMainExchangeName()); // Requeue to main exchange
+            dlqArguments.put("x-dead-letter-routing-key", rabbitMQMessageProvider.getMainQueueRoutingKey()); // Requeue to the main queue
 
-            rabbitMQChannel.queueDeclare(getFileProperty("rabbitMQ.main.queue.name") + "_retry", true, false, false, dlqArguments);
-            rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.main.queue.name") + "_retry", getFileProperty("rabbitMQ.retry.exchange.name"), getFileProperty("rabbitMQ.main.routingKey")+"_retry");
+            rabbitMQChannel.queueDeclare(rabbitMQMessageProvider.getRetryQueueName(), true, false, false, dlqArguments);
+            rabbitMQChannel.queueBind(rabbitMQMessageProvider.getRetryQueueName(), rabbitMQMessageProvider.getRetryExchangeName(), rabbitMQMessageProvider.getRetryQueueRoutingKey());
 
             //Dead Letter Exchange Initialization
             rabbitMQChannel.exchangeDeclare(getFileProperty("rabbitMQ.dlx.exchange.name"), "direct", true);
@@ -85,8 +78,10 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
                         .headers(updatedHeaders)
                         .build();
 
+                RabbitMQMessageProvider rabbitMQMessageProvider = RabbitMQUtils.getInstance().getRabbitMQMessageProvider();
+
                 // Re-Publish Message to Retry Exchange
-                rabbitMQChannel.basicPublish(getFileProperty("rabbitMQ.retry.exchange.name"), getFileProperty("rabbitMQ.main.routingKey")+"_retry", retryProperties, trade.getTradeID().getBytes());
+                rabbitMQChannel.basicPublish(rabbitMQMessageProvider.getRetryExchangeName(), rabbitMQMessageProvider.getRetryQueueRoutingKey(), retryProperties, trade.getTradeID().getBytes());
                 System.out.println("Message retried. Retry count: " + retryCount);
 
             } else {
