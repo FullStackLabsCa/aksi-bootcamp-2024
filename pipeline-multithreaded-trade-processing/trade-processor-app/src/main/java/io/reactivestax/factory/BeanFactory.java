@@ -21,6 +21,7 @@ import io.reactivestax.utility.exceptions.NoLongerSupportedException;
 import io.reactivestax.utility.messaging.MessageProvider;
 import io.reactivestax.utility.messaging.MessageReceiver;
 import io.reactivestax.utility.messaging.MessageRetry;
+import io.reactivestax.utility.messaging.rabbitmq.RabbitMQMessageProvider;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
 
@@ -126,5 +127,28 @@ public class BeanFactory {
         }
 
         return messageRetryer;
+    }
+
+    public static MessageProvider getMessageProvider(int index){
+        MessageProvider messageProvider;
+
+        if(getFileProperty("messaging.technology").equals(RABBIT_MQ_QUEUE_TECH)){
+            RabbitMQMessageProvider rabbitMQMessageProvider = new RabbitMQMessageProvider();
+            rabbitMQMessageProvider.setMainExchangeName(getFileProperty("rabbitMQ.main.exchange.name"));
+            rabbitMQMessageProvider.setMainQueueName(getFileProperty("rabbitMQ.main.queue"+index+".name"));
+            rabbitMQMessageProvider.setMainQueueRoutingKey(getFileProperty("rabbitMQ.main.queue"+index+".routingKey"));
+            rabbitMQMessageProvider.setRetryExchangeName(getFileProperty("rabbitMQ.retry.exchange.name"));
+            rabbitMQMessageProvider.setRetryQueueName(getFileProperty("rabbitMQ.main.queue"+index+".name_retry"));
+            rabbitMQMessageProvider.setRetryQueueRoutingKey(getFileProperty("rabbitMQ.main.queue"+index+".routingKey_retry"));
+
+            messageProvider = rabbitMQMessageProvider;
+
+        } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){
+            throw new InvalidMessagingTechnologyException();
+        } else {
+            throw new InvalidMessagingTechnologyException();
+        }
+
+        return messageProvider;
     }
 }

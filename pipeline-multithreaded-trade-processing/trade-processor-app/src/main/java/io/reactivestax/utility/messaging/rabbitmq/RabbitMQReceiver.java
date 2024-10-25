@@ -35,7 +35,6 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
             mainQueueArguments.put("x-queue-type", "quorum"); // Declare quorum queue
             mainQueueArguments.put("x-dead-letter-exchange", messageProvider.getRetryExchangeName()); // If a message is rejected, send to DLX
             mainQueueArguments.put("x-dead-letter-routing-key", messageProvider.getRetryQueueRoutingKey());
-//            mainQueueArguments.put("x-dead-letter-routing-key", getFileProperty("rabbitMQ.main.queue1.routingKey") + "_retry");
 
             rabbitMQChannel.queueDeclare(messageProvider.getMainQueueName(), true, false, false, mainQueueArguments);
             rabbitMQChannel.queueBind(messageProvider.getMainQueueName(), messageProvider.getMainExchangeName(), messageProvider.getMainQueueRoutingKey());
@@ -65,9 +64,9 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
             ensureRabbitMQExchangeInitialized((RabbitMQMessageProvider) messageProvider);
             Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
 
-            System.out.println(" [*] Waiting for messages in '" + getFileProperty("rabbitMQ.main.queue1.name") + "'.");
+            System.out.println(" [*] Waiting for messages in '" + ((RabbitMQMessageProvider) messageProvider).getMainQueueName() + "'.");
 
-            GetResponse response = rabbitMQChannel.basicGet(getFileProperty("rabbitMQ.main.queue1.name"), false);  // Fetch one message without auto-acknowledgment
+            GetResponse response = rabbitMQChannel.basicGet(((RabbitMQMessageProvider) messageProvider).getMainQueueName(), false);  // Fetch one message without auto-acknowledgment
             if (response != null) {
                 RabbitMQUtils.getInstance().setThreadResponse(response);
 
