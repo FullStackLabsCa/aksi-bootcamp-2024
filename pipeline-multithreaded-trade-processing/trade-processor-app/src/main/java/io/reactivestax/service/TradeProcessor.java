@@ -13,29 +13,29 @@ public class TradeProcessor {
     int threadPoolSize = Integer.parseInt(getFileProperty("thread.pool.size.trade.processor"));
     ExecutorService executorServiceTradeProcessor = Executors.newFixedThreadPool(threadPoolSize);
 
-    private MessageProvider getMessageProvider(int providerIndex){
-        return BeanFactory.getMessageProvider(providerIndex);
-    }
-
     public void startTradesProcessing(){
 
         for (int i = 0; i < numberOfProviders; i++) {
-            executorServiceTradeProcessor.submit(new TradeProcessorRunnable(getMessageProvider(i % numberOfProviders)));
+            executorServiceTradeProcessor.submit(new TradeProcessorRunnable(i % numberOfProviders));
         }
         executorServiceTradeProcessor.shutdown();
     }
 }
 
 class TradeProcessorRunnable implements Runnable{
-    MessageProvider messageProvider;
+    Integer messageProviderIndex;
 
-    public TradeProcessorRunnable(MessageProvider messageProvider) {
-        this.messageProvider = messageProvider;
+    public TradeProcessorRunnable(Integer index) {
+        this.messageProviderIndex = index;
     }
 
     @Override
     public void run() {
         TradeProcessorService tradeProcessorService = TradeProcessorService.getInstance();
-        tradeProcessorService.runTradeProcessor(messageProvider);
+        tradeProcessorService.runTradeProcessor(getMessageProvider(messageProviderIndex));
+    }
+
+    private MessageProvider getMessageProvider(int providerIndex){
+        return BeanFactory.getMessageProvider(providerIndex);
     }
 }

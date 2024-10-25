@@ -12,7 +12,6 @@ import java.util.Map;
 
 public class RabbitMQReceiver implements MessageReceiver<String> {
     private static RabbitMQReceiver instance;
-    private volatile boolean isInitialized = false;
 
     private RabbitMQReceiver() {
     }
@@ -40,17 +39,11 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
         }
     }
 
-    private void ensureRabbitMQExchangeInitialized(RabbitMQMessageProvider messageProvider) {
-        if (!isInitialized) {
-            initializeRabbitMQMainExchange(messageProvider);
-            isInitialized = true;
-        }
-    }
 
     @Override
     public String receiveMessage(MessageProvider messageProvider) {
         try {
-            ensureRabbitMQExchangeInitialized((RabbitMQMessageProvider) messageProvider);
+            initializeRabbitMQMainExchange((RabbitMQMessageProvider) messageProvider);
             Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
 
             System.out.println(" [*] Waiting for messages in '" + ((RabbitMQMessageProvider) messageProvider).getMainQueueName() + "'.");

@@ -14,7 +14,6 @@ import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 public class RabbitMQRetry implements MessageRetry<Trade> {
     private static RabbitMQRetry instance;
-    private volatile boolean isInitialized = false;
 
     private RabbitMQRetry() {
     }
@@ -22,13 +21,6 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
     public static synchronized RabbitMQRetry getInstance() {
         if (instance == null) instance = new RabbitMQRetry();
         return instance;
-    }
-
-    private void ensureRabbitMQExchangeInitialized() {
-        if (!isInitialized) {
-            initializeRabbitMQDLXExchange();
-            isInitialized = true;
-        }
     }
 
     private void initializeRabbitMQDLXExchange() {
@@ -61,8 +53,8 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
     @Override
     public void retryMessage(Trade trade) {
         try {
-            ensureRabbitMQExchangeInitialized();
             Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
+            initializeRabbitMQDLXExchange();
 
             GetResponse response = RabbitMQUtils.getInstance().getThreadResponse();
             int retryCount = getMessageRetryCount(response);
