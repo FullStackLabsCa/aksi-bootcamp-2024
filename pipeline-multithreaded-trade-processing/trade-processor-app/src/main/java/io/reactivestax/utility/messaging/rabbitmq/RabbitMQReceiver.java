@@ -9,24 +9,20 @@ import io.reactivestax.utility.messaging.MessageReceiver;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
-
-import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 public class RabbitMQReceiver implements MessageReceiver<String> {
     private static RabbitMQReceiver instance;
     private volatile boolean isInitialized = false;
-    private static final ReentrantLock lock = new ReentrantLock();
 
     private RabbitMQReceiver() {
     }
 
-    public static synchronized RabbitMQReceiver getInstance(){
-        if(instance == null) instance = new RabbitMQReceiver();
+    public static synchronized RabbitMQReceiver getInstance() {
+        if (instance == null) instance = new RabbitMQReceiver();
         return instance;
     }
 
-    private static void initializeRabbitMQMainExchange(RabbitMQMessageProvider messageProvider){
+    private void initializeRabbitMQMainExchange(RabbitMQMessageProvider messageProvider) {
         try {
             Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
             rabbitMQChannel.exchangeDeclare(messageProvider.getMainExchangeName(), "direct");
@@ -44,23 +40,16 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
         }
     }
 
-    private void ensureRabbitMQExchangeInitialized(RabbitMQMessageProvider messageProvider){
+    private void ensureRabbitMQExchangeInitialized(RabbitMQMessageProvider messageProvider) {
         if (!isInitialized) {
-            lock.lock();
-            try {
-                if (!isInitialized) {
-                    initializeRabbitMQMainExchange(messageProvider);
-                    isInitialized = true;
-                }
-            } finally {
-                lock.unlock();
-            }
+            initializeRabbitMQMainExchange(messageProvider);
+            isInitialized = true;
         }
     }
 
     @Override
     public String receiveMessage(MessageProvider messageProvider) {
-        try{
+        try {
             ensureRabbitMQExchangeInitialized((RabbitMQMessageProvider) messageProvider);
             Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
 
@@ -82,8 +71,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
                 System.out.println(" [x] No messages available in the queue.");
                 return receiveMessage(messageProvider);  // No message was available at the moment
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Some issues in RabbitMQ Consumer...readFromRabbitMQ");
             e.printStackTrace();
             throw new RabbitMQException(e);

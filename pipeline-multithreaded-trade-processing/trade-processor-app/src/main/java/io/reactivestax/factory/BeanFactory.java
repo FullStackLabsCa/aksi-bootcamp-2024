@@ -138,8 +138,8 @@ public class BeanFactory {
             rabbitMQMessageProvider.setMainQueueName(getFileProperty("rabbitMQ.main.queue"+index+".name"));
             rabbitMQMessageProvider.setMainQueueRoutingKey(getFileProperty("rabbitMQ.main.queue"+index+".routingKey"));
             rabbitMQMessageProvider.setRetryExchangeName(getFileProperty("rabbitMQ.retry.exchange.name"));
-            rabbitMQMessageProvider.setRetryQueueName(getFileProperty("rabbitMQ.main.queue"+index+".name_retry"));
-            rabbitMQMessageProvider.setRetryQueueRoutingKey(getFileProperty("rabbitMQ.main.queue"+index+".routingKey_retry"));
+            rabbitMQMessageProvider.setRetryQueueName(getFileProperty("rabbitMQ.main.queue"+index+".name")+"_retry");
+            rabbitMQMessageProvider.setRetryQueueRoutingKey(getFileProperty("rabbitMQ.main.queue"+index+".routingKey")+"_retry");
 
             messageProvider = rabbitMQMessageProvider;
 
