@@ -9,24 +9,19 @@ import java.util.concurrent.Executors;
 import static io.reactivestax.utility.ApplicationPropertyUtils.*;
 
 public class TradeProcessor {
-    int numberOfQueues = Integer.parseInt(getFileProperty("trade.processor.queue.count"));
+    int numberOfProviders = Integer.parseInt(getFileProperty("trade.processor.provider.count"));
     int threadPoolSize = Integer.parseInt(getFileProperty("thread.pool.size.trade.processor"));
     ExecutorService executorServiceTradeProcessor = Executors.newFixedThreadPool(threadPoolSize);
 
-    private MessageProvider getMessageProvider(int queueIndex){
-        return BeanFactory.getMessageProvider(queueIndex);
+    private MessageProvider getMessageProvider(int providerIndex){
+        return BeanFactory.getMessageProvider(providerIndex);
     }
 
-    public void startTradeProcessingFromQueues(){
+    public void startTradesProcessing(){
 
-            int threadsRunning = 0;
-            while (threadsRunning < threadPoolSize) {
-                for (int i = 0; i < numberOfQueues; i++) {
-                    executorServiceTradeProcessor.submit(new TradeProcessorRunnable(getMessageProvider(i % numberOfQueues)));
-                    threadsRunning++;
-                    if (threadsRunning >= threadPoolSize) break;
-                }
-            }
+        for (int i = 0; i < numberOfProviders; i++) {
+            executorServiceTradeProcessor.submit(new TradeProcessorRunnable(getMessageProvider(i % numberOfProviders)));
+        }
         executorServiceTradeProcessor.shutdown();
     }
 }

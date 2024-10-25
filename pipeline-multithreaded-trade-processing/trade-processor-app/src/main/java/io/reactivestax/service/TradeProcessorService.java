@@ -38,7 +38,7 @@ public class TradeProcessorService implements TradeProcessing {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new ReadFromQueueFailedException(e);
+                throw new ReadFromProviderFailedException(e);
             }
         }
     }

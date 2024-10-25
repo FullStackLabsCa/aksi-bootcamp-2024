@@ -15,6 +15,6 @@ class TradeProcessorRunner implements Runnable{
     @Override
     public void run(){
         TradeProcessor processor = new TradeProcessor();
-        processor.startTradeProcessingFromQueues();
+        processor.startTradesProcessing();
     }
 }
