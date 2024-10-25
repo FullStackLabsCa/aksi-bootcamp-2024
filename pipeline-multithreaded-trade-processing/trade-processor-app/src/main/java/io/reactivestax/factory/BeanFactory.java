@@ -106,7 +106,7 @@ public class BeanFactory {
         if(getFileProperty("messaging.technology").equals(RABBIT_MQ_QUEUE_TECH)){
             messageReceiver = RabbitMQReceiver.getInstance();
         } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){
-            messageReceiver = InMemoryReceiver.getInstance();
+            throw new InvalidMessagingTechnologyException();
         } else {
             throw new InvalidMessagingTechnologyException();
         }
@@ -120,7 +120,7 @@ public class BeanFactory {
         if(getFileProperty("messaging.technology").equals(RABBIT_MQ_QUEUE_TECH)){
             messageRetryer = RabbitMQRetry.getInstance();
         } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){
-            messageRetryer = InMemoryRetry.getInstance();
+            throw new InvalidMessagingTechnologyException();
         } else {
             throw new InvalidMessagingTechnologyException();
         }
