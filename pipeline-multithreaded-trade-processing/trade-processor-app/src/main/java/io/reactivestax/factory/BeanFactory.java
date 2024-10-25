@@ -19,8 +19,6 @@ import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
 import io.reactivestax.utility.messaging.MessageReceiver;
 import io.reactivestax.utility.messaging.MessageRetry;
-import io.reactivestax.utility.messaging.inmemory.InMemoryReceiver;
-import io.reactivestax.utility.messaging.inmemory.InMemoryRetry;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
 
