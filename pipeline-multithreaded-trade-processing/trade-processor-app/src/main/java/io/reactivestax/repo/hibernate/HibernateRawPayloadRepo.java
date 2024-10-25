@@ -26,27 +26,6 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
     }
 
     @Override
-    public void writeToRawPayloadTable(String tradeID, String payload, String validityStatus) {
-        Session session = HibernateUtils.getInstance().getConnection();
-        HibernateUtils.getInstance().startTransaction();
-        try {
-            RawPayload rawPayload = new RawPayload();
-            rawPayload.setTradeID(tradeID);
-            rawPayload.setStatus(validityStatus);
-            rawPayload.setPayload(payload);
-            rawPayload.setLookupStatus("Non Posted");
-            rawPayload.setPostedStatus("Non Posted");
-
-            session.persist(rawPayload);
-
-            HibernateUtils.getInstance().commitTransaction();
-        } catch (Exception e) {
-            e.printStackTrace();
-            HibernateUtils.getInstance().rollbackTransaction();
-        }
-    }
-
-    @Override
     public String readPayloadFromRawPayloadsTable(String tradeID) {
         Session session = HibernateUtils.getInstance().getConnection();
         CriteriaBuilder builder = session.getCriteriaBuilder();
