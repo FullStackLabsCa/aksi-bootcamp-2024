@@ -13,10 +13,10 @@ public class JDBCJournalEntryRepo implements JournalEntryRepo {
 
     private static JDBCJournalEntryRepo instance;
     private static final String WRITE_TO_JOURNAL_ENTRY_QUERY = """
-                insert into journal_entry (account_number, security_id, direction, quantity, position_posted_status, trade_execution_time, trade_id)
+                insert into journal_entry (accountNumber, security_id, direction, quantity, positionPostedStatus, tradeExecutionTime, trade_id)
                 values (?,?,?,?,?,?,?)
                 """;
-    private static final String UPDATE_JE_POSITION_POSTING_STATUS_QUERY = "update journal_entry set position_posted_status = ? where trade_id = ?";
+    private static final String UPDATE_JE_POSITION_POSTING_STATUS_QUERY = "update journal_entry set positionPostedStatus = ? where trade_id = ?";
 
     private JDBCJournalEntryRepo(){
         //Private Constructor to avoid anyone creating instance of this Class

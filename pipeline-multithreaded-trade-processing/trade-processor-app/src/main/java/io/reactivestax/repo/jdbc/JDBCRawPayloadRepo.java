@@ -11,8 +11,8 @@ import java.sql.SQLException;
 
 public class JDBCRawPayloadRepo implements RawPayloadRepo {
     private static final String READ_PAYLOAD_QUERY = "Select payload from trades_payload where trade_id=?";
-    private static final String LOOKUP_UPDATE_QUERY = "Update trades_payload set lookup_status = ? where trade_id = ?";
-    private static final String UPDATE_JE_QUERY = "Update trades_payload set posted_status = 'Posted' where trade_id = ?";
+    private static final String LOOKUP_UPDATE_QUERY = "Update trades_payload set lookupStatus = ? where trade_id = ?";
+    private static final String UPDATE_JE_QUERY = "Update trades_payload set postedStatus = 'Posted' where trade_id = ?";
     private static JDBCRawPayloadRepo instance;
 
     private JDBCRawPayloadRepo() {
