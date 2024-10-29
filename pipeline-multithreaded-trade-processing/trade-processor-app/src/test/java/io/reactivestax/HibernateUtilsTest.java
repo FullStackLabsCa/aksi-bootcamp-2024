@@ -115,10 +115,8 @@ public class HibernateUtilsTest {
         Session session = HibernateUtils.getInstance().getConnection();
         HibernateUtils.getInstance().startTransaction();
 
-        // Get Current Size of the Table
         String hql = "Select count(p) from Position p";
         Query query = session.createQuery(hql, Long.class);
-
         Long sizeBeforeCommitting = (Long) query.getSingleResult();
 
         Position position = new Position();
@@ -140,17 +138,24 @@ public class HibernateUtilsTest {
         Session session = HibernateUtils.getInstance().getConnection();
         HibernateUtils.getInstance().startTransaction();
 
+        String hql = "from Position";
+        Query query = session.createQuery(hql, Position.class);
+        List<Position> positionsBeforeCommitting = query.getResultList();
+
+        assertTrue(positionsBeforeCommitting.isEmpty());
+
         Position position = new Position();
         position.setPositionAmount(100);
         position.setVersion(0);
         position.setPositionID(new PositionCompositeKey("AkshatSingla", 33));
         session.persist(position);
-
-        // Check if the inserted data exists in the table
-
         HibernateUtils.getInstance().commitTransaction();
 
-        // Check if the inserted data exists in the table
+        Query queryWithNewSession = HibernateUtils.getInstance().getConnection().createQuery(hql, Long.class);
+        List<Position> positionsAfterCommitting = queryWithNewSession.getResultList();
+
+        assertEquals(1, positionsAfterCommitting.size());
+        assertEquals(positionsAfterCommitting.get(0), position);
     }
 
     @Test
