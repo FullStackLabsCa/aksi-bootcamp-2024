@@ -1,15 +1,18 @@
 package io.reactivestax;
 
+import io.reactivestax.model.Trade;
+import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
 import io.reactivestax.utility.database.HibernateUtils;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 public class HibernateUtilsTest {
 
@@ -44,11 +47,11 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void getConnectionTest() throws ExecutionException, InterruptedException {
+    public void getConnectionMultiThreadTest() throws ExecutionException, InterruptedException {
         // Spawn multiple threads and make each of them get 2 connections
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-        Callable<List<Session>> getConnection = () -> {
+        Callable<List<Session>> getSession = () -> {
             Session session1 = HibernateUtils.getInstance().getConnection();
             Session session2 = HibernateUtils.getInstance().getConnection();
             List<Session> listOfSession = new ArrayList<>();
@@ -57,8 +60,8 @@ public class HibernateUtilsTest {
             return listOfSession;
         };
 
-        List<Session> thread1sessions = executorService.submit(getConnection).get();
-        List<Session> thread2sessions = executorService.submit(getConnection).get();
+        List<Session> thread1sessions = executorService.submit(getSession).get();
+        List<Session> thread2sessions = executorService.submit(getSession).get();
 
         // Both the connections for the same thread will be same
         assertEquals(thread1sessions.get(0).hashCode(), thread1sessions.get(1).hashCode());
@@ -71,5 +74,38 @@ public class HibernateUtilsTest {
         assertNotEquals(System.identityHashCode(thread1sessions.get(0)), System.identityHashCode(thread2sessions.get(0)));
         assertNotEquals(thread1sessions.get(1).hashCode(), thread2sessions.get(1).hashCode());
         assertNotEquals(System.identityHashCode(thread1sessions.get(1)), System.identityHashCode(thread2sessions.get(1)));
+    }
+
+    @Test
+    public void startTransactionSingleTest(){
+        Transaction transaction;
+
+        Session session = HibernateUtils.getInstance().getConnection();
+        HibernateUtils.getInstance().startTransaction();
+        transaction = session.getTransaction();
+        assertNotNull(transaction);
+    }
+
+    @Test
+    public void startTransactionMultiThreadTest() throws ExecutionException, InterruptedException {
+        Transaction transactionThread1;
+        Transaction transactionThread2;
+
+        Callable<Transaction> startTransaction = () -> {
+            HibernateUtils.getInstance().startTransaction();
+            return HibernateUtils.getInstance().getConnection().getTransaction();
+        };
+
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+        Future<Transaction> futureThread1 = executorService.submit(startTransaction);
+        Future<Transaction> futureThread2 = executorService.submit(startTransaction);
+
+        transactionThread1 = futureThread1.get();
+        transactionThread2 = futureThread2.get();
+
+        assertNotNull(transactionThread1);
+        assertNotNull(transactionThread2);
+        assertNotEquals(transactionThread1, transactionThread2);
     }
 }
