@@ -115,23 +115,21 @@ public class HibernateUtilsTest {
         Session session = HibernateUtils.getInstance().getConnection();
         HibernateUtils.getInstance().startTransaction();
 
-        Position position = new Position();
-        position.setPositionAmount(100);
-        position.setVersion(0);
-        position.setPositionID(new PositionCompositeKey("AkshatSingla", 33));
-        session.persist(position);
-
         // Get Current Size of the Table
         String hql = "Select count(p) from Position p";
         Query query = session.createQuery(hql, Long.class);
 
         Long sizeBeforeCommitting = (Long) query.getSingleResult();
+
+        Position position = new Position();
+        position.setPositionAmount(100);
+        position.setVersion(0);
+        position.setPositionID(new PositionCompositeKey("AkshatSingla", 33));
+        session.persist(position);
         HibernateUtils.getInstance().commitTransaction();
 
-        HibernateUtils.getInstance().startTransaction(); // Need to do this because the commitTransaction closes the session before
         Query queryWithNewSession = HibernateUtils.getInstance().getConnection().createQuery(hql, Long.class);
         Long sizeAfterCommitting = (Long) queryWithNewSession.getSingleResult();
-        HibernateUtils.getInstance().rollbackTransaction();
 
         assertEquals((long) sizeBeforeCommitting + 1, (long) sizeAfterCommitting);
     }
