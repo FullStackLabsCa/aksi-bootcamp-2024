@@ -6,6 +6,7 @@ import io.reactivestax.utility.database.HibernateUtils;
 import jakarta.persistence.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -15,6 +16,21 @@ import java.util.concurrent.*;
 import static org.junit.Assert.*;
 
 public class HibernateUtilsTest {
+
+    @Before
+    public void cleanUp(){
+        try {
+            HibernateUtils.getInstance().startTransaction();
+            String sql = "delete from Position";
+            Query query = HibernateUtils.getInstance().getConnection().createQuery(sql);
+            query.executeUpdate();
+            HibernateUtils.getInstance().commitTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
+            HibernateUtils.getInstance().rollbackTransaction();
+        }
+
+    }
 
     @Test
     public void getInstanceSingleThreadTest(){
@@ -161,10 +177,48 @@ public class HibernateUtilsTest {
     @Test
     public void rollbackTransactionTableSizeTest(){
         // Should be the same as before
+        Session session = HibernateUtils.getInstance().getConnection();
+        HibernateUtils.getInstance().startTransaction();
+
+        String hql = "Select count(p) from Position p";
+        Query query = session.createQuery(hql, Long.class);
+        Long sizeBeforeCommitting = (Long) query.getSingleResult();
+
+        Position position = new Position();
+        position.setPositionAmount(100);
+        position.setVersion(0);
+        position.setPositionID(new PositionCompositeKey("AkshatSingla", 33));
+        session.persist(position);
+        HibernateUtils.getInstance().rollbackTransaction();
+
+        Query queryWithNewSession = HibernateUtils.getInstance().getConnection().createQuery(hql, Long.class);
+        Long sizeAfterCommitting = (Long) queryWithNewSession.getSingleResult();
+
+        assertEquals((long) sizeBeforeCommitting, (long) sizeAfterCommitting);
     }
 
     @Test
     public void rollbackTransactionTableDataTest(){
         // Should be the same as before
+        Session session = HibernateUtils.getInstance().getConnection();
+        HibernateUtils.getInstance().startTransaction();
+
+        String hql = "from Position";
+        Query query = session.createQuery(hql, Position.class);
+        List<Position> positionsBeforeCommitting = query.getResultList();
+
+        assertTrue(positionsBeforeCommitting.isEmpty());
+
+        Position position = new Position();
+        position.setPositionAmount(100);
+        position.setVersion(0);
+        position.setPositionID(new PositionCompositeKey("AkshatSingla", 33));
+        session.persist(position);
+        HibernateUtils.getInstance().rollbackTransaction();
+
+        Query queryWithNewSession = HibernateUtils.getInstance().getConnection().createQuery(hql, Long.class);
+        List<Position> positionsAfterCommitting = queryWithNewSession.getResultList();
+
+        assertEquals(0, positionsAfterCommitting.size());
     }
 }

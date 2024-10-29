@@ -48,7 +48,8 @@ public class HibernateUtils implements ConnectionUtil<Session>, TransactionUtil 
 
     @Override
     public void startTransaction() {
-        getConnection().beginTransaction();
+        if(!getConnection().getTransaction().isActive())
+            getConnection().beginTransaction();
     }
 
     @Override
