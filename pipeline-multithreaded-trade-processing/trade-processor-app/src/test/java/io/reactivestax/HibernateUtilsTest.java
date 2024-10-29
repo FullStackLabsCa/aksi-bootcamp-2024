@@ -1,9 +1,9 @@
 package io.reactivestax;
 
-import io.reactivestax.model.Trade;
-import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
+import io.reactivestax.entity.Position;
+import io.reactivestax.entity.PositionCompositeKey;
 import io.reactivestax.utility.database.HibernateUtils;
-import org.hibernate.Hibernate;
+import jakarta.persistence.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.Test;
@@ -107,5 +107,61 @@ public class HibernateUtilsTest {
         assertNotNull(transactionThread1);
         assertNotNull(transactionThread2);
         assertNotEquals(transactionThread1, transactionThread2);
+    }
+
+    @Test
+    public void commitTransactionTableSizeTest(){
+        // Check that the size of the table will increase by the number of insertions
+        Session session = HibernateUtils.getInstance().getConnection();
+        HibernateUtils.getInstance().startTransaction();
+
+        Position position = new Position();
+        position.setPositionAmount(100);
+        position.setVersion(0);
+        position.setPositionID(new PositionCompositeKey("AkshatSingla", 33));
+        session.persist(position);
+
+        // Get Current Size of the Table
+        String hql = "Select count(p) from Position p";
+        Query query = session.createQuery(hql, Long.class);
+
+        Long sizeBeforeCommitting = (Long) query.getSingleResult();
+        HibernateUtils.getInstance().commitTransaction();
+
+        HibernateUtils.getInstance().startTransaction(); // Need to do this because the commitTransaction closes the session before
+        Query queryWithNewSession = HibernateUtils.getInstance().getConnection().createQuery(hql, Long.class);
+        Long sizeAfterCommitting = (Long) queryWithNewSession.getSingleResult();
+        HibernateUtils.getInstance().rollbackTransaction();
+
+        assertEquals((long) sizeBeforeCommitting + 1, (long) sizeAfterCommitting);
+    }
+
+    @Test
+    public void commitTransactionTableDataTest(){
+        // Check if the inserted data exists in the DB
+        Session session = HibernateUtils.getInstance().getConnection();
+        HibernateUtils.getInstance().startTransaction();
+
+        Position position = new Position();
+        position.setPositionAmount(100);
+        position.setVersion(0);
+        position.setPositionID(new PositionCompositeKey("AkshatSingla", 33));
+        session.persist(position);
+
+        // Check if the inserted data exists in the table
+
+        HibernateUtils.getInstance().commitTransaction();
+
+        // Check if the inserted data exists in the table
+    }
+
+    @Test
+    public void rollbackTransactionTableSizeTest(){
+        // Should be the same as before
+    }
+
+    @Test
+    public void rollbackTransactionTableDataTest(){
+        // Should be the same as before
     }
 }
