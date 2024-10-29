@@ -1,5 +1,6 @@
 package io.reactivestax.utility.database;
 
+import io.reactivestax.utility.ApplicationPropertyUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -34,8 +35,14 @@ public class HibernateUtils implements ConnectionUtil<Session>, TransactionUtil 
     }
 
     private static void configureHibernateSessionFactory(){
+        String hibernateConfigFile;
+        if(ApplicationPropertyUtils.getFileProperty("test.mode").equals("true")){
+            hibernateConfigFile = "hibernate_testing.cfg.xml";
+        } else {
+            hibernateConfigFile = "hibernate.cfg.xml";
+        }
         sessionFactory = new Configuration()
-                .configure("hibernate.cfg.xml")
+                .configure(hibernateConfigFile)
                 .buildSessionFactory();
     }
 
