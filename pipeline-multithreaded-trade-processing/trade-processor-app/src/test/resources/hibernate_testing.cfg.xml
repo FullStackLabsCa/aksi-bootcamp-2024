@@ -20,13 +20,13 @@
         <!-- <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property> -->
 
         <!-- Echo all executed SQL to stdout -->
-        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.show_sql">true</property>
 
         <!-- Format SQL nicely -->
         <property name="hibernate.format_sql">true</property>
 
         <!-- Automatically create/update tables based on entity annotations -->
-        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.hbm2ddl.auto">create-drop</property>
 
         <!-- Entity Classes option-1 -->
         <mapping class="io.reactivestax.entity.RawPayload" />
