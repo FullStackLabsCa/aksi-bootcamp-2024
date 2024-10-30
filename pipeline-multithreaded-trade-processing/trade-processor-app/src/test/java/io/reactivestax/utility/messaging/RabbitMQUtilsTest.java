@@ -1,6 +1,8 @@
 package io.reactivestax.utility.messaging;
 
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.GetResponse;
+import io.reactivestax.utility.exceptions.NullResponseForThreadException;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
 import org.junit.Test;
 
@@ -107,6 +109,63 @@ public class RabbitMQUtilsTest {
 
         RabbitMQUtils.getInstance().closeRabbitMQChannel();
         assertFalse(channelMainThread.isOpen());
+
+    }
+
+    @Test
+    public void setThreadResponseSingleThreadTest(){
+
+    }
+
+    @Test
+    public void setThreadResponseMultiThreadTest(){
+
+    }
+
+    @Test
+    public void getThreadResponseWithoutBeingSetSingleThreadTest(){
+        assertThrows(NullResponseForThreadException.class, () -> RabbitMQUtils.getInstance().getThreadResponse());
+    }
+
+    @Test
+    public void getThreadResponseAfterBeingSetSingleThreadTest(){
+        GetResponse getResponse = new GetResponse(null, null, null, 1);
+        RabbitMQUtils.getInstance().setThreadResponse(getResponse);
+        GetResponse responseAfterBeingSet = RabbitMQUtils.getInstance().getThreadResponse();
+        assertNotNull(responseAfterBeingSet);
+    }
+
+    @Test
+    public void getThreadResponseMultiThreadTest() throws ExecutionException, InterruptedException {
+        Callable<GetResponse> getResponse = () -> {
+            RabbitMQUtils.getInstance().setThreadResponse(new GetResponse(null,null,null,0));
+            return RabbitMQUtils.getInstance().getThreadResponse();
+        };
+
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        GetResponse responseFromThread1 = executorService.submit(getResponse).get();
+        GetResponse responseFromThread2 = executorService.submit(getResponse).get();
+
+        assertNotEquals(responseFromThread1, responseFromThread2);
+    }
+
+    @Test
+    public void getRabbitMQMessageProviderSingleThreadTest(){
+
+    }
+
+    @Test
+    public void getRabbitMQMessageProviderMultiThreadTest(){
+
+    }
+
+    @Test
+    public void setRabbitMQMessageProviderSingleThreadTest(){
+
+    }
+
+    @Test
+    public void setRabbitMQMessageProviderMultiThreadTest(){
 
     }
 }
