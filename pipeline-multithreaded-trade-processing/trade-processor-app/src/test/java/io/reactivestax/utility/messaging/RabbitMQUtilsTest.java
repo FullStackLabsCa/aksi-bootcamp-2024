@@ -1,14 +1,18 @@
 package io.reactivestax.utility.messaging;
 
+import com.rabbitmq.client.Channel;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
 
 public class RabbitMQUtilsTest {
 
@@ -40,5 +44,41 @@ public class RabbitMQUtilsTest {
 
         // Hashcode Identity will be same (reference to the same object)
         assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
+    }
+
+    @Test
+    public void getRabbitMQChannelMultiThreadTest() throws ExecutionException, InterruptedException {
+        // Spawn multiple threads and make each of them get 2 connections
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+        Callable<List<Channel>> getChannel = () -> {
+            Channel channel1 = RabbitMQUtils.getInstance().getRabbitMQChannel();
+            Channel channel2 = RabbitMQUtils.getInstance().getRabbitMQChannel();
+            List<Channel> listOfChannels = new ArrayList<>();
+            listOfChannels.add(channel1);
+            listOfChannels.add(channel2);
+            return listOfChannels;
+        };
+
+        List<Channel> thread1Channels = executorService.submit(getChannel).get();
+        List<Channel> thread2Channels = executorService.submit(getChannel).get();
+
+        // Check Channel Open
+        assertTrue(thread1Channels.get(0).isOpen());
+        assertTrue(thread1Channels.get(1).isOpen());
+        assertTrue(thread2Channels.get(0).isOpen());
+        assertTrue(thread2Channels.get(1).isOpen());
+
+        // Both the connections for the same thread will be same
+        assertEquals(thread1Channels.get(0).hashCode(), thread1Channels.get(1).hashCode());
+        assertEquals(System.identityHashCode(thread1Channels.get(0)), System.identityHashCode(thread1Channels.get(1)));
+        assertEquals(thread2Channels.get(0).hashCode(), thread2Channels.get(1).hashCode());
+        assertEquals(System.identityHashCode(thread2Channels.get(0)), System.identityHashCode(thread2Channels.get(1)));
+
+        // Two connections from any two different threads will be different
+        assertNotEquals(thread1Channels.get(0).hashCode(), thread2Channels.get(0).hashCode());
+        assertNotEquals(System.identityHashCode(thread1Channels.get(0)), System.identityHashCode(thread2Channels.get(0)));
+        assertNotEquals(thread1Channels.get(1).hashCode(), thread2Channels.get(1).hashCode());
+        assertNotEquals(System.identityHashCode(thread1Channels.get(1)), System.identityHashCode(thread2Channels.get(1)));
     }
 }
