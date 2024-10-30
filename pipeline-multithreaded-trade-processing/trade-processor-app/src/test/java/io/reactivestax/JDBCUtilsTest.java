@@ -184,32 +184,56 @@ public class JDBCUtilsTest {
         assertEquals(sizeBeforeCommitting + 1,sizeAfterCommitting);
 
     }
-//
-//    @Test
-//    public void commitTransactionTableDataTest(){
-//        // Check if the inserted data exists in the DB
-//        Session session = JDBCUtils.getInstance().getConnection();
-//        JDBCUtils.getInstance().startTransaction();
-//
-//        String hql = "from Position";
-//        Query query = session.createQuery(hql, Position.class);
-//        List<Position> positionsBeforeCommitting = query.getResultList();
-//
-//        assertTrue(positionsBeforeCommitting.isEmpty());
-//
-//        Position position = new Position();
-//        position.setPositionAmount(100);
-//        position.setVersion(0);
-//        position.setPositionID(new PositionCompositeKey("AkshatSingla", 33));
-//        session.persist(position);
-//        JDBCUtils.getInstance().commitTransaction();
-//
-//        Query queryWithNewSession = JDBCUtils.getInstance().getConnection().createQuery(hql, Long.class);
-//        List<Position> positionsAfterCommitting = queryWithNewSession.getResultList();
-//
-//        assertEquals(1, positionsAfterCommitting.size());
-//        assertEquals(positionsAfterCommitting.get(0), position);
-//    }
+
+    @Test
+    public void commitTransactionTableDataTest(){
+        String selectSql = "select * from positions";
+        String insertSql = "Insert into positions (account_number, security_id, position, version) values ('AkshatSingla',333,303,0)";
+
+        // Check if the inserted data exists in the DB
+        Connection connection = JDBCUtils.getInstance().getConnection();
+
+        try(PreparedStatement psSelect = connection.prepareStatement(selectSql);
+            PreparedStatement psInsert = connection.prepareStatement(insertSql)) {
+
+            boolean isEmpty;
+            ResultSet selectRs = psSelect.executeQuery();
+            isEmpty = selectRs.next();
+
+            assertFalse(isEmpty);
+
+            JDBCUtils.getInstance().startTransaction();
+            psInsert.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            System.out.println("Unable to Insert into DB....");
+        }
+
+
+        String accountNumber = "";
+        int securityId = 0, position = 0, version = 0;
+
+        Connection connection1 = JDBCUtils.getInstance().getConnection();
+        try(PreparedStatement psCount = connection1.prepareStatement(selectSql)) {
+            ResultSet afterCommittingRs = psCount.executeQuery();
+            while (afterCommittingRs.next()) {
+                accountNumber = afterCommittingRs.getString("account_number");
+                securityId = afterCommittingRs.getInt("security_id");
+                position = afterCommittingRs.getInt("position");
+                version = afterCommittingRs.getInt("version");
+            }
+
+
+        } catch (Exception e) {
+            System.out.println("Error with getting resultAfterCommit");
+        }
+
+        assertEquals(accountNumber, "AkshatSingla");
+        assertEquals(securityId, 333);
+        assertEquals(position, 303);
+        assertEquals(version, 0);
+    }
 
     @Test
     public void rollbackTransactionSingleThreadAutocommitTest() throws SQLException {
