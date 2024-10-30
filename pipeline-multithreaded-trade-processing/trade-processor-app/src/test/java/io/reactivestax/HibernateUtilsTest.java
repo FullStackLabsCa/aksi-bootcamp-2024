@@ -79,6 +79,11 @@ public class HibernateUtilsTest {
         List<Session> thread1sessions = executorService.submit(getSession).get();
         List<Session> thread2sessions = executorService.submit(getSession).get();
 
+        assertTrue(thread1sessions.get(0).isOpen());
+        assertTrue(thread1sessions.get(1).isOpen());
+        assertTrue(thread2sessions.get(0).isOpen());
+        assertTrue(thread2sessions.get(1).isOpen());
+
         // Both the connections for the same thread will be same
         assertEquals(thread1sessions.get(0).hashCode(), thread1sessions.get(1).hashCode());
         assertEquals(System.identityHashCode(thread1sessions.get(0)), System.identityHashCode(thread1sessions.get(1)));
@@ -100,6 +105,7 @@ public class HibernateUtilsTest {
         HibernateUtils.getInstance().startTransaction();
         transaction = session.getTransaction();
         assertNotNull(transaction);
+        assertTrue(transaction.isActive());
     }
 
     @Test
@@ -122,6 +128,8 @@ public class HibernateUtilsTest {
 
         assertNotNull(transactionThread1);
         assertNotNull(transactionThread2);
+        assertTrue(transactionThread1.isActive());
+        assertTrue(transactionThread2.isActive());
         assertNotEquals(transactionThread1, transactionThread2);
     }
 
@@ -172,6 +180,7 @@ public class HibernateUtilsTest {
 
         assertEquals(1, positionsAfterCommitting.size());
         assertEquals(positionsAfterCommitting.get(0), position);
+        assertFalse(session.isOpen());
     }
 
     @Test
@@ -195,6 +204,7 @@ public class HibernateUtilsTest {
         Long sizeAfterCommitting = (Long) queryWithNewSession.getSingleResult();
 
         assertEquals((long) sizeBeforeCommitting, (long) sizeAfterCommitting);
+        assertFalse(session.isOpen());
     }
 
     @Test
@@ -208,6 +218,7 @@ public class HibernateUtilsTest {
         List<Position> positionsBeforeCommitting = query.getResultList();
 
         assertTrue(positionsBeforeCommitting.isEmpty());
+        assertTrue(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
 
         Position position = new Position();
         position.setPositionAmount(100);
@@ -220,5 +231,6 @@ public class HibernateUtilsTest {
         List<Position> positionsAfterCommitting = queryWithNewSession.getResultList();
 
         assertEquals(0, positionsAfterCommitting.size());
+        assertFalse(session.isOpen());
     }
 }
