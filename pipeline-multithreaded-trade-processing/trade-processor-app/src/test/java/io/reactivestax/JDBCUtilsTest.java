@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class JDBCUtilsTest {
 
     @Before
     public void cleanUp(){
-        String sql = "delete from Position";
+        String sql = "delete from positions";
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             JDBCUtils.getInstance().startTransaction();
@@ -151,37 +152,38 @@ public class JDBCUtilsTest {
 
     }
 
-//    @Test
-//    public void commitTransactionTableSizeTest(){
-//        // Check that the size of the table will increase by the number of insertions
-//        Connection connection = JDBCUtils.getInstance().getConnection();
-//        String countSql = "Select count(p) from Position p";
-//        String insertSql = "Insert into positions (account_number, security_id, position, version) values (AkshatSingla,333,303,0)";
-//
-//        int sizeBeforeCommitting = 0, sizeAfterCommitting = 0;
-//        try(PreparedStatement ps = connection.prepareStatement(countSql);
-//        PreparedStatement psInsert = connection.prepareStatement(insertSql)) {
-//            ResultSet sizeBeforeCommittingRs = ps.executeQuery();
-//            sizeBeforeCommitting = sizeBeforeCommittingRs.getInt("count(p)");
-//
-//            JDBCUtils.getInstance().startTransaction();
-//            psInsert.executeUpdate();
-//            JDBCUtils.getInstance().commitTransaction();
-//
-//        } catch (Exception e){
-//            System.out.println("Error with getting sizeBeforeCommit / Inserting into the Positions table...");
-//        }
-//
-//        Connection connection1 = JDBCUtils.getInstance().getConnection();
-//        try(PreparedStatement psCount = connection1.prepareStatement(countSql)) {
-//            ResultSet sizeAfterCommittingRs = psCount.executeQuery();
-//            sizeAfterCommitting = sizeAfterCommittingRs.getInt("count(p)");
-//        } catch (Exception e) {
-//            System.out.println("Error with getting sizeAfterCommit");
-//        }
-//        assertEquals(sizeBeforeCommitting + 1,sizeAfterCommitting);
-//
-//    }
+    @Test
+    public void commitTransactionTableSizeTest(){
+        // Check that the size of the table will increase by the number of insertions
+        Connection connection = JDBCUtils.getInstance().getConnection();
+        String countSql = "Select count(*) as count from positions";
+        String insertSql = "Insert into positions (account_number, security_id, position, version) values ('AkshatSingla',333,303,0)";
+
+        int sizeBeforeCommitting = 0, sizeAfterCommitting = 0;
+        try(PreparedStatement ps = connection.prepareStatement(countSql);
+            PreparedStatement psInsert = connection.prepareStatement(insertSql)) {
+            ResultSet sizeBeforeCommittingRs = ps.executeQuery();
+            if(sizeBeforeCommittingRs.next()) sizeBeforeCommitting = sizeBeforeCommittingRs.getInt("count");
+
+            JDBCUtils.getInstance().startTransaction();
+            psInsert.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Error with getting sizeBeforeCommit / Inserting into the Positions table...");
+        }
+
+        Connection connection1 = JDBCUtils.getInstance().getConnection();
+        try(PreparedStatement psCount = connection1.prepareStatement(countSql)) {
+            ResultSet sizeAfterCommittingRs = psCount.executeQuery();
+            if (sizeAfterCommittingRs.next()) sizeAfterCommitting = sizeAfterCommittingRs.getInt("count");
+        } catch (Exception e) {
+            System.out.println("Error with getting sizeAfterCommit");
+        }
+        assertEquals(sizeBeforeCommitting + 1,sizeAfterCommitting);
+
+    }
 //
 //    @Test
 //    public void commitTransactionTableDataTest(){
