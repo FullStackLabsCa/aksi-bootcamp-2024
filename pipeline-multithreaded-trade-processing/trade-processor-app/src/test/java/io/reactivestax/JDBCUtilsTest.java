@@ -264,30 +264,38 @@ public class JDBCUtilsTest {
         assertTrue(autocommitThread2);
 
     }
-//
-//    @Test
-//    public void rollbackTransactionTableSizeTest(){
-//        // Should be the same as before
-//        Session session = JDBCUtils.getInstance().getConnection();
-//        JDBCUtils.getInstance().startTransaction();
-//
-//        String hql = "Select count(p) from Position p";
-//        Query query = session.createQuery(hql, Long.class);
-//        Long sizeBeforeCommitting = (Long) query.getSingleResult();
-//
-//        Position position = new Position();
-//        position.setPositionAmount(100);
-//        position.setVersion(0);
-//        position.setPositionID(new PositionCompositeKey("AkshatSingla", 33));
-//        session.persist(position);
-//        JDBCUtils.getInstance().rollbackTransaction();
-//
-//        Query queryWithNewSession = JDBCUtils.getInstance().getConnection().createQuery(hql, Long.class);
-//        Long sizeAfterCommitting = (Long) queryWithNewSession.getSingleResult();
-//
-//        assertEquals((long) sizeBeforeCommitting, (long) sizeAfterCommitting);
-//    }
-//
+
+    @Test
+    public void rollbackTransactionTableSizeTest(){
+        // Check that the size of the table will increase by the number of insertions
+        Connection connection = JDBCUtils.getInstance().getConnection();
+        String countSql = "Select count(*) as count from positions";
+        String insertSql = "Insert into positions (account_number, security_id, position, version) values ('AkshatSingla',333,303,0)";
+
+        int sizeBeforeCommitting = 0, sizeAfterCommitting = 0;
+        try(PreparedStatement ps = connection.prepareStatement(countSql);
+            PreparedStatement psInsert = connection.prepareStatement(insertSql)) {
+            ResultSet sizeBeforeCommittingRs = ps.executeQuery();
+            if(sizeBeforeCommittingRs.next()) sizeBeforeCommitting = sizeBeforeCommittingRs.getInt("count");
+
+            JDBCUtils.getInstance().startTransaction();
+            psInsert.executeUpdate();
+            JDBCUtils.getInstance().rollbackTransaction();
+
+        } catch (Exception e){
+            System.out.println("Error with getting sizeBeforeCommit / Inserting into the Positions table...");
+        }
+
+        Connection connection1 = JDBCUtils.getInstance().getConnection();
+        try(PreparedStatement psCount = connection1.prepareStatement(countSql)) {
+            ResultSet sizeAfterCommittingRs = psCount.executeQuery();
+            if (sizeAfterCommittingRs.next()) sizeAfterCommitting = sizeAfterCommittingRs.getInt("count");
+        } catch (Exception e) {
+            System.out.println("Error with getting sizeAfterCommit");
+        }
+        assertEquals(sizeBeforeCommitting,sizeAfterCommitting);
+
+    }
 //    @Test
 //    public void rollbackTransactionTableDataTest(){
 //        // Should be the same as before
