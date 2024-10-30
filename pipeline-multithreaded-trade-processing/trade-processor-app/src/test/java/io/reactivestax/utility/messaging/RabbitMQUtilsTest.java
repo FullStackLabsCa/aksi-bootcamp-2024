@@ -6,10 +6,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotEquals;
@@ -80,5 +77,36 @@ public class RabbitMQUtilsTest {
         assertNotEquals(System.identityHashCode(thread1Channels.get(0)), System.identityHashCode(thread2Channels.get(0)));
         assertNotEquals(thread1Channels.get(1).hashCode(), thread2Channels.get(1).hashCode());
         assertNotEquals(System.identityHashCode(thread1Channels.get(1)), System.identityHashCode(thread2Channels.get(1)));
+    }
+
+    @Test
+    public void closeRabbitMQSingleThreadTest(){
+        Channel channel = RabbitMQUtils.getInstance().getRabbitMQChannel();
+        assertTrue(channel.isOpen());
+        RabbitMQUtils.getInstance().closeRabbitMQChannel();
+        assertFalse(channel.isOpen());
+    }
+
+    @Test
+    public void closeRabbitMQMultiThreadTest() throws ExecutionException, InterruptedException {
+        Callable<Boolean> closeChannelAndGetOpenStatus = () -> {
+            Channel channel = RabbitMQUtils.getInstance().getRabbitMQChannel();
+            RabbitMQUtils.getInstance().closeRabbitMQChannel();
+            return channel.isOpen();
+        };
+
+        Channel channelMainThread = RabbitMQUtils.getInstance().getRabbitMQChannel();
+        assertTrue(channelMainThread.isOpen());
+
+        FutureTask<Boolean> futureTaskSecondaryThread = new FutureTask<Boolean>(closeChannelAndGetOpenStatus);
+        new Thread(futureTaskSecondaryThread).start();
+        boolean secondaryThreadActivityStatus = futureTaskSecondaryThread.get();
+        assertFalse(secondaryThreadActivityStatus);
+
+        assertTrue(channelMainThread.isOpen());
+
+        RabbitMQUtils.getInstance().closeRabbitMQChannel();
+        assertFalse(channelMainThread.isOpen());
+
     }
 }
