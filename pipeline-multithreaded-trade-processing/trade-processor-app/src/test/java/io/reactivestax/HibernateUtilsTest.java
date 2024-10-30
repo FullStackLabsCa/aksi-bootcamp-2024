@@ -134,6 +134,36 @@ public class HibernateUtilsTest {
     }
 
     @Test
+    public void commitTransactionSingleThreadTransactionActiveTest(){
+        HibernateUtils.getInstance().startTransaction();
+        assertTrue(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
+        HibernateUtils.getInstance().commitTransaction();
+        assertFalse(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
+    }
+
+    @Test
+    public void commitTransactionMultiThreadTransactionActiveTest() throws ExecutionException, InterruptedException {
+        Callable<Boolean> getTransactionActivityAfterCommit = () -> {
+            HibernateUtils.getInstance().startTransaction();
+            HibernateUtils.getInstance().getConnection().getTransaction().isActive();
+            HibernateUtils.getInstance().commitTransaction();
+            return HibernateUtils.getInstance().getConnection().getTransaction().isActive();
+        };
+
+        FutureTask<Boolean> futureTaskThread1 = new FutureTask<>(getTransactionActivityAfterCommit);
+        FutureTask<Boolean> futureTaskThread2 = new FutureTask<>(getTransactionActivityAfterCommit);
+
+        Thread thread1 = new Thread(futureTaskThread1);
+        Thread thread2 = new Thread(futureTaskThread2);
+        thread1.start();
+        thread2.start();
+        Boolean thread1TransactionActivity = futureTaskThread1.get();
+        Boolean thread2TransactionActivity = futureTaskThread2.get();
+        assertFalse(thread1TransactionActivity);
+        assertFalse(thread2TransactionActivity);
+    }
+
+    @Test
     public void commitTransactionTableSizeTest(){
         // Check that the size of the table will increase by the number of insertions
         Session session = HibernateUtils.getInstance().getConnection();
@@ -181,6 +211,36 @@ public class HibernateUtilsTest {
         assertEquals(1, positionsAfterCommitting.size());
         assertEquals(positionsAfterCommitting.get(0), position);
         assertFalse(session.isOpen());
+    }
+
+    @Test
+    public void rollbackTransactionSingleThreadTransactionActiveTest(){
+        HibernateUtils.getInstance().startTransaction();
+        assertTrue(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
+        HibernateUtils.getInstance().rollbackTransaction();
+        assertFalse(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
+    }
+
+    @Test
+    public void rollbackTransactionMultiThreadTransactionActiveTest() throws ExecutionException, InterruptedException {
+        Callable<Boolean> getTransactionActivityAfterCommit = () -> {
+            HibernateUtils.getInstance().startTransaction();
+            HibernateUtils.getInstance().getConnection().getTransaction().isActive();
+            HibernateUtils.getInstance().rollbackTransaction();
+            return HibernateUtils.getInstance().getConnection().getTransaction().isActive();
+        };
+
+        FutureTask<Boolean> futureTaskThread1 = new FutureTask<>(getTransactionActivityAfterCommit);
+        FutureTask<Boolean> futureTaskThread2 = new FutureTask<>(getTransactionActivityAfterCommit);
+
+        Thread thread1 = new Thread(futureTaskThread1);
+        Thread thread2 = new Thread(futureTaskThread2);
+        thread1.start();
+        thread2.start();
+        Boolean thread1TransactionActivity = futureTaskThread1.get();
+        Boolean thread2TransactionActivity = futureTaskThread2.get();
+        assertFalse(thread1TransactionActivity);
+        assertFalse(thread2TransactionActivity);
     }
 
     @Test
