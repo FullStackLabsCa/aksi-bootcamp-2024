@@ -229,10 +229,10 @@ public class JDBCUtilsTest {
             System.out.println("Error with getting resultAfterCommit");
         }
 
-        assertEquals(accountNumber, "AkshatSingla");
-        assertEquals(securityId, 333);
-        assertEquals(position, 303);
-        assertEquals(version, 0);
+        assertEquals("AkshatSingla", accountNumber);
+        assertEquals(333, securityId);
+        assertEquals(303, position);
+        assertEquals(0, version);
     }
 
     @Test
@@ -296,28 +296,5 @@ public class JDBCUtilsTest {
         assertEquals(sizeBeforeCommitting,sizeAfterCommitting);
 
     }
-//    @Test
-//    public void rollbackTransactionTableDataTest(){
-//        // Should be the same as before
-//        Session session = JDBCUtils.getInstance().getConnection();
-//        JDBCUtils.getInstance().startTransaction();
-//
-//        String hql = "from Position";
-//        Query query = session.createQuery(hql, Position.class);
-//        List<Position> positionsBeforeCommitting = query.getResultList();
-//
-//        assertTrue(positionsBeforeCommitting.isEmpty());
-//
-//        Position position = new Position();
-//        position.setPositionAmount(100);
-//        position.setVersion(0);
-//        position.setPositionID(new PositionCompositeKey("AkshatSingla", 33));
-//        session.persist(position);
-//        JDBCUtils.getInstance().rollbackTransaction();
-//
-//        Query queryWithNewSession = JDBCUtils.getInstance().getConnection().createQuery(hql, Long.class);
-//        List<Position> positionsAfterCommitting = queryWithNewSession.getResultList();
-//
-//        assertEquals(0, positionsAfterCommitting.size());
-//    }
+
 }
