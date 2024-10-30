@@ -1,4 +1,4 @@
-package io.reactivestax;
+package io.reactivestax.utility.database;
 
 import io.reactivestax.entity.Position;
 import io.reactivestax.entity.PositionCompositeKey;

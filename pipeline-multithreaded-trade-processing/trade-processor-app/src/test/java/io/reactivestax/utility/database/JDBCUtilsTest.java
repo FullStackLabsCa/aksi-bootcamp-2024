@@ -1,4 +1,4 @@
-package io.reactivestax;
+package io.reactivestax.utility.database;
 
 import io.reactivestax.utility.database.JDBCUtils;
 import org.junit.Before;
