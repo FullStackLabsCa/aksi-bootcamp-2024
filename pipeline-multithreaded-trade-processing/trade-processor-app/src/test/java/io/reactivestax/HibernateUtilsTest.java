@@ -145,7 +145,6 @@ public class HibernateUtilsTest {
     public void commitTransactionMultiThreadTransactionActiveTest() throws ExecutionException, InterruptedException {
         Callable<Boolean> getTransactionActivityAfterCommit = () -> {
             HibernateUtils.getInstance().startTransaction();
-            HibernateUtils.getInstance().getConnection().getTransaction().isActive();
             HibernateUtils.getInstance().commitTransaction();
             return HibernateUtils.getInstance().getConnection().getTransaction().isActive();
         };
@@ -225,7 +224,6 @@ public class HibernateUtilsTest {
     public void rollbackTransactionMultiThreadTransactionActiveTest() throws ExecutionException, InterruptedException {
         Callable<Boolean> getTransactionActivityAfterCommit = () -> {
             HibernateUtils.getInstance().startTransaction();
-            HibernateUtils.getInstance().getConnection().getTransaction().isActive();
             HibernateUtils.getInstance().rollbackTransaction();
             return HibernateUtils.getInstance().getConnection().getTransaction().isActive();
         };

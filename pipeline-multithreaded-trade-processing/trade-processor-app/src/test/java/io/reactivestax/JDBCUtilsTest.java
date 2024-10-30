@@ -131,27 +131,21 @@ public class JDBCUtilsTest {
 
     @Test
     public void commitTransactionMultiThreadAutocommitTest() throws Exception {
-        Callable<Boolean> startTransactionAndGetAutoCommit = () -> {
-            JDBCUtils.getInstance().startTransaction();
-            return JDBCUtils.getInstance().getConnection().getAutoCommit();
-        };
-
         Callable<Boolean> commitTransactionAndGetAutoCommit = () -> {
+            JDBCUtils.getInstance().startTransaction();
             JDBCUtils.getInstance().commitTransaction();
             return JDBCUtils.getInstance().getConnection().getAutoCommit();
         };
 
-        boolean autocommitThread1 = startTransactionAndGetAutoCommit.call();
-        boolean autocommitThread2 = startTransactionAndGetAutoCommit.call();
+        FutureTask<Boolean> futureTaskThread1 = new FutureTask<>(commitTransactionAndGetAutoCommit);
+        FutureTask<Boolean> futureTaskThread2 = new FutureTask<>(commitTransactionAndGetAutoCommit);
 
-        assertFalse(autocommitThread1);
-        assertFalse(autocommitThread2);
+        new Thread(futureTaskThread1).start();
+        new Thread(futureTaskThread2).start();
 
-        autocommitThread1 = commitTransactionAndGetAutoCommit.call();
-        assertTrue(autocommitThread1);
-        assertFalse(autocommitThread2);
+        boolean autocommitThread1 = futureTaskThread1.get();
+        boolean autocommitThread2 = futureTaskThread2.get();
 
-        autocommitThread2 = commitTransactionAndGetAutoCommit.call();
         assertTrue(autocommitThread1);
         assertTrue(autocommitThread2);
 
@@ -214,6 +208,36 @@ public class JDBCUtilsTest {
 //        assertEquals(1, positionsAfterCommitting.size());
 //        assertEquals(positionsAfterCommitting.get(0), position);
 //    }
+
+    @Test
+    public void rollbackTransactionSingleThreadAutocommitTest() throws SQLException {
+        JDBCUtils.getInstance().startTransaction();
+        assertFalse(JDBCUtils.getInstance().getConnection().getAutoCommit());
+        JDBCUtils.getInstance().rollbackTransaction();
+        assertTrue(JDBCUtils.getInstance().getConnection().getAutoCommit());
+    }
+
+    @Test
+    public void rollbackTransactionMultiThreadAutocommitTest() throws Exception {
+        Callable<Boolean> rollbackTransactionAndGetAutoCommit = () -> {
+            JDBCUtils.getInstance().startTransaction();
+            JDBCUtils.getInstance().rollbackTransaction();
+            return JDBCUtils.getInstance().getConnection().getAutoCommit();
+        };
+
+        FutureTask<Boolean> futureTaskThread1 = new FutureTask<>(rollbackTransactionAndGetAutoCommit);
+        FutureTask<Boolean> futureTaskThread2 = new FutureTask<>(rollbackTransactionAndGetAutoCommit);
+
+        new Thread(futureTaskThread1).start();
+        new Thread(futureTaskThread2).start();
+
+        boolean autocommitThread1 = futureTaskThread1.get();
+        boolean autocommitThread2 = futureTaskThread2.get();
+
+        assertTrue(autocommitThread1);
+        assertTrue(autocommitThread2);
+
+    }
 //
 //    @Test
 //    public void rollbackTransactionTableSizeTest(){
