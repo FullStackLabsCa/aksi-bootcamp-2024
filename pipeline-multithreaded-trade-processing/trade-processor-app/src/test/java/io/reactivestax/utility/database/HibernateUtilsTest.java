@@ -2,7 +2,6 @@ package io.reactivestax.utility.database;
 
 import io.reactivestax.entity.Position;
 import io.reactivestax.entity.PositionCompositeKey;
-import io.reactivestax.utility.database.HibernateUtils;
 import jakarta.persistence.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -149,17 +148,22 @@ public class HibernateUtilsTest {
             return HibernateUtils.getInstance().getConnection().getTransaction().isActive();
         };
 
-        FutureTask<Boolean> futureTaskThread1 = new FutureTask<>(getTransactionActivityAfterCommit);
-        FutureTask<Boolean> futureTaskThread2 = new FutureTask<>(getTransactionActivityAfterCommit);
+        // Main thread transaction activity status...
+        HibernateUtils.getInstance().startTransaction();
+        assertTrue(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
 
+        // Secondary thread transaction activity status...
+        FutureTask<Boolean> futureTaskThread1 = new FutureTask<>(getTransactionActivityAfterCommit);
         Thread thread1 = new Thread(futureTaskThread1);
-        Thread thread2 = new Thread(futureTaskThread2);
         thread1.start();
-        thread2.start();
         Boolean thread1TransactionActivity = futureTaskThread1.get();
-        Boolean thread2TransactionActivity = futureTaskThread2.get();
         assertFalse(thread1TransactionActivity);
-        assertFalse(thread2TransactionActivity);
+
+        // Main thread transaction activity status... should still be active
+        assertTrue(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
+        HibernateUtils.getInstance().commitTransaction();
+        assertFalse(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
+
     }
 
     @Test
@@ -228,17 +232,21 @@ public class HibernateUtilsTest {
             return HibernateUtils.getInstance().getConnection().getTransaction().isActive();
         };
 
-        FutureTask<Boolean> futureTaskThread1 = new FutureTask<>(getTransactionActivityAfterCommit);
-        FutureTask<Boolean> futureTaskThread2 = new FutureTask<>(getTransactionActivityAfterCommit);
+        // Main thread
+        HibernateUtils.getInstance().startTransaction();
+        assertTrue(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
 
+        // Secondary thread
+        FutureTask<Boolean> futureTaskThread1 = new FutureTask<>(getTransactionActivityAfterCommit);
         Thread thread1 = new Thread(futureTaskThread1);
-        Thread thread2 = new Thread(futureTaskThread2);
         thread1.start();
-        thread2.start();
         Boolean thread1TransactionActivity = futureTaskThread1.get();
-        Boolean thread2TransactionActivity = futureTaskThread2.get();
         assertFalse(thread1TransactionActivity);
-        assertFalse(thread2TransactionActivity);
+
+        // Main thread should still be active
+        assertTrue(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
+        HibernateUtils.getInstance().rollbackTransaction();
+        assertFalse(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
     }
 
     @Test
