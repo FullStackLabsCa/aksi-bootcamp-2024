@@ -4,6 +4,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.GetResponse;
 import io.reactivestax.utility.exceptions.NullResponseForThreadException;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -14,6 +15,10 @@ import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotEquals;
 
 public class RabbitMQUtilsTest {
+
+    @Before
+    public void cleanUp() throws InterruptedException {
+    }
 
     @Test
     public void getInstanceSingleThreadTest(){
@@ -114,12 +119,11 @@ public class RabbitMQUtilsTest {
 
     @Test
     public void setThreadResponseSingleThreadTest(){
-
-    }
-
-    @Test
-    public void setThreadResponseMultiThreadTest(){
-
+        assertThrows(NullResponseForThreadException.class, () -> RabbitMQUtils.getInstance().getThreadResponse());
+        RabbitMQUtils.getInstance().setThreadResponse(new GetResponse(null,null,null,0));
+        GetResponse response = RabbitMQUtils.getInstance().getThreadResponse();
+        assertNotNull(response);
+        RabbitMQUtils.getInstance().clearThreadResponse();
     }
 
     @Test
@@ -133,6 +137,7 @@ public class RabbitMQUtilsTest {
         RabbitMQUtils.getInstance().setThreadResponse(getResponse);
         GetResponse responseAfterBeingSet = RabbitMQUtils.getInstance().getThreadResponse();
         assertNotNull(responseAfterBeingSet);
+        RabbitMQUtils.getInstance().clearThreadResponse();
     }
 
     @Test
@@ -147,6 +152,11 @@ public class RabbitMQUtilsTest {
         GetResponse responseFromThread2 = executorService.submit(getResponse).get();
 
         assertNotEquals(responseFromThread1, responseFromThread2);
+
+        executorService.submit(() -> {RabbitMQUtils.getInstance().clearThreadResponse();});
+        executorService.submit(() -> {RabbitMQUtils.getInstance().clearThreadResponse();});
+
+        executorService.shutdown();
     }
 
     @Test

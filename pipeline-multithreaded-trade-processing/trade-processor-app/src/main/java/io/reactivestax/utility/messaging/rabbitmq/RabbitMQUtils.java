@@ -84,6 +84,10 @@ public class RabbitMQUtils {
          getResponseThreadLocal.set(response);
     }
 
+    public void clearThreadResponse(){
+        getResponseThreadLocal.remove();
+    }
+
     public RabbitMQMessageProvider getRabbitMQMessageProvider(){
         RabbitMQMessageProvider rabbitMQMessageProvider = getMessageProviderThreadLocal.get();
 
