@@ -98,4 +98,8 @@ public class RabbitMQUtils {
     public void setRabbitMQMessageProvider(RabbitMQMessageProvider messageProvider){
         getMessageProviderThreadLocal.set(messageProvider);
     }
+
+    public void clearRabbitMQMessageProvider(){
+        getMessageProviderThreadLocal.remove();
+    }
 }

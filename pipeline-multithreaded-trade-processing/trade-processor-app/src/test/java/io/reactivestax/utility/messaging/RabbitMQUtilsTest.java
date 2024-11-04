@@ -2,7 +2,9 @@ package io.reactivestax.utility.messaging;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.GetResponse;
+import io.reactivestax.utility.exceptions.MessageProviderNotSetException;
 import io.reactivestax.utility.exceptions.NullResponseForThreadException;
+import io.reactivestax.utility.messaging.rabbitmq.RabbitMQMessageProvider;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +20,7 @@ public class RabbitMQUtilsTest {
 
     @Before
     public void cleanUp() throws InterruptedException {
+        //Do the necessary clean up
     }
 
     @Test
@@ -160,22 +163,45 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void getRabbitMQMessageProviderSingleThreadTest(){
-
+    public void getRabbitMQMessageProviderBeforeSetSingleThreadTest(){
+        assertThrows(MessageProviderNotSetException.class, () -> RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
     }
 
     @Test
     public void getRabbitMQMessageProviderMultiThreadTest(){
+        // Main thread
+        assertThrows(MessageProviderNotSetException.class, () -> RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
+
+        new Thread(() -> RabbitMQUtils.getInstance().setRabbitMQMessageProvider(new RabbitMQMessageProvider())).start();
+
+        // Main Thread will still get the exception
+        assertThrows(MessageProviderNotSetException.class, () -> RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
 
     }
 
     @Test
-    public void setRabbitMQMessageProviderSingleThreadTest(){
-
+    public void rabbitMQMessageProviderSingleThreadTest(){
+        assertThrows(MessageProviderNotSetException.class, () -> RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
+        RabbitMQUtils.getInstance().setRabbitMQMessageProvider(new RabbitMQMessageProvider());
+        assertNotNull(RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
+        RabbitMQUtils.getInstance().clearRabbitMQMessageProvider();
     }
 
     @Test
-    public void setRabbitMQMessageProviderMultiThreadTest(){
+    public void rabbitMQMessageProviderMultiThreadTest(){
+        Runnable checkGetRabbitMQMessageProvider = () -> {
+            assertThrows(MessageProviderNotSetException.class, () -> RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
+            RabbitMQUtils.getInstance().setRabbitMQMessageProvider(new RabbitMQMessageProvider());
+            assertNotNull(RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            RabbitMQUtils.getInstance().clearRabbitMQMessageProvider();
+        };
 
+        new Thread(checkGetRabbitMQMessageProvider).start();
+        new Thread(checkGetRabbitMQMessageProvider).start();
     }
 }
