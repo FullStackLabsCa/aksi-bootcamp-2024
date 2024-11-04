@@ -108,7 +108,7 @@ public class RabbitMQUtilsTest {
         Channel channelMainThread = RabbitMQUtils.getInstance().getRabbitMQChannel();
         assertTrue(channelMainThread.isOpen());
 
-        FutureTask<Boolean> futureTaskSecondaryThread = new FutureTask<Boolean>(closeChannelAndGetOpenStatus);
+        FutureTask<Boolean> futureTaskSecondaryThread = new FutureTask<>(closeChannelAndGetOpenStatus);
         new Thread(futureTaskSecondaryThread).start();
         boolean secondaryThreadActivityStatus = futureTaskSecondaryThread.get();
         assertFalse(secondaryThreadActivityStatus);
@@ -122,7 +122,7 @@ public class RabbitMQUtilsTest {
 
     @Test
     public void setThreadResponseSingleThreadTest(){
-        assertThrows(NullResponseForThreadException.class, () -> RabbitMQUtils.getInstance().getThreadResponse());
+        assertThrows(NullResponseForThreadException.class, RabbitMQUtils.getInstance()::getThreadResponse);
         RabbitMQUtils.getInstance().setThreadResponse(new GetResponse(null,null,null,0));
         GetResponse response = RabbitMQUtils.getInstance().getThreadResponse();
         assertNotNull(response);
@@ -131,7 +131,7 @@ public class RabbitMQUtilsTest {
 
     @Test
     public void getThreadResponseWithoutBeingSetSingleThreadTest(){
-        assertThrows(NullResponseForThreadException.class, () -> RabbitMQUtils.getInstance().getThreadResponse());
+        assertThrows(NullResponseForThreadException.class, RabbitMQUtils.getInstance()::getThreadResponse);
     }
 
     @Test
@@ -164,24 +164,24 @@ public class RabbitMQUtilsTest {
 
     @Test
     public void getRabbitMQMessageProviderBeforeSetSingleThreadTest(){
-        assertThrows(MessageProviderNotSetException.class, () -> RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
+        assertThrows(MessageProviderNotSetException.class, RabbitMQUtils.getInstance()::getRabbitMQMessageProvider);
     }
 
     @Test
     public void getRabbitMQMessageProviderMultiThreadTest(){
         // Main thread
-        assertThrows(MessageProviderNotSetException.class, () -> RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
+        assertThrows(MessageProviderNotSetException.class, RabbitMQUtils.getInstance()::getRabbitMQMessageProvider);
 
         new Thread(() -> RabbitMQUtils.getInstance().setRabbitMQMessageProvider(new RabbitMQMessageProvider())).start();
 
         // Main Thread will still get the exception
-        assertThrows(MessageProviderNotSetException.class, () -> RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
+        assertThrows(MessageProviderNotSetException.class, RabbitMQUtils.getInstance()::getRabbitMQMessageProvider);
 
     }
 
     @Test
     public void rabbitMQMessageProviderSingleThreadTest(){
-        assertThrows(MessageProviderNotSetException.class, () -> RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
+        assertThrows(MessageProviderNotSetException.class, RabbitMQUtils.getInstance()::getRabbitMQMessageProvider);
         RabbitMQUtils.getInstance().setRabbitMQMessageProvider(new RabbitMQMessageProvider());
         assertNotNull(RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
         RabbitMQUtils.getInstance().clearRabbitMQMessageProvider();
@@ -190,7 +190,7 @@ public class RabbitMQUtilsTest {
     @Test
     public void rabbitMQMessageProviderMultiThreadTest(){
         Runnable checkGetRabbitMQMessageProvider = () -> {
-            assertThrows(MessageProviderNotSetException.class, () -> RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
+            assertThrows(MessageProviderNotSetException.class, RabbitMQUtils.getInstance()::getRabbitMQMessageProvider);
             RabbitMQUtils.getInstance().setRabbitMQMessageProvider(new RabbitMQMessageProvider());
             assertNotNull(RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
             try {
