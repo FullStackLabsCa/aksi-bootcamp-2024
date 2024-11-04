@@ -20,7 +20,6 @@ class BeanFactoryTest {
         try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
             mockedStatic.when(() -> getFileProperty("persistence.technology")).thenReturn("jdbc");
 
-
             TransactionUtil jdbcTransactionUtil = JDBCUtils.getInstance();
             TransactionUtil transactionUtil = BeanFactory.getTransactionUtil();
 
@@ -66,12 +65,31 @@ class BeanFactoryTest {
         }
     }
 
-//    private void processWithMocking(String propertyName, String value){
-//        try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
-//            mockedStatic.when(() -> getFileProperty(propertyName)).thenReturn(value);
-//
-//            process()
-//        }
-//    }
+    private void withMockedProperty(String propertyName, String value, Runnable functionToExecute){
+        try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
+            mockedStatic.when(() -> getFileProperty(propertyName)).thenReturn(value);
+            functionToExecute.run();
+        }
+    }
+
+    @Test
+    void testGetTransactionUtilWithParametrizedMocking_JDBC(){
+        Runnable test = () -> {
+            TransactionUtil jdbcTransactionUtil = JDBCUtils.getInstance();
+            TransactionUtil transactionUtil = BeanFactory.getTransactionUtil();
+
+            // Check not Null
+            assertNotNull(transactionUtil);
+
+            // Instance Verification
+            assertFalse(transactionUtil instanceof HibernateUtils);
+            assertInstanceOf(JDBCUtils.class, transactionUtil);
+
+            // Singleton Verification
+            assertEquals(transactionUtil, jdbcTransactionUtil);
+        };
+
+        withMockedProperty("persistence.technology","jdbc", test);
+    }
 
 }
