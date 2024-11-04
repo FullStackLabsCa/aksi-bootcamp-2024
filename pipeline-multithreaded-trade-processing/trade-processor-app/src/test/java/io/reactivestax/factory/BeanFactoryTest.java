@@ -1,7 +1,10 @@
 package io.reactivestax.factory;
 
+import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.RawPayloadRepo;
+import io.reactivestax.repo.hibernate.HibernateJournalEntryRepo;
 import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
+import io.reactivestax.repo.jdbc.JDBCJournalEntryRepo;
 import io.reactivestax.repo.jdbc.JDBCRawPayloadRepo;
 import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.HibernateUtils;
@@ -140,6 +143,38 @@ class BeanFactoryTest {
             assertInstanceOf(HibernateRawPayloadRepo.class, rawPayloadRepo);
             // Singleton Verification
             assertEquals(rawPayloadRepo, hibernateRawPayloadRepo);
+        };
+
+        withMockedProperty("persistence.technology","hibernate", test);
+    }
+
+    @Test
+    void testGetJournalEntryRepo_JDBC(){
+        Runnable test = () -> {
+            JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
+            JournalEntryRepo jdbcJournalEntryRepo = JDBCJournalEntryRepo.getInstance();
+
+            assertNotNull(journalEntryRepo);
+            assertFalse(journalEntryRepo instanceof HibernateJournalEntryRepo);
+            assertInstanceOf(JDBCJournalEntryRepo.class, journalEntryRepo);
+            // Singleton Verification
+            assertEquals(journalEntryRepo, jdbcJournalEntryRepo);
+        };
+
+        withMockedProperty("persistence.technology","jdbc", test);
+    }
+
+    @Test
+    void testGetJournalEntryRepo_Hibernate(){
+        Runnable test = () -> {
+            JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
+            JournalEntryRepo hibernateJournalEntryRepo = HibernateJournalEntryRepo.getInstance();
+
+            assertNotNull(journalEntryRepo);
+            assertFalse(journalEntryRepo instanceof JDBCJournalEntryRepo);
+            assertInstanceOf(HibernateJournalEntryRepo.class, journalEntryRepo);
+            // Singleton Verification
+            assertEquals(journalEntryRepo, hibernateJournalEntryRepo);
         };
 
         withMockedProperty("persistence.technology","hibernate", test);
