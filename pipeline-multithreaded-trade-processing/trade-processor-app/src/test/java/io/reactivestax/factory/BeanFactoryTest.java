@@ -92,4 +92,25 @@ class BeanFactoryTest {
         withMockedProperty("persistence.technology","jdbc", test);
     }
 
+    @Test
+    void testGetTransactionUtilWithParametrizedMocking_Hibernate(){
+        Runnable test = () -> {
+            TransactionUtil transactionUtil = BeanFactory.getTransactionUtil();
+
+            TransactionUtil hibernateTransactionUtil = HibernateUtils.getInstance();
+
+            // Check Not Null
+            assertNotNull(transactionUtil);
+
+            // Instance Verification
+            assertFalse(transactionUtil instanceof JDBCUtils);
+            assertInstanceOf(HibernateUtils.class, transactionUtil);
+
+            // Singleton Verification
+            assertEquals(transactionUtil, hibernateTransactionUtil);
+        };
+
+        withMockedProperty("persistence.technology","hibernate", test);
+    }
+
 }
