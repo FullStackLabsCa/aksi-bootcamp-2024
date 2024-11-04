@@ -3,12 +3,14 @@ package io.reactivestax.factory;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.RawPayloadRepo;
+import io.reactivestax.repo.SecuritiesReferenceRepo;
 import io.reactivestax.repo.hibernate.HibernateJournalEntryRepo;
 import io.reactivestax.repo.hibernate.HibernatePositionsRepo;
 import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
 import io.reactivestax.repo.jdbc.JDBCJournalEntryRepo;
 import io.reactivestax.repo.jdbc.JDBCPositionsRepo;
 import io.reactivestax.repo.jdbc.JDBCRawPayloadRepo;
+import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.database.JDBCUtils;
@@ -240,6 +242,21 @@ class BeanFactoryTest {
         };
 
         withMockedProperty("persistence.technology","invalid",test);
+    }
+
+    @Test
+    void testGetSecuritiesReferenceRepo_JDBC(){
+        Runnable test = () -> {
+            SecuritiesReferenceRepo securitiesReferenceRepo = BeanFactory.getSecuritiesReferenceRepo();
+            SecuritiesReferenceRepo jdbcSecuritiesReferenceRepo = JDBCSecuritiesReferenceRepo.getInstance();
+
+            assertNotNull(securitiesReferenceRepo);
+            assertInstanceOf(JDBCSecuritiesReferenceRepo.class, securitiesReferenceRepo);
+            // Singleton Verification
+            assertEquals(securitiesReferenceRepo, jdbcSecuritiesReferenceRepo);
+        };
+
+        withMockedProperty("persistence.technology","jdbc", test);
     }
 
 }
