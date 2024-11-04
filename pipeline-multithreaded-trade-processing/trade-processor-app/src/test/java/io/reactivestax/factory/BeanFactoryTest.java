@@ -1,10 +1,13 @@
 package io.reactivestax.factory;
 
 import io.reactivestax.repo.JournalEntryRepo;
+import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.repo.hibernate.HibernateJournalEntryRepo;
+import io.reactivestax.repo.hibernate.HibernatePositionsRepo;
 import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
 import io.reactivestax.repo.jdbc.JDBCJournalEntryRepo;
+import io.reactivestax.repo.jdbc.JDBCPositionsRepo;
 import io.reactivestax.repo.jdbc.JDBCRawPayloadRepo;
 import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.HibernateUtils;
@@ -149,6 +152,15 @@ class BeanFactoryTest {
     }
 
     @Test
+    void testGetRawPayloadRepo_InvalidTech(){
+        Runnable test = () -> {
+            assertThrows(InvalidPersistenceTechException.class, BeanFactory::getRawPayloadRepo);
+        };
+
+        withMockedProperty("persistence.technology","invalid",test);
+    }
+
+    @Test
     void testGetJournalEntryRepo_JDBC(){
         Runnable test = () -> {
             JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
@@ -178,6 +190,56 @@ class BeanFactoryTest {
         };
 
         withMockedProperty("persistence.technology","hibernate", test);
+    }
+
+    @Test
+    void testGetJournalEntryRepo_InvalidTech(){
+        Runnable test = () -> {
+            assertThrows(InvalidPersistenceTechException.class, BeanFactory::getJournalEntryRepo);
+        };
+
+        withMockedProperty("persistence.technology","invalid",test);
+    }
+
+    @Test
+    void testGetPositionRepo_JDBC(){
+        Runnable test = () -> {
+            PositionsRepo positionsRepo = BeanFactory.getPositionsRepo();
+            PositionsRepo jdbcPositionsRepo = JDBCPositionsRepo.getInstance();
+
+            assertNotNull(positionsRepo);
+            assertFalse(positionsRepo instanceof HibernatePositionsRepo);
+            assertInstanceOf(JDBCPositionsRepo.class, positionsRepo);
+            // Singleton Verification
+            assertEquals(positionsRepo, jdbcPositionsRepo);
+        };
+
+        withMockedProperty("persistence.technology","jdbc", test);
+    }
+
+    @Test
+    void testGetPositionRepo_Hibernate(){
+        Runnable test = () -> {
+            PositionsRepo positionsRepo = BeanFactory.getPositionsRepo();
+            PositionsRepo hibernatePositionsRepo = HibernatePositionsRepo.getInstance();
+
+            assertNotNull(positionsRepo);
+            assertFalse(positionsRepo instanceof JDBCPositionsRepo);
+            assertInstanceOf(HibernatePositionsRepo.class, positionsRepo);
+            // Singleton Verification
+            assertEquals(positionsRepo, hibernatePositionsRepo);
+        };
+
+        withMockedProperty("persistence.technology","hibernate", test);
+    }
+
+    @Test
+    void testGetPositionRepo_InvalidTech(){
+        Runnable test = () -> {
+            assertThrows(InvalidPersistenceTechException.class, BeanFactory::getPositionsRepo);
+        };
+
+        withMockedProperty("persistence.technology","invalid",test);
     }
 
 }
