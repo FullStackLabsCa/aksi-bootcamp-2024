@@ -1,5 +1,8 @@
 package io.reactivestax.factory;
 
+import io.reactivestax.repo.RawPayloadRepo;
+import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
+import io.reactivestax.repo.jdbc.JDBCRawPayloadRepo;
 import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.database.JDBCUtils;
@@ -99,15 +102,44 @@ class BeanFactoryTest {
 
             TransactionUtil hibernateTransactionUtil = HibernateUtils.getInstance();
 
-            // Check Not Null
             assertNotNull(transactionUtil);
-
             // Instance Verification
             assertFalse(transactionUtil instanceof JDBCUtils);
             assertInstanceOf(HibernateUtils.class, transactionUtil);
-
             // Singleton Verification
             assertEquals(transactionUtil, hibernateTransactionUtil);
+        };
+
+        withMockedProperty("persistence.technology","hibernate", test);
+    }
+
+    @Test
+    void testGetRawPayloadRepo_JDBC(){
+        Runnable test = () -> {
+            RawPayloadRepo rawPayloadRepo = BeanFactory.getRawPayloadRepo();
+            RawPayloadRepo jdbcRawPayloadRepo = JDBCRawPayloadRepo.getInstance();
+
+            assertNotNull(rawPayloadRepo);
+            assertFalse(rawPayloadRepo instanceof HibernateRawPayloadRepo);
+            assertInstanceOf(JDBCRawPayloadRepo.class, rawPayloadRepo);
+            // Singleton Verification
+            assertEquals(rawPayloadRepo, jdbcRawPayloadRepo);
+        };
+
+        withMockedProperty("persistence.technology","jdbc", test);
+    }
+
+    @Test
+    void testGetRawPayloadRepo_Hibernate(){
+        Runnable test = () -> {
+            RawPayloadRepo rawPayloadRepo = BeanFactory.getRawPayloadRepo();
+            RawPayloadRepo hibernateRawPayloadRepo = HibernateRawPayloadRepo.getInstance();
+
+            assertNotNull(rawPayloadRepo);
+            assertFalse(rawPayloadRepo instanceof JDBCRawPayloadRepo);
+            assertInstanceOf(HibernateRawPayloadRepo.class, rawPayloadRepo);
+            // Singleton Verification
+            assertEquals(rawPayloadRepo, hibernateRawPayloadRepo);
         };
 
         withMockedProperty("persistence.technology","hibernate", test);
