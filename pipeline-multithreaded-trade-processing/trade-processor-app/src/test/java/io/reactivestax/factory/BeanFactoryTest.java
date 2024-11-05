@@ -19,8 +19,10 @@ import io.reactivestax.utility.database.TransactionUtil;
 import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
 import io.reactivestax.utility.exceptions.NoLongerSupportedException;
+import io.reactivestax.utility.messaging.MessageProvider;
 import io.reactivestax.utility.messaging.MessageReceiver;
 import io.reactivestax.utility.messaging.MessageRetry;
+import io.reactivestax.utility.messaging.rabbitmq.RabbitMQMessageProvider;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
 import org.junit.jupiter.api.Test;
@@ -302,13 +304,13 @@ class BeanFactoryTest {
     @Test
     void testGetMessageRetryer_RabbitMQ(){
         Runnable test = () -> {
-            MessageRetry<Trade> messageReceiver = BeanFactory.getMessageRetryer();
-            MessageRetry<Trade> rabbitMQReceiver = RabbitMQRetry.getInstance();
+            MessageRetry<Trade> messageRetryer = BeanFactory.getMessageRetryer();
+            MessageRetry<Trade> rabbitMQRetry = RabbitMQRetry.getInstance();
 
-            assertNotNull(messageReceiver);
-            assertInstanceOf(RabbitMQRetry.class, messageReceiver);
+            assertNotNull(messageRetryer);
+            assertInstanceOf(RabbitMQRetry.class, messageRetryer);
             // Singleton Verification
-            assertEquals(messageReceiver, rabbitMQReceiver);
+            assertEquals(messageRetryer, rabbitMQRetry);
         };
 
         withMockedProperty("messaging.technology","rabbitmq", test);
@@ -327,6 +329,42 @@ class BeanFactoryTest {
     void testGetMessageRetryer_InvalidTech(){
         Runnable test = () -> {
             assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageRetryer);
+        };
+
+        withMockedProperty("messaging.technology","invalid",test);
+    }
+
+    @Test
+    void testGetMessageProvider_RabbitMQ(){
+        Runnable test = () -> {
+            MessageProvider messageProvider = BeanFactory.getMessageProvider(0);
+            MessageProvider messageProvider1 = BeanFactory.getMessageProvider(1);
+            MessageProvider messageProvider2 = BeanFactory.getMessageProvider(2);
+
+            assertNotNull(messageProvider);
+            assertNotNull(messageProvider1);
+            assertNotNull(messageProvider2);
+            assertInstanceOf(RabbitMQMessageProvider.class, messageProvider);
+            assertInstanceOf(RabbitMQMessageProvider.class, messageProvider1);
+            assertInstanceOf(RabbitMQMessageProvider.class, messageProvider2);
+        };
+
+        withMockedProperty("messaging.technology","rabbitmq", test);
+    }
+
+    @Test
+    void testGetMessageProvider_InMemory(){
+        Runnable test = () -> {
+            assertThrows(InvalidMessagingTechnologyException.class,() -> BeanFactory.getMessageProvider(0));
+        };
+
+        withMockedProperty("messaging.technology","in-memory", test);
+    }
+
+    @Test
+    void testGetMessageProvider_InvalidTech(){
+        Runnable test = () -> {
+            assertThrows(InvalidMessagingTechnologyException.class, () -> BeanFactory.getMessageProvider(0));
         };
 
         withMockedProperty("messaging.technology","invalid",test);
