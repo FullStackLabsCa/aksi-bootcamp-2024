@@ -7,6 +7,7 @@ import io.reactivestax.utility.exceptions.RabbitMQException;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -21,6 +22,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 public class RabbitMQReceiverTest {
+
+    @AfterEach
+    void cleanUp(){
+        RabbitMQUtils.getInstance().clearThreadResponse();
+        RabbitMQUtils.getInstance().clearRabbitMQMessageProvider();
+    }
 
     @Test
     public void getInstanceSingleThreadTest(){

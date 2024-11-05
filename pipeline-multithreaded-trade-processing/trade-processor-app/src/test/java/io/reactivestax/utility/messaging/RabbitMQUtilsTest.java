@@ -19,8 +19,9 @@ import static org.junit.Assert.assertNotEquals;
 public class RabbitMQUtilsTest {
 
     @Before
-    public void cleanUp() throws InterruptedException {
-        //Do the necessary clean up
+    public void cleanUp() {
+        RabbitMQUtils.getInstance().clearRabbitMQMessageProvider();
+        RabbitMQUtils.getInstance().clearThreadResponse();
     }
 
     @Test
