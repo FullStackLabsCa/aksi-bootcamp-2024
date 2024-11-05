@@ -203,9 +203,7 @@ class BeanFactoryTest {
 
     @Test
     void testGetJournalEntryRepo_InvalidTech(){
-        Runnable test = () -> {
-            assertThrows(InvalidPersistenceTechException.class, BeanFactory::getJournalEntryRepo);
-        };
+        Runnable test = () -> assertThrows(InvalidPersistenceTechException.class, BeanFactory::getJournalEntryRepo);
 
         withMockedProperty("persistence.technology","invalid",test);
     }
