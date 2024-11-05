@@ -15,7 +15,11 @@ import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.database.TransactionUtil;
+import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
+import io.reactivestax.utility.exceptions.NoLongerSupportedException;
+import io.reactivestax.utility.messaging.MessageReceiver;
+import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -257,6 +261,39 @@ class BeanFactoryTest {
         };
 
         withMockedProperty("persistence.technology","jdbc", test);
+    }
+
+    @Test
+    void testGetMessageReceiver_RabbitMQ(){
+        Runnable test = () -> {
+            MessageReceiver<String> messageReceiver = BeanFactory.getMessageReceiver();
+            MessageReceiver<String> rabbitMQReceiver = RabbitMQReceiver.getInstance();
+
+            assertNotNull(messageReceiver);
+            assertInstanceOf(RabbitMQReceiver.class, messageReceiver);
+            // Singleton Verification
+            assertEquals(messageReceiver, rabbitMQReceiver);
+        };
+
+        withMockedProperty("messaging.technology","rabbitmq", test);
+    }
+
+    @Test
+    void testGetMessageReceiver_InMemory(){
+        Runnable test = () -> {
+            assertThrows(NoLongerSupportedException.class,BeanFactory::getMessageReceiver);
+        };
+
+        withMockedProperty("messaging.technology","in-memory", test);
+    }
+
+    @Test
+    void testGetMessageReceiver_InvalidTech(){
+        Runnable test = () -> {
+            assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageReceiver);
+        };
+
+        withMockedProperty("messaging.technology","invalid",test);
     }
 
 }
