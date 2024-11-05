@@ -164,9 +164,7 @@ class BeanFactoryTest {
 
     @Test
     void testGetRawPayloadRepo_InvalidTech(){
-        Runnable test = () -> {
-            assertThrows(InvalidPersistenceTechException.class, BeanFactory::getRawPayloadRepo);
-        };
+        Runnable test = () -> assertThrows(InvalidPersistenceTechException.class, BeanFactory::getRawPayloadRepo);
 
         withMockedProperty("persistence.technology","invalid",test);
     }
@@ -246,9 +244,7 @@ class BeanFactoryTest {
 
     @Test
     void testGetPositionRepo_InvalidTech(){
-        Runnable test = () -> {
-            assertThrows(InvalidPersistenceTechException.class, BeanFactory::getPositionsRepo);
-        };
+        Runnable test = () -> assertThrows(InvalidPersistenceTechException.class, BeanFactory::getPositionsRepo);
 
         withMockedProperty("persistence.technology","invalid",test);
     }
@@ -285,18 +281,14 @@ class BeanFactoryTest {
 
     @Test
     void testGetMessageReceiver_InMemory(){
-        Runnable test = () -> {
-            assertThrows(NoLongerSupportedException.class,BeanFactory::getMessageReceiver);
-        };
+        Runnable test = () -> assertThrows(NoLongerSupportedException.class,BeanFactory::getMessageReceiver);
 
         withMockedProperty("messaging.technology","in-memory", test);
     }
 
     @Test
     void testGetMessageReceiver_InvalidTech(){
-        Runnable test = () -> {
-            assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageReceiver);
-        };
+        Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageReceiver);
 
         withMockedProperty("messaging.technology","invalid",test);
     }
@@ -318,18 +310,14 @@ class BeanFactoryTest {
 
     @Test
     void testGetMessageRetryer_InMemory(){
-        Runnable test = () -> {
-            assertThrows(InvalidMessagingTechnologyException.class,BeanFactory::getMessageRetryer);
-        };
+        Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class,BeanFactory::getMessageRetryer);
 
         withMockedProperty("messaging.technology","in-memory", test);
     }
 
     @Test
     void testGetMessageRetryer_InvalidTech(){
-        Runnable test = () -> {
-            assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageRetryer);
-        };
+        Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageRetryer);
 
         withMockedProperty("messaging.technology","invalid",test);
     }
@@ -354,18 +342,14 @@ class BeanFactoryTest {
 
     @Test
     void testGetMessageProvider_InMemory(){
-        Runnable test = () -> {
-            assertThrows(InvalidMessagingTechnologyException.class,() -> BeanFactory.getMessageProvider(0));
-        };
+        Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class,() -> BeanFactory.getMessageProvider(0));
 
         withMockedProperty("messaging.technology","in-memory", test);
     }
 
     @Test
     void testGetMessageProvider_InvalidTech(){
-        Runnable test = () -> {
-            assertThrows(InvalidMessagingTechnologyException.class, () -> BeanFactory.getMessageProvider(0));
-        };
+        Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class, () -> BeanFactory.getMessageProvider(0));
 
         withMockedProperty("messaging.technology","invalid",test);
     }
