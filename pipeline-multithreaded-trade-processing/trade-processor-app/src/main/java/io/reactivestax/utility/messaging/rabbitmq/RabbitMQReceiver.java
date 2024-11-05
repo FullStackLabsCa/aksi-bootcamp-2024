@@ -36,6 +36,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
 
         } catch (Exception e) {
             System.out.println("Error Initializing RabbitMQ Receiver Main....");
+            throw new RabbitMQException(e);
         }
     }
 

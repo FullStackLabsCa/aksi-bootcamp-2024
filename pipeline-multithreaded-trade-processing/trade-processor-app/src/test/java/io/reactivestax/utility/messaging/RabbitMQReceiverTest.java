@@ -1,14 +1,24 @@
 package io.reactivestax.utility.messaging;
 
+import com.rabbitmq.client.Channel;
+import io.reactivestax.factory.BeanFactory;
+import io.reactivestax.utility.ApplicationPropertyUtils;
+import io.reactivestax.utility.exceptions.RabbitMQException;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
+import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class RabbitMQReceiverTest {
 
@@ -40,5 +50,54 @@ public class RabbitMQReceiverTest {
 
         // Hashcode Identity will be same (reference to the same object)
         assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
+    }
+
+    @Test
+    public void receiveMessageWithDataAvailableInQueueTest(){
+        try {
+            // Setup RabbitMQ Producer
+            Channel channel = RabbitMQUtils.getInstance().getRabbitMQChannel();
+            channel.exchangeDeclare(getFileProperty("rabbitMQ.main.exchange.name"), "direct");
+
+            // Produce some data in the relevant queue
+            String message = "akshat-test-data";
+            RabbitMQUtils.getInstance().getRabbitMQChannel().basicPublish(getFileProperty("rabbitMQ.main.exchange.name"), "cc_partition_0", null, message.getBytes(StandardCharsets.UTF_8));
+
+            MessageReceiver<String> messageReceiver;
+            MessageProvider messageProvider;
+
+            // Mock the Consumer to read from the Queue
+            try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)){
+                mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
+                mockedStatic.when(() -> getFileProperty("rabbitMQ.main.exchange.name")).thenReturn("credit_card_transactions");
+                mockedStatic.when(() -> getFileProperty("rabbitMQ.main.queue0.name")).thenReturn("cc_partition_0_queue");
+                mockedStatic.when(() -> getFileProperty("rabbitMQ.main.queue0.routingKey")).thenReturn("cc_partition_0");
+                mockedStatic.when(() -> getFileProperty("rabbitMQ.retry.exchange.name")).thenReturn("retry_exchange");
+
+                messageReceiver = BeanFactory.getMessageReceiver();
+                messageProvider = BeanFactory.getMessageProvider(0);
+            }
+
+            // Verify the Message Received
+            String messageReceived = messageReceiver.receiveMessage(messageProvider);
+
+            assertEquals(message, messageReceived);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void receiveMessageErrorInRabbitMQSetupTest(){
+            // Mock the Consumer to read from the Queue
+            try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)){
+                MessageReceiver<String> messageReceiver;
+                MessageProvider messageProvider;
+                mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
+                messageReceiver = BeanFactory.getMessageReceiver();
+                messageProvider = BeanFactory.getMessageProvider(0);
+                assertThrows(RabbitMQException.class, () -> messageReceiver.receiveMessage(messageProvider));
+            }
     }
 }
