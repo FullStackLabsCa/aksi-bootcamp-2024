@@ -1,5 +1,6 @@
 package io.reactivestax.factory;
 
+import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.RawPayloadRepo;
@@ -19,7 +20,9 @@ import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
 import io.reactivestax.utility.exceptions.NoLongerSupportedException;
 import io.reactivestax.utility.messaging.MessageReceiver;
+import io.reactivestax.utility.messaging.MessageRetry;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
+import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -291,6 +294,39 @@ class BeanFactoryTest {
     void testGetMessageReceiver_InvalidTech(){
         Runnable test = () -> {
             assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageReceiver);
+        };
+
+        withMockedProperty("messaging.technology","invalid",test);
+    }
+
+    @Test
+    void testGetMessageRetryer_RabbitMQ(){
+        Runnable test = () -> {
+            MessageRetry<Trade> messageReceiver = BeanFactory.getMessageRetryer();
+            MessageRetry<Trade> rabbitMQReceiver = RabbitMQRetry.getInstance();
+
+            assertNotNull(messageReceiver);
+            assertInstanceOf(RabbitMQRetry.class, messageReceiver);
+            // Singleton Verification
+            assertEquals(messageReceiver, rabbitMQReceiver);
+        };
+
+        withMockedProperty("messaging.technology","rabbitmq", test);
+    }
+
+    @Test
+    void testGetMessageRetryer_InMemory(){
+        Runnable test = () -> {
+            assertThrows(InvalidMessagingTechnologyException.class,BeanFactory::getMessageRetryer);
+        };
+
+        withMockedProperty("messaging.technology","in-memory", test);
+    }
+
+    @Test
+    void testGetMessageRetryer_InvalidTech(){
+        Runnable test = () -> {
+            assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageRetryer);
         };
 
         withMockedProperty("messaging.technology","invalid",test);
