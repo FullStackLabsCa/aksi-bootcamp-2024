@@ -1,6 +1,6 @@
 package io.reactivestax.utility.messaging;
 
-import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
+ import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
 import org.junit.Test;
 
 import java.util.concurrent.Callable;
@@ -40,4 +40,30 @@ public class RabbitMQRetryTest {
         // Hashcode Identity will be same (reference to the same object)
         assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
     }
+
+/*
+1. Failed to init RabbitMQ DLX Exchange
+2. Failed to getResponse from ThreadLocal
+3. readMessageRetryCount first time
+4. readMessageRetryCount next time
+5. retryCount more than maxRetry, add to DLQ
+      Test DLQ data
+6. retryCount less than maxRetry
+      6.1 Republish to Retry Exchange - Test if the retry queue received the message
+      6.2 Republished message will come back to the Main Queue for processing - test this
+      6.3 when this message comes back the retry count should be incremented by 1
+*/
+
+    @Test
+    public void retryMessageFailedToInitializeDLXExchangeTest(){
+
+    }
+
+    @Test
+    public void retryMessageFailedToGetResponseFromThreadLocalTest(){
+
+    }
+
+    
+
 }
