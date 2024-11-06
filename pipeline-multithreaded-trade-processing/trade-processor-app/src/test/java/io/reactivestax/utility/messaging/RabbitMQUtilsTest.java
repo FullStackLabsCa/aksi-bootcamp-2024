@@ -157,8 +157,8 @@ public class RabbitMQUtilsTest {
 
         assertNotEquals(responseFromThread1, responseFromThread2);
 
-        executorService.submit(() -> {RabbitMQUtils.getInstance().clearThreadResponse();});
-        executorService.submit(() -> {RabbitMQUtils.getInstance().clearThreadResponse();});
+        executorService.submit(() -> RabbitMQUtils.getInstance().clearThreadResponse());
+        executorService.submit(() -> RabbitMQUtils.getInstance().clearThreadResponse());
 
         executorService.shutdown();
     }

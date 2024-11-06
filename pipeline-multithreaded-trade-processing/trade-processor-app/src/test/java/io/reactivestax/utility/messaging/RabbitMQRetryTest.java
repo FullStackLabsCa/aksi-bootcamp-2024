@@ -1,6 +1,5 @@
 package io.reactivestax.utility.messaging;
 
-import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
 import org.junit.Test;
 
