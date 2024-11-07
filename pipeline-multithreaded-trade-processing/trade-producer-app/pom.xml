@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.reactivestax</groupId>
-    <artifactId>trade-processor-app</artifactId>
+    <artifactId>trade-producer-app</artifactId>
     <packaging>jar</packaging>
     <build>
         <plugins>
@@ -17,7 +17,7 @@
         </plugins>
     </build>
     <version>v1.1</version>
-    <name>trade-processor-app</name>
+    <name>trade-producer-app</name>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
