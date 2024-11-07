@@ -26,9 +26,9 @@ public class BeanFactory {
     public static RawPayloadRepo getRawPayloadRepo() {
         RawPayloadRepo rawPayloadRepo;
 
-        if(getFileProperty("persistence.technology").equals(JDBC_PERSISTENCE_TECH)){
+        if(JDBC_PERSISTENCE_TECH.equals(getFileProperty("persistence.technology"))){
             rawPayloadRepo = JDBCRawPayloadRepo.getInstance();
-        } else if (getFileProperty("persistence.technology").equals(HIBERNATE_PERSISTENCE_TECH)){
+        } else if (HIBERNATE_PERSISTENCE_TECH.equals(getFileProperty("persistence.technology"))){
             rawPayloadRepo = HibernateRawPayloadRepo.getInstance();
         } else {
             throw new InvalidPersistenceTechException();
@@ -40,9 +40,9 @@ public class BeanFactory {
     public static MessageSender<TradeIdAndAccNum> getMessageSender() {
         MessageSender<TradeIdAndAccNum> messageSender;
 
-        if(getFileProperty("messaging.technology").equals(RABBIT_MQ_QUEUE_TECH)){
+        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
             messageSender = RabbitMQSender.getInstance();
-        } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){
+        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
             messageSender = InMemorySender.getInstance();
         } else {
             throw new InvalidMessagingTechnologyException();
