@@ -1,16 +1,35 @@
 package io.reactivestax.utility.messaging;
 
+ import io.reactivestax.factory.BeanFactory;
+ import io.reactivestax.model.Trade;
+ import io.reactivestax.utility.ApplicationPropertyUtils;
+ import io.reactivestax.utility.exceptions.RabbitMQException;
  import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
-import org.junit.Test;
+ import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
+ import org.junit.After;
+ import org.junit.Test;
+ import org.mockito.MockedStatic;
+ import org.mockito.Mockito;
 
-import java.util.concurrent.Callable;
+ import java.io.ByteArrayOutputStream;
+ import java.io.PrintStream;
+ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
+ import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
+ import static org.junit.Assert.*;
 
 public class RabbitMQRetryTest {
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    private final PrintStream originalOut = System.out;
+
+    @After
+    public void cleanUp() {
+        RabbitMQUtils.getInstance().closeRabbitMQChannel();
+    }
+
     @Test
     public void getInstanceSingleThreadTest(){
         // Get two instances
@@ -55,15 +74,36 @@ public class RabbitMQRetryTest {
 */
 
     @Test
-    public void retryMessageFailedToInitializeDLXExchangeTest(){
-
+    public void retryMessageFailedToGetChannelFromRabbitConnectionTest(){
+        System.setOut(new PrintStream(outputStreamCaptor));
+        try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)){
+            MessageRetry<Trade> messageRetry;
+            mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
+            messageRetry = BeanFactory.getMessageRetryer();
+            assertThrows(RabbitMQException.class, () ->  messageRetry.retryMessage(new Trade()));
+            assertTrue(outputStreamCaptor.toString().contains("Unable to provide Channel from the Rabbit MQ Connection..."));
+        }
+        System.setOut(originalOut);
     }
 
     @Test
-    public void retryMessageFailedToGetResponseFromThreadLocalTest(){
+    public void retryMessageFailedToInitializeDLXExchangeTest(){
+        System.setOut(new PrintStream(outputStreamCaptor));
+        try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)){
+            mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
+            mockedStatic.when(() -> getFileProperty("rabbitMQ.main.exchange.name")).thenReturn("credit_card_transactions");
+            mockedStatic.when(() -> getFileProperty("rabbitMQ.main.queue0.name")).thenReturn("cc_partition_0_queue");
+            mockedStatic.when(() -> getFileProperty("rabbitMQ.main.queue0.routingKey")).thenReturn("cc_partition_0");
+            mockedStatic.when(() -> getFileProperty("rabbitMQ.retry.exchange.name")).thenReturn("retry_exchange");
+            mockedStatic.when(() -> getFileProperty("rabbitMQ.hostName")).thenReturn("localhost");
+            mockedStatic.when(() -> getFileProperty("rabbitMQ.guest")).thenReturn("guest");
+            mockedStatic.when(() -> getFileProperty("rabbitMQ.pass")).thenReturn("guest");
 
+            MessageRetry<Trade> messageRetry = BeanFactory.getMessageRetryer();
+            assertThrows(RabbitMQException.class, () -> messageRetry.retryMessage(new Trade()));
+            assertTrue(outputStreamCaptor.toString().contains("Error Initializing RabbitMQ Retry...."));
+        }
+        System.setOut(originalOut);
     }
-
-    
 
 }

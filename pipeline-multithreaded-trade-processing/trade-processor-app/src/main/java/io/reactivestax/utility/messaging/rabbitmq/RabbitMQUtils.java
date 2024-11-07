@@ -47,6 +47,10 @@ public class RabbitMQUtils {
         }
     }
 
+    public void closeRabbitMQConnection() throws IOException {
+        rabbitMQConnection.close();
+    }
+
     public Channel getRabbitMQChannel(){
         Channel channel = channelThreadLocal.get();
         if(channel == null) {
@@ -69,7 +73,7 @@ public class RabbitMQUtils {
             channelThreadLocal.remove();
             getResponseThreadLocal.remove();
         } catch (IOException | TimeoutException e) {
-            throw new RabbitMQException(e);
+            System.out.println("RabbitMQ Channel already closed!");
         }
     }
 

@@ -27,6 +27,7 @@ public class RabbitMQReceiverTest {
     public void cleanUp(){
         RabbitMQUtils.getInstance().clearThreadResponse();
         RabbitMQUtils.getInstance().clearRabbitMQMessageProvider();
+        RabbitMQUtils.getInstance().closeRabbitMQChannel();
     }
 
     @Test
