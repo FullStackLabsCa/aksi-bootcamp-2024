@@ -31,7 +31,6 @@ public class JDBCRawPayloadRepo implements RawPayloadRepo {
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            JDBCUtils.getInstance().rollbackTransaction();
         }
     }
 }
