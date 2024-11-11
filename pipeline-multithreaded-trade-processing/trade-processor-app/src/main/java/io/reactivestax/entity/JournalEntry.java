@@ -1,6 +1,8 @@
 package io.reactivestax.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.sql.Date;
@@ -10,6 +12,8 @@ import java.sql.Date;
 @Table (name = "journal_entry", indexes = {
         @Index(name = "idx_trade_id", columnList = "trade_id")
 })
+@Builder
+@AllArgsConstructor
 public class JournalEntry {
 
     @Id

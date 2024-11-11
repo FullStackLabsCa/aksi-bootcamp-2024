@@ -29,14 +29,15 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
         Session session = HibernateUtils.getInstance().getConnection();
         JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         try {
-            JournalEntry journalEntry = new JournalEntry();
-            journalEntry.setAccountNumber(trade.getAccountNumber());
-            journalEntry.setActivity(trade.getActivity());
-            journalEntry.setPositionPostedStatus("Non Posted");
-            journalEntry.setQuantity(trade.getQuantity());
-            journalEntry.setSecurityID(securitiesReference.getSecurityIdForCusip(trade.getCusip()));
-            journalEntry.setTradeExecutionTime(trade.getTransactionTime());
-            journalEntry.setTradeID(trade.getTradeID());
+            JournalEntry journalEntry = JournalEntry.builder()
+                    .accountNumber(trade.getAccountNumber())
+                    .activity(trade.getActivity())
+                    .positionPostedStatus("Non Posted")
+                    .quantity(trade.getQuantity())
+                    .securityID(securitiesReference.getSecurityIdForCusip(trade.getCusip()))
+                    .tradeExecutionTime(trade.getTransactionTime())
+                    .tradeID(trade.getTradeID())
+                    .build();
 
             session.persist(journalEntry);
         } catch (Exception e) {
