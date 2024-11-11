@@ -41,7 +41,7 @@ public class BeanFactory {
 
     private static final String RABBIT_MQ_QUEUE_TECH = "rabbitmq";
     private static final String IN_MEMORY_QUEUE_TECH = "in-memory";
-    private static final Map<String, Map<String, Callable<Object>>> mapOfTech = new HashMap<>();
+    private static final Map<String, Map<Class<?>, Callable<?>>> mapOfTech = new HashMap<>();
 
     static {
         initializeTechnologies();
@@ -53,34 +53,34 @@ public class BeanFactory {
         mapOfTech.put("rabbitmq", initRabbitMQTech());
     }
 
-    private static Map<String, Callable<Object>> initJDBCTech(){
-        Map<String, Callable<Object>> jdbcTech = new HashMap<>();
-        jdbcTech.put("transactionUtil", JDBCUtils::getInstance);
-        jdbcTech.put("rawPayloadRepo", JDBCRawPayloadRepo::getInstance);
-        jdbcTech.put("journalEntryRepo", JDBCJournalEntryRepo::getInstance);
-        jdbcTech.put("positionRepo", JDBCPositionsRepo::getInstance);
-        jdbcTech.put("securitiesReferenceRepo", JDBCSecuritiesReferenceRepo::getInstance);
+    private static Map<Class<?>, Callable<?>> initJDBCTech(){
+        Map<Class<?>, Callable<?>> jdbcTech = new HashMap<>();
+        jdbcTech.put(TransactionUtil.class, JDBCUtils::getInstance);
+        jdbcTech.put(RawPayloadRepo.class, JDBCRawPayloadRepo::getInstance);
+        jdbcTech.put(JournalEntryRepo.class, JDBCJournalEntryRepo::getInstance);
+        jdbcTech.put(PositionsRepo.class, JDBCPositionsRepo::getInstance);
+        jdbcTech.put(SecuritiesReferenceRepo.class, JDBCSecuritiesReferenceRepo::getInstance);
         return jdbcTech;
     }
 
-    private static Map<String, Callable<Object>> initHibernateTech(){
-        Map<String, Callable<Object>> hibernateTech = new HashMap<>();
-        hibernateTech.put("transactionUtil", HibernateUtils::getInstance);
-        hibernateTech.put("rawPayloadRepo", HibernateRawPayloadRepo::getInstance);
-        hibernateTech.put("journalEntryRepo", HibernateJournalEntryRepo::getInstance);
-        hibernateTech.put("positionRepo", HibernatePositionsRepo::getInstance);
-        hibernateTech.put("securitiesReferenceRepo", HibernateSecuritiesReferenceRepo::getInstance);
+    private static Map<Class<?>, Callable<?>> initHibernateTech(){
+        Map<Class<?>, Callable<?>> hibernateTech = new HashMap<>();
+        hibernateTech.put(TransactionUtil.class, HibernateUtils::getInstance);
+        hibernateTech.put(RawPayloadRepo.class, HibernateRawPayloadRepo::getInstance);
+        hibernateTech.put(JournalEntryRepo.class, HibernateJournalEntryRepo::getInstance);
+        hibernateTech.put(PositionsRepo.class, HibernatePositionsRepo::getInstance);
+        hibernateTech.put(SecuritiesReferenceRepo.class, HibernateSecuritiesReferenceRepo::getInstance);
         return hibernateTech;
     }
 
-    private static Map<String, Callable<Object>> initRabbitMQTech(){
-        Map<String, Callable<Object>> rabbitMQTech = new HashMap<>();
-        rabbitMQTech.put("messageReceiver", RabbitMQReceiver::getInstance);
-        rabbitMQTech.put("messageRetryer", RabbitMQRetry::getInstance);
+    private static Map<Class<?>, Callable<?>> initRabbitMQTech(){
+        Map<Class<?>, Callable<?>> rabbitMQTech = new HashMap<>();
+        rabbitMQTech.put(MessageReceiver.class, RabbitMQReceiver::getInstance);
+        rabbitMQTech.put(MessageRetry.class, RabbitMQRetry::getInstance);
         return rabbitMQTech;
     }
 
-    private static Optional<Object> callSafely(Callable<Object> value) {
+    private static Optional<Object> callSafely(Callable<?> value) {
         try{
             return Optional.of(value.call());
         } catch (Exception e){
@@ -88,76 +88,11 @@ public class BeanFactory {
         }
     }
 
-    public static <T> T getBean(String technology, String beanName, Class<T> classType){
-        return Optional.ofNullable(mapOfTech.get(technology))
-                .map(techMap -> techMap.get(beanName))
+    public static <T> T getBean(Class<T> classType){
+        return Optional.ofNullable(mapOfTech.get(getFileProperty("persistence.technology")))
+                .map(techMap -> techMap.get(classType))
                 .flatMap(BeanFactory::callSafely)
                 .map(classType::cast)
-                .orElseThrow(InvalidPersistenceTechException::new);
-    }
-
-    public static TransactionUtil getTransactionUtil(){
-        return mapOfTech.entrySet().stream()
-                .filter(techMap -> techMap.getKey().equals(getFileProperty("persistence.technology")))
-                .map(Map.Entry::getValue)
-                .flatMap(techMapValues -> techMapValues.entrySet().stream())
-                .filter(resource -> resource.getKey().equals("transactionUtil"))
-                .map(resource -> callSafely(resource.getValue()))
-                .flatMap(Optional::stream)
-                .map(TransactionUtil.class::cast)
-                .findFirst()
-                .orElseThrow(InvalidPersistenceTechException::new);
-    }
-
-    public static RawPayloadRepo getRawPayloadRepo() {
-        return mapOfTech.entrySet().stream()
-                .filter(techMap -> techMap.getKey().equals(getFileProperty("persistence.technology")))
-                .map(Map.Entry::getValue)
-                .flatMap(techMapValues -> techMapValues.entrySet().stream())
-                .filter(resource -> resource.getKey().equals("rawPayloadRepo"))
-                .map(resource -> callSafely(resource.getValue()))
-                .flatMap(Optional::stream)
-                .map(RawPayloadRepo.class::cast)
-                .findFirst()
-                .orElseThrow(InvalidPersistenceTechException::new);
-    }
-
-    public static JournalEntryRepo getJournalEntryRepo() {
-        return mapOfTech.entrySet().stream()
-                .filter(techMap -> techMap.getKey().equals(getFileProperty("persistence.technology")))
-                .map(Map.Entry::getValue)
-                .flatMap(techMapValues -> techMapValues.entrySet().stream())
-                .filter(resource -> resource.getKey().equals("journalEntryRepo"))
-                .map(resource -> callSafely(resource.getValue()))
-                .flatMap(Optional::stream)
-                .map(JournalEntryRepo.class::cast)
-                .findFirst()
-                .orElseThrow(InvalidPersistenceTechException::new);
-    }
-
-    public static PositionsRepo getPositionsRepo() {
-        return mapOfTech.entrySet().stream()
-                .filter(techMap -> techMap.getKey().equals(getFileProperty("persistence.technology")))
-                .map(Map.Entry::getValue)
-                .flatMap(techMapValues -> techMapValues.entrySet().stream())
-                .filter(resource -> resource.getKey().equals("positionRepo"))
-                .map(resource -> callSafely(resource.getValue()))
-                .flatMap(Optional::stream)
-                .map(PositionsRepo.class::cast)
-                .findFirst()
-                .orElseThrow(InvalidPersistenceTechException::new);
-    }
-
-    public static SecuritiesReferenceRepo getSecuritiesReferenceRepo() {
-        return mapOfTech.entrySet().stream()
-                .filter(techMap -> techMap.getKey().equals(getFileProperty("persistence.technology")))
-                .map(Map.Entry::getValue)
-                .flatMap(techMapValues -> techMapValues.entrySet().stream())
-                .filter(resource -> resource.getKey().equals("securitiesReferenceRepo"))
-                .map(resource -> callSafely(resource.getValue()))
-                .flatMap(Optional::stream)
-                .map(SecuritiesReferenceRepo.class::cast)
-                .findFirst()
                 .orElseThrow(InvalidPersistenceTechException::new);
     }
 
