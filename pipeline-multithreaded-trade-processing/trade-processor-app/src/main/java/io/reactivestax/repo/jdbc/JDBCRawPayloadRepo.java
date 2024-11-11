@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 public class JDBCRawPayloadRepo implements RawPayloadRepo {
     private static final String READ_PAYLOAD_QUERY = "Select payload from trades_payload where trade_id=?";
@@ -25,20 +26,20 @@ public class JDBCRawPayloadRepo implements RawPayloadRepo {
     }
 
     @Override
-    public String readPayloadFromRawPayloadsTable(String tradeID) {
+    public Optional<String> readPayloadFromRawPayloadsTable(String tradeID) {
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement psQuery = connection.prepareStatement(READ_PAYLOAD_QUERY)) {
 
             psQuery.setString(1, tradeID);
             ResultSet rsQuery = psQuery.executeQuery();
             rsQuery.next();
-            return rsQuery.getString("payload");
+            return Optional.ofNullable(rsQuery.getString("payload"));
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @Override

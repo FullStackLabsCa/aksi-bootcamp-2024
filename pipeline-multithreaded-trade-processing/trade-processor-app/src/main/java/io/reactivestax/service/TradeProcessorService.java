@@ -14,6 +14,7 @@ import io.reactivestax.utility.messaging.MessageProvider;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 public class TradeProcessorService implements TradeProcessing {
     private static TradeProcessorService instance;
@@ -28,33 +29,25 @@ public class TradeProcessorService implements TradeProcessing {
 
     public void runTradeProcessor(MessageProvider messageProvider) {
         while (true) {
-            String tradeID;
-            try {
-                tradeID = getTradeID(messageProvider);
-                if (tradeID == null || tradeID.trim().isEmpty()) break;
-                String payload = readPayload(tradeID);
-                if ((payload != null) && (!payload.isEmpty())) {
-                    Trade trade = validatePayloadAndCreateTrade(payload);
-                    processTrade(trade);
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new ReadFromProviderFailedException(e);
-            }
+            Optional<String> tradeID = getTradeID(messageProvider);
+            if(tradeID.isEmpty()) break;
+            tradeID.flatMap(this::readPayload)
+                    .map(this::validatePayloadAndCreateTrade)
+                    .ifPresent(this::processTrade);
         }
     }
 
     @Override
-    public String getTradeID(MessageProvider messageProvider) throws InterruptedException {
+    public Optional<String> getTradeID(MessageProvider messageProvider){
         return BeanFactory.getMessageReceiver().receiveMessage(messageProvider);
     }
 
-    private String readPayload(String tradeID) {
+    private Optional<String> readPayload(String tradeID) {
         return readPayloadFromRawDatabase(tradeID);
     }
 
     @Override
-    public String readPayloadFromRawDatabase(String tradeID) {
+    public Optional<String> readPayloadFromRawDatabase(String tradeID) {
         RawPayloadRepo rawPayloadRepo = BeanFactory.getPersistenceBean(RawPayloadRepo.class);
         return rawPayloadRepo.readPayloadFromRawPayloadsTable(tradeID);
     }
@@ -65,17 +58,17 @@ public class TradeProcessorService implements TradeProcessing {
             throw new NullPayloadException("Payload Validation Failed. Payload NULL!");
         }
         try {
-            Trade trade = new Trade();
             String[] payloadData = payload.split(",");
-            trade.setTradeID(payloadData[0]);
-            trade.setTransactionTime(convertStringToSqlDate(payloadData[1]));
-            trade.setAccountNumber(payloadData[2]);
-            trade.setCusip(payloadData[3]);
-            trade.setActivity(payloadData[4]);
-            trade.setQuantity(Integer.parseInt(payloadData[5]));
-            trade.setPrice(Double.parseDouble(payloadData[6]));
 
-            return trade;
+            return Trade.builder()
+                    .tradeID(payloadData[0])
+                    .transactionTime(convertStringToSqlDate(payloadData[1]))
+                    .accountNumber(payloadData[2])
+                    .cusip(payloadData[3])
+                    .activity(payloadData[4])
+                    .quantity(Integer.parseInt(payloadData[5]))
+                    .price(Double.parseDouble(payloadData[6]))
+                    .build();
 
         } catch (NumberFormatException e) {
             throw new TradeCreationFailedException("Trade Object Creation Failed!!!");

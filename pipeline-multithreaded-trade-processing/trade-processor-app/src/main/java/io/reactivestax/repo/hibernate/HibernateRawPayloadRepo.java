@@ -12,6 +12,7 @@ import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
 
 import java.util.List;
+import java.util.Optional;
 
 public class HibernateRawPayloadRepo implements RawPayloadRepo {
     private static HibernateRawPayloadRepo instance;
@@ -26,7 +27,7 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
     }
 
     @Override
-    public String readPayloadFromRawPayloadsTable(String tradeID) {
+    public Optional<String> readPayloadFromRawPayloadsTable(String tradeID) {
         Session session = HibernateUtils.getInstance().getConnection();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<RawPayload> query = builder.createQuery(RawPayload.class);
@@ -34,8 +35,7 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
         query.select(root).where(builder.equal(root.get("tradeID"), tradeID));
         List<RawPayload> students = session.createQuery(query).getResultList();
 
-        if (students != null) return students.get(0).getPayload();
-        else return null;
+        return Optional.ofNullable(students.get(0).getPayload());
     }
 
     @Override
