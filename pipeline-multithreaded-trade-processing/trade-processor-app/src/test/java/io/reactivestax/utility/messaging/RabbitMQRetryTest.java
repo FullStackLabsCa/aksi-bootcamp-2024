@@ -80,7 +80,7 @@ public class RabbitMQRetryTest {
             MessageRetry<Trade> messageRetry;
             mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
             messageRetry = BeanFactory.getMessageRetryer();
-            assertThrows(RabbitMQException.class, () ->  messageRetry.retryMessage(new Trade()));
+            assertThrows(RabbitMQException.class, () ->  messageRetry.retryMessage(Trade.builder().build()));
             assertTrue(outputStreamCaptor.toString().contains("Unable to provide Channel from the Rabbit MQ Connection..."));
         }
         System.setOut(originalOut);
@@ -100,7 +100,7 @@ public class RabbitMQRetryTest {
             mockedStatic.when(() -> getFileProperty("rabbitMQ.pass")).thenReturn("guest");
 
             MessageRetry<Trade> messageRetry = BeanFactory.getMessageRetryer();
-            assertThrows(RabbitMQException.class, () -> messageRetry.retryMessage(new Trade()));
+            assertThrows(RabbitMQException.class, () -> messageRetry.retryMessage(Trade.builder().build()));
             assertTrue(outputStreamCaptor.toString().contains("Error Initializing RabbitMQ Retry...."));
         }
         System.setOut(originalOut);

@@ -9,6 +9,7 @@ import io.reactivestax.utility.messaging.MessageReceiver;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class RabbitMQReceiver implements MessageReceiver<String> {
     private static RabbitMQReceiver instance;
@@ -42,7 +43,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
 
 
     @Override
-    public String receiveMessage(MessageProvider messageProvider) {
+    public Optional<String> receiveMessage(MessageProvider messageProvider) {
         try {
             initializeRabbitMQMainExchange((RabbitMQMessageProvider) messageProvider);
             Channel rabbitMQChannel = RabbitMQUtils.getInstance().getRabbitMQChannel();
@@ -53,7 +54,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
             if (response != null) {
                 RabbitMQUtils.getInstance().setThreadResponse(response);
 
-                String message = new String(response.getBody(), StandardCharsets.UTF_8);
+                Optional<String> message = Optional.of(new String(response.getBody(), StandardCharsets.UTF_8));
                 System.out.println(" [x] Received '" + message + "'");
 
                 // Manually acknowledge the message after processing
@@ -68,7 +69,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
         } catch (Exception e) {
             System.out.println("Some issues in RabbitMQ Consumer...readFromRabbitMQ");
             e.printStackTrace();
-            throw new RabbitMQException(e);
+            return Optional.empty();
         }
     }
 }

@@ -1,5 +1,7 @@
 package io.reactivestax.utility.messaging;
 
+import java.util.Optional;
+
 public interface MessageReceiver<T> {
-    T receiveMessage(MessageProvider messageProvider);
+    Optional<T> receiveMessage(MessageProvider messageProvider);
 }
