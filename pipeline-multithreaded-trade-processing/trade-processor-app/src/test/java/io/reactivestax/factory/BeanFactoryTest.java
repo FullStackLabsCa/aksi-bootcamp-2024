@@ -41,7 +41,7 @@ class BeanFactoryTest {
             mockedStatic.when(() -> getFileProperty("persistence.technology")).thenReturn("jdbc");
 
             TransactionUtil jdbcTransactionUtil = JDBCUtils.getInstance();
-            TransactionUtil transactionUtil = BeanFactory.getTransactionUtil();
+            TransactionUtil transactionUtil = BeanFactory.getBean(TransactionUtil.class);
 
             // Check not Null
             assertNotNull(transactionUtil);
@@ -60,7 +60,7 @@ class BeanFactoryTest {
         try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
             mockedStatic.when(() -> getFileProperty("persistence.technology")).thenReturn("hibernate");
 
-            TransactionUtil transactionUtil = BeanFactory.getTransactionUtil();
+            TransactionUtil transactionUtil = BeanFactory.getBean(TransactionUtil.class);
 
             TransactionUtil hibernateTransactionUtil = HibernateUtils.getInstance();
 
@@ -81,7 +81,7 @@ class BeanFactoryTest {
         try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
             mockedStatic.when(() -> getFileProperty("persistence.technology")).thenReturn("invalidTech");
 
-            assertThrows(InvalidPersistenceTechException.class, BeanFactory::getTransactionUtil);
+            assertThrows(InvalidPersistenceTechException.class, () -> BeanFactory.getBean(TransactionUtil.class));
         }
     }
 
@@ -96,7 +96,7 @@ class BeanFactoryTest {
     void testGetTransactionUtilWithParametrizedMocking_JDBC(){
         Runnable test = () -> {
             TransactionUtil jdbcTransactionUtil = JDBCUtils.getInstance();
-            TransactionUtil transactionUtil = BeanFactory.getTransactionUtil();
+            TransactionUtil transactionUtil = BeanFactory.getBean(TransactionUtil.class);
 
             // Check not Null
             assertNotNull(transactionUtil);
@@ -115,7 +115,7 @@ class BeanFactoryTest {
     @Test
     void testGetTransactionUtilWithParametrizedMocking_Hibernate(){
         Runnable test = () -> {
-            TransactionUtil transactionUtil = BeanFactory.getTransactionUtil();
+            TransactionUtil transactionUtil = BeanFactory.getBean(TransactionUtil.class);
 
             TransactionUtil hibernateTransactionUtil = HibernateUtils.getInstance();
 
@@ -133,7 +133,7 @@ class BeanFactoryTest {
     @Test
     void testGetRawPayloadRepo_JDBC(){
         Runnable test = () -> {
-            RawPayloadRepo rawPayloadRepo = BeanFactory.getRawPayloadRepo();
+            RawPayloadRepo rawPayloadRepo = BeanFactory.getBean(RawPayloadRepo.class);
             RawPayloadRepo jdbcRawPayloadRepo = JDBCRawPayloadRepo.getInstance();
 
             assertNotNull(rawPayloadRepo);
@@ -149,7 +149,7 @@ class BeanFactoryTest {
     @Test
     void testGetRawPayloadRepo_Hibernate(){
         Runnable test = () -> {
-            RawPayloadRepo rawPayloadRepo = BeanFactory.getRawPayloadRepo();
+            RawPayloadRepo rawPayloadRepo = BeanFactory.getBean(RawPayloadRepo.class);
             RawPayloadRepo hibernateRawPayloadRepo = HibernateRawPayloadRepo.getInstance();
 
             assertNotNull(rawPayloadRepo);
@@ -164,7 +164,7 @@ class BeanFactoryTest {
 
     @Test
     void testGetRawPayloadRepo_InvalidTech(){
-        Runnable test = () -> assertThrows(InvalidPersistenceTechException.class, BeanFactory::getRawPayloadRepo);
+        Runnable test = () -> assertThrows(InvalidPersistenceTechException.class, () -> BeanFactory.getBean(RawPayloadRepo.class));
 
         withMockedProperty("persistence.technology","invalid",test);
     }
@@ -172,7 +172,7 @@ class BeanFactoryTest {
     @Test
     void testGetJournalEntryRepo_JDBC(){
         Runnable test = () -> {
-            JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
+            JournalEntryRepo journalEntryRepo = BeanFactory.getBean(JournalEntryRepo.class);
             JournalEntryRepo jdbcJournalEntryRepo = JDBCJournalEntryRepo.getInstance();
 
             assertNotNull(journalEntryRepo);
@@ -188,7 +188,7 @@ class BeanFactoryTest {
     @Test
     void testGetJournalEntryRepo_Hibernate(){
         Runnable test = () -> {
-            JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
+            JournalEntryRepo journalEntryRepo = BeanFactory.getBean(JournalEntryRepo.class);
             JournalEntryRepo hibernateJournalEntryRepo = HibernateJournalEntryRepo.getInstance();
 
             assertNotNull(journalEntryRepo);
@@ -203,7 +203,7 @@ class BeanFactoryTest {
 
     @Test
     void testGetJournalEntryRepo_InvalidTech(){
-        Runnable test = () -> assertThrows(InvalidPersistenceTechException.class, BeanFactory::getJournalEntryRepo);
+        Runnable test = () -> assertThrows(InvalidPersistenceTechException.class, () -> BeanFactory.getBean(JournalEntryRepo.class));
 
         withMockedProperty("persistence.technology","invalid",test);
     }
@@ -211,7 +211,7 @@ class BeanFactoryTest {
     @Test
     void testGetPositionRepo_JDBC(){
         Runnable test = () -> {
-            PositionsRepo positionsRepo = BeanFactory.getPositionsRepo();
+            PositionsRepo positionsRepo = BeanFactory.getBean(PositionsRepo.class);
             PositionsRepo jdbcPositionsRepo = JDBCPositionsRepo.getInstance();
 
             assertNotNull(positionsRepo);
@@ -227,7 +227,7 @@ class BeanFactoryTest {
     @Test
     void testGetPositionRepo_Hibernate(){
         Runnable test = () -> {
-            PositionsRepo positionsRepo = BeanFactory.getPositionsRepo();
+            PositionsRepo positionsRepo = BeanFactory.getBean(PositionsRepo.class);
             PositionsRepo hibernatePositionsRepo = HibernatePositionsRepo.getInstance();
 
             assertNotNull(positionsRepo);
@@ -242,7 +242,7 @@ class BeanFactoryTest {
 
     @Test
     void testGetPositionRepo_InvalidTech(){
-        Runnable test = () -> assertThrows(InvalidPersistenceTechException.class, BeanFactory::getPositionsRepo);
+        Runnable test = () -> assertThrows(InvalidPersistenceTechException.class, () -> BeanFactory.getBean(PositionsRepo.class));
 
         withMockedProperty("persistence.technology","invalid",test);
     }
@@ -250,7 +250,7 @@ class BeanFactoryTest {
     @Test
     void testGetSecuritiesReferenceRepo_JDBC(){
         Runnable test = () -> {
-            SecuritiesReferenceRepo securitiesReferenceRepo = BeanFactory.getSecuritiesReferenceRepo();
+            SecuritiesReferenceRepo securitiesReferenceRepo = BeanFactory.getBean(SecuritiesReferenceRepo.class);
             SecuritiesReferenceRepo jdbcSecuritiesReferenceRepo = JDBCSecuritiesReferenceRepo.getInstance();
 
             assertNotNull(securitiesReferenceRepo);
