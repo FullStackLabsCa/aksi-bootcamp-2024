@@ -7,6 +7,7 @@ import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.repo.SecuritiesReferenceRepo;
 import io.reactivestax.service.interfaces.TradeProcessing;
+import io.reactivestax.utility.database.TransactionUtil;
 import io.reactivestax.utility.exceptions.*;
 import io.reactivestax.utility.messaging.MessageProvider;
 
@@ -54,7 +55,7 @@ public class TradeProcessorService implements TradeProcessing {
 
     @Override
     public String readPayloadFromRawDatabase(String tradeID) {
-        RawPayloadRepo rawPayloadRepo = BeanFactory.getRawPayloadRepo();
+        RawPayloadRepo rawPayloadRepo = BeanFactory.getPersistenceBean(RawPayloadRepo.class);
         return rawPayloadRepo.readPayloadFromRawPayloadsTable(tradeID);
     }
 
@@ -105,18 +106,18 @@ public class TradeProcessorService implements TradeProcessing {
 
     @Override
     public String validateBusinessLogic(Trade trade) {
-        SecuritiesReferenceRepo securitiesReferenceRepo = BeanFactory.getSecuritiesReferenceRepo();
+        SecuritiesReferenceRepo securitiesReferenceRepo = BeanFactory.getPersistenceBean(SecuritiesReferenceRepo.class);
         return securitiesReferenceRepo.checkIfValidCusip(trade);
     }
 
     private void updateTradeSecurityLookupInPayloadTable(Trade trade, String lookupStatus) {
-        RawPayloadRepo rawPayloadRepo = BeanFactory.getRawPayloadRepo();
+        RawPayloadRepo rawPayloadRepo = BeanFactory.getPersistenceBean(RawPayloadRepo.class);
         rawPayloadRepo.updateSecurityLookupStatusInRawPayloadsTable(trade, lookupStatus);
     }
 
     private void updateJournalEntryAndPositions(Trade trade, String lookupStatus){
         if (lookupStatus.equals("Valid")) {
-            BeanFactory.getTransactionUtil().startTransaction();
+            BeanFactory.getPersistenceBean(TransactionUtil.class).startTransaction();
             try {
                 writeToJournalTable(trade);
                 updatePayloadDbForJournalEntry(trade);
@@ -124,13 +125,13 @@ public class TradeProcessorService implements TradeProcessing {
                 writeToPositionsTable(trade);
                 updateJEForPositionsUpdate(trade);
 
-                BeanFactory.getTransactionUtil().commitTransaction();
+                BeanFactory.getPersistenceBean(TransactionUtil.class).commitTransaction();
 
             } catch (WriteToJournalEntryFailed | UpdateJournalEntryStatusInRawPayloadFailed |
                      OptimisticLockingExceptionThrowable | PositionUpdateForJournalEntryFailed |
                      Exception e) {
                 e.printStackTrace();
-                BeanFactory.getTransactionUtil().rollbackTransaction();
+                BeanFactory.getPersistenceBean(TransactionUtil.class).rollbackTransaction();
                 BeanFactory.getMessageRetryer().retryMessage(trade);
             }
 
@@ -140,23 +141,23 @@ public class TradeProcessorService implements TradeProcessing {
 
     @Override
     public void writeToJournalTable(Trade trade) throws WriteToJournalEntryFailed{
-        JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
+        JournalEntryRepo journalEntryRepo = BeanFactory.getPersistenceBean(JournalEntryRepo.class);
         journalEntryRepo.writeTradeToJournalEntryTable(trade);
     }
 
     @Override
     public void writeToPositionsTable(Trade trade) throws OptimisticLockingExceptionThrowable {
-        PositionsRepo positionsRepo = BeanFactory.getPositionsRepo();
+        PositionsRepo positionsRepo = BeanFactory.getPersistenceBean(PositionsRepo.class);
         positionsRepo.updatePositionsTable(trade);
     }
 
     private void updatePayloadDbForJournalEntry(Trade trade) throws UpdateJournalEntryStatusInRawPayloadFailed{
-        RawPayloadRepo rawPayloadRepo = BeanFactory.getRawPayloadRepo();
+        RawPayloadRepo rawPayloadRepo = BeanFactory.getPersistenceBean(RawPayloadRepo.class);
         rawPayloadRepo.updateJournalEntryStatusInRawPayloadsTable(trade);
     }
 
     private void updateJEForPositionsUpdate(Trade trade) throws PositionUpdateForJournalEntryFailed {
-        JournalEntryRepo journalEntryRepo = BeanFactory.getJournalEntryRepo();
+        JournalEntryRepo journalEntryRepo = BeanFactory.getPersistenceBean(JournalEntryRepo.class);
         journalEntryRepo.updateJournalEntryForPositionUpdateStatus(trade);
     }
 
