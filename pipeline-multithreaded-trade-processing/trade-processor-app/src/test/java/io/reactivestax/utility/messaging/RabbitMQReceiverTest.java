@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RabbitMQReceiverTest {
 
@@ -95,16 +96,16 @@ public class RabbitMQReceiverTest {
         }
     }
 
-//    @Test
-//    public void receiveMessageErrorInRabbitMQSetupTest(){
-//            // Mock the Consumer to read from the Queue
-//            try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)){
-//                MessageReceiver<String> messageReceiver;
-//                MessageProvider messageProvider;
-//                mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
-//                messageReceiver = BeanFactory.getMessageReceiver();
-//                messageProvider = BeanFactory.getMessageProvider(0);
-//                assertEquals(Optional.empty(), () -> messageReceiver.receiveMessage(messageProvider));
-//            }
-//    }
+    @Test
+    public void receiveMessageErrorInRabbitMQSetupTest(){
+            // Mock the Consumer to read from the Queue
+            try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)){
+                MessageReceiver<String> messageReceiver;
+                MessageProvider messageProvider;
+                mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
+                messageReceiver = BeanFactory.getMessageReceiver();
+                messageProvider = BeanFactory.getMessageProvider(0);
+                assertTrue(messageReceiver.receiveMessage(messageProvider).isEmpty());
+            }
+    }
 }
