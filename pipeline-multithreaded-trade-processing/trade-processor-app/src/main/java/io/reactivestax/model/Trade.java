@@ -1,7 +1,13 @@
 package io.reactivestax.model;
 
+import lombok.*;
+
 import java.util.Date;
 
+@Builder
+@Setter
+@Getter
+@AllArgsConstructor
 public class Trade {
     private String tradeID;
     private Date transactionTime;
@@ -11,72 +17,10 @@ public class Trade {
     private int quantity;
     private double price;
 
-    public Trade(){}
-
-    public Trade(String tradeID, Date transactionTime, String accountNumber, String cusip, String activity, int quantity, double price) {
-        this.tradeID = tradeID;
-        this.transactionTime = transactionTime;
-        this.accountNumber = accountNumber;
-        this.cusip = cusip;
-        this.activity = activity;
-        this.quantity = quantity;
-        this.price = price;
-    }
-
-    public String getTradeID() {
-        return tradeID;
-    }
-
-    public void setTradeID(String tradeID) {
-        this.tradeID = tradeID;
-    }
+    private Trade(){}
 
     public java.sql.Date getTransactionTime() {
         return (java.sql.Date) transactionTime;
-    }
-
-    public void setTransactionTime(Date transactionTime) {
-        this.transactionTime = transactionTime;
-    }
-
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
-
-    public String getCusip() {
-        return cusip;
-    }
-
-    public void setCusip(String cusip) {
-        this.cusip = cusip;
-    }
-
-    public String getActivity() {
-        return activity;
-    }
-
-    public void setActivity(String activity) {
-        this.activity = activity;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
     }
 
     @Override
