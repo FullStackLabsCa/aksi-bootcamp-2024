@@ -17,7 +17,9 @@ public class Trade {
     private int quantity;
     private double price;
 
-    private Trade(){}
+    private Trade(){
+        // Use Builder for Creating Trade
+    }
 
     public java.sql.Date getTransactionTime() {
         return (java.sql.Date) transactionTime;
