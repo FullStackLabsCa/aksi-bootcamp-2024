@@ -39,18 +39,17 @@ public class BeanFactory {
     private BeanFactory() {
     }
 
+    private static final Map<String, Map<Class<?>, Callable<?>>> mapOfTech = new HashMap<>();
     private static final String RABBIT_MQ_QUEUE_TECH = "rabbitmq";
     private static final String IN_MEMORY_QUEUE_TECH = "in-memory";
-    private static final Map<String, Map<Class<?>, Callable<?>>> mapOfTech = new HashMap<>();
 
     static {
-        initializeTechnologies();
+        initializePersistenceTechnologies();
     }
 
-    private static void initializeTechnologies() {
+    private static void initializePersistenceTechnologies() {
         mapOfTech.put("jdbc", initJDBCTech());
         mapOfTech.put("hibernate", initHibernateTech());
-        mapOfTech.put("rabbitmq", initRabbitMQTech());
     }
 
     private static Map<Class<?>, Callable<?>> initJDBCTech(){
@@ -71,13 +70,6 @@ public class BeanFactory {
         hibernateTech.put(PositionsRepo.class, HibernatePositionsRepo::getInstance);
         hibernateTech.put(SecuritiesReferenceRepo.class, HibernateSecuritiesReferenceRepo::getInstance);
         return hibernateTech;
-    }
-
-    private static Map<Class<?>, Callable<?>> initRabbitMQTech(){
-        Map<Class<?>, Callable<?>> rabbitMQTech = new HashMap<>();
-        rabbitMQTech.put(MessageReceiver.class, RabbitMQReceiver::getInstance);
-        rabbitMQTech.put(MessageRetry.class, RabbitMQRetry::getInstance);
-        return rabbitMQTech;
     }
 
     private static Optional<Object> callSafely(Callable<?> value) {
