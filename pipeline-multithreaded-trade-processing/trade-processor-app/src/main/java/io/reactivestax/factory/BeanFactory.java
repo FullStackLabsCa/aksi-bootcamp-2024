@@ -96,14 +96,6 @@ public class BeanFactory {
                 .orElseThrow(InvalidPersistenceTechException::new);
     }
 
-    public static <T> T getMessagingBean(Class<T> classType){
-        return Optional.ofNullable(mapOfTech.get(getFileProperty("messaging.technology")))
-                .map(techMap -> techMap.get(classType))
-                .flatMap(BeanFactory::callSafely)
-                .map(classType::cast)
-                .orElseThrow(InvalidMessagingTechnologyException::new);
-    }
-
     public static MessageReceiver<String> getMessageReceiver(){
         MessageReceiver<String> messageReceiver;
 
