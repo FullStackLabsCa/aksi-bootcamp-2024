@@ -41,30 +41,43 @@ public class BeanFactory {
 
     private static final String RABBIT_MQ_QUEUE_TECH = "rabbitmq";
     private static final String IN_MEMORY_QUEUE_TECH = "in-memory";
-    private static final Map<String, Callable<Object>> jdbcTech = new HashMap<>();
-    private static final Map<String, Callable<Object>> hibernateTech = new HashMap<>();
-    private static final Map<String, Callable<Object>> rabbitMQTech = new HashMap<>();
     private static final Map<String, Map<String, Callable<Object>>> mapOfTech = new HashMap<>();
 
     static {
+        initializeTechnologies();
+    }
+
+    private static void initializeTechnologies() {
+        mapOfTech.put("jdbc", initJDBCTech());
+        mapOfTech.put("hibernate", initHibernateTech());
+        mapOfTech.put("rabbitmq", initRabbitMQTech());
+    }
+
+    private static Map<String, Callable<Object>> initJDBCTech(){
+        Map<String, Callable<Object>> jdbcTech = new HashMap<>();
         jdbcTech.put("transactionUtil", JDBCUtils::getInstance);
         jdbcTech.put("rawPayloadRepo", JDBCRawPayloadRepo::getInstance);
         jdbcTech.put("journalEntryRepo", JDBCJournalEntryRepo::getInstance);
         jdbcTech.put("positionRepo", JDBCPositionsRepo::getInstance);
         jdbcTech.put("securitiesReferenceRepo", JDBCSecuritiesReferenceRepo::getInstance);
+        return jdbcTech;
+    }
 
+    private static Map<String, Callable<Object>> initHibernateTech(){
+        Map<String, Callable<Object>> hibernateTech = new HashMap<>();
         hibernateTech.put("transactionUtil", HibernateUtils::getInstance);
         hibernateTech.put("rawPayloadRepo", HibernateRawPayloadRepo::getInstance);
         hibernateTech.put("journalEntryRepo", HibernateJournalEntryRepo::getInstance);
         hibernateTech.put("positionRepo", HibernatePositionsRepo::getInstance);
         hibernateTech.put("securitiesReferenceRepo", HibernateSecuritiesReferenceRepo::getInstance);
+        return hibernateTech;
+    }
 
+    private static Map<String, Callable<Object>> initRabbitMQTech(){
+        Map<String, Callable<Object>> rabbitMQTech = new HashMap<>();
         rabbitMQTech.put("messageReceiver", RabbitMQReceiver::getInstance);
         rabbitMQTech.put("messageRetryer", RabbitMQRetry::getInstance);
-
-        mapOfTech.put("jdbc", jdbcTech);
-        mapOfTech.put("hibernate", hibernateTech);
-        mapOfTech.put("rabbitmq", rabbitMQTech);
+        return rabbitMQTech;
     }
 
     private static Optional<Object> callSafely(Callable<Object> value) {
@@ -73,6 +86,14 @@ public class BeanFactory {
         } catch (Exception e){
             return Optional.empty();
         }
+    }
+
+    public static <T> T getBean(String technology, String beanName, Class<T> classType){
+        return Optional.ofNullable(mapOfTech.get(technology))
+                .map(techMap -> techMap.get(beanName))
+                .flatMap(BeanFactory::callSafely)
+                .map(classType::cast)
+                .orElseThrow(InvalidPersistenceTechException::new);
     }
 
     public static TransactionUtil getTransactionUtil(){
