@@ -9,6 +9,7 @@ import io.reactivestax.utility.messaging.MessageSender;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class ChunkProcessorService implements ChunkProcessing {
@@ -48,20 +49,20 @@ public class ChunkProcessorService implements ChunkProcessing {
 
     @Override
     public String checkPayloadValidity(String payload) {
-        String[] fieldsOfTrade = payload.split(",");
-        if (fieldsOfTrade.length != 7) {
-            return invalidString;
-        } else return "Valid";
+        return (payload.split(",").length == 7) ? "Valid" : invalidString;
     }
 
     @Override
     public TradeIdAndAccNum getIdentifierFromPayload(String payload) {
         String[] fieldsOfTrade = payload.split(",");
-        if ((fieldsOfTrade[0] != null) && (fieldsOfTrade[1] != null))
-            return new TradeIdAndAccNum(fieldsOfTrade[0], fieldsOfTrade[2]);
-        else if (fieldsOfTrade[0] == null) return new TradeIdAndAccNum(invalidString, fieldsOfTrade[1]);
-        else if (fieldsOfTrade[1] == null) return new TradeIdAndAccNum(fieldsOfTrade[0], invalidString);
-        else return new TradeIdAndAccNum(invalidString, invalidString);
+
+        String tradeId = Optional.ofNullable(fieldsOfTrade[0])
+                                    .orElse(invalidString);
+
+        String accountNumber = Optional.ofNullable(fieldsOfTrade[1])
+                                        .orElse(invalidString);
+
+        return new TradeIdAndAccNum(tradeId, accountNumber);
     }
 
     @Override
