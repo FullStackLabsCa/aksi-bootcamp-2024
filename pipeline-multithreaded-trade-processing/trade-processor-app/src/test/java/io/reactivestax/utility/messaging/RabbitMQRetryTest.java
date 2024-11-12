@@ -8,8 +8,7 @@ package io.reactivestax.utility.messaging;
  import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
  import org.junit.After;
  import org.junit.Test;
- import org.mockito.MockedStatic;
- import org.mockito.Mockito;
+ import org.mockito.*;
 
  import java.io.ByteArrayOutputStream;
  import java.io.PrintStream;
@@ -63,7 +62,7 @@ public class RabbitMQRetryTest {
 /*
 1. Failed to init RabbitMQ DLX Exchange
 2. Failed to getResponse from ThreadLocal
-3. readMessageRetryCount first time
+3. readMessageRetryCount first time #TODO
 4. readMessageRetryCount next time
 5. retryCount more than maxRetry, add to DLQ
       Test DLQ data
@@ -77,10 +76,14 @@ public class RabbitMQRetryTest {
     public void retryMessageFailedToGetChannelFromRabbitConnectionTest(){
         System.setOut(new PrintStream(outputStreamCaptor));
         try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)){
-            MessageRetry<Trade> messageRetry;
             mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
+
+            MessageRetry<Trade> messageRetry;
             messageRetry = BeanFactory.getMessageRetryer();
-            assertThrows(RabbitMQException.class, () ->  messageRetry.retryMessage(Trade.builder().build()));
+
+            Trade trade = Trade.builder().build();
+            assertThrows(RabbitMQException.class, () ->  messageRetry.retryMessage(trade));
+//            verify(rabbitMQUtils, times(1)).getRabbitMQChannel();
 //            assertTrue(outputStreamCaptor.toString().contains("Unable to provide Channel from the Rabbit MQ Connection..."));
         }
         System.setOut(originalOut);
@@ -100,7 +103,8 @@ public class RabbitMQRetryTest {
             mockedStatic.when(() -> getFileProperty("rabbitMQ.pass")).thenReturn("guest");
 
             MessageRetry<Trade> messageRetry = BeanFactory.getMessageRetryer();
-            assertThrows(RabbitMQException.class, () -> messageRetry.retryMessage(Trade.builder().build()));
+            Trade trade = Trade.builder().build();
+            assertThrows(RabbitMQException.class, () -> messageRetry.retryMessage(trade));
             assertTrue(outputStreamCaptor.toString().contains("Error Initializing RabbitMQ Retry...."));
         }
         System.setOut(originalOut);
