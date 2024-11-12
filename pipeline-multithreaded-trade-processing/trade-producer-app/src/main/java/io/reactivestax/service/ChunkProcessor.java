@@ -3,7 +3,10 @@ package io.reactivestax.service;
 import io.reactivestax.utility.ApplicationPropertyUtil;
 import io.reactivestax.utility.messaging.ChunksStream;
 
+import java.util.Optional;
 import java.util.concurrent.*;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class ChunkProcessor {
 
@@ -12,24 +15,34 @@ public class ChunkProcessor {
 
     public void startChunkProcessorPool() {
 
-        //Giving 1 RabbitMQ and SQL Connection to 1 Java Program
-        while (true) {
-            String chunkPath = ChunksStream.getRecentPostedChunkPath();
-            if (chunkPath == null) break;
-            executorService.submit(new ChunkProcessorRunnable(chunkPath));
-        }
+        Supplier<Optional<String>> getChunkPath = () -> {
+            try {
+                return ChunksStream.getRecentPostedChunkPath();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Restore the interrupted status
+                return Optional.empty();
+            }
+        };
+
+        Stream.generate(getChunkPath)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(String.class::cast)
+                .forEach(path -> executorService.submit(new ChunkProcessorRunnable(path)));
 
         executorService.shutdown();
     }
 
 }
 
-class ChunkProcessorRunnable implements Runnable{
+class ChunkProcessorRunnable implements Runnable {
 
     String chunkPath;
+
     public ChunkProcessorRunnable(String chunkPath) {
         this.chunkPath = chunkPath;
     }
+
     @Override
     public void run() {
         ChunkProcessorService chunkProcessorService = ChunkProcessorService.getInstance();
