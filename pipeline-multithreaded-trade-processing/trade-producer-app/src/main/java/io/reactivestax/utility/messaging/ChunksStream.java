@@ -1,5 +1,6 @@
 package io.reactivestax.utility.messaging;
 
+import java.util.Optional;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -9,18 +10,8 @@ public class ChunksStream {
     private ChunksStream() {
     }
 
-    public static String getRecentPostedChunkPath() {
-        String chunkPath = "";
-
-        try {
-            chunkPath = chunksPaths.poll(60, TimeUnit.SECONDS);
-            if (chunkPath == null ) return null;
-        } catch (InterruptedException e) {
-            System.out.println(e.getMessage());
-            Thread.currentThread().interrupt();
-        }
-
-        return chunkPath;
+    public static Optional<String> getRecentPostedChunkPath() throws InterruptedException {
+        return Optional.ofNullable(chunksPaths.poll(60, TimeUnit.SECONDS));
     }
 
     public static void produceChunkPath(String chunkPath) {
