@@ -7,10 +7,11 @@ import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 import io.reactivestax.utility.exceptions.InvalidChunkPathException;
 import io.reactivestax.utility.messaging.MessageSender;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.Scanner;
+import java.util.stream.Stream;
 
 public class ChunkProcessorService implements ChunkProcessing {
     private static ChunkProcessorService instance;
@@ -26,10 +27,8 @@ public class ChunkProcessorService implements ChunkProcessing {
 
     @Override
     public void processChunk(String filePath) {
-        try (Scanner chunkReader = new Scanner(new FileReader(filePath))) {
-            while (chunkReader.hasNextLine()) {
-                processPayload(chunkReader.nextLine());
-            }
+        try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
+                lines.forEach(this::processPayload);
         } catch (IOException e) {
             throw new InvalidChunkPathException("Unable to find chunk at the provided path");
         }
