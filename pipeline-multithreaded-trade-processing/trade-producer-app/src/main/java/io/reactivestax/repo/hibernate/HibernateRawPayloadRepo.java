@@ -22,12 +22,13 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
         Session session = HibernateUtils.getInstance().getConnection();
         HibernateUtils.getInstance().startTransaction();
         try {
-            RawPayload rawPayload = new RawPayload();
-            rawPayload.setTradeID(tradeID);
-            rawPayload.setStatus(validityStatus);
-            rawPayload.setPayload(payload);
-            rawPayload.setLookupStatus("Non Posted");
-            rawPayload.setPostedStatus("Non Posted");
+            RawPayload rawPayload = RawPayload.builder()
+                    .tradeID(tradeID)
+                    .status(validityStatus)
+                    .payload(payload)
+                    .lookupStatus("Non Posted")
+                    .postedStatus("Non Posted")
+                    .build();
 
             session.persist(rawPayload);
 
