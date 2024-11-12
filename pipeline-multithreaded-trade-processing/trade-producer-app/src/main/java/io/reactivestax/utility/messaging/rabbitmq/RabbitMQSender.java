@@ -5,6 +5,7 @@ import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 import io.reactivestax.utility.messaging.MessageSender;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.reactivestax.utility.ApplicationPropertyUtil.getFileProperty;
@@ -42,22 +43,18 @@ public class RabbitMQSender implements MessageSender<TradeIdAndAccNum> {
         return "cc_partition_" + getQueueMapping(tradeIdentifiers);
     }
 
-    private static int getQueueMapping(TradeIdAndAccNum tradeIdentifiers) {
+    private static Integer getQueueMapping(TradeIdAndAccNum tradeIdentifiers) {
         String criteria = getFileProperty("trade.distribution.criteria");
 
-        String criteriaField;
-        if (criteria.equals("tradeID")) {
-            criteriaField = tradeIdentifiers.tradeID();
-        } else {
-            criteriaField = tradeIdentifiers.accountNumber();
-        }
+        String criteriaField = criteria.equals("tradeID") ? tradeIdentifiers.tradeID() : tradeIdentifiers.accountNumber();
 
-        if (accToQueueMap.containsKey(criteriaField)) {
-            return accToQueueMap.get(criteriaField);
-        } else {
-            int randomQueueNum = (int) (Math.random() * Integer.parseInt(getFileProperty("trade.processor.queue.count")));
-            accToQueueMap.put(criteriaField, randomQueueNum);
-            return randomQueueNum;
-        }
+        return Optional.of(criteriaField)
+                .filter(accToQueueMap::containsKey)
+                .map(accToQueueMap::get)
+                .orElseGet(() -> {
+                    int randomQueueNum = (int) (Math.random() * Integer.parseInt(getFileProperty("trade.processor.queue.count")));
+                    accToQueueMap.put(criteriaField, randomQueueNum);
+                    return randomQueueNum;
+                });
     }
 }
