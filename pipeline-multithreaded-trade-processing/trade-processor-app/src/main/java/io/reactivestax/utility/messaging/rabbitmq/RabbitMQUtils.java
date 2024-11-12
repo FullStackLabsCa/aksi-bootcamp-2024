@@ -24,21 +24,22 @@ public class RabbitMQUtils {
     private RabbitMQUtils() {
     }
 
-    public static synchronized RabbitMQUtils  getInstance(){
-        if(instance == null) instance = new RabbitMQUtils();
+    public static synchronized RabbitMQUtils getInstance() {
+        if (instance == null) instance = new RabbitMQUtils();
         return instance;
     }
 
-    private static void configureRabbitMQ(String host, String guest, String password){
+    private static void configureRabbitMQ(String host, String guest, String password) {
         rabbitMQFactory = new ConnectionFactory();
         rabbitMQFactory.setHost(host); // Or the RabbitMQ server IP/hostname
         rabbitMQFactory.setUsername(guest); // RabbitMQ username
         rabbitMQFactory.setPassword(password); // RabbitMQ password
     }
 
-    private static synchronized void getRabbitMQConnection(){
-        if(rabbitMQFactory == null) configureRabbitMQ(getFileProperty("rabbitMQ.hostName"), getFileProperty("rabbitMQ.guest"), getFileProperty("rabbitMQ.pass"));
-        if(rabbitMQConnection == null) {
+    private static synchronized void getRabbitMQConnection() {
+        if (rabbitMQFactory == null)
+            configureRabbitMQ(getFileProperty("rabbitMQ.hostName"), getFileProperty("rabbitMQ.guest"), getFileProperty("rabbitMQ.pass"));
+        if (rabbitMQConnection == null) {
             try {
                 rabbitMQConnection = rabbitMQFactory.newConnection();
             } catch (IOException | TimeoutException e) {
@@ -51,9 +52,9 @@ public class RabbitMQUtils {
         rabbitMQConnection.close();
     }
 
-    public Channel getRabbitMQChannel(){
+    public Channel getRabbitMQChannel() {
         Channel channel = channelThreadLocal.get();
-        if(channel == null) {
+        if (channel == null) {
             try {
                 if (rabbitMQConnection == null) getRabbitMQConnection();
                 channel = rabbitMQConnection.createChannel();
@@ -67,43 +68,45 @@ public class RabbitMQUtils {
         return channel;
     }
 
-    public void closeRabbitMQChannel(){
+    public void closeRabbitMQChannel() {
         try {
-            getRabbitMQChannel().close();
-            channelThreadLocal.remove();
-            getResponseThreadLocal.remove();
+            if (channelThreadLocal.get() != null) {
+                getRabbitMQChannel().close();
+                channelThreadLocal.remove();
+                getResponseThreadLocal.remove();
+            }
         } catch (IOException | TimeoutException e) {
             System.out.println("RabbitMQ Channel already closed!");
         }
     }
 
-    public GetResponse getThreadResponse(){
+    public GetResponse getThreadResponse() {
         GetResponse response = getResponseThreadLocal.get();
 
-        if(response!=null) return response;
+        if (response != null) return response;
         else throw new NullResponseForThreadException();
     }
 
-    public void setThreadResponse(GetResponse response){
-         getResponseThreadLocal.set(response);
+    public void setThreadResponse(GetResponse response) {
+        getResponseThreadLocal.set(response);
     }
 
-    public void clearThreadResponse(){
+    public void clearThreadResponse() {
         getResponseThreadLocal.remove();
     }
 
-    public RabbitMQMessageProvider getRabbitMQMessageProvider(){
+    public RabbitMQMessageProvider getRabbitMQMessageProvider() {
         RabbitMQMessageProvider rabbitMQMessageProvider = getMessageProviderThreadLocal.get();
 
-        if(rabbitMQMessageProvider!=null) return rabbitMQMessageProvider;
+        if (rabbitMQMessageProvider != null) return rabbitMQMessageProvider;
         else throw new MessageProviderNotSetException();
     }
 
-    public void setRabbitMQMessageProvider(RabbitMQMessageProvider messageProvider){
+    public void setRabbitMQMessageProvider(RabbitMQMessageProvider messageProvider) {
         getMessageProviderThreadLocal.set(messageProvider);
     }
 
-    public void clearRabbitMQMessageProvider(){
+    public void clearRabbitMQMessageProvider() {
         getMessageProviderThreadLocal.remove();
     }
 }
