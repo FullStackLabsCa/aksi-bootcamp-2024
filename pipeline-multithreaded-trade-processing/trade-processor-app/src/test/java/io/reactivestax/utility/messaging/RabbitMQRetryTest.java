@@ -1,6 +1,5 @@
 package io.reactivestax.utility.messaging;
 
- import io.reactivestax.factory.BeanFactory;
  import io.reactivestax.model.Trade;
  import io.reactivestax.utility.ApplicationPropertyUtils;
  import io.reactivestax.utility.exceptions.RabbitMQException;
@@ -14,7 +13,6 @@ package io.reactivestax.utility.messaging;
  import java.io.ByteArrayOutputStream;
  import java.io.IOException;
  import java.io.PrintStream;
- import java.lang.reflect.Method;
  import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -45,7 +43,7 @@ public class RabbitMQRetryTest {
     }
 
     @Test
-    public void getInstanceSingleThreadTest(){
+    public void getInstance_SingleThreadTest(){
         // Get two instances
         RabbitMQRetry instance1 = RabbitMQRetry.getInstance();
         RabbitMQRetry instance2 = RabbitMQRetry.getInstance();
@@ -58,7 +56,7 @@ public class RabbitMQRetryTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    public void getInstance_MultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<RabbitMQRetry> getInstance = RabbitMQRetry::getInstance;
@@ -77,8 +75,8 @@ public class RabbitMQRetryTest {
 /*
 1. Failed to init RabbitMQ DLX Exchange
 2. Failed to getResponse from ThreadLocal
-3. readMessageRetryCount first time #TODO
-4. readMessageRetryCount next time
+3. readMessageRetryCount first time
+4. readMessageRetryCount Nth time
 5. retryCount more than maxRetry, add to DLQ
       Test DLQ data
 6. retryCount less than maxRetry
@@ -88,7 +86,7 @@ public class RabbitMQRetryTest {
 */
 
     @Test
-    public void retryMessageFailedToGetChannelFromRabbitConnectionTest(){
+    public void retryMessage_FailedToGetChannelFromRabbitConnectionTest(){
         System.setOut(new PrintStream(outputStreamCaptor));
         try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class);){
 
@@ -105,7 +103,7 @@ public class RabbitMQRetryTest {
     }
 
     @Test
-    public void retryMessageFailedToInitializeDLXExchangeTest() throws IOException {
+    public void retryMessage_FailedToInitializeDLXExchangeTest() throws IOException {
         RabbitMQUtils.getInstance().closeRabbitMQConnection();
 
         System.setOut(new PrintStream(outputStreamCaptor));
@@ -127,4 +125,27 @@ public class RabbitMQRetryTest {
         System.setOut(originalOut);
     }
 
+    public void retryMessage_GetMessageRetryCountFirstTimeTest(){
+        // TODO document why this method is empty
+    }
+
+    public void retryMessage_GetMessageRetryCountNthTimeTest(){
+        // TODO document why this method is empty
+    }
+
+    public void retryMessage_RetryCountMoreThanMaxRetryTest(){
+        // TODO document why this method is empty
+    }
+
+    public void retryMessage_RetryCountLessThanMaxRetry_PublishToRetryQueueTest(){
+        // TODO document why this method is empty
+    }
+
+    public void retryMessage_RetryCountLessThanMaxRetry_MessageFromRetryQueueToMainQueue_Test(){
+        // TODO document why this method is empty
+    }
+
+    public void retryMessage_RetryCountLessThanMaxRetry_MessageFromRetryQueueToMainQueue_CountIncremented_Test(){
+        // TODO document why this method is empty
+    }
 }
