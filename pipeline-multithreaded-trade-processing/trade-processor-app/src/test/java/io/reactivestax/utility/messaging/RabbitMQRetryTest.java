@@ -33,8 +33,9 @@ public class RabbitMQRetryTest {
     private RabbitMQUtils rabbitMQUtils = RabbitMQUtils.getInstance();
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
+        RabbitMQUtils.getInstance().closeRabbitMQConnection();
     }
 
     @After
@@ -125,26 +126,32 @@ public class RabbitMQRetryTest {
         System.setOut(originalOut);
     }
 
+    @Test
     public void retryMessage_GetMessageRetryCountFirstTimeTest(){
         // TODO document why this method is empty
     }
 
+    @Test
     public void retryMessage_GetMessageRetryCountNthTimeTest(){
         // TODO document why this method is empty
     }
 
+    @Test
     public void retryMessage_RetryCountMoreThanMaxRetryTest(){
         // TODO document why this method is empty
     }
 
+    @Test
     public void retryMessage_RetryCountLessThanMaxRetry_PublishToRetryQueueTest(){
         // TODO document why this method is empty
     }
 
+    @Test
     public void retryMessage_RetryCountLessThanMaxRetry_MessageFromRetryQueueToMainQueue_Test(){
         // TODO document why this method is empty
     }
 
+    @Test
     public void retryMessage_RetryCountLessThanMaxRetry_MessageFromRetryQueueToMainQueue_CountIncremented_Test(){
         // TODO document why this method is empty
     }
