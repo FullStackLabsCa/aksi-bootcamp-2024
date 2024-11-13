@@ -14,6 +14,7 @@ package io.reactivestax.utility.messaging;
  import java.io.ByteArrayOutputStream;
  import java.io.IOException;
  import java.io.PrintStream;
+ import java.lang.reflect.Method;
  import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -118,7 +119,7 @@ public class RabbitMQRetryTest {
             mockedStatic.when(() -> getFileProperty("rabbitMQ.guest")).thenReturn("guest");
             mockedStatic.when(() -> getFileProperty("rabbitMQ.pass")).thenReturn("guest");
 
-            MessageRetry<Trade> messageRetry = BeanFactory.getMessageRetryer();
+            MessageRetry<Trade> messageRetry = rabbitMQRetry;
             Trade trade = Trade.builder().build();
             assertThrows(RabbitMQException.class, () -> messageRetry.retryMessage(trade));
             assertTrue(outputStreamCaptor.toString().contains("Error Initializing RabbitMQ Retry...."));
