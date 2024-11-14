@@ -235,7 +235,6 @@ public class RabbitMQRetryTest {
         mockedStatic.when(() -> getFileProperty("rabbitMQ.dlx.queue.name")).thenReturn("dlx_queue");
         mockedStatic.when(() -> getFileProperty("rabbitMQ.dlx.routingKey")).thenReturn("dlx_routing_key");
         mockedStatic.when(() -> getFileProperty("retry.count")).thenReturn("3");
-//            mockedStatic.when(() -> getFileProperty("")).thenReturn("");
     }
 
     private void purgeRabbitMQQueue() throws IOException, InterruptedException {
@@ -261,7 +260,7 @@ public class RabbitMQRetryTest {
     }
 
     private Optional<String> getMessageFromQueue() {
-        MessageReceiver<String> messageReceiver = BeanFactory.getMessageReceiver();;
+        MessageReceiver<String> messageReceiver = BeanFactory.getMessageReceiver();
         MessageProvider messageProvider = BeanFactory.getMessageProvider(0);
         return messageReceiver.receiveMessage(messageProvider);
     }
