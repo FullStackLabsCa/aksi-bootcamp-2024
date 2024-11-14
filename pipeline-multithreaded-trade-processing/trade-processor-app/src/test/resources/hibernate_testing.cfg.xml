@@ -3,21 +3,13 @@
 <hibernate-configuration>
     <session-factory>
         <!-- JDBC Database connection settings -->
-        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
-        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/hibernate_trade_processor</property>
-        <property name="hibernate.connection.username">root</property>
-        <property name="hibernate.connection.password">password123</property>
-
-        <!-- HikariCP Connection Pool Settings -->
-        <property name="hibernate.hikari.minimumIdle">5</property>
-        <property name="hibernate.hikari.maximumPoolSize">20</property>
-        <property name="hibernate.hikari.idleTimeout">300000</property>
-        <property name="hibernate.hikari.maxLifetime">1800000</property>
-        <property name="hibernate.hikari.connectionTimeout">30000</property>
-        <property name="hibernate.hikari.poolName">HibernateHikariCP</property>
+        <property name="hibernate.connection.driver_class">org.h2.Driver</property>
+        <property name="hibernate.connection.url">jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1</property>
+        <property name="hibernate.connection.username">sa</property>
+        <property name="hibernate.connection.password"></property>
 
         <!-- SQL Dialect -->
-        <!-- <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property> -->
+        <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
 
         <!-- Echo all executed SQL to stdout -->
         <property name="hibernate.show_sql">true</property>
