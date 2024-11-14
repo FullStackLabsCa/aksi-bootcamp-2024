@@ -50,21 +50,23 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
 
             System.out.println(" [*] Waiting for messages in '" + ((RabbitMQMessageProvider) messageProvider).getMainQueueName() + "'.");
 
-            GetResponse response = rabbitMQChannel.basicGet(((RabbitMQMessageProvider) messageProvider).getMainQueueName(), false);  // Fetch one message without auto-acknowledgment
-            if (response != null) {
-                RabbitMQUtils.getInstance().setThreadResponse(response);
+            while(true) {
+                GetResponse response = rabbitMQChannel.basicGet(((RabbitMQMessageProvider) messageProvider).getMainQueueName(), false);  // Fetch one message without auto-acknowledgment
+                if (response != null) {
+                    RabbitMQUtils.getInstance().setThreadResponse(response);
 
-                Optional<String> message = Optional.of(new String(response.getBody(), StandardCharsets.UTF_8));
-                System.out.println(" [x] Received '" + message + "'");
+                    Optional<String> message = Optional.of(new String(response.getBody(), StandardCharsets.UTF_8));
+                    System.out.println(" [x] Received '" + message + "'");
 
-                // Manually acknowledge the message after processing
-                rabbitMQChannel.basicAck(response.getEnvelope().getDeliveryTag(), false);
+                    // Manually acknowledge the message after processing
+                    rabbitMQChannel.basicAck(response.getEnvelope().getDeliveryTag(), false);
 
-                // Return the received message
-                return message;
-            } else {
-                System.out.println(" [x] No messages available in the queue.");
-                return receiveMessage(messageProvider);  // No message was available at the moment
+                    // Return the received message
+                    return message;
+                } else {
+                    System.out.println(" [x] No messages available in the queue.");
+//                    return receiveMessage(messageProvider);  // No message was available at the moment
+                }
             }
         } catch (Exception e) {
             System.out.println("Some issues in RabbitMQ Consumer...readFromRabbitMQ");
