@@ -1,8 +1,17 @@
 package io.reactivestax.utility.database;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,11 +21,23 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class JDBCUtilsTest {
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    private final PrintStream originalOut = System.out;
+
+    @Spy
+    private HikariDataSource dataSource;
+
+    @Spy
+    @InjectMocks
+    private JDBCUtils jdbcUtils;
 
     @Before
     public void cleanUp(){
+        MockitoAnnotations.openMocks(this);
         String sql = "delete from positions";
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -119,6 +140,19 @@ public class JDBCUtilsTest {
 
         assertFalse(autocommitThread1);
         assertFalse(autocommitThread2);
+    }
+
+    @Test
+    public void startTransactionThrowsExceptionTest() {
+        System.setOut(new PrintStream(outputStreamCaptor));
+        doAnswer((Answer<String>) invocation -> {
+            throw new SQLException();
+        }).when(jdbcUtils).getConnection();
+
+        jdbcUtils.startTransaction();
+
+        assertTrue(outputStreamCaptor.toString().contains("Failed to start Transaction...."));
+        System.setOut(originalOut);
     }
 
     @Test
@@ -235,6 +269,19 @@ public class JDBCUtilsTest {
     }
 
     @Test
+    public void commitTransactionThrowsExceptionTest() {
+        System.setOut(new PrintStream(outputStreamCaptor));
+        doAnswer((Answer<String>) invocation -> {
+            throw new SQLException();
+        }).when(jdbcUtils).getConnection();
+
+        jdbcUtils.commitTransaction();
+
+        assertTrue(outputStreamCaptor.toString().contains("Failed to commit Transaction...."));
+        System.setOut(originalOut);
+    }
+
+    @Test
     public void rollbackTransactionSingleThreadAutocommitTest() throws SQLException {
         JDBCUtils.getInstance().startTransaction();
         assertFalse(JDBCUtils.getInstance().getConnection().getAutoCommit());
@@ -294,6 +341,19 @@ public class JDBCUtilsTest {
         }
         assertEquals(sizeBeforeCommitting,sizeAfterCommitting);
 
+    }
+
+    @Test
+    public void rollbackTransactionThrowsExceptionTest() {
+        System.setOut(new PrintStream(outputStreamCaptor));
+        doAnswer((Answer<String>) invocation -> {
+            throw new SQLException();
+        }).when(jdbcUtils).getConnection();
+
+        jdbcUtils.rollbackTransaction();
+
+        assertTrue(outputStreamCaptor.toString().contains("Failed to rollback Transaction...."));
+        System.setOut(originalOut);
     }
 
 }
