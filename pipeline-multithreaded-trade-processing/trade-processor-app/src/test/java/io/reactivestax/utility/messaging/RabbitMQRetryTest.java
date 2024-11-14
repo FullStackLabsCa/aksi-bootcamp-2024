@@ -137,11 +137,10 @@ public class RabbitMQRetryTest {
         try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
 
             // SetUp
+            MessageRetry<Trade> messageRetry = rabbitMQRetry;
             doMocksForSuccessfulSetup(mockedStatic);
             publishMessageInMainExchangeQueue();
             setUpThreadResponseAndMessageProvider();
-
-            MessageRetry<Trade> messageRetry = rabbitMQRetry;
             Trade trade = Trade.builder()
                     .tradeID("akshat-singla-test")
                     .build();
@@ -165,11 +164,10 @@ public class RabbitMQRetryTest {
         try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
 
             // SetUp
+            MessageRetry<Trade> messageRetry = rabbitMQRetry;
             doMocksForSuccessfulSetup(mockedStatic);
             publishMessageInMainExchangeQueue();
             setUpThreadResponseAndMessageProvider();
-
-            MessageRetry<Trade> messageRetry = rabbitMQRetry;
             Trade trade = Trade.builder()
                     .tradeID("akshat-singla-test")
                     .build();
@@ -196,11 +194,10 @@ public class RabbitMQRetryTest {
         try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
 
             // SetUp
+            MessageRetry<Trade> messageRetry = rabbitMQRetry;
             doMocksForSuccessfulSetup(mockedStatic);
             publishMessageInMainExchangeQueue();
             setUpThreadResponseAndMessageProvider();
-
-            MessageRetry<Trade> messageRetry = rabbitMQRetry;
             Trade trade = Trade.builder()
                     .tradeID("akshat-singla-test")
                     .build();
@@ -252,11 +249,10 @@ public class RabbitMQRetryTest {
         RabbitMQUtils.getInstance().getRabbitMQChannel().basicPublish(getFileProperty("rabbitMQ.main.exchange.name"), "cc_partition_0", null, message.getBytes(StandardCharsets.UTF_8));
     }
 
-    private static void setUpThreadResponseAndMessageProvider() throws IOException, InterruptedException {
+    private static void setUpThreadResponseAndMessageProvider() throws IOException {
         MessageProvider messageProvider = BeanFactory.getMessageProvider(0);
         GetResponse response = RabbitMQUtils.getInstance().getRabbitMQChannel().basicGet(((RabbitMQMessageProvider) messageProvider).getMainQueueName(), false);
         RabbitMQUtils.getInstance().setThreadResponse(response);
-        Thread.sleep(1000);
     }
 
     private Optional<String> getMessageFromQueue() {
