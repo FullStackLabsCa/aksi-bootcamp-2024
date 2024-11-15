@@ -1,6 +1,9 @@
 package io.reactivestax.repo.jdbc;
 
-import io.reactivestax.repo.hibernate.HibernatePositionsRepo;
+import io.reactivestax.TestDataProvider;
+import io.reactivestax.model.Trade;
+import io.reactivestax.utility.database.JDBCUtils;
+import io.reactivestax.utility.exceptions.OptimisticLockingExceptionThrowable;
 import org.junit.Test;
 
 import java.util.concurrent.Callable;
@@ -41,5 +44,28 @@ public class JDBCPositionsRepoTest {
 
         // Hashcode Identity will be same (reference to the same object)
         assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
+    }
+
+    @Test
+    public void getVersionIdTradeNeverInsertedTest(){
+        Trade trade = TestDataProvider.goodTradeSupplier.get();
+        int version = JDBCPositionsRepo.getInstance().getVersionIdForPosition(trade, 157001093);
+        assertEquals(-1, version);
+    }
+
+    @Test
+    public void getVersionIdTradeAfterUpdateTest() throws OptimisticLockingExceptionThrowable {
+        // Setup
+        Trade trade = TestDataProvider.goodTradeSupplier.get();
+        int version = JDBCPositionsRepo.getInstance().getVersionIdForPosition(trade, 157001093);
+
+        // Action
+        JDBCUtils.getInstance().startTransaction();
+        JDBCPositionsRepo.getInstance().updatePositionsTable(trade);
+        JDBCUtils.getInstance().commitTransaction();
+        int versionAfterUpdate = JDBCPositionsRepo.getInstance().getVersionIdForPosition(trade, 157001093);
+
+        // Assert
+        assertEquals(version + 1, versionAfterUpdate);
     }
 }
