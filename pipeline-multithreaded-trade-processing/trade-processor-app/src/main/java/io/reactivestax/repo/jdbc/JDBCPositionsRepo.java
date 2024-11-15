@@ -31,11 +31,11 @@ public class JDBCPositionsRepo implements PositionsRepo {
         JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         JDBCPositionsRepo positionsReference = JDBCPositionsRepo.getInstance();
 
-        int securityID = securitiesReference.getSecurityIdForCusip(trade.getCusip());
-        int version = positionsReference.getVersionIdForPosition(trade, securityID);
-
         try (PreparedStatement psPositionInsertQuery = connection.prepareStatement(POSITION_INSERT_QUERY);
              PreparedStatement psPositionUpdateQuery = connection.prepareStatement(POSITION_UPDATE_QUERY)) {
+
+            int securityID = securitiesReference.getSecurityIdForCusip(trade.getCusip());
+            int version = positionsReference.getVersionIdForPosition(trade, securityID);
 
             if (version == -1) {
                 //Perform Insertion Logic
@@ -48,6 +48,7 @@ public class JDBCPositionsRepo implements PositionsRepo {
                     psPositionInsertQuery.setInt(3, -trade.getQuantity());
                 } else {
                     System.out.println("UnrecognisedActivityOperationException");
+                    return;
                 }
 
                 psPositionInsertQuery.executeUpdate();
@@ -60,6 +61,7 @@ public class JDBCPositionsRepo implements PositionsRepo {
                     psPositionUpdateQuery.setInt(1, -trade.getQuantity());
                 } else {
                     System.out.println("UnrecognisedActivityOperationException");
+                    return;
                 }
                 psPositionUpdateQuery.setInt(2, version);
 
@@ -67,7 +69,7 @@ public class JDBCPositionsRepo implements PositionsRepo {
                     throw new OptimisticLockingExceptionThrowable("Optimistic Locking Occurring!!!!!");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Failed to Update Position");
         }
     }
 
