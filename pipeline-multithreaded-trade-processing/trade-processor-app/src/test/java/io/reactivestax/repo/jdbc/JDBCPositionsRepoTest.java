@@ -6,8 +6,13 @@ import io.reactivestax.entity.PositionCompositeKey;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.OptimisticLockingExceptionThrowable;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockitoAnnotations;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -18,9 +23,32 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class JDBCPositionsRepoTest {
 
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    private final PrintStream originalOut = System.out;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @After
+    public void cleanUp(){
+            String sql = "delete from positions";
+        try (PreparedStatement preparedStatement =JDBCUtils.getInstance().getConnection().prepareStatement(sql)) {
+            JDBCUtils.getInstance().startTransaction();
+
+                int rowsAffected = preparedStatement.executeUpdate();
+                System.out.println("Deleted " + rowsAffected + " rows from Position table.");
+
+            JDBCUtils.getInstance().commitTransaction();
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+    }
 
     @Test
     public void getInstanceSingleThreadTest() {
@@ -77,7 +105,7 @@ public class JDBCPositionsRepoTest {
 
     private long getSizeOfTable() {
         long count = 0;
-        String sql = "SELECT COUNT(*) FROM Position";
+        String sql = "SELECT COUNT(*) FROM positions";
         try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
             if (resultSet.next()) {
@@ -91,7 +119,7 @@ public class JDBCPositionsRepoTest {
 
     private List<Position> getEntriesInTable() {
         List<Position> positions = new ArrayList<>();
-        String sql = "SELECT * FROM Position"; // Assuming 'Position' corresponds to the table name
+        String sql = "SELECT * FROM positions"; // Assuming 'Position' corresponds to the table name
 
         try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -110,5 +138,75 @@ public class JDBCPositionsRepoTest {
         }
 
         return positions;
+    }
+
+    @Test
+    public void positionUpdate_newPosition_buy_test() throws OptimisticLockingExceptionThrowable {
+
+        long sizeOfTableBeforeUpdate = getSizeOfTable();
+        Trade trade = TestDataProvider.goodBuyTradeSupplier.get();
+
+        // Action
+        JDBCUtils.getInstance().startTransaction();
+        JDBCPositionsRepo.getInstance().updatePositionsTable(trade);
+        JDBCUtils.getInstance().commitTransaction();
+
+        long sizeOfTableAfterUpdate = getSizeOfTable();
+        List<Position> dataInTableAfterUpdate = getEntriesInTable();
+
+        Position position = Position.builder()
+                .positionID(new PositionCompositeKey(trade.getAccountNumber(), 157001093))
+                .version(0)
+                .positionAmount(trade.getQuantity())
+                .build();
+
+        // Assert
+        assertEquals(sizeOfTableBeforeUpdate + 1, sizeOfTableAfterUpdate);
+        assertEquals(position, dataInTableAfterUpdate.get(0));
+    }
+
+    @Test
+    public void positionUpdate_newPosition_sell_test() throws OptimisticLockingExceptionThrowable {
+        long sizeOfTableBeforeUpdate = getSizeOfTable();
+        Trade trade = TestDataProvider.goodSellTradeSupplier.get();
+
+        // Action
+        JDBCUtils.getInstance().startTransaction();
+        JDBCPositionsRepo.getInstance().updatePositionsTable(trade);
+        JDBCUtils.getInstance().commitTransaction();
+
+        long sizeOfTableAfterUpdate = getSizeOfTable();
+        List<Position> dataInTableAfterUpdate = getEntriesInTable();
+
+        Position position = Position.builder()
+                .positionID(new PositionCompositeKey(trade.getAccountNumber(), 157001093))
+                .version(0)
+                .positionAmount(trade.getQuantity() * -1)
+                .build();
+
+        // Assert
+        assertEquals(sizeOfTableBeforeUpdate + 1, sizeOfTableAfterUpdate);
+        assertEquals(position, dataInTableAfterUpdate.get(0));
+    }
+
+    @Test
+    public void positionUpdate_newPosition_invalidActivity_test() throws OptimisticLockingExceptionThrowable {
+        System.setOut(new PrintStream(outputStreamCaptor));
+
+        Trade trade = TestDataProvider.invalidActivityTradeSupplier.get();
+        long sizeOfTableBeforeUpdate = getSizeOfTable();
+
+        // Action
+        JDBCUtils.getInstance().startTransaction();
+        JDBCPositionsRepo.getInstance().updatePositionsTable(trade);
+        JDBCUtils.getInstance().commitTransaction();
+
+        long sizeOfTableAfterUpdate = getSizeOfTable();
+
+        // Assert
+        assertEquals(sizeOfTableBeforeUpdate, sizeOfTableAfterUpdate);
+        assertTrue(outputStreamCaptor.toString().contains("UnrecognisedActivityOperationException"));
+
+        System.setOut(originalOut);
     }
 }
