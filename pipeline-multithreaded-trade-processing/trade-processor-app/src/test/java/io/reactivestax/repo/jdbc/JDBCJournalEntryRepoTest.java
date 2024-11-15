@@ -4,15 +4,13 @@ import io.reactivestax.TestDataProvider;
 import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.JDBCUtils;
+import io.reactivestax.utility.exceptions.PositionUpdateForJournalEntryFailed;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -26,13 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 public class JDBCJournalEntryRepoTest {
-
-    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
-    private final PrintStream originalOut = System.out;
-
-    @Mock
-    private Trade tradeMocked;
-
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -184,5 +175,38 @@ public class JDBCJournalEntryRepoTest {
     @Test
     public void writeTradeToJournalEntryFailedTest() {
         assertThrows(WriteToJournalEntryFailed.class, () -> JDBCJournalEntryRepo.getInstance().writeTradeToJournalEntryTable(null));
+    }
+
+    @Test
+    public void updateJournalEntryForPositionUpdateStatusSuccessfulTest() throws WriteToJournalEntryFailed, PositionUpdateForJournalEntryFailed {
+        // create trade
+        Trade trade = TestDataProvider.goodTradeSupplier.get();
+
+        // Insert Data into the database
+        JDBCUtils.getInstance().startTransaction();
+        JDBCJournalEntryRepo.getInstance().writeTradeToJournalEntryTable(trade);
+        JDBCUtils.getInstance().commitTransaction();
+
+        // Check the posted Status - it should be non-posted
+        List<JournalEntry> entriesInJournalEntryTable = getEntriesInTable();
+
+        JournalEntry journalEntryFromDB = entriesInJournalEntryTable.get(0);
+        assertEquals("Non Posted", journalEntryFromDB.getPositionPostedStatus());
+
+        // call updateJournalEntryForPositionUpdate
+        JDBCUtils.getInstance().startTransaction();
+        JDBCJournalEntryRepo.getInstance().updateJournalEntryForPositionUpdateStatus(trade);
+        JDBCUtils.getInstance().commitTransaction();
+
+        // the posted status now will be posted
+        List<JournalEntry> entriesInJournalEntryTableAfterUpdate = getEntriesInTable();
+
+        JournalEntry journalEntryFromDBAfterUpdate = entriesInJournalEntryTableAfterUpdate.get(0);
+        assertEquals("Posted", journalEntryFromDBAfterUpdate.getPositionPostedStatus());
+    }
+
+    @Test
+    public void updateJournalEntryForPositionUpdateStatusFailedTest() {
+        assertThrows(PositionUpdateForJournalEntryFailed.class, () -> JDBCJournalEntryRepo.getInstance().updateJournalEntryForPositionUpdateStatus(null));
     }
 }
