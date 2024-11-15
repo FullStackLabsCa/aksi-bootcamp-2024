@@ -1,11 +1,17 @@
 package io.reactivestax.repo.jdbc;
 
 import io.reactivestax.TestDataProvider;
+import io.reactivestax.entity.Position;
+import io.reactivestax.entity.PositionCompositeKey;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.OptimisticLockingExceptionThrowable;
 import org.junit.Test;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -47,7 +53,7 @@ public class JDBCPositionsRepoTest {
     }
 
     @Test
-    public void getVersionIdTradeNeverInsertedTest(){
+    public void getVersionIdTradeNeverInsertedTest() {
         Trade trade = TestDataProvider.goodTradeSupplier.get();
         int version = JDBCPositionsRepo.getInstance().getVersionIdForPosition(trade, 157001093);
         assertEquals(-1, version);
@@ -67,5 +73,42 @@ public class JDBCPositionsRepoTest {
 
         // Assert
         assertEquals(version + 1, versionAfterUpdate);
+    }
+
+    private long getSizeOfTable() {
+        long count = 0;
+        String sql = "SELECT COUNT(*) FROM Position";
+        try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            if (resultSet.next()) {
+                count = resultSet.getLong(1);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return count;
+    }
+
+    private List<Position> getEntriesInTable() {
+        List<Position> positions = new ArrayList<>();
+        String sql = "SELECT * FROM Position"; // Assuming 'Position' corresponds to the table name
+
+        try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                Position position = Position.builder()
+                        .positionID(new PositionCompositeKey(resultSet.getString("account_number"), resultSet.getInt("security_id")))
+                        .positionAmount(resultSet.getInt("position"))
+                        .version(resultSet.getInt("version"))
+                        .build();
+                positions.add(position);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        return positions;
     }
 }
