@@ -50,11 +50,11 @@ public class JournalEntry {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JournalEntry that = (JournalEntry) o;
-        return securityID == that.securityID && quantity == that.quantity && Objects.equals(accountNumber, that.accountNumber) && Objects.equals(activity, that.activity) && Objects.equals(tradeExecutionTime, that.tradeExecutionTime) && Objects.equals(positionPostedStatus, that.positionPostedStatus) && Objects.equals(tradeID, that.tradeID);
+        return securityID == that.securityID && quantity == that.quantity && Objects.equals(accountNumber, that.accountNumber) && Objects.equals(activity, that.activity) && Objects.equals(tradeExecutionTime.toString(), that.tradeExecutionTime.toString()) && Objects.equals(positionPostedStatus, that.positionPostedStatus) && Objects.equals(tradeID, that.tradeID);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountNumber, securityID, activity, quantity, tradeExecutionTime, positionPostedStatus, tradeID);
+        return Objects.hash(accountNumber, securityID, activity, quantity, tradeExecutionTime.toString(), positionPostedStatus, tradeID);
     }
 }
