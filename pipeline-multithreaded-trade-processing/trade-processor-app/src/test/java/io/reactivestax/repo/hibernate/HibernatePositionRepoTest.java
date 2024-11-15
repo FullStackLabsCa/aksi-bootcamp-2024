@@ -10,6 +10,7 @@ import org.hibernate.query.Query;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.ByteArrayOutputStream;
@@ -22,11 +23,15 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doAnswer;
 
 public class HibernatePositionRepoTest {
 
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
+
+    @Mock
+    private Trade tradeMocked;
 
     @Before
     public void setUp() {
@@ -276,8 +281,20 @@ public class HibernatePositionRepoTest {
     }
 
     @Test
-    public void positionUpdate_updateFailed_test(){
+    public void positionUpdate_updateFailed_test() throws OptimisticLockingExceptionThrowable {
+        System.setOut(new PrintStream(outputStreamCaptor));
 
+        doAnswer(invocationOnMock -> {
+            throw new Exception();
+        }).when(tradeMocked).getCusip();
+
+        HibernateUtils.getInstance().startTransaction();
+        HibernatePositionsRepo.getInstance().updatePositionsTable(tradeMocked);
+        HibernateUtils.getInstance().commitTransaction();
+
+        assertTrue(outputStreamCaptor.toString().contains("Failed to Update Position"));
+
+        System.setOut(originalOut);
     }
 
 
