@@ -47,7 +47,10 @@ public class HibernatePositionsRepo implements PositionsRepo {
                     position.setPositionAmount(trade.getQuantity());
                 } else if (trade.getActivity().equals("SELL")) {
                     position.setPositionAmount(trade.getQuantity());
-                } else System.out.println("UnrecognisedActivityOperationException");
+                } else {
+                    System.out.println("UnrecognisedActivityOperationException");
+                    return;
+                }
 
                 session.persist(position);
 
@@ -60,7 +63,10 @@ public class HibernatePositionsRepo implements PositionsRepo {
                     updatePositionQuery.setParameter("positionIncrement", trade.getQuantity());
                 } else if (trade.getActivity().equals("SELL")) {
                     updatePositionQuery.setParameter("positionIncrement", -trade.getQuantity());
-                } else System.out.println("UnrecognisedActivityOperationException...");
+                } else {
+                    System.out.println("UnrecognisedActivityOperationException...");
+                    return;
+                }
 
                 updatePositionQuery.setParameter("currentVersion", version);
 
