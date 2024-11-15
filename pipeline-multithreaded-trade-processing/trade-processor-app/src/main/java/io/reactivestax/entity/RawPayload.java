@@ -6,7 +6,7 @@ import lombok.*;
 
 @Entity
 @Table (name="trades_payload", indexes = {
-        @Index(name = "idx_trade_id", columnList = "trade_id")
+        @Index(name = "idx_trade_id_raw_payload", columnList = "trade_id")
 })
 @Data
 public class RawPayload {
