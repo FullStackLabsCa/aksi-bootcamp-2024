@@ -1,6 +1,9 @@
 package io.reactivestax.repo.hibernate;
 
+import io.reactivestax.TestDataProvider;
+import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.HibernateUtils;
+import io.reactivestax.utility.exceptions.OptimisticLockingExceptionThrowable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,10 +68,25 @@ public class HibernatePositionRepoTest {
         assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
     }
 
-    /*
-    GetVersionIDForPosition Test
-    -   Data inserted for the First Time
-    -   Valid Trade and Valid Position ID
-     */
+    @Test
+    public void getVersionIdTradeNeverInsertedTest(){
+        Trade trade = TestDataProvider.goodTradeSupplier.get();
+        int version = HibernatePositionsRepo.getInstance().getVersionIdForPosition(trade, 157001093);
+        assertEquals(-1, version);
+    }
+
+    @Test
+    public void getVersionIdTradeAfterUpdateTest() throws OptimisticLockingExceptionThrowable {
+        // Setup
+        Trade trade = TestDataProvider.goodTradeSupplier.get();
+        int version = HibernatePositionsRepo.getInstance().getVersionIdForPosition(trade, 157001093);
+
+        // Action
+        HibernatePositionsRepo.getInstance().updatePositionsTable(trade);
+        int versionAfterUpdate = HibernatePositionsRepo.getInstance().getVersionIdForPosition(trade, 157001093);
+
+        // Assert
+        assertEquals(version + 1, versionAfterUpdate);
+    }
 
 }
