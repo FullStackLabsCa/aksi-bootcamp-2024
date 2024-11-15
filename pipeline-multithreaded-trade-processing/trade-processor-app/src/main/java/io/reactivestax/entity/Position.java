@@ -1,6 +1,8 @@
 package io.reactivestax.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +12,8 @@ import lombok.NoArgsConstructor;
         @Index(name = "idx_composite_key", columnList = "account_number, security_id")
 })
 @Data
+@Builder
+@AllArgsConstructor
 public class Position {
 
     @EmbeddedId
