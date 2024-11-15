@@ -5,7 +5,7 @@ import io.reactivestax.model.Trade;
 import java.util.Date;
 import java.util.function.Supplier;
 
-public class TestDataProvider {
+public interface TestDataProvider {
 
     Supplier<Trade> goodTradeSupplier = () -> Trade.builder()
             .tradeID("TD123")
