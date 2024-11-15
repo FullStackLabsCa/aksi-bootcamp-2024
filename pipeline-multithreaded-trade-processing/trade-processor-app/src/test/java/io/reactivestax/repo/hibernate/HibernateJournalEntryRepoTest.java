@@ -1,5 +1,6 @@
 package io.reactivestax.repo.hibernate;
 
+import io.reactivestax.TestDataProvider;
 import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.HibernateUtils;
@@ -85,15 +86,7 @@ public class HibernateJournalEntryRepoTest {
         assertEquals(0, countBeforeInsertion);
 
         // Create Trade
-        Trade trade = Trade.builder()
-                .tradeID("TD123")
-                .accountNumber("123")
-                .activity("BUY")
-                .price(0.0)
-                .transactionTime(new java.sql.Date(2024))
-                .cusip("TSLA")
-                .quantity(10)
-                .build();
+        Trade trade = TestDataProvider.goodTradeSupplier.get();
 
         // Write Trade to Journal Entry Table
         HibernateJournalEntryRepo.getInstance().writeTradeToJournalEntryTable(trade);
@@ -120,15 +113,7 @@ public class HibernateJournalEntryRepoTest {
         assertEquals(0, entriesBeforeInsertion.size());
 
         // Create Trade
-        Trade trade = Trade.builder()
-                .tradeID("TD123")
-                .accountNumber("123")
-                .activity("BUY")
-                .price(0.0)
-                .transactionTime(new java.sql.Date(2024))
-                .cusip("TSLA")
-                .quantity(10)
-                .build();
+        Trade trade = TestDataProvider.goodTradeSupplier.get();
 
         // Write Trade to Journal Entry Table
         HibernateJournalEntryRepo.getInstance().writeTradeToJournalEntryTable(trade);
@@ -158,12 +143,31 @@ public class HibernateJournalEntryRepoTest {
     }
 
     @Test
-    public void updateJournalEntryForPositionUpdateStatusSuccessfulTest() {
+    public void updateJournalEntryForPositionUpdateStatusSuccessfulTest() throws WriteToJournalEntryFailed, PositionUpdateForJournalEntryFailed {
         // create trade
+        Trade trade = TestDataProvider.goodTradeSupplier.get();
+
         // Insert Data into the database
+        HibernateUtils.getInstance().startTransaction();
+        HibernateJournalEntryRepo.getInstance().writeTradeToJournalEntryTable(trade);
+
         // Check the posted Status - it should be non-posted
+        String hql = "SELECT e FROM JournalEntry e";
+        Query<JournalEntry> query = HibernateUtils.getInstance().getConnection().createQuery(hql, JournalEntry.class);
+        List<JournalEntry> entriesInJournalEntryTable = query.getResultList();
+
+        JournalEntry journalEntryFromDB = entriesInJournalEntryTable.get(0);
+        assertEquals("Non Posted", journalEntryFromDB.getPositionPostedStatus());
+
         // call updateJournalEntryForPositionUpdate
+        HibernateJournalEntryRepo.getInstance().updateJournalEntryForPositionUpdateStatus(trade);
+
         // the posted status now will be posted
+        Query<JournalEntry> queryAfterUpdate = HibernateUtils.getInstance().getConnection().createQuery(hql, JournalEntry.class);
+        List<JournalEntry> entriesInJournalEntryTableAfterUpdate = queryAfterUpdate.getResultList();
+
+        JournalEntry journalEntryFromDBAfterUpdate = entriesInJournalEntryTableAfterUpdate.get(0);
+        assertEquals("Posted", journalEntryFromDBAfterUpdate.getPositionPostedStatus());
     }
 
     @Test
