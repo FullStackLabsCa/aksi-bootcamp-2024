@@ -46,7 +46,7 @@ public class HibernatePositionsRepo implements PositionsRepo {
                 if (trade.getActivity().equals("BUY")) {
                     position.setPositionAmount(trade.getQuantity());
                 } else if (trade.getActivity().equals("SELL")) {
-                    position.setPositionAmount(trade.getQuantity());
+                    position.setPositionAmount(-trade.getQuantity());
                 } else {
                     System.out.println("UnrecognisedActivityOperationException");
                     return;

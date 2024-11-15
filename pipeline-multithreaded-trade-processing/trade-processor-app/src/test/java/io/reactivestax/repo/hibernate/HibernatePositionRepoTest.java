@@ -159,7 +159,7 @@ public class HibernatePositionRepoTest {
         Position position = Position.builder()
                 .positionID(new PositionCompositeKey(trade.getAccountNumber(), 157001093))
                 .version(0)
-                .positionAmount(trade.getQuantity())
+                .positionAmount(-trade.getQuantity())
                 .build();
 
         // Assert
