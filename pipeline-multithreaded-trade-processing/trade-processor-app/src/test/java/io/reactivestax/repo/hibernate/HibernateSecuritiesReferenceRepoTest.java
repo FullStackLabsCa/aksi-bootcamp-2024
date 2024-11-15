@@ -1,5 +1,6 @@
 package io.reactivestax.repo.hibernate;
 
+import io.reactivestax.model.Trade;
 import org.junit.Test;
 
 import java.util.concurrent.Callable;
@@ -39,5 +40,17 @@ public class HibernateSecuritiesReferenceRepoTest {
 
         // Hashcode Identity will be same (reference to the same object)
         assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
+    }
+
+    @Test
+    public void getSecurityIdTest(){
+        int securityId = HibernateSecuritiesReferenceRepo.getInstance().getSecurityIdForCusip("Akshat");
+        assertEquals(0, securityId);
+    }
+
+    @Test
+    public void checkValidCusip(){
+        String validityStatus = HibernateSecuritiesReferenceRepo.getInstance().checkIfValidCusip(Trade.builder().build());
+        assertEquals("", validityStatus);
     }
 }
