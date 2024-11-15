@@ -109,6 +109,23 @@ public class JDBCPositionsRepoTest {
         assertEquals(version + 1, versionAfterUpdate);
     }
 
+    @Test
+    public void getVersionIdFailedTest() throws OptimisticLockingExceptionThrowable {
+        System.setOut(new PrintStream(outputStreamCaptor));
+
+        doAnswer(invocationOnMock -> {
+            throw new SQLException();
+        }).when(tradeMocked).getAccountNumber();
+
+        JDBCUtils.getInstance().startTransaction();
+        JDBCPositionsRepo.getInstance().getVersionIdForPosition(tradeMocked, 0);
+        JDBCUtils.getInstance().commitTransaction();
+
+        assertTrue(outputStreamCaptor.toString().contains("Failed to Get Version ID for Position."));
+
+        System.setOut(originalOut);
+    }
+
     private long getSizeOfTable() {
         long count = 0;
         String sql = "SELECT COUNT(*) FROM positions";
