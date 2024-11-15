@@ -22,8 +22,8 @@
 
         <!-- Entity Classes option-1 -->
         <mapping class="io.reactivestax.entity.JournalEntry" />
-<!--        <mapping class="io.reactivestax.entity.RawPayload" />-->
-<!--        <mapping class="io.reactivestax.entity.Position" />-->
+        <mapping class="io.reactivestax.entity.RawPayload" />
+        <mapping class="io.reactivestax.entity.Position" />
 
     </session-factory>
 </hibernate-configuration>
