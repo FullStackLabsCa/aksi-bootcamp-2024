@@ -3,6 +3,7 @@ package io.reactivestax.repo.jdbc;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.utility.database.JDBCUtils;
+import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +29,7 @@ public class JDBCJournalEntryRepo implements JournalEntryRepo {
     }
 
     @Override
-    public void writeTradeToJournalEntryTable(Trade trade) {
+    public void writeTradeToJournalEntryTable(Trade trade) throws WriteToJournalEntryFailed {
         Connection connection = JDBCUtils.getInstance().getConnection();
         JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         try (PreparedStatement insertionQuery = connection.prepareStatement(WRITE_TO_JOURNAL_ENTRY_QUERY)) {
@@ -42,8 +43,8 @@ public class JDBCJournalEntryRepo implements JournalEntryRepo {
 
             insertionQuery.executeUpdate();
 
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            throw new WriteToJournalEntryFailed();
         }
     }
 

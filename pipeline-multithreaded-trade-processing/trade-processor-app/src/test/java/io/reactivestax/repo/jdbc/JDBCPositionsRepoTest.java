@@ -142,7 +142,7 @@ public class JDBCPositionsRepoTest {
 
     private List<Position> getEntriesInTable() {
         List<Position> positions = new ArrayList<>();
-        String sql = "SELECT * FROM positions"; // Assuming 'Position' corresponds to the table name
+        String sql = "SELECT * FROM positions";
 
         try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
