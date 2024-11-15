@@ -4,6 +4,7 @@ import io.reactivestax.TestDataProvider;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.exceptions.OptimisticLockingExceptionThrowable;
+import org.hibernate.query.Query;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,11 +83,39 @@ public class HibernatePositionRepoTest {
         int version = HibernatePositionsRepo.getInstance().getVersionIdForPosition(trade, 157001093);
 
         // Action
+        HibernateUtils.getInstance().startTransaction();
         HibernatePositionsRepo.getInstance().updatePositionsTable(trade);
+        HibernateUtils.getInstance().commitTransaction();
         int versionAfterUpdate = HibernatePositionsRepo.getInstance().getVersionIdForPosition(trade, 157001093);
 
         // Assert
         assertEquals(version + 1, versionAfterUpdate);
     }
 
+    /*
+    Update Position Table Test
+    --  If Version Id == -1 -> Position Does not exist
+        -- Insert the Position Into the position Table
+            -- Check the Position Table Size Before and After
+            -- After = before + 1
+            -- Check data as well
+        -- Test for Buy and Sell # TODO 1, 2
+        -- Test for InvalidActivity # TODO 3
+    -- If Version ID == 0 -> Position Exist
+        -- Update the Position
+            -- The Size before and After will be same
+            -- Position Amount needs to be verified before and after
+        -- Verify position Update for Buy and Sell # TODO 4, 5
+        -- Test for Invalid Activity as well # TODO 6
+        -- Hit OptimisticExceptionThrowable # TODO 8
+    -- Some Exception Occurs during the Update
+        -- Exception Occurrence when Update  # TODO 7
+     */
+
+    private void checkSizeOfTable(){
+        String hql = "SELECT COUNT(e) FROM Position e";
+        Query<Long> query = HibernateUtils.getInstance().getConnection().createQuery(hql, Long.class);
+        long tableSize = query.uniqueResult();
+        System.out.println("tableSize = " + tableSize);
+    }
 }
