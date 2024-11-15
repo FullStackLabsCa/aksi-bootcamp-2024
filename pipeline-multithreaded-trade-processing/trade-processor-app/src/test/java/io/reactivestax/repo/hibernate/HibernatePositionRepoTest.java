@@ -108,8 +108,8 @@ public class HibernatePositionRepoTest {
             -- Check the Position Table Size Before and After
             -- After = before + 1
             -- Check data as well
-        -- Test for Buy and Sell # TODO 1, 2
-        -- Test for InvalidActivity # TODO 3
+        -- Test for Buy and Sell
+        -- Test for InvalidActivity
     -- If Version ID == 0 -> Position Exist
         -- Update the Position
             -- The Size before and After will be same
@@ -201,7 +201,6 @@ public class HibernatePositionRepoTest {
         assertTrue(outputStreamCaptor.toString().contains("UnrecognisedActivityOperationException"));
 
         System.setOut(originalOut);
-
     }
 
     @Test
