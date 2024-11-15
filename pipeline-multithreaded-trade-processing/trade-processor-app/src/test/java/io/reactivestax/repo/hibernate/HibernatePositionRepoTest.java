@@ -1,6 +1,8 @@
 package io.reactivestax.repo.hibernate;
 
 import io.reactivestax.TestDataProvider;
+import io.reactivestax.entity.Position;
+import io.reactivestax.entity.PositionCompositeKey;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.exceptions.OptimisticLockingExceptionThrowable;
@@ -10,14 +12,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class HibernatePositionRepoTest {
+
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    private final PrintStream originalOut = System.out;
 
     @Before
     public void setUp() {
@@ -112,10 +121,103 @@ public class HibernatePositionRepoTest {
         -- Exception Occurrence when Update  # TODO 7
      */
 
-    private void checkSizeOfTable(){
+    private long getSizeOfTable(){
         String hql = "SELECT COUNT(e) FROM Position e";
         Query<Long> query = HibernateUtils.getInstance().getConnection().createQuery(hql, Long.class);
-        long tableSize = query.uniqueResult();
-        System.out.println("tableSize = " + tableSize);
+        return query.uniqueResult();
     }
+
+    private List<Position> getEntriesInTable(){
+        String hql = "SELECT e FROM Position e";
+        Query<Position> query = HibernateUtils.getInstance().getConnection().createQuery(hql, Position.class);
+        return query.getResultList();
+    }
+
+    @Test
+    public void positionUpdate_newPosition_buy_test() throws OptimisticLockingExceptionThrowable {
+
+        long sizeOfTableBeforeUpdate = getSizeOfTable();
+        Trade trade = TestDataProvider.goodBuyTradeSupplier.get();
+
+        // Action
+        HibernateUtils.getInstance().startTransaction();
+        HibernatePositionsRepo.getInstance().updatePositionsTable(trade);
+        HibernateUtils.getInstance().commitTransaction();
+
+        long sizeOfTableAfterUpdate = getSizeOfTable();
+        List<Position> dataInTableAfterUpdate = getEntriesInTable();
+
+        Position position = Position.builder()
+                .positionID(new PositionCompositeKey(trade.getAccountNumber(), 157001093))
+                .version(0)
+                .positionAmount(trade.getQuantity())
+                .build();
+
+        // Assert
+        assertEquals(sizeOfTableBeforeUpdate + 1, sizeOfTableAfterUpdate);
+        assertEquals(position, dataInTableAfterUpdate.get(0));
+    }
+
+    @Test
+    public void positionUpdate_newPosition_sell_test() throws OptimisticLockingExceptionThrowable {
+        long sizeOfTableBeforeUpdate = getSizeOfTable();
+        Trade trade = TestDataProvider.goodSellTradeSupplier.get();
+
+        // Action
+        HibernateUtils.getInstance().startTransaction();
+        HibernatePositionsRepo.getInstance().updatePositionsTable(trade);
+        HibernateUtils.getInstance().commitTransaction();
+
+        long sizeOfTableAfterUpdate = getSizeOfTable();
+        List<Position> dataInTableAfterUpdate = getEntriesInTable();
+
+        Position position = Position.builder()
+                .positionID(new PositionCompositeKey(trade.getAccountNumber(), 157001093))
+                .version(0)
+                .positionAmount(trade.getQuantity())
+                .build();
+
+        // Assert
+        assertEquals(sizeOfTableBeforeUpdate + 1, sizeOfTableAfterUpdate);
+        assertEquals(position, dataInTableAfterUpdate.get(0));
+    }
+
+    @Test
+    public void positionUpdate_newPosition_invalidActivity_test() throws OptimisticLockingExceptionThrowable {
+        System.setOut(new PrintStream(outputStreamCaptor));
+
+        Trade trade = TestDataProvider.invalidActivityTradeSupplier.get();
+        long sizeOfTableBeforeUpdate = getSizeOfTable();
+
+        // Action
+        HibernateUtils.getInstance().startTransaction();
+        HibernatePositionsRepo.getInstance().updatePositionsTable(trade);
+        HibernateUtils.getInstance().commitTransaction();
+
+        long sizeOfTableAfterUpdate = getSizeOfTable();
+
+        // Assert
+        assertEquals(sizeOfTableBeforeUpdate, sizeOfTableAfterUpdate);
+        assertTrue(outputStreamCaptor.toString().contains("UnrecognisedActivityOperationException"));
+
+        System.setOut(originalOut);
+
+    }
+
+    @Test
+    public void positionUpdate_updatePosition_buy_test(){
+
+    }
+
+    @Test
+    public void positionUpdate_updatePosition_sell_test(){
+
+    }
+
+    @Test
+    public void positionUpdate_updatePosition_invalidActivity_test(){
+
+    }
+
+
 }
