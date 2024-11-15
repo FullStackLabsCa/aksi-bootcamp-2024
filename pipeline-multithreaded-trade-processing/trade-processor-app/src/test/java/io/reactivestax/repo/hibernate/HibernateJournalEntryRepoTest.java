@@ -6,7 +6,6 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.exceptions.PositionUpdateForJournalEntryFailed;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
-import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.junit.After;
 import org.junit.Before;
@@ -74,13 +73,10 @@ public class HibernateJournalEntryRepoTest {
 
     @Test
     public void writeTradeToJournalEntryTableSizeTest() throws WriteToJournalEntryFailed {
-        Session session = HibernateUtils.getInstance().getConnection();
-        HibernateUtils.getInstance().startTransaction();
-
         // Get the size of table before writing
         // should be 0
         String hql = "SELECT COUNT(e) FROM JournalEntry e";
-        Query<Long> query = session.createQuery(hql, Long.class);
+        Query<Long> query = HibernateUtils.getInstance().getConnection().createQuery(hql, Long.class);
         long countBeforeInsertion = query.uniqueResult();
 
         assertEquals(0, countBeforeInsertion);
@@ -89,11 +85,13 @@ public class HibernateJournalEntryRepoTest {
         Trade trade = TestDataProvider.goodTradeSupplier.get();
 
         // Write Trade to Journal Entry Table
+        HibernateUtils.getInstance().startTransaction();
         HibernateJournalEntryRepo.getInstance().writeTradeToJournalEntryTable(trade);
+        HibernateUtils.getInstance().commitTransaction();
 
         // Get the size of table after writing
         // should be 1
-        Query<Long> queryAfterCreation = session.createQuery(hql, Long.class);
+        Query<Long> queryAfterCreation = HibernateUtils.getInstance().getConnection().createQuery(hql, Long.class);
         long countAfterInsertion = queryAfterCreation.uniqueResult();
 
         assertEquals(1, countAfterInsertion);
@@ -101,13 +99,10 @@ public class HibernateJournalEntryRepoTest {
 
     @Test
     public void writeTradeToJournalEntryTableDataTest() throws WriteToJournalEntryFailed {
-        Session session = HibernateUtils.getInstance().getConnection();
-        HibernateUtils.getInstance().startTransaction();
-
         // Get the data of table before writing
         // should be null
         String hql = "SELECT e FROM JournalEntry e";
-        Query<JournalEntry> query = session.createQuery(hql, JournalEntry.class);
+        Query<JournalEntry> query = HibernateUtils.getInstance().getConnection().createQuery(hql, JournalEntry.class);
         List<JournalEntry> entriesBeforeInsertion = query.getResultList();
 
         assertEquals(0, entriesBeforeInsertion.size());
@@ -116,11 +111,13 @@ public class HibernateJournalEntryRepoTest {
         Trade trade = TestDataProvider.goodTradeSupplier.get();
 
         // Write Trade to Journal Entry Table
+        HibernateUtils.getInstance().startTransaction();
         HibernateJournalEntryRepo.getInstance().writeTradeToJournalEntryTable(trade);
+        HibernateUtils.getInstance().commitTransaction();
 
         // Get the data of table after writing
         // match with the inserted data
-        Query<JournalEntry> queryAfterCreation = session.createQuery(hql, JournalEntry.class);
+        Query<JournalEntry> queryAfterCreation = HibernateUtils.getInstance().getConnection().createQuery(hql, JournalEntry.class);
         List<JournalEntry> entriesAfterInsertion = queryAfterCreation.getResultList();
 
         JournalEntry expectedJournalEntry = JournalEntry.builder()
@@ -150,6 +147,7 @@ public class HibernateJournalEntryRepoTest {
         // Insert Data into the database
         HibernateUtils.getInstance().startTransaction();
         HibernateJournalEntryRepo.getInstance().writeTradeToJournalEntryTable(trade);
+        HibernateUtils.getInstance().commitTransaction();
 
         // Check the posted Status - it should be non-posted
         String hql = "SELECT e FROM JournalEntry e";
@@ -160,7 +158,9 @@ public class HibernateJournalEntryRepoTest {
         assertEquals("Non Posted", journalEntryFromDB.getPositionPostedStatus());
 
         // call updateJournalEntryForPositionUpdate
+        HibernateUtils.getInstance().startTransaction();
         HibernateJournalEntryRepo.getInstance().updateJournalEntryForPositionUpdateStatus(trade);
+        HibernateUtils.getInstance().commitTransaction();
 
         // the posted status now will be posted
         Query<JournalEntry> queryAfterUpdate = HibernateUtils.getInstance().getConnection().createQuery(hql, JournalEntry.class);
