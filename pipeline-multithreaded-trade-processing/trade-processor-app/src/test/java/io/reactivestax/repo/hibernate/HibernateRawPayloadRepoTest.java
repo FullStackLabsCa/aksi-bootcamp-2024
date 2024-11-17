@@ -2,20 +2,35 @@ package io.reactivestax.repo.hibernate;
 
 import io.reactivestax.TestDataProvider;
 import io.reactivestax.entity.RawPayload;
+import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.HibernateUtils;
+import io.reactivestax.utility.exceptions.UpdateJournalEntryStatusInRawPayloadFailed;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
 import org.junit.After;
 import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class HibernateRawPayloadRepoTest {
+
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    private final PrintStream originalOut = System.out;
 
     @After
     public void cleanUp(){
@@ -66,15 +81,23 @@ public class HibernateRawPayloadRepoTest {
         String tradePayload = TestDataProvider.validTradePayloadSupplier.get();
 
         // Insert the Trade with Payload into the DB
+       insertIntoRawPayloadTable("TDB_00000001", tradePayload);
+
+        // Read the payload for the same trade ID, it will be the same as that of Inserted
+        Optional<String> payloadReadFromRawPayloadTable = HibernateRawPayloadRepo.getInstance().readPayloadFromRawPayloadsTable("TDB_00000001");
+        assertEquals(tradePayload, payloadReadFromRawPayloadTable.get());
+    }
+
+    private void insertIntoRawPayloadTable(String tradeId, String payload){
         Session session = HibernateUtils.getInstance().getConnection();
         HibernateUtils.getInstance().startTransaction();
         try {
             RawPayload rawPayload = RawPayload.builder()
-                    .tradeID("TDB_00000001")
+                    .tradeID(tradeId)
                     .status("Valid")
-                    .payload(tradePayload)
-                    .lookupStatus("Non Posted")
-                    .postedStatus("Non Posted")
+                    .payload(payload)
+                    .lookupStatus("Not Posted")
+                    .postedStatus("Not Posted")
                     .build();
 
             session.persist(rawPayload);
@@ -83,10 +106,6 @@ public class HibernateRawPayloadRepoTest {
         } catch (Exception e) {
             HibernateUtils.getInstance().rollbackTransaction();
         }
-
-        // Read the payload for the same trade ID, it will be the same as that of Inserted
-        Optional<String> payloadReadFromRawPayloadTable = HibernateRawPayloadRepo.getInstance().readPayloadFromRawPayloadsTable("TDB_00000001");
-        assertEquals(tradePayload, payloadReadFromRawPayloadTable.get());
     }
 
     @Test
@@ -96,19 +115,69 @@ public class HibernateRawPayloadRepoTest {
         assertEquals(Optional.empty(), payloadReadFromRawPayloadTable);
     }
 
-    /*
-    Update Security LookUp Status in RawPayloads Table
-    -   Check Before
-    -   Update ( Valid # TODO 3 and Invalid # TODO 4)
-    -   Check After - Should Match the Updated
-    - Exception Occured # TODO 5
-     */
+    @ParameterizedTest
+    @MethodSource("provideLookUpStatusForTest")
+    void updateSecurityLookUpStatusTest(String lookupStatus){
+        Trade trade = TestDataProvider.validTradeForPayloadSupplier.get();
+        insertIntoRawPayloadTable("TDB_00000001", TestDataProvider.validTradePayloadSupplier.get());
 
-    /*
-    Update Journal Entry Status in Raw Payload Table
-    -   Check Before
-    -   Update Posted
-    -   Check After Should be posted # TODO 6
-    - Exception Occured # TODO 7
-     */
+        HibernateRawPayloadRepo.getInstance().updateSecurityLookupStatusInRawPayloadsTable(trade, lookupStatus);
+        RawPayload rawPayloadAfterUpdate = readPayloadFromRawPayload("TDB_00000001");
+
+        if (lookupStatus.equals("Valid"))
+        assertEquals("Succeeded", rawPayloadAfterUpdate.getLookupStatus());
+        else
+            assertEquals("Failed", rawPayloadAfterUpdate.getLookupStatus());
+
+    }
+
+    private RawPayload readPayloadFromRawPayload(String tradeID){
+        Session session = HibernateUtils.getInstance().getConnection();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<RawPayload> query = builder.createQuery(RawPayload.class);
+        Root<RawPayload> root = query.from(RawPayload.class);
+        query.select(root).where(builder.equal(root.get("tradeID"), tradeID));
+        List<RawPayload> students = session.createQuery(query).getResultList();
+        return students.get(0);
+    }
+
+    static Stream<Arguments> provideLookUpStatusForTest() {
+        return Stream.of(
+                Arguments.of("Valid"),
+                Arguments.of("Invalid")
+        );
+    }
+
+    @Test
+    public void updateSecurityLookUpStatusFailedTest(){
+        System.setOut(new PrintStream(outputStreamCaptor));
+
+        HibernateRawPayloadRepo.getInstance().updateSecurityLookupStatusInRawPayloadsTable(null, null);
+        assertTrue(outputStreamCaptor.toString().contains("Failed to Update Security Lookup Status in Raw-Payload Table"));
+
+        System.setOut(originalOut);
+    }
+
+    @Test
+    public void updateJournalEntryStatusTest() throws UpdateJournalEntryStatusInRawPayloadFailed {
+        Trade trade = TestDataProvider.validTradeForPayloadSupplier.get();
+        insertIntoRawPayloadTable("TDB_00000001", TestDataProvider.validTradePayloadSupplier.get());
+
+        RawPayload rawPayloadBeforeUpdate = readPayloadFromRawPayload("TDB_00000001");
+        assertEquals("Not Posted", rawPayloadBeforeUpdate.getPostedStatus());
+
+        HibernateUtils.getInstance().startTransaction();
+        HibernateRawPayloadRepo.getInstance().updateJournalEntryStatusInRawPayloadsTable(trade);
+        HibernateUtils.getInstance().commitTransaction();
+
+        RawPayload rawPayloadAfterUpdate = readPayloadFromRawPayload("TDB_00000001");
+
+        assertEquals("Posted", rawPayloadAfterUpdate.getPostedStatus());
+
+    }
+
+    @Test
+    public void updateJournalEntryStatusFailedTest() {
+        assertThrows(UpdateJournalEntryStatusInRawPayloadFailed.class, () -> HibernateRawPayloadRepo.getInstance().updateJournalEntryStatusInRawPayloadsTable(null));
+    }
 }
