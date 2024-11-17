@@ -35,7 +35,8 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
         query.select(root).where(builder.equal(root.get("tradeID"), tradeID));
         List<RawPayload> students = session.createQuery(query).getResultList();
 
-        return Optional.ofNullable(students.get(0).getPayload());
+        if(students.isEmpty()) return Optional.empty();
+        else return Optional.ofNullable(students.get(0).getPayload());
     }
 
     @Override
@@ -56,7 +57,7 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
 
             HibernateUtils.getInstance().commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Failed to Update Security Lookup Status in Raw-Payload Table");
         }
     }
 
