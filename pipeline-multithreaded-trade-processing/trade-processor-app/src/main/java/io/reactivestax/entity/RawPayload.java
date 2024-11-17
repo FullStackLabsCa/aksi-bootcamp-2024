@@ -9,6 +9,9 @@ import lombok.*;
         @Index(name = "idx_trade_id_raw_payload", columnList = "trade_id")
 })
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RawPayload {
 
     @Id
