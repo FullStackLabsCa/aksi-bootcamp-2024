@@ -51,7 +51,7 @@ public class JDBCSecuritiesReferenceRepo implements SecuritiesReferenceRepo {
             return resultSet.getInt("security_id");
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Unable to get Security ID For the Given CUSIP.");
         }
 
         return 0;
