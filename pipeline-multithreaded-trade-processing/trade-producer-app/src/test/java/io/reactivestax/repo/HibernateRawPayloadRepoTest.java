@@ -14,7 +14,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -22,19 +21,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class HibernateRawPayloadRepoTest {
-
-    @Spy
-    private RawPayload rawPayloadSpy;
-
-    @Spy
-    private HibernateUtils hibernateUtilsSpy;
-
-    @InjectMocks
-    private static HibernateRawPayloadRepo hibernateRawPayloadRepo;
 
     @Before
     public void setUp(){

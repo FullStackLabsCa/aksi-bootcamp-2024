@@ -15,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -24,16 +23,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 public class JDBCRawPayloadRepoTest {
-
-    @Mock
-    private PreparedStatement preparedStatement;
-
-    @InjectMocks
-    private JDBCRawPayloadRepo jdbcRawPayloadRepo;
 
     @Before
     public void setUp(){
