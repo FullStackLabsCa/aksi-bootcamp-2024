@@ -10,7 +10,6 @@ import io.reactivestax.utility.messaging.MessageSender;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ChunkProcessorService implements ChunkProcessing {
@@ -58,13 +57,19 @@ public class ChunkProcessorService implements ChunkProcessing {
 
     @Override
     public TradeIdAndAccNum getIdentifierFromPayload(String payload) {
+        if (payload == null) {
+            return new TradeIdAndAccNum(invalidString, invalidString);
+        }
+
         String[] fieldsOfTrade = payload.split(",");
 
-        String tradeId = Optional.ofNullable(fieldsOfTrade[0])
-                                    .orElse(invalidString);
+        String tradeId = (fieldsOfTrade.length > 0 && fieldsOfTrade[0] != null)
+                ? fieldsOfTrade[0]
+                : invalidString;
 
-        String accountNumber = Optional.ofNullable(fieldsOfTrade[1])
-                                        .orElse(invalidString);
+        String accountNumber = (fieldsOfTrade.length > 2 && fieldsOfTrade[2] != null)
+                ? fieldsOfTrade[2]
+                : invalidString;
 
         return new TradeIdAndAccNum(tradeId, accountNumber);
     }

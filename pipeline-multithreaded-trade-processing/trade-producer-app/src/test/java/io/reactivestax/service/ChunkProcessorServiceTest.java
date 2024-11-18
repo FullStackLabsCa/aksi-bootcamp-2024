@@ -2,16 +2,22 @@ package io.reactivestax.service;
 
 
 import io.reactivestax.TestDataProvider;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class ChunkProcessorServiceTest {
 
+    private static final String VALID = "Valid";
+    private static final String INVALID = "Invalid";
+
+    //getInstanceTests
     @Test
     void getInstance_SingleThreadTest() {
         // Get two instances
@@ -19,10 +25,10 @@ class ChunkProcessorServiceTest {
         ChunkProcessorService instance2 = ChunkProcessorService.getInstance();
 
         // Hashcode will be same
-        Assertions.assertEquals(instance2.hashCode(), instance1.hashCode());
+        assertEquals(instance2.hashCode(), instance1.hashCode());
 
         // Hashcode Identity will be same (reference to the same object)
-        Assertions.assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
+        assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
     }
 
     @Test
@@ -36,54 +42,72 @@ class ChunkProcessorServiceTest {
         ChunkProcessorService instance2 = executorService.submit(getInstance).get();
 
         // Hashcode will be same
-        Assertions.assertEquals(instance2.hashCode(), instance1.hashCode());
+        assertEquals(instance2.hashCode(), instance1.hashCode());
 
         // Hashcode Identity will be same (reference to the same object)
-        Assertions.assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
+        assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
     }
 
-    /*
-    processChunkTest
-     */
+//processChunkTest
 
-    /*
-    processPayloadTest
-     */
+//processPayloadTest
 
-    /*
-    checkPayloadValidityTest
-     */
+//checkPayloadValidityTests
     @Test
     void checkPayloadValidityTest_ValidPayload(){
         String payload = TestDataProvider.validTradePayloadSupplier.get();
         String result = ChunkProcessorService.getInstance().checkPayloadValidity(payload);
-        Assertions.assertEquals("Valid", result);
+        assertEquals(VALID, result);
     }
 
     @Test
     void checkPayloadValidityTest_InvalidPayload(){
-        String payload = TestDataProvider.invalidTradePayloadSupplier.get();
+        String payload = TestDataProvider.invalidPayloadLengthSupplier.get();
         String result = ChunkProcessorService.getInstance().checkPayloadValidity(payload);
-        Assertions.assertEquals("Invalid", result);
+        assertEquals(INVALID, result);
     }
 
     @Test
     void checkPayloadValidityTest_EmptyStringPayload(){
         String payload = TestDataProvider.emptyTradePayloadSupplier.get();
         String result = ChunkProcessorService.getInstance().checkPayloadValidity(payload);
-        Assertions.assertEquals("Invalid", result);
+        assertEquals(INVALID, result);
     }
 
     @Test
     void checkPayloadValidityTest_NullPayload(){
         String payload = TestDataProvider.nullTradePayloadSupplier.get();
         String result = ChunkProcessorService.getInstance().checkPayloadValidity(payload);
-        Assertions.assertEquals("Invalid", result);
+        assertEquals(INVALID, result);
     }
 
-    /*
-    getIdentifierFromPayloadTest
-     */
+//getIdentifierFromPayloadTest
+    @Test
+    void getIdentifierFromPayloadTest_ValidAccountNumber_ValidTradeId(){
+        String payload = TestDataProvider.validTradePayloadSupplier.get();
+        TradeIdAndAccNum identifierFromPayload = ChunkProcessorService.getInstance().getIdentifierFromPayload(payload);
+
+        assertEquals("TDB_00000001", identifierFromPayload.tradeID());
+        assertEquals("TDB_CUST_2517563", identifierFromPayload.accountNumber());
+    }
+
+    @Test
+    void getIdentifierFromPayloadTest_InvalidAccountNumber_ValidTradeId(){
+        String payload = TestDataProvider.invalidPayloadAccountNumberSupplier.get();
+        TradeIdAndAccNum identifierFromPayload = ChunkProcessorService.getInstance().getIdentifierFromPayload(payload);
+
+        assertEquals("TDB_00000001", identifierFromPayload.tradeID());
+        assertEquals(INVALID, identifierFromPayload.accountNumber());
+    }
+
+    @Test
+    void getIdentifierFromPayloadTest_InvalidAccountNumber_InvalidTradeId(){
+        String payload = TestDataProvider.nullTradePayloadSupplier.get();
+        TradeIdAndAccNum identifierFromPayload = ChunkProcessorService.getInstance().getIdentifierFromPayload(payload);
+
+        assertEquals(INVALID, identifierFromPayload.tradeID());
+        assertEquals(INVALID, identifierFromPayload.accountNumber());
+    }
 
     /*
     writePayloadToPayloadDatabaseTest
