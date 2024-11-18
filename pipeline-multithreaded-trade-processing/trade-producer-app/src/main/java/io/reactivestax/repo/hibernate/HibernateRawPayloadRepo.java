@@ -34,7 +34,6 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
 
             HibernateUtils.getInstance().commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
             HibernateUtils.getInstance().rollbackTransaction();
         }
     }
