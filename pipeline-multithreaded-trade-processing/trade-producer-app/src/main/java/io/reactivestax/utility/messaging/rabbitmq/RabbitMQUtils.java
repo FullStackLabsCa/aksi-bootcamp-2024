@@ -44,6 +44,16 @@ public class RabbitMQUtils {
         }
     }
 
+    public void closeRabbitMQConnection() throws IOException {
+        try {
+            rabbitMQConnection.close();
+        } catch (IOException | NullPointerException e) {
+            System.out.println("No Connection Exists");
+        }
+        rabbitMQFactory = null;
+        rabbitMQConnection = null;
+    }
+
     public Channel getRabbitMQChannel(){
         Channel channel = channelThreadLocal.get();
         if(channel == null) {
