@@ -48,7 +48,12 @@ public class ChunkProcessorService implements ChunkProcessing {
 
     @Override
     public String checkPayloadValidity(String payload) {
-        return (payload.split(",").length == 7) ? "Valid" : invalidString;
+        try {
+            return (payload.split(",").length == 7) ? "Valid" : invalidString;
+        } catch (Exception e) {
+            System.out.println("Failed to Check Payload Validity because " + e.getMessage());
+            return invalidString;
+        }
     }
 
     @Override
