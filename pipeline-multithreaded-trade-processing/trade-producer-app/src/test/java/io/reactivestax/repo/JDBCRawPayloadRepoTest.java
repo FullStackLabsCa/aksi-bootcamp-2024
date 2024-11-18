@@ -141,8 +141,5 @@ public class JDBCRawPayloadRepoTest {
     }
 
 //    @Test # TODO
-    public void writeToRawPayloadExceptionTest() throws SQLException {
-        doThrow(SQLException.class).when(preparedStatement).executeUpdate();
-        jdbcRawPayloadRepo.getInstance().writeToRawPayloadTable(null, "b", "c");
-    }
+//    writeToRawPayloadExceptionTest
 }

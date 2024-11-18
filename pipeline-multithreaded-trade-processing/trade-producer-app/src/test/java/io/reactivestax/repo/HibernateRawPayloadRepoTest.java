@@ -115,12 +115,5 @@ public class HibernateRawPayloadRepoTest {
     }
 
 //    @Test # TODO
-    public void writeToRawPayloadExceptionTest(){
-        doAnswer(invocationOnMock -> {
-          throw new SQLException();
-        }).when(rawPayloadSpy).getTradeID();
-
-        hibernateRawPayloadRepo.getInstance().writeToRawPayloadTable("a", "b", "c");
-        verify(hibernateUtilsSpy, times(1)).rollbackTransaction();
-    }
+//    writeToRawPayloadExceptionTest
 }
