@@ -20,20 +20,20 @@ import static org.junit.Assert.assertEquals;
 
 public class JDBCRawPayloadRepoTest {
 
-//    @After
-//    public void cleanUp(){
-//        String sql = "delete from trades_payload";
-//        try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql)) {
-//            JDBCUtils.getInstance().startTransaction();
-//
-//            int rowsAffected = preparedStatement.executeUpdate();
-//            System.out.println("Deleted " + rowsAffected + " rows from trades_payload table.");
-//
-//            JDBCUtils.getInstance().commitTransaction();
-//        } catch (Exception e) {
-//            JDBCUtils.getInstance().rollbackTransaction();
-//        }
-//    }
+    @After
+    public void cleanUp(){
+        String sql = "delete from trades_payload";
+        try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql)) {
+            JDBCUtils.getInstance().startTransaction();
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            System.out.println("Deleted " + rowsAffected + " rows from trades_payload table.");
+
+            JDBCUtils.getInstance().commitTransaction();
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+    }
 
     @Test
     public void getInstanceSingleThreadTest() {
