@@ -2,6 +2,7 @@ package io.reactivestax.repo.jdbc;
 
 import io.reactivestax.TestDataProvider;
 import io.reactivestax.utility.database.JDBCUtils;
+import org.junit.After;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -24,6 +25,20 @@ public class JDBCRawPayloadRepoTest {
     private final PrintStream originalOut = System.out;
     private static final String INSERT_INTO_TRADES_PAYLOAD_QUERY = "Insert into trades_payload (trade_id, status, payload, postedStatus) values (?,?,?, 'Not Posted')";
 
+    @After
+    public void cleanUp(){
+        String sql = "delete from trades_payload";
+        try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql)) {
+            JDBCUtils.getInstance().startTransaction();
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            System.out.println("Deleted " + rowsAffected + " rows from trades_payload table.");
+
+            JDBCUtils.getInstance().commitTransaction();
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+    }
 
     @Test
     public void getInstanceSingleThreadTest() {
