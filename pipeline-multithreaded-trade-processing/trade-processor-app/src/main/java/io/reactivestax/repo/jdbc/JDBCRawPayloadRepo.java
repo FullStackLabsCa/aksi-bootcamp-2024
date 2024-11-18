@@ -36,7 +36,7 @@ public class JDBCRawPayloadRepo implements RawPayloadRepo {
             return Optional.ofNullable(rsQuery.getString("payload"));
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Some Error Occurred in reading Payload from RawPayload Table");
         }
 
         return Optional.empty();
@@ -56,7 +56,7 @@ public class JDBCRawPayloadRepo implements RawPayloadRepo {
 
             psLookupQuery.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Failed to Update Security Lookup Status in Raw-Payload Table");
         }
     }
 
@@ -67,7 +67,7 @@ public class JDBCRawPayloadRepo implements RawPayloadRepo {
             updateJEps.setString(1, trade.getTradeID());
             updateJEps.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Failed to Update Journal Entry Status in Raw-Payload Table");
         }
     }
 }
