@@ -1,6 +1,6 @@
 package io.reactivestax.service;
 
-import io.reactivestax.utility.ApplicationPropertyUtil;
+import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.messaging.ChunksStream;
 
 import java.util.Optional;
@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 public class ChunkProcessor {
 
-    int numberOfThreads = Integer.parseInt(ApplicationPropertyUtil.getFileProperty("thread.pool.size.chunk.processor"));
+    int numberOfThreads = Integer.parseInt(ApplicationPropertyUtils.getFileProperty("thread.pool.size.chunk.processor"));
     ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
 
     public void startChunkProcessorPool() {

@@ -10,7 +10,7 @@ import io.reactivestax.utility.messaging.MessageSender;
 import io.reactivestax.utility.messaging.inmemory.InMemorySender;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQSender;
 
-import static io.reactivestax.utility.ApplicationPropertyUtil.getFileProperty;
+import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 public class BeanFactory {
 

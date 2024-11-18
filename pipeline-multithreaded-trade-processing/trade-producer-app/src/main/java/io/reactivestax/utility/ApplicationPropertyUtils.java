@@ -4,9 +4,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public class ApplicationPropertyUtil {
+public class ApplicationPropertyUtils {
 
-    private ApplicationPropertyUtil() {
+    private ApplicationPropertyUtils() {
     }
 
     private static Properties fileProperties;

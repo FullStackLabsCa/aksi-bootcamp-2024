@@ -9,7 +9,7 @@ import io.reactivestax.utility.exceptions.RabbitMQException;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import static io.reactivestax.utility.ApplicationPropertyUtil.getFileProperty;
+import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 public class RabbitMQUtils {
     private static ConnectionFactory rabbitMQFactory;
