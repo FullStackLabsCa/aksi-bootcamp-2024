@@ -37,6 +37,16 @@ public interface TestDataProvider {
             .quantity(10)
             .build();
 
+    Supplier<Trade> invalidCusipTradeSupplier = () -> Trade.builder()
+            .tradeID("TD123")
+            .accountNumber("123")
+            .activity("BUY")
+            .price(0.0)
+            .transactionTime(new java.sql.Date(2024))
+            .cusip("Invalid")
+            .quantity(10)
+            .build();
+
     Supplier<Trade> goodSellTradeSupplier = () -> Trade.builder()
             .tradeID("TD123")
             .accountNumber("123")

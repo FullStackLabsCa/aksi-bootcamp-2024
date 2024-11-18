@@ -1,5 +1,6 @@
 package io.reactivestax.repo.jdbc;
 
+import io.reactivestax.TestDataProvider;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -47,14 +48,20 @@ public class JDBCSecuritiesReferenceRepoTest {
         assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
     }
 
-    /*
-    Check if Valid Cusip
-    - Pass a trade with Valid Cusip
-        - Should Return Valid
-    - Pass a trade with Invalid CUSIP
-        - Should Return Invalid
-    - SQL EXception Case
-     */
+    @Test
+    public void checkIfValidForValidCusipTest(){
+        assertEquals("Valid", JDBCSecuritiesReferenceRepo.getInstance().checkIfValidCusip(TestDataProvider.goodBuyTradeSupplier.get()));
+    }
+
+    @Test
+    public void checkIfValidForInvalidCusipTest(){
+        assertEquals("Invalid", JDBCSecuritiesReferenceRepo.getInstance().checkIfValidCusip(TestDataProvider.invalidCusipTradeSupplier.get()));
+    }
+
+    @Test
+    public void checkIfValidCusipExceptionTest(){
+        assertEquals("Unable to Check CUSIP.", JDBCSecuritiesReferenceRepo.getInstance().checkIfValidCusip(null));
+    }
 
     @Test
     public void getSecurityIdForValidCusipTest(){

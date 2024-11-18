@@ -34,10 +34,10 @@ public class JDBCSecuritiesReferenceRepo implements SecuritiesReferenceRepo {
                 return "Valid";
             else return "Invalid";
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
+            return "Unable to Check CUSIP.";
         }
-        return "Unable to Check CUSIP.";
     }
 
     @Override
