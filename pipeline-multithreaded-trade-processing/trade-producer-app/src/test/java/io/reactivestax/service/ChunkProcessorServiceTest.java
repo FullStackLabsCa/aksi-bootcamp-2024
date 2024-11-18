@@ -2,6 +2,8 @@ package io.reactivestax.service;
 
 
 import io.reactivestax.TestDataProvider;
+import io.reactivestax.factory.BeanFactory;
+import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 
 import java.util.concurrent.Callable;
@@ -9,13 +11,29 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
 class ChunkProcessorServiceTest {
 
     private static final String VALID = "Valid";
     private static final String INVALID = "Invalid";
+
+    @Mock
+    private RawPayloadRepo rawPayloadRepoMock;
+
+    @BeforeEach
+    void setUp(){
+        MockitoAnnotations.openMocks(this);
+    }
 
     //getInstanceTests
     @Test
@@ -109,11 +127,21 @@ class ChunkProcessorServiceTest {
         assertEquals(INVALID, identifierFromPayload.accountNumber());
     }
 
-    /*
-    writePayloadToPayloadDatabaseTest
-     */
+//writePayloadToPayloadDatabaseTest
+    @Test
+    void writePayloadToPayloadDBTest(){
+        String tradeId = TestDataProvider.validTradeIdSupplier.get();
+        String payload = TestDataProvider.validTradePayloadSupplier.get();
+        try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
 
-    /*
-    sendForProcessingTest
-     */
+            beanFactoryMockedStatic.when(BeanFactory::getRawPayloadRepo).thenReturn(rawPayloadRepoMock);
+            ChunkProcessorService.getInstance().writePayloadToPayloadDatabase(tradeId, payload, VALID);
+
+            beanFactoryMockedStatic.verify(BeanFactory::getRawPayloadRepo, times(1));
+            verify(rawPayloadRepoMock, times(1)).writeToRawPayloadTable(any(), any(), any());
+        }
+    }
+
+//sendForProcessingTest
+
 }
