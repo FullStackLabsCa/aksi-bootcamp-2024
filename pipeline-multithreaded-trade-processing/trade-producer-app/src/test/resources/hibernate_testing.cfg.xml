@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- JDBC Database connection settings -->
+        <property name="hibernate.connection.driver_class">org.h2.Driver</property>
+        <property name="hibernate.connection.url">jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1</property>
+        <property name="hibernate.connection.username">sa</property>
+        <property name="hibernate.connection.password"/>
+
+        <!-- SQL Dialect -->
+        <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="hibernate.show_sql">true</property>
+
+        <!-- Format SQL nicely -->
+        <property name="hibernate.format_sql">true</property>
+
+        <!-- Automatically create/update tables based on entity annotations -->
+        <property name="hibernate.hbm2ddl.auto">create-drop</property>
+
+        <!-- Entity Classes option-1 -->
+        <mapping class="io.reactivestax.entity.JournalEntry" />
+        <mapping class="io.reactivestax.entity.RawPayload" />
+        <mapping class="io.reactivestax.entity.Position" />
+
+    </session-factory>
+</hibernate-configuration>
