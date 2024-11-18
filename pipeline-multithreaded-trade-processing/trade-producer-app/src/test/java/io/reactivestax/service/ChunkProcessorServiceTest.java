@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.reactivestax.utility.messaging.MessageSender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,9 @@ class ChunkProcessorServiceTest {
 
     @Mock
     private RawPayloadRepo rawPayloadRepoMock;
+
+    @Mock
+    private MessageSender<TradeIdAndAccNum> messageSenderMock;
 
     @BeforeEach
     void setUp(){
@@ -143,5 +147,15 @@ class ChunkProcessorServiceTest {
     }
 
 //sendForProcessingTest
+    @Test
+    void sendForProcessingTest(){
+        try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
 
+            beanFactoryMockedStatic.when(BeanFactory::getMessageSender).thenReturn(messageSenderMock);
+            ChunkProcessorService.getInstance().sendForProcessing(TestDataProvider.validTradeIdentifierSupplier.get());
+
+            beanFactoryMockedStatic.verify(BeanFactory::getMessageSender, times(1));
+            verify(messageSenderMock, times(1)).sendMessage(any());
+        }
+    }
 }

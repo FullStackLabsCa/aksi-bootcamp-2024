@@ -1,5 +1,7 @@
 package io.reactivestax;
 
+import io.reactivestax.service.interfaces.TradeIdAndAccNum;
+
 import java.util.function.Supplier;
 
 public interface TestDataProvider {
@@ -10,4 +12,5 @@ public interface TestDataProvider {
     Supplier<String> emptyTradePayloadSupplier = () -> "";
     Supplier<String> nullTradePayloadSupplier = () -> null;
     Supplier<String> validTradeIdSupplier = () -> "TDB_00000001";
+    Supplier<TradeIdAndAccNum> validTradeIdentifierSupplier = () -> new TradeIdAndAccNum("TDB_00000001", "TDB_CUST_2517563");
 }
