@@ -42,9 +42,9 @@ public class JDBCPositionsRepo implements PositionsRepo {
                 psPositionInsertQuery.setString(1, trade.getAccountNumber());
                 psPositionInsertQuery.setInt(2, securityID);
 
-                if (trade.getActivity().equals("BUY")) {
+                if ("BUY".equals(trade.getActivity())) {
                     psPositionInsertQuery.setInt(3, trade.getQuantity());
-                } else if (trade.getActivity().equals("SELL")) {
+                } else if ("SELL".equals(trade.getActivity())) {
                     psPositionInsertQuery.setInt(3, -trade.getQuantity());
                 } else {
                     System.out.println("UnrecognisedActivityOperationException");
@@ -55,9 +55,9 @@ public class JDBCPositionsRepo implements PositionsRepo {
 
             } else {
                 //Perform Update Logic
-                if (trade.getActivity().equals("BUY")) {
+                if ("BUY".equals(trade.getActivity())) {
                     psPositionUpdateQuery.setInt(1, trade.getQuantity());
-                } else if (trade.getActivity().equals("SELL")) {
+                } else if ("SELL".equals(trade.getActivity())) {
                     psPositionUpdateQuery.setInt(1, -trade.getQuantity());
                 } else {
                     System.out.println("UnrecognisedActivityOperationException");

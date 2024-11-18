@@ -49,7 +49,7 @@ public class JDBCRawPayloadRepo implements RawPayloadRepo {
         try (PreparedStatement psLookupQuery = connection.prepareStatement(LOOKUP_UPDATE_QUERY)) {
 
             psLookupQuery.setString(2, trade.getTradeID());
-            if (lookupStatus.equals("Valid")) {
+            if ("Valid".equals(lookupStatus)) {
                 psLookupQuery.setString(1, "Succeeded");
             } else {
                 psLookupQuery.setString(1, "Failed");

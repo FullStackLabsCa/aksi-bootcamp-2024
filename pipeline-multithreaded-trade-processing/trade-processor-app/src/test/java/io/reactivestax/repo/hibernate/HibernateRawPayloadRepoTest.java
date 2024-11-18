@@ -124,7 +124,7 @@ public class HibernateRawPayloadRepoTest {
         HibernateRawPayloadRepo.getInstance().updateSecurityLookupStatusInRawPayloadsTable(trade, lookupStatus);
         RawPayload rawPayloadAfterUpdate = readPayloadFromRawPayload("TDB_00000001");
 
-        if (lookupStatus.equals("Valid"))
+        if ("Valid".equals(lookupStatus))
         assertEquals("Succeeded", rawPayloadAfterUpdate.getLookupStatus());
         else
             assertEquals("Failed", rawPayloadAfterUpdate.getLookupStatus());

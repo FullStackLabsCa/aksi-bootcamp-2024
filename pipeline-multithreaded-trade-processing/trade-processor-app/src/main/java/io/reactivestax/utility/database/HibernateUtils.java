@@ -36,7 +36,7 @@ public class HibernateUtils implements ConnectionUtil<Session>, TransactionUtil 
 
     private static void configureHibernateSessionFactory(){
         String hibernateConfigFile;
-        if(ApplicationPropertyUtils.getFileProperty("test.mode").equals("true")){
+        if("true".equals(ApplicationPropertyUtils.getFileProperty("test.mode"))){
             hibernateConfigFile = "hibernate_testing.cfg.xml";
         } else {
             hibernateConfigFile = "hibernate.cfg.xml";

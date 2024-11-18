@@ -109,7 +109,7 @@ public class TradeProcessorService implements TradeProcessing {
     }
 
     private void updateJournalEntryAndPositions(Trade trade, String lookupStatus){
-        if (lookupStatus.equals("Valid")) {
+        if ("Valid".equals(lookupStatus)) {
             BeanFactory.getPersistenceBean(TransactionUtil.class).startTransaction();
             try {
                 writeToJournalTable(trade);

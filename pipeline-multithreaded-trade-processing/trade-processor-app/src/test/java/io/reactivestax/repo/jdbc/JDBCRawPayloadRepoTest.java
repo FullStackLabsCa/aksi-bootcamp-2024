@@ -125,7 +125,7 @@ public class JDBCRawPayloadRepoTest {
         JDBCRawPayloadRepo.getInstance().updateSecurityLookupStatusInRawPayloadsTable(trade, lookupStatus);
         String securityLookUpStatusAfterUpdate = readSecurityLookUpStatusFromRawPayload("TDB_00000001");
 
-        if (lookupStatus.equals("Valid"))
+        if ("Valid".equals(lookupStatus))
             assertEquals("Succeeded", securityLookUpStatusAfterUpdate);
         else
             assertEquals("Failed", securityLookUpStatusAfterUpdate);

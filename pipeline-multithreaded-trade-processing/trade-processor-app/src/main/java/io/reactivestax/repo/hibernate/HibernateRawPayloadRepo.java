@@ -47,7 +47,7 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaUpdate<RawPayload> criteriaUpdate = builder.createCriteriaUpdate(RawPayload.class);
             Root<RawPayload> root = criteriaUpdate.from(RawPayload.class);
-            if (lookupStatus.equals("Valid")) {
+            if ("Valid".equals(lookupStatus)) {
                 criteriaUpdate.set(root.get("lookupStatus"), "Succeeded");
             } else {
                 criteriaUpdate.set(root.get("lookupStatus"), "Failed");

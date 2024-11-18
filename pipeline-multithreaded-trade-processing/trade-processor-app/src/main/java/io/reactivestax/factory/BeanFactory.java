@@ -91,9 +91,9 @@ public class BeanFactory {
     public static MessageReceiver<String> getMessageReceiver(){
         MessageReceiver<String> messageReceiver;
 
-        if(getFileProperty("messaging.technology").equals(RABBIT_MQ_QUEUE_TECH)){
+        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
             messageReceiver = RabbitMQReceiver.getInstance();
-        } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){
+        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
             throw new NoLongerSupportedException();
         } else {
             throw new InvalidMessagingTechnologyException();
@@ -105,9 +105,9 @@ public class BeanFactory {
     public static MessageRetry<Trade> getMessageRetryer(){
         MessageRetry<Trade> messageRetryer;
 
-        if(getFileProperty("messaging.technology").equals(RABBIT_MQ_QUEUE_TECH)){
+        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
             messageRetryer = RabbitMQRetry.getInstance();
-        } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){
+        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
             throw new InvalidMessagingTechnologyException();
         } else {
             throw new InvalidMessagingTechnologyException();
@@ -119,7 +119,7 @@ public class BeanFactory {
     public static MessageProvider getMessageProvider(int index){
         MessageProvider messageProvider;
 
-        if(getFileProperty("messaging.technology").equals(RABBIT_MQ_QUEUE_TECH)){
+        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
             RabbitMQMessageProvider rabbitMQMessageProvider = new RabbitMQMessageProvider();
             rabbitMQMessageProvider.setMainExchangeName(getFileProperty("rabbitMQ.main.exchange.name"));
             rabbitMQMessageProvider.setMainQueueName(getFileProperty("rabbitMQ.main.queue"+index+".name"));
@@ -131,7 +131,7 @@ public class BeanFactory {
             RabbitMQUtils.getInstance().setRabbitMQMessageProvider(rabbitMQMessageProvider);
             messageProvider = rabbitMQMessageProvider;
 
-        } else if (getFileProperty("messaging.technology").equals(IN_MEMORY_QUEUE_TECH)){
+        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
             throw new InvalidMessagingTechnologyException();
         } else {
             throw new InvalidMessagingTechnologyException();

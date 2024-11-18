@@ -43,9 +43,9 @@ public class HibernatePositionsRepo implements PositionsRepo {
 
                 position.setPositionID(new PositionCompositeKey(trade.getAccountNumber(), securityID));
                 position.setVersion(0);
-                if (trade.getActivity().equals("BUY")) {
+                if ("BUY".equals(trade.getActivity())) {
                     position.setPositionAmount(trade.getQuantity());
-                } else if (trade.getActivity().equals("SELL")) {
+                } else if ("SELL".equals(trade.getActivity())) {
                     position.setPositionAmount(-trade.getQuantity());
                 } else {
                     System.out.println("UnrecognisedActivityOperationException");
@@ -59,9 +59,9 @@ public class HibernatePositionsRepo implements PositionsRepo {
                 String updateHQL = "update Position p set p.positionAmount = (p.positionAmount + :positionIncrement), p.version = (p.version +1) where p.version = :currentVersion";
                 Query updatePositionQuery = session.createQuery(updateHQL);
 
-                if (trade.getActivity().equals("BUY")) {
+                if ("BUY".equals(trade.getActivity())) {
                     updatePositionQuery.setParameter("positionIncrement", trade.getQuantity());
-                } else if (trade.getActivity().equals("SELL")) {
+                } else if ("SELL".equals(trade.getActivity())) {
                     updatePositionQuery.setParameter("positionIncrement", -trade.getQuantity());
                 } else {
                     System.out.println("UnrecognisedActivityOperationException...");
