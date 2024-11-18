@@ -1,15 +1,29 @@
 package io.reactivestax.repo.jdbc;
 
+import io.reactivestax.TestDataProvider;
+import io.reactivestax.utility.database.JDBCUtils;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class JDBCRawPayloadRepoTest {
+
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    private final PrintStream originalOut = System.out;
+    private static final String INSERT_INTO_TRADES_PAYLOAD_QUERY = "Insert into trades_payload (trade_id, status, payload, postedStatus) values (?,?,?, 'Not Posted')";
+
 
     @Test
     public void getInstanceSingleThreadTest() {
@@ -39,5 +53,43 @@ public class JDBCRawPayloadRepoTest {
 
         // Hashcode Identity will be same (reference to the same object)
         assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
+    }
+
+    @Test
+    public void readPayloadFromRawPayload_TradeIdDoesNotExists_Test(){
+        System.setOut(new PrintStream(outputStreamCaptor));
+
+        // Read the Payload for a tradeId, It will be Optional.empty()
+        Optional<String> payloadReadFromRawPayloadTable = JDBCRawPayloadRepo.getInstance().readPayloadFromRawPayloadsTable("test-trade");
+
+        assertTrue(outputStreamCaptor.toString().contains("Some Error Occurred in reading Payload from RawPayload Table"));
+        assertEquals(Optional.empty(), payloadReadFromRawPayloadTable);
+
+        System.setOut(originalOut);
+    }
+
+    @Test
+    public void readPayloadFromRawPayload_tradeIdExists_Test(){
+        String tradePayload = TestDataProvider.validTradePayloadSupplier.get();
+
+        // Insert the Trade with Payload into the DB
+        insertIntoRawPayloadTable("TDB_00000001", tradePayload);
+
+        // Read the payload for the same trade ID, it will be the same as that of Inserted
+        Optional<String> payloadReadFromRawPayloadTable = JDBCRawPayloadRepo.getInstance().readPayloadFromRawPayloadsTable("TDB_00000001");
+        assertEquals(tradePayload, payloadReadFromRawPayloadTable.get());
+    }
+
+    public void insertIntoRawPayloadTable(String tradeID, String payload) {
+        Connection connection = JDBCUtils.getInstance().getConnection();
+        try (PreparedStatement psQuery = connection.prepareStatement(INSERT_INTO_TRADES_PAYLOAD_QUERY)) {
+            psQuery.setString(1, tradeID);
+            psQuery.setString(2, "Valid");
+            psQuery.setString(3, payload);
+            psQuery.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
