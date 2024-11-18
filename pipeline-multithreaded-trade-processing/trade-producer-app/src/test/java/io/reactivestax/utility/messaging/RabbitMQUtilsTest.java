@@ -1,21 +1,33 @@
 package io.reactivestax.utility.messaging;
 
 import com.rabbitmq.client.Channel;
+import io.reactivestax.utility.ApplicationPropertyUtils;
+import io.reactivestax.utility.exceptions.RabbitMQException;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
+import org.junit.After;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
+import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 import static org.junit.Assert.*;
 
 public class RabbitMQUtilsTest {
 
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
+
+    @After
+    public void cleanUp() throws IOException {
+        RabbitMQUtils.getInstance().closeRabbitMQConnection();
+    }
 
     @Test
     public void getInstanceSingleThreadTest(){
@@ -83,22 +95,18 @@ public class RabbitMQUtilsTest {
         assertNotEquals(System.identityHashCode(thread1Channels.get(1)), System.identityHashCode(thread2Channels.get(1)));
     }
 
-//    @Test
-//    public void failedToGetChannelFromRabbitConnectionTest() {
-//        System.setOut(new PrintStream(outputStreamCaptor));
-//        try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
-//
-//            mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
-//
-//            MessageRetry<Trade> messageRetryer = this.rabbitMQRetry;
-//            Trade trade = Trade.builder().build();
-//
-//            assertThrows(RabbitMQException.class, () -> messageRetryer.retryMessage(trade));
-//            assertTrue(outputStreamCaptor.toString().contains("Unable to provide Channel from the Rabbit MQ Connection..."));
-//            verify(messageRetryer, times(1)).retryMessage(any());
-//        }
-//        System.setOut(originalOut);
-//    }
+    @Test
+    public void failedToGetChannelFromRabbitConnectionTest() {
+        System.setOut(new PrintStream(outputStreamCaptor));
+        try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
+            mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
+
+
+            assertThrows(RabbitMQException.class, () -> RabbitMQUtils.getInstance().getRabbitMQChannel());
+            assertTrue(outputStreamCaptor.toString().contains("Unable to provide Channel from the Rabbit MQ Connection..."));
+        }
+        System.setOut(originalOut);
+    }
 
     @Test
     public void closeRabbitMQSingleThreadTest(){
@@ -128,6 +136,5 @@ public class RabbitMQUtilsTest {
 
         RabbitMQUtils.getInstance().closeRabbitMQChannel();
         assertFalse(channelMainThread.isOpen());
-
     }
 }
