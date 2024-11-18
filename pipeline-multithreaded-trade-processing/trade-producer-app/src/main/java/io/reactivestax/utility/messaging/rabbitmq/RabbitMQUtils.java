@@ -62,9 +62,11 @@ public class RabbitMQUtils {
 
     public void closeRabbitMQChannel(){
         try {
-            getRabbitMQChannel().close();
-            channelThreadLocal.remove();
-            getResponseThreadLocal.remove();
+            if (channelThreadLocal.get() != null) {
+                getRabbitMQChannel().close();
+                channelThreadLocal.remove();
+                getResponseThreadLocal.remove();
+            }
         } catch (IOException | TimeoutException e) {
             throw new RabbitMQException(e);
         }
