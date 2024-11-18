@@ -3,6 +3,7 @@ package io.reactivestax.repo.jdbc;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.utility.database.JDBCUtils;
+import io.reactivestax.utility.exceptions.UpdateJournalEntryStatusInRawPayloadFailed;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -55,19 +56,20 @@ public class JDBCRawPayloadRepo implements RawPayloadRepo {
             }
 
             psLookupQuery.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.out.println("Failed to Update Security Lookup Status in Raw-Payload Table");
         }
     }
 
     @Override
-    public void updateJournalEntryStatusInRawPayloadsTable(Trade trade) {
+    public void updateJournalEntryStatusInRawPayloadsTable(Trade trade) throws UpdateJournalEntryStatusInRawPayloadFailed {
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement updateJEps = connection.prepareStatement(UPDATE_JE_QUERY)) {
             updateJEps.setString(1, trade.getTradeID());
             updateJEps.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.out.println("Failed to Update Journal Entry Status in Raw-Payload Table");
+            throw new UpdateJournalEntryStatusInRawPayloadFailed();
         }
     }
 }
