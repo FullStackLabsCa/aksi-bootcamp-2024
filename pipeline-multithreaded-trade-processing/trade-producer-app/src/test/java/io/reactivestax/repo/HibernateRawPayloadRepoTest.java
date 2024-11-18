@@ -1,16 +1,61 @@
 package io.reactivestax.repo;
 
+import io.reactivestax.TestDataProvider;
+import io.reactivestax.entity.RawPayload;
 import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
+import io.reactivestax.utility.database.HibernateUtils;
+import org.hibernate.query.Query;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.opentest4j.TestAbortedException;
 
+import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class HibernateRawPayloadRepoTest {
+
+    @Spy
+    private RawPayload rawPayloadSpy;
+
+    @Spy
+    private HibernateUtils hibernateUtilsSpy;
+
+    @InjectMocks
+    private static HibernateRawPayloadRepo hibernateRawPayloadRepo;
+
+    @Before
+    public void setUp(){
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @After
+    public void cleanUp(){
+        try {
+            HibernateUtils.getInstance().startTransaction();
+            String sql = "delete from RawPayload";
+            jakarta.persistence.Query query = HibernateUtils.getInstance().getConnection().createQuery(sql);
+            query.executeUpdate();
+            HibernateUtils.getInstance().commitTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
+            HibernateUtils.getInstance().rollbackTransaction();
+        }
+    }
 
     @Test
     public void getInstanceSingleThreadTest() {
@@ -40,5 +85,45 @@ public class HibernateRawPayloadRepoTest {
 
         // Hashcode Identity will be same (reference to the same object)
         assertEquals(System.identityHashCode(instance1), System.identityHashCode(instance2));
+    }
+
+    @Test
+    public void writeToRawPayloadTest(){
+        long sizeOfTableBeforeInsertion = getSizeOfTable();
+
+        String tradeID = TestDataProvider.validTradeIdSupplier.get();
+        String payload = TestDataProvider.validTradePayloadSupplier.get();
+        String validStatus = "Valid";
+        HibernateRawPayloadRepo.getInstance().writeToRawPayloadTable(tradeID, payload, validStatus);
+
+        long sizeOfTableAfterInsertion = getSizeOfTable();
+        List<RawPayload> entriesInTableAfterInsertion = getEntriesInTable();
+
+        assertEquals(sizeOfTableBeforeInsertion + 1, sizeOfTableAfterInsertion);
+        assertEquals(tradeID, entriesInTableAfterInsertion.get(0).getTradeID());
+        assertEquals(payload, entriesInTableAfterInsertion.get(0).getPayload());
+        assertEquals(validStatus, entriesInTableAfterInsertion.get(0).getStatus());
+    }
+
+    private long getSizeOfTable(){
+        String hql = "SELECT COUNT(e) FROM RawPayload e";
+        Query<Long> query = HibernateUtils.getInstance().getConnection().createQuery(hql, Long.class);
+        return query.uniqueResult();
+    }
+
+    private List<RawPayload> getEntriesInTable(){
+        String hql = "SELECT e FROM RawPayload e";
+        Query<RawPayload> query = HibernateUtils.getInstance().getConnection().createQuery(hql, RawPayload.class);
+        return query.getResultList();
+    }
+
+//    @Test # TODO
+    public void writeToRawPayloadExceptionTest(){
+        doAnswer(invocationOnMock -> {
+          throw new SQLException();
+        }).when(rawPayloadSpy).getTradeID();
+
+        hibernateRawPayloadRepo.getInstance().writeToRawPayloadTable("a", "b", "c");
+        verify(hibernateUtilsSpy, times(1)).rollbackTransaction();
     }
 }
