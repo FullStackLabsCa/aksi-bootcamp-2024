@@ -1,6 +1,5 @@
 package io.reactivestax;
 
-import java.util.Date;
 import java.util.function.Supplier;
 
 public interface TestDataProvider {

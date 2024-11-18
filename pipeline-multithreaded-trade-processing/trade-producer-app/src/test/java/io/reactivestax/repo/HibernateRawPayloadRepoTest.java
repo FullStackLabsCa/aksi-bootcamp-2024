@@ -13,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opentest4j.TestAbortedException;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -22,8 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,7 +50,6 @@ public class HibernateRawPayloadRepoTest {
             query.executeUpdate();
             HibernateUtils.getInstance().commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
             HibernateUtils.getInstance().rollbackTransaction();
         }
     }
