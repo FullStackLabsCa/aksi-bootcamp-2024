@@ -11,7 +11,7 @@ public class ChunksStream {
     }
 
     public static Optional<String> getRecentPostedChunkPath() throws InterruptedException {
-        return Optional.ofNullable(chunksPaths.poll(60, TimeUnit.SECONDS));
+        return Optional.ofNullable(chunksPaths.poll(15, TimeUnit.SECONDS));
     }
 
     public static void produceChunkPath(String chunkPath) {
