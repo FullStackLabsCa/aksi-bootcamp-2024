@@ -10,15 +10,21 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
+import io.reactivestax.utility.exceptions.ChunkProcessorException;
 import io.reactivestax.utility.messaging.MessageSender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -74,6 +80,43 @@ class ChunkProcessorServiceTest {
     }
 
 //processChunkTest
+    @Test
+    void processChunkTest_InvalidFilePath(){
+        assertThrows(ChunkProcessorException.class, () -> chunkProcessorServiceSpy.processChunk("src/test/resources/trade-files/non-existing-file.csv"));
+    }
+
+    @Test
+    void processChunkTest_EmptyFilePath(){
+        assertThrows(ChunkProcessorException.class, () -> chunkProcessorServiceSpy.processChunk(""));
+    }
+
+    @Test
+    void processChunkTest_NullFilePath(){
+        assertThrows(ChunkProcessorException.class, () -> chunkProcessorServiceSpy.processChunk(null));
+    }
+
+    @ParameterizedTest
+    @MethodSource("tradesChunkProcessTestCases")
+    void processChunk_ValidTradesFile(String filePath, int numOfTradesInFile){
+
+        doNothing().when(chunkProcessorServiceSpy).processPayload(any());
+
+        chunkProcessorServiceSpy.processChunk(filePath);
+        verify(chunkProcessorServiceSpy, times(numOfTradesInFile + 1)).processPayload(any()); // +1 for the header
+    }
+
+    static Stream<Arguments> tradesChunkProcessTestCases(){
+        return Stream.of(
+                Arguments.of("src/test/resources/0trades.csv", 0),
+                Arguments.of("src/test/resources/10000trades.csv", 10000),
+                Arguments.of("src/test/resources/800trades.csv", 800),
+                Arguments.of("src/test/resources/999trades.csv", 999),
+                Arguments.of("src/test/resources/1111trades.csv", 1111)
+        );
+    }
+
+    // processChunkTest_ValidateDataInsertionInDB # TODO Integration Test
+    // processChunkTest_ValidateDataInsertionInRabbitMQ # TODO Integration Test
 
 //processPayloadTest
     @Test
