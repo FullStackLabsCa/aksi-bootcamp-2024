@@ -4,10 +4,11 @@ import io.reactivestax.factory.BeanFactory;
 import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.service.interfaces.ChunkProcessing;
 import io.reactivestax.service.interfaces.TradeIdAndAccNum;
-import io.reactivestax.utility.exceptions.InvalidChunkPathException;
+import io.reactivestax.utility.exceptions.ChunkProcessorException;
 import io.reactivestax.utility.messaging.MessageSender;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
@@ -28,8 +29,8 @@ public class ChunkProcessorService implements ChunkProcessing {
     public void processChunk(String filePath) {
         try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
                 lines.forEach(this::processPayload);
-        } catch (IOException e) {
-            throw new InvalidChunkPathException("Unable to find chunk at the provided path");
+        } catch (NullPointerException | IOException | UncheckedIOException e) {
+            throw new ChunkProcessorException("Failed to process provided chunk: " + filePath);
         }
     }
 
