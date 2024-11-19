@@ -16,18 +16,20 @@ public class TradeProducerAppRunner {
 }
 
 class FileReaderRunner implements Runnable{
+    TradesFileReader reader = new TradesFileReader();
+
     @Override
     public void run(){
         String folderPath = getFileProperty("resourcesFolderPath");
-        TradesFileReader reader = new TradesFileReader();
         reader.readFileAndCreateChunks(folderPath+"/"+getFileProperty("dataFileName"), null);
     }
 }
 
 class ChunkProcessorRunner implements Runnable{
+    ChunkProcessor chunkProcessor = new ChunkProcessor();
+
     @Override
     public void run(){
-        ChunkProcessor chunkProcessor = new ChunkProcessor();
         chunkProcessor.startChunkProcessorPool();
     }
 }
