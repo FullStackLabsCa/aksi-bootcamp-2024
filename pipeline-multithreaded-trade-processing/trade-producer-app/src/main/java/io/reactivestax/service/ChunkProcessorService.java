@@ -57,7 +57,7 @@ public class ChunkProcessorService implements ChunkProcessing {
 
     @Override
     public TradeIdAndAccNum getIdentifierFromPayload(String payload) {
-        if (payload == null) {
+        if (payload == null || payload.trim().isEmpty()) {
             return new TradeIdAndAccNum(invalidString, invalidString);
         }
 

@@ -34,6 +34,9 @@ class ChunkProcessorServiceTest {
     @Mock
     private MessageSender<TradeIdAndAccNum> messageSenderMock;
 
+    @Spy
+    private ChunkProcessorService chunkProcessorServiceSpy;
+
     @BeforeEach
     void setUp(){
         MockitoAnnotations.openMocks(this);
@@ -73,8 +76,61 @@ class ChunkProcessorServiceTest {
 //processChunkTest
 
 //processPayloadTest
+    // Valid Payload
+        //  checkPayloadValidity with the payload called once
+        //  getIdentifiersfromPayload with payload called once
+        //  writePayloadToPaylodDB called Once with valdTradeId, ValidPayload, Valid Status
+    @Test
+    void processPayloadTest_ValidPayload(){
+        String payload = TestDataProvider.validTradePayloadSupplier.get();
+        chunkProcessorServiceSpy.processPayload(payload);
+        verify(chunkProcessorServiceSpy, times(1)).checkPayloadValidity(payload);
+        verify(chunkProcessorServiceSpy, times(1)).getIdentifierFromPayload(payload);
+        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase("TDB_00000001", payload, VALID);
+        verify(chunkProcessorServiceSpy, times(1)).sendForProcessing(new TradeIdAndAccNum("TDB_00000001", "TDB_CUST_2517563"));
+    }
 
-//checkPayloadValidityTests
+    // Invalid Payload
+        //  checkPayloadValidity with the payload called once
+        //  getIdentifiersfromPayload with payload called once
+        //  writePayloadToPaylodDB called Once with valdTradeId, ValidPayload, Invalid Status
+    @Test
+    void processPayloadTest_InvalidPayload(){
+        String payload = TestDataProvider.invalidPayloadLengthSupplier.get();
+        chunkProcessorServiceSpy.processPayload(payload);
+        verify(chunkProcessorServiceSpy, times(1)).checkPayloadValidity(payload);
+        verify(chunkProcessorServiceSpy, times(1)).getIdentifierFromPayload(payload);
+        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase("TDB_00000001", payload, INVALID);
+        verify(chunkProcessorServiceSpy, times(0)).sendForProcessing(any());
+    }
+    // Null Payload
+        //  checkPayloadValidity with the payload called once
+        //  getIdentifiersfromPayload with payload called once
+        //  writePayloadToPaylodDB called Once with TradeId as Invalid, null Payload, Invalid Status
+    @Test
+    void processPayloadTest_NullPayload(){
+        String payload = TestDataProvider.nullTradePayloadSupplier.get();
+        chunkProcessorServiceSpy.processPayload(payload);
+        verify(chunkProcessorServiceSpy, times(1)).checkPayloadValidity(payload);
+        verify(chunkProcessorServiceSpy, times(1)).getIdentifierFromPayload(payload);
+        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase(INVALID, payload, INVALID);
+        verify(chunkProcessorServiceSpy, times(0)).sendForProcessing(any());
+    }
+
+    @Test
+    void processPayloadTest_EmptyPayload(){
+
+        doNothing().when(chunkProcessorServiceSpy).writePayloadToPayloadDatabase(any(), any(), any());
+
+        String payload = TestDataProvider.emptyTradePayloadSupplier.get();
+        chunkProcessorServiceSpy.processPayload(payload);
+        verify(chunkProcessorServiceSpy, times(1)).checkPayloadValidity(payload);
+        verify(chunkProcessorServiceSpy, times(1)).getIdentifierFromPayload(payload);
+        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase(INVALID, payload, INVALID);
+        verify(chunkProcessorServiceSpy, times(0)).sendForProcessing(any());
+    }
+
+    //checkPayloadValidityTests
     @Test
     void checkPayloadValidityTest_ValidPayload(){
         String payload = TestDataProvider.validTradePayloadSupplier.get();
