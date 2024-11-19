@@ -1,11 +1,9 @@
 package io.reactivestax.utility.messaging;
 
 
-import org.h2.mvstore.Chunk;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
