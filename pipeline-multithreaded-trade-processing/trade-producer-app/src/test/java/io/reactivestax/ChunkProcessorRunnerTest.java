@@ -33,9 +33,15 @@ public class ChunkProcessorRunnerTest {
     }
 
     @Test
-    void runTest(){
+    void runMockedTest(){
         doNothing().when(chunkProcessorSpy).startChunkProcessorPool();
         chunkProcessorRunner.run();
         verify(chunkProcessorSpy, times(1)).startChunkProcessorPool();
     }
+
+    @Test
+    void runIntegrationTest(){
+        // TODO
+    }
+
 }

@@ -28,9 +28,14 @@ public class FileReaderRunnerTest{
     }
 
     @Test
-    void runTest(){
+    void runMockedTest(){
         doNothing().when(tradesFileReaderSpy).readFileAndCreateChunks(any(), any());
         fileReaderRunner.run();
         verify(tradesFileReaderSpy, times(1)).readFileAndCreateChunks(any(), any());
+    }
+
+    @Test
+    void runIntegrationTest(){
+        // TODO
     }
 }
