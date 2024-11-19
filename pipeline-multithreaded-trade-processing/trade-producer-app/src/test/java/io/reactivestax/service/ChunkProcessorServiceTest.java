@@ -76,10 +76,6 @@ class ChunkProcessorServiceTest {
 //processChunkTest
 
 //processPayloadTest
-    // Valid Payload
-        //  checkPayloadValidity with the payload called once
-        //  getIdentifiersfromPayload with payload called once
-        //  writePayloadToPaylodDB called Once with valdTradeId, ValidPayload, Valid Status
     @Test
     void processPayloadTest_ValidPayload(){
         String payload = TestDataProvider.validTradePayloadSupplier.get();
@@ -90,10 +86,6 @@ class ChunkProcessorServiceTest {
         verify(chunkProcessorServiceSpy, times(1)).sendForProcessing(new TradeIdAndAccNum("TDB_00000001", "TDB_CUST_2517563"));
     }
 
-    // Invalid Payload
-        //  checkPayloadValidity with the payload called once
-        //  getIdentifiersfromPayload with payload called once
-        //  writePayloadToPaylodDB called Once with valdTradeId, ValidPayload, Invalid Status
     @Test
     void processPayloadTest_InvalidPayload(){
         String payload = TestDataProvider.invalidPayloadLengthSupplier.get();
@@ -103,10 +95,7 @@ class ChunkProcessorServiceTest {
         verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase("TDB_00000001", payload, INVALID);
         verify(chunkProcessorServiceSpy, times(0)).sendForProcessing(any());
     }
-    // Null Payload
-        //  checkPayloadValidity with the payload called once
-        //  getIdentifiersfromPayload with payload called once
-        //  writePayloadToPaylodDB called Once with TradeId as Invalid, null Payload, Invalid Status
+
     @Test
     void processPayloadTest_NullPayload(){
         String payload = TestDataProvider.nullTradePayloadSupplier.get();
@@ -130,7 +119,10 @@ class ChunkProcessorServiceTest {
         verify(chunkProcessorServiceSpy, times(0)).sendForProcessing(any());
     }
 
-    //checkPayloadValidityTests
+    // processPayloadTest_VerifyDBInsertionOfPayload # TODO Integration Test
+    // processPayloadTest_VerifyQueueInsertion # TODO Integration Test
+
+//checkPayloadValidityTests
     @Test
     void checkPayloadValidityTest_ValidPayload(){
         String payload = TestDataProvider.validTradePayloadSupplier.get();
