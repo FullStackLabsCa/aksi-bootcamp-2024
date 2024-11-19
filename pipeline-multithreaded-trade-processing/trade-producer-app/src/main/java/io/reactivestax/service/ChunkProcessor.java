@@ -2,6 +2,7 @@ package io.reactivestax.service;
 
 import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.messaging.ChunksStream;
+import lombok.NoArgsConstructor;
 
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -35,17 +36,17 @@ public class ChunkProcessor {
 
 }
 
+@NoArgsConstructor
 class ChunkProcessorRunnable implements Runnable {
-
     String chunkPath;
 
     public ChunkProcessorRunnable(String chunkPath) {
         this.chunkPath = chunkPath;
     }
+    ChunkProcessorService chunkProcessorService = ChunkProcessorService.getInstance();
 
     @Override
     public void run() {
-        ChunkProcessorService chunkProcessorService = ChunkProcessorService.getInstance();
         chunkProcessorService.processChunk(this.chunkPath);
     }
 }
