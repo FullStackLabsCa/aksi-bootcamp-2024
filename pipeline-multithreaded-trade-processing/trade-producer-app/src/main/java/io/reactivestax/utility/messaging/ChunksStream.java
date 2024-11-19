@@ -18,7 +18,6 @@ public class ChunksStream {
         try {
             chunksPaths.put(chunkPath);
         } catch (InterruptedException e) {
-            System.out.println(e.getMessage());
             Thread.currentThread().interrupt();
         }
     }
