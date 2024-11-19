@@ -50,7 +50,7 @@ public class TradesFileReader implements TradesFileReading {
             assert fileNameUnderProcessing != null;
             ChunksStream.produceChunkPath(new File(fileNameUnderProcessing).getAbsolutePath());
 
-        } catch (IOException e) {
+        } catch (NullPointerException | IOException e) {
             throw new FilepathProcessingException("Unable to find process provided Trades file");
         }
     }
