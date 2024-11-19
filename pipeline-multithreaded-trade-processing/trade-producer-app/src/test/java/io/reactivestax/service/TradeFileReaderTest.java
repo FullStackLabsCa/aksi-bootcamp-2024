@@ -3,7 +3,6 @@ package io.reactivestax.service;
 import io.reactivestax.TestDataProvider;
 import io.reactivestax.utility.exceptions.FilepathProcessingException;
 import io.reactivestax.utility.messaging.ChunksStream;
-import org.h2.mvstore.Chunk;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,7 +78,6 @@ public class TradeFileReaderTest {
         );
     }
 
-    // readFileAndCreateChunks_ActualChunkCreationTest_ValidFile # TODO
     @ParameterizedTest
     @MethodSource("validFilesWithTradesActualFileCreationTests")
     void readFileAndCreateChunks_ActualChunkCreationTest_ValidFile(String filePath, int expectedNumberOfChunks){

@@ -22,4 +22,12 @@ public class ChunksStream {
             Thread.currentThread().interrupt();
         }
     }
+
+    public static int getNumberOfChunksAvailableForProcessing(){
+        return chunksPaths.size();
+    }
+
+    public static void clearChunksQueue(){
+        chunksPaths.clear();
+    }
 }
