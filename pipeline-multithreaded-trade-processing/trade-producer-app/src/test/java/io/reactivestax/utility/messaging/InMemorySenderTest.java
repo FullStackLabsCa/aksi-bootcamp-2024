@@ -1,14 +1,13 @@
 package io.reactivestax.utility.messaging;
 
 import io.reactivestax.utility.messaging.inmemory.InMemorySender;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static org.junit.Assert.assertEquals;
 
 public class InMemorySenderTest {
     @Test
