@@ -4,6 +4,7 @@ import io.reactivestax.TestDataProvider;
 import io.reactivestax.utility.exceptions.FilepathProcessingException;
 import io.reactivestax.utility.messaging.ChunksStream;
 import org.h2.mvstore.Chunk;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -29,6 +31,11 @@ public class TradeFileReaderTest {
     @BeforeEach
     public void setUp(){
         MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    public void cleanUp(){
+        ChunksStream.clearChunksQueue();
     }
 
     @ParameterizedTest
@@ -50,15 +57,15 @@ public class TradeFileReaderTest {
     }
 
     @ParameterizedTest
-    @MethodSource("validFilesWithTradesTests")
-    void readFileAndCreateChunksTest_ValidFile(String filePath, int expectedHitsForChunkProduction){
+    @MethodSource("validFilesWithTradesMockedTests")
+    void readFileAndCreateChunks_MockedTest_ValidFile(String filePath, int expectedHitsForChunkProduction){
         try(MockedStatic<ChunksStream> chunksStreamMockedStatic = Mockito.mockStatic(ChunksStream.class)) {
             tradesFileReaderSpy.readFileAndCreateChunks(filePath, "");
             chunksStreamMockedStatic.verify(() -> ChunksStream.produceChunkPath(any()), times(expectedHitsForChunkProduction));
         }
     }
 
-    static Stream<Arguments> validFilesWithTradesTests(){
+    static Stream<Arguments> validFilesWithTradesMockedTests(){
         return Stream.of(
                 Arguments.of(TestDataProvider.trades_0_FilePathSupplier.get(), 0),
 //                Arguments.of(TestDataProvider.trades_1_FilePathSupplier.get(), 1),
@@ -70,5 +77,32 @@ public class TradeFileReaderTest {
 //                Arguments.of(TestDataProvider.trades_111111_FilePathSupplier.get(), 11),
                 Arguments.of(TestDataProvider.trades_10000_FilePathSupplier.get(), 10)
         );
+    }
+
+    // readFileAndCreateChunks_ActualChunkCreationTest_ValidFile # TODO
+    @ParameterizedTest
+    @MethodSource("validFilesWithTradesActualFileCreationTests")
+    void readFileAndCreateChunks_ActualChunkCreationTest_ValidFile(String filePath, int expectedNumberOfChunks){
+        TradesFileReader tradesFileReader = new TradesFileReader();
+        tradesFileReader.readFileAndCreateChunks(filePath, "");
+        assertEquals(readChunksInQueue(), expectedNumberOfChunks);
+    }
+
+    static Stream<Arguments> validFilesWithTradesActualFileCreationTests(){
+        return Stream.of(
+                Arguments.of(TestDataProvider.trades_0_FilePathSupplier.get(), 0),
+//                Arguments.of(TestDataProvider.trades_1_FilePathSupplier.get(), 1),
+                Arguments.of(TestDataProvider.trades_800_FilePathSupplier.get(), 1),
+                Arguments.of(TestDataProvider.trades_999_FilePathSupplier.get(), 1),
+//                Arguments.of(TestDataProvider.trades_1000_FilePathSupplier.get(), 1),
+                Arguments.of(TestDataProvider.trades_1111_FilePathSupplier.get(), 2),
+//                Arguments.of(TestDataProvider.trades_9999_FilePathSupplier.get(), 10),
+//                Arguments.of(TestDataProvider.trades_111111_FilePathSupplier.get(), 11),
+                Arguments.of(TestDataProvider.trades_10000_FilePathSupplier.get(), 10)
+        );
+    }
+
+    int readChunksInQueue(){
+        return ChunksStream.getNumberOfChunksAvailableForProcessing();
     }
 }
