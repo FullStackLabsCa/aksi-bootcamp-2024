@@ -1,7 +1,7 @@
 package io.reactivestax.service;
 
 import io.reactivestax.service.interfaces.TradesFileReading;
-import io.reactivestax.utility.exceptions.InvalidFilePathException;
+import io.reactivestax.utility.exceptions.FilepathProcessingException;
 import io.reactivestax.utility.messaging.ChunksStream;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
@@ -11,6 +11,7 @@ import java.util.Scanner;
 
 
 public class TradesFileReader implements TradesFileReading {
+
     @Override
     public void readFileAndCreateChunks(String filePath, String fileType) {
         try (Scanner fileReader = new Scanner(new FileReader(filePath))) {
@@ -50,7 +51,7 @@ public class TradesFileReader implements TradesFileReading {
             ChunksStream.produceChunkPath(new File(fileNameUnderProcessing).getAbsolutePath());
 
         } catch (IOException e) {
-            throw new InvalidFilePathException("Unable to find Trades File");
+            throw new FilepathProcessingException("Unable to find process provided Trades file");
         }
     }
 

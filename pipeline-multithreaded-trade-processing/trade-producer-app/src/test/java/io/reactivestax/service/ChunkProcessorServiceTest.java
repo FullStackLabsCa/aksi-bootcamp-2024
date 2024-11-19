@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
-import io.reactivestax.utility.exceptions.ChunkProcessorException;
+import io.reactivestax.utility.exceptions.FilepathProcessingException;
 import io.reactivestax.utility.messaging.MessageSender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,17 +82,17 @@ class ChunkProcessorServiceTest {
 //processChunkTest
     @Test
     void processChunkTest_InvalidFilePath(){
-        assertThrows(ChunkProcessorException.class, () -> chunkProcessorServiceSpy.processChunk("src/test/resources/trade-files/non-existing-file.csv"));
+        assertThrows(FilepathProcessingException.class, () -> chunkProcessorServiceSpy.processChunk("src/test/resources/trade-files/non-existing-file.csv"));
     }
 
     @Test
     void processChunkTest_EmptyFilePath(){
-        assertThrows(ChunkProcessorException.class, () -> chunkProcessorServiceSpy.processChunk(""));
+        assertThrows(FilepathProcessingException.class, () -> chunkProcessorServiceSpy.processChunk(""));
     }
 
     @Test
     void processChunkTest_NullFilePath(){
-        assertThrows(ChunkProcessorException.class, () -> chunkProcessorServiceSpy.processChunk(null));
+        assertThrows(FilepathProcessingException.class, () -> chunkProcessorServiceSpy.processChunk(null));
     }
 
     @ParameterizedTest

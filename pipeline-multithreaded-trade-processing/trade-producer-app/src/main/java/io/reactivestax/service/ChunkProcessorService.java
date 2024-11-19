@@ -4,7 +4,7 @@ import io.reactivestax.factory.BeanFactory;
 import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.service.interfaces.ChunkProcessing;
 import io.reactivestax.service.interfaces.TradeIdAndAccNum;
-import io.reactivestax.utility.exceptions.ChunkProcessorException;
+import io.reactivestax.utility.exceptions.FilepathProcessingException;
 import io.reactivestax.utility.messaging.MessageSender;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class ChunkProcessorService implements ChunkProcessing {
         try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
                 lines.forEach(this::processPayload);
         } catch (NullPointerException | IOException | UncheckedIOException e) {
-            throw new ChunkProcessorException("Failed to process provided chunk: " + filePath);
+            throw new FilepathProcessingException("Failed to process provided chunk: " + filePath);
         }
     }
 
