@@ -4,9 +4,9 @@ import io.reactivestax.TestDataProvider;
 import io.reactivestax.entity.RawPayload;
 import io.reactivestax.repo.jdbc.JDBCRawPayloadRepo;
 import io.reactivestax.utility.database.JDBCUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,18 +20,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 @ExtendWith(MockitoExtension.class)
 public class JDBCRawPayloadRepoTest {
 
-    @Before
-    public void setUp(){
+    @BeforeEach
+    void setUp(){
         MockitoAnnotations.openMocks(this);
     }
 
-    @After
-    public void cleanUp(){
+    @AfterEach
+    void cleanUp(){
         String sql = "delete from trades_payload";
         try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql)) {
             JDBCUtils.getInstance().startTransaction();
@@ -46,7 +47,7 @@ public class JDBCRawPayloadRepoTest {
     }
 
     @Test
-    public void getInstanceSingleThreadTest() {
+    void getInstanceSingleThreadTest() {
         // Get two instances
         JDBCRawPayloadRepo instance1 = JDBCRawPayloadRepo.getInstance();
         JDBCRawPayloadRepo instance2 = JDBCRawPayloadRepo.getInstance();
@@ -59,7 +60,7 @@ public class JDBCRawPayloadRepoTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<JDBCRawPayloadRepo> getInstance = JDBCRawPayloadRepo::getInstance;
@@ -76,7 +77,7 @@ public class JDBCRawPayloadRepoTest {
     }
 
     @Test
-    public void writeToRawPayloadTest(){
+    void writeToRawPayloadTest(){
         long sizeOfTableBeforeInsertion = getSizeOfTable();
 
         String tradeID = TestDataProvider.validTradeIdSupplier.get();
