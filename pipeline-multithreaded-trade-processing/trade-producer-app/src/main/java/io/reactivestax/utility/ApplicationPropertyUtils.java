@@ -11,7 +11,7 @@ public class ApplicationPropertyUtils {
 
     private static Properties fileProperties;
 
-    public static void readPropertiesFile(){
+    private static void readPropertiesFile(){
         Properties properties = new Properties();
 
         try (FileInputStream fis = new FileInputStream("src/main/resources/application.properties")) {
