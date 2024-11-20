@@ -20,8 +20,6 @@ public interface TestDataProvider {
     Supplier<TradeIdAndAccNum> validTradeIdentifierSupplier = () -> new TradeIdAndAccNum("TDB_00000001", "TDB_CUST_2517563");
 
     //File Paths
-    Supplier<String> nullFilePathSupplier = () -> null;
-    Supplier<String> emptyFilePathSupplier = () -> "";
     Supplier<String> invalidFilePathSupplier = () -> "src/test/resources/trade-files/non-existing-file.csv";
     Supplier<String> trades_0_FilePathSupplier = () -> "src/test/resources/0trades.csv";
     Supplier<String> trades_10000_FilePathSupplier = () -> "src/test/resources/10000trades.csv";

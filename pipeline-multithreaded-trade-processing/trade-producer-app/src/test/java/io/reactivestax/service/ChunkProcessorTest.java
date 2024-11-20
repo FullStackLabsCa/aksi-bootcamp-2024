@@ -1,7 +1,6 @@
 package io.reactivestax.service;
 
 import io.reactivestax.utility.messaging.ChunksStream;
-import org.h2.mvstore.Chunk;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -31,21 +29,19 @@ public class ChunkProcessorTest {
     }
 
     @AfterEach
-    void cleanUp(){
+    void cleanUp() {
         ChunksStream.clearChunksQueue();
     }
 
-//startChunkProcessorPoolTest
+    //startChunkProcessorPoolTest
     @Test
     void startChunkProcessorPoolMockedTest_NoChunkToProcess() {
         // executorService.submit never called
         // chunkProcessorRunnable.run() never hit
-        try (MockedStatic<ChunksStream> chunksStreamMockedStatic = Mockito.mockStatic(ChunksStream.class)) {
-            Thread testThread = new Thread(chunkProcessor::startChunkProcessorPool);
-            testThread.start();
-            verify(executorServiceSpy, timeout(5000).times(0)).submit(any(Runnable.class));
-            testThread.interrupt();
-        }
+        Thread testThread = new Thread(chunkProcessor::startChunkProcessorPool);
+        testThread.start();
+        verify(executorServiceSpy, timeout(5000).times(0)).submit(any(Runnable.class));
+        testThread.interrupt();
     }
 
     @Test
