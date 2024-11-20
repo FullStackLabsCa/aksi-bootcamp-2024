@@ -12,4 +12,4 @@ school-cli/.idea/
 pipeline-multithreaded-trade-processing/trade-processor-app/.idea
 pipeline-multithreaded-trade-processing/trade-producer-app/.idea/
 pipeline-multithreaded-trade-processing/trade-producer-app/target/
-*.csv
+pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/*.csv
