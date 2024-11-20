@@ -25,8 +25,12 @@ public interface TestDataProvider {
     //File Paths
     Supplier<String> invalidFilePathSupplier = () -> "src/test/resources/trade-files/non-existing-file.csv";
     Supplier<String> trades_0_FilePathSupplier = () -> "src/test/resources/0trades.csv";
+    Supplier<String> trades_1_FilePathSupplier = () -> "src/test/resources/1trades.csv";
     Supplier<String> trades_10000_FilePathSupplier = () -> "src/test/resources/10000trades.csv";
+    Supplier<String> trades_1000_FilePathSupplier = () -> "src/test/resources/1000trades.csv";
     Supplier<String> trades_800_FilePathSupplier = () -> "src/test/resources/800trades.csv";
     Supplier<String> trades_999_FilePathSupplier = () -> "src/test/resources/999trades.csv";
+    Supplier<String> trades_9999_FilePathSupplier = () -> "src/test/resources/9999trades.csv";
     Supplier<String> trades_1111_FilePathSupplier = () -> "src/test/resources/1111trades.csv";
+    Supplier<String> trades_10001_FilePathSupplier = () -> "src/test/resources/10001trades.csv";
 }

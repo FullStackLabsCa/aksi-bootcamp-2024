@@ -67,13 +67,13 @@ public class TradeFileReaderTest {
     static Stream<Arguments> validFilesWithTradesMockedTests(){
         return Stream.of(
                 Arguments.of(TestDataProvider.trades_0_FilePathSupplier.get(), 0),
-//                Arguments.of(TestDataProvider.trades_1_FilePathSupplier.get(), 1),
+                Arguments.of(TestDataProvider.trades_1_FilePathSupplier.get(), 1),
                 Arguments.of(TestDataProvider.trades_800_FilePathSupplier.get(), 1),
                 Arguments.of(TestDataProvider.trades_999_FilePathSupplier.get(), 1),
-//                Arguments.of(TestDataProvider.trades_1000_FilePathSupplier.get(), 1),
+                Arguments.of(TestDataProvider.trades_1000_FilePathSupplier.get(), 1),
                 Arguments.of(TestDataProvider.trades_1111_FilePathSupplier.get(), 2),
-//                Arguments.of(TestDataProvider.trades_9999_FilePathSupplier.get(), 10),
-//                Arguments.of(TestDataProvider.trades_111111_FilePathSupplier.get(), 11),
+                Arguments.of(TestDataProvider.trades_9999_FilePathSupplier.get(), 10),
+                Arguments.of(TestDataProvider.trades_10001_FilePathSupplier.get(), 11),
                 Arguments.of(TestDataProvider.trades_10000_FilePathSupplier.get(), 10)
         );
     }
@@ -89,13 +89,13 @@ public class TradeFileReaderTest {
     static Stream<Arguments> validFilesWithTradesActualFileCreationTests(){
         return Stream.of(
                 Arguments.of(TestDataProvider.trades_0_FilePathSupplier.get(), 0),
-//                Arguments.of(TestDataProvider.trades_1_FilePathSupplier.get(), 1),
+                Arguments.of(TestDataProvider.trades_1_FilePathSupplier.get(), 1),
                 Arguments.of(TestDataProvider.trades_800_FilePathSupplier.get(), 1),
                 Arguments.of(TestDataProvider.trades_999_FilePathSupplier.get(), 1),
-//                Arguments.of(TestDataProvider.trades_1000_FilePathSupplier.get(), 1),
+                Arguments.of(TestDataProvider.trades_1000_FilePathSupplier.get(), 1),
                 Arguments.of(TestDataProvider.trades_1111_FilePathSupplier.get(), 2),
-//                Arguments.of(TestDataProvider.trades_9999_FilePathSupplier.get(), 10),
-//                Arguments.of(TestDataProvider.trades_111111_FilePathSupplier.get(), 11),
+                Arguments.of(TestDataProvider.trades_9999_FilePathSupplier.get(), 10),
+                Arguments.of(TestDataProvider.trades_10001_FilePathSupplier.get(), 11),
                 Arguments.of(TestDataProvider.trades_10000_FilePathSupplier.get(), 10)
         );
     }
