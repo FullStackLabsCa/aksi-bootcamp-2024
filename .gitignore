@@ -17,7 +17,7 @@ pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/0t
 pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/800trades.csv
 pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/1111trades.csv
 pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/999trades.csv
-pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/1trades.csv
+pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/1000trades.csv
 pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/1000trades.csv
 pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/9999trades.csv
 pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/10001trades.csv
