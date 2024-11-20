@@ -5,81 +5,69 @@ import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
 import io.reactivestax.repo.jdbc.JDBCRawPayloadRepo;
 import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 import io.reactivestax.utility.ApplicationPropertyUtils;
-import io.reactivestax.utility.database.HibernateUtils;
-import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
 import io.reactivestax.utility.messaging.MessageSender;
 import io.reactivestax.utility.messaging.inmemory.InMemorySender;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQSender;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+
+import java.util.stream.Stream;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BeanFactoryTest {
 
-    @Test
-    void testGetRawPayloadRepo_JDBC(){
-        try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
-            mockedStatic.when(() -> getFileProperty("persistence.technology")).thenReturn("jdbc");
-
-            RawPayloadRepo jdbcTransactionUtil = JDBCRawPayloadRepo.getInstance();
-            RawPayloadRepo transactionUtil = BeanFactory.getRawPayloadRepo();
-
-            // Check not Null
-            assertNotNull(transactionUtil);
-
-            // Instance Verification
-            assertFalse(transactionUtil instanceof HibernateUtils);
-            assertInstanceOf(JDBCRawPayloadRepo.class, transactionUtil);
-
-            // Singleton Verification
-            assertEquals(transactionUtil, jdbcTransactionUtil);
+    private void withMockedProperty(String propertyName, String value, Runnable testToExecute) {
+        try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
+            mockedStatic.when(() -> getFileProperty(propertyName)).thenReturn(value);
+            testToExecute.run();
         }
     }
 
-    @Test
-    void testGetRawPayloadRepo_Hibernate(){
-        try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
-            mockedStatic.when(() -> getFileProperty("persistence.technology")).thenReturn("hibernate");
-
+    @ParameterizedTest
+    @MethodSource("rawPayloadRepoTests")
+    void testGetRawPayloadRepo(String persistenceTech, Class<?> expectedClass) {
+        Runnable test = () -> {
             RawPayloadRepo rawPayloadRepoFromBeanFactory = BeanFactory.getRawPayloadRepo();
-
-            RawPayloadRepo hibernateRawPayloadRepo = HibernateRawPayloadRepo.getInstance();
-
-            // Check Not Null
+            RawPayloadRepo expectedRawPayloadRepo = expectedClass == JDBCRawPayloadRepo.class
+                                                                    ? JDBCRawPayloadRepo.getInstance()
+                                                                    : HibernateRawPayloadRepo.getInstance();
+            // Check not Null
             assertNotNull(rawPayloadRepoFromBeanFactory);
-
             // Instance Verification
-            assertFalse(rawPayloadRepoFromBeanFactory instanceof JDBCUtils);
-            assertInstanceOf(HibernateRawPayloadRepo.class, rawPayloadRepoFromBeanFactory);
-
+            assertInstanceOf(expectedClass, rawPayloadRepoFromBeanFactory);
             // Singleton Verification
-            assertEquals(rawPayloadRepoFromBeanFactory, hibernateRawPayloadRepo);
-        }
+            assertEquals(expectedRawPayloadRepo, rawPayloadRepoFromBeanFactory);
+        };
+
+        withMockedProperty("persistence.technology", persistenceTech, test);
+    }
+
+    static Stream<Arguments> rawPayloadRepoTests() {
+        return Stream.of(
+                Arguments.of("jdbc", JDBCRawPayloadRepo.class),
+                Arguments.of("hibernate", HibernateRawPayloadRepo.class)
+        );
     }
 
     @Test
-    void testGetRawPayloadRepo_InvalidPersistenceTech(){
-        try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
+    void testGetRawPayloadRepo_InvalidPersistenceTech() {
+        try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
             mockedStatic.when(() -> getFileProperty("persistence.technology")).thenReturn("invalidTech");
 
             assertThrows(InvalidPersistenceTechException.class, BeanFactory::getRawPayloadRepo);
         }
     }
 
-    private void withMockedProperty(String propertyName, String value, Runnable functionToExecute){
-        try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
-            mockedStatic.when(() -> getFileProperty(propertyName)).thenReturn(value);
-            functionToExecute.run();
-        }
-    }
-
     @Test
-    void testGetMessageReceiver_RabbitMQ(){
+    void testGetMessageReceiver_RabbitMQ() {
         Runnable test = () -> {
             MessageSender<TradeIdAndAccNum> messageReceiver = BeanFactory.getMessageSender();
             MessageSender<TradeIdAndAccNum> rabbitMQReceiver = RabbitMQSender.getInstance();
@@ -90,11 +78,11 @@ public class BeanFactoryTest {
             assertEquals(messageReceiver, rabbitMQReceiver);
         };
 
-        withMockedProperty("messaging.technology","rabbitmq", test);
+        withMockedProperty("messaging.technology", "rabbitmq", test);
     }
 
     @Test
-    void testGetMessageReceiver_InMemory(){
+    void testGetMessageReceiver_InMemory() {
         Runnable test = () -> {
             MessageSender<TradeIdAndAccNum> messageSender = BeanFactory.getMessageSender();
             MessageSender<TradeIdAndAccNum> inMemorySender = InMemorySender.getInstance();
@@ -104,13 +92,13 @@ public class BeanFactoryTest {
             // Singleton Verification
             assertEquals(messageSender, inMemorySender);
         };
-        withMockedProperty("messaging.technology","in-memory", test);
+        withMockedProperty("messaging.technology", "in-memory", test);
     }
 
     @Test
-    void testGetMessageReceiver_InvalidTech(){
+    void testGetMessageReceiver_InvalidTech() {
         Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageSender);
 
-        withMockedProperty("messaging.technology","invalid",test);
+        withMockedProperty("messaging.technology", "invalid", test);
     }
 }
