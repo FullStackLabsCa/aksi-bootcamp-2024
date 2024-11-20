@@ -35,18 +35,3 @@ public class ChunkProcessor {
     }
 
 }
-
-//@NoArgsConstructor
-//class ChunkProcessorRunnable implements Runnable {
-//    String chunkPath;
-//
-//    public ChunkProcessorRunnable(String chunkPath) {
-//        this.chunkPath = chunkPath;
-//    }
-//    ChunkProcessorService chunkProcessorService = ChunkProcessorService.getInstance();
-//
-//    @Override
-//    public void run() {
-//        chunkProcessorService.processChunk(this.chunkPath);
-//    }
-//}
