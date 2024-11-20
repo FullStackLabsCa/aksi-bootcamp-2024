@@ -12,18 +12,17 @@ import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
 import io.reactivestax.utility.messaging.MessageSender;
 import io.reactivestax.utility.messaging.inmemory.InMemorySender;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQSender;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
-import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BeanFactoryTest {
 
     @Test
-    public void testGetRawPayloadRepo_JDBC(){
+    void testGetRawPayloadRepo_JDBC(){
         try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
             mockedStatic.when(() -> getFileProperty("persistence.technology")).thenReturn("jdbc");
 
@@ -43,7 +42,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void testGetRawPayloadRepo_Hibernate(){
+    void testGetRawPayloadRepo_Hibernate(){
         try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
             mockedStatic.when(() -> getFileProperty("persistence.technology")).thenReturn("hibernate");
 
@@ -64,7 +63,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void testGetRawPayloadRepo_InvalidPersistenceTech(){
+    void testGetRawPayloadRepo_InvalidPersistenceTech(){
         try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
             mockedStatic.when(() -> getFileProperty("persistence.technology")).thenReturn("invalidTech");
 
@@ -80,7 +79,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void testGetMessageReceiver_RabbitMQ(){
+    void testGetMessageReceiver_RabbitMQ(){
         Runnable test = () -> {
             MessageSender<TradeIdAndAccNum> messageReceiver = BeanFactory.getMessageSender();
             MessageSender<TradeIdAndAccNum> rabbitMQReceiver = RabbitMQSender.getInstance();
@@ -95,7 +94,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void testGetMessageReceiver_InMemory(){
+    void testGetMessageReceiver_InMemory(){
         Runnable test = () -> {
             MessageSender<TradeIdAndAccNum> messageSender = BeanFactory.getMessageSender();
             MessageSender<TradeIdAndAccNum> inMemorySender = InMemorySender.getInstance();
@@ -109,7 +108,7 @@ public class BeanFactoryTest {
     }
 
     @Test
-    public void testGetMessageReceiver_InvalidTech(){
+    void testGetMessageReceiver_InvalidTech(){
         Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageSender);
 
         withMockedProperty("messaging.technology","invalid",test);
