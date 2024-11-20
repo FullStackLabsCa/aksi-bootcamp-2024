@@ -29,24 +29,24 @@ public class ChunkProcessor {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(String.class::cast)
-                .forEach(path -> executorService.submit(new ChunkProcessorRunnable(path)));
+                .forEach(path -> executorService.submit(() -> ChunkProcessorService.getInstance().processChunk(path)));
 
         executorService.shutdown();
     }
 
 }
 
-@NoArgsConstructor
-class ChunkProcessorRunnable implements Runnable {
-    String chunkPath;
-
-    public ChunkProcessorRunnable(String chunkPath) {
-        this.chunkPath = chunkPath;
-    }
-    ChunkProcessorService chunkProcessorService = ChunkProcessorService.getInstance();
-
-    @Override
-    public void run() {
-        chunkProcessorService.processChunk(this.chunkPath);
-    }
-}
+//@NoArgsConstructor
+//class ChunkProcessorRunnable implements Runnable {
+//    String chunkPath;
+//
+//    public ChunkProcessorRunnable(String chunkPath) {
+//        this.chunkPath = chunkPath;
+//    }
+//    ChunkProcessorService chunkProcessorService = ChunkProcessorService.getInstance();
+//
+//    @Override
+//    public void run() {
+//        chunkProcessorService.processChunk(this.chunkPath);
+//    }
+//}
