@@ -5,9 +5,9 @@ import io.reactivestax.entity.RawPayload;
 import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
 import io.reactivestax.utility.database.HibernateUtils;
 import org.hibernate.query.Query;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,18 +18,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 @ExtendWith(MockitoExtension.class)
 public class HibernateRawPayloadRepoTest {
 
-    @Before
-    public void setUp(){
+    @BeforeEach
+    void setUp(){
         MockitoAnnotations.openMocks(this);
     }
 
-    @After
-    public void cleanUp(){
+    @AfterEach
+    void cleanUp(){
         try {
             HibernateUtils.getInstance().startTransaction();
             String sql = "delete from RawPayload";
@@ -42,7 +43,7 @@ public class HibernateRawPayloadRepoTest {
     }
 
     @Test
-    public void getInstanceSingleThreadTest() {
+    void getInstanceSingleThreadTest() {
         // Get two instances
         HibernateRawPayloadRepo instance1 = HibernateRawPayloadRepo.getInstance();
         HibernateRawPayloadRepo instance2 = HibernateRawPayloadRepo.getInstance();
@@ -55,7 +56,7 @@ public class HibernateRawPayloadRepoTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<HibernateRawPayloadRepo> getInstance = HibernateRawPayloadRepo::getInstance;
@@ -72,7 +73,7 @@ public class HibernateRawPayloadRepoTest {
     }
 
     @Test
-    public void writeToRawPayloadTest(){
+    void writeToRawPayloadTest(){
         long sizeOfTableBeforeInsertion = getSizeOfTable();
 
         String tradeID = TestDataProvider.validTradeIdSupplier.get();
