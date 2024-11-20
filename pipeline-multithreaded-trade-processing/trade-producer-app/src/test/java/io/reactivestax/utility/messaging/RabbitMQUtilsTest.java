@@ -4,8 +4,8 @@ import com.rabbitmq.client.Channel;
 import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.exceptions.RabbitMQException;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -17,14 +17,14 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RabbitMQUtilsTest {
 
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
-    @After
+    @AfterEach
     public void cleanUp() throws IOException {
         RabbitMQUtils.getInstance().closeRabbitMQConnection();
     }
@@ -89,6 +89,7 @@ public class RabbitMQUtilsTest {
         assertEquals(System.identityHashCode(thread2Channels.get(0)), System.identityHashCode(thread2Channels.get(1)));
 
         // Two connections from any two different threads will be different
+        assertNotEquals(thread1Channels.get(0).hashCode(), thread2Channels.get(0).hashCode());
         assertNotEquals(thread1Channels.get(0).hashCode(), thread2Channels.get(0).hashCode());
         assertNotEquals(System.identityHashCode(thread1Channels.get(0)), System.identityHashCode(thread2Channels.get(0)));
         assertNotEquals(thread1Channels.get(1).hashCode(), thread2Channels.get(1).hashCode());

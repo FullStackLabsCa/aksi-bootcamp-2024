@@ -29,9 +29,6 @@ public class JDBCUtilsTest {
     private final PrintStream originalOut = System.out;
 
     @Spy
-    private HikariDataSource dataSource;
-
-    @Spy
     @InjectMocks
     private JDBCUtils jdbcUtils;
 
