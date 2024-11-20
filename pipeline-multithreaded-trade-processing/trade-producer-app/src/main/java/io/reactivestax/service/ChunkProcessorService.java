@@ -14,8 +14,10 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 public class ChunkProcessorService implements ChunkProcessing {
+    private static final String splitter = ",";
+    private static final String VALID = "Valid";
+    private static final String INVALID = "Invalid";
     private static ChunkProcessorService instance;
-    static String invalidString = "Invalid";
 
     private ChunkProcessorService() {
     }
@@ -41,7 +43,7 @@ public class ChunkProcessorService implements ChunkProcessing {
 
         writePayloadToPayloadDatabase(tradeIdentifiers.tradeID(), payload, tradeValidity);
 
-        if (tradeValidity.equals("Valid")) {
+        if (tradeValidity.equals(VALID)) {
             sendForProcessing(tradeIdentifiers);
         }
     }
@@ -49,28 +51,28 @@ public class ChunkProcessorService implements ChunkProcessing {
     @Override
     public String checkPayloadValidity(String payload) {
         try {
-            return (payload.split(",").length == 7) ? "Valid" : invalidString;
+            return (payload.split(splitter).length == 7) ? VALID : INVALID;
         } catch (Exception e) {
             System.out.println("Failed to Check Payload Validity because " + e.getMessage());
-            return invalidString;
+            return INVALID;
         }
     }
 
     @Override
     public TradeIdAndAccNum getIdentifierFromPayload(String payload) {
         if (payload == null || payload.trim().isEmpty()) {
-            return new TradeIdAndAccNum(invalidString, invalidString);
+            return new TradeIdAndAccNum(INVALID, INVALID);
         }
 
-        String[] fieldsOfTrade = payload.split(",");
+        String[] fieldsOfTrade = payload.split(splitter);
 
         String tradeId = (fieldsOfTrade.length > 0 && fieldsOfTrade[0] != null)
                 ? fieldsOfTrade[0]
-                : invalidString;
+                : INVALID;
 
         String accountNumber = (fieldsOfTrade.length > 2 && fieldsOfTrade[2] != null)
                 ? fieldsOfTrade[2]
-                : invalidString;
+                : INVALID;
 
         return new TradeIdAndAccNum(tradeId, accountNumber);
     }
