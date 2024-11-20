@@ -16,6 +16,9 @@ public interface TestDataProvider {
     //Trade ID
     Supplier<String> validTradeIdSupplier = () -> "TDB_00000001";
 
+    //Account Number
+    Supplier<String> validAccountNumberSupplier = () -> "TDB_CUST_2517563";
+
     //TradeIdentifier
     Supplier<TradeIdAndAccNum> validTradeIdentifierSupplier = () -> new TradeIdAndAccNum("TDB_00000001", "TDB_CUST_2517563");
 

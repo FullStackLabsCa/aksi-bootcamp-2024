@@ -82,7 +82,7 @@ class ChunkProcessorServiceTest {
 //processChunkTest
     @Test
     void processChunkTest_InvalidFilePath(){
-        assertThrows(FilepathProcessingException.class, () -> chunkProcessorServiceSpy.processChunk("src/test/resources/trade-files/non-existing-file.csv"));
+        assertThrows(FilepathProcessingException.class, () -> chunkProcessorServiceSpy.processChunk(TestDataProvider.invalidFilePathSupplier.get()));
     }
 
     @Test
@@ -107,11 +107,11 @@ class ChunkProcessorServiceTest {
 
     static Stream<Arguments> tradesChunkProcessTestCases(){
         return Stream.of(
-                Arguments.of("src/test/resources/0trades.csv", 0),
-                Arguments.of("src/test/resources/10000trades.csv", 10000),
-                Arguments.of("src/test/resources/800trades.csv", 800),
-                Arguments.of("src/test/resources/999trades.csv", 999),
-                Arguments.of("src/test/resources/1111trades.csv", 1111)
+                Arguments.of( TestDataProvider.trades_0_FilePathSupplier.get(), 0),
+                Arguments.of(TestDataProvider.trades_10000_FilePathSupplier.get(), 10000),
+                Arguments.of(TestDataProvider.trades_800_FilePathSupplier.get(), 800),
+                Arguments.of(TestDataProvider.trades_999_FilePathSupplier.get(), 999),
+                Arguments.of(TestDataProvider.trades_1111_FilePathSupplier.get(), 1111)
         );
     }
 
@@ -125,7 +125,7 @@ class ChunkProcessorServiceTest {
         chunkProcessorServiceSpy.processPayload(payload);
         verify(chunkProcessorServiceSpy, times(1)).checkPayloadValidity(payload);
         verify(chunkProcessorServiceSpy, times(1)).getIdentifierFromPayload(payload);
-        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase("TDB_00000001", payload, VALID);
+        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase(TestDataProvider.validTradeIdSupplier.get(), payload, VALID);
         verify(chunkProcessorServiceSpy, times(1)).sendForProcessing(new TradeIdAndAccNum("TDB_00000001", "TDB_CUST_2517563"));
     }
 
@@ -135,7 +135,7 @@ class ChunkProcessorServiceTest {
         chunkProcessorServiceSpy.processPayload(payload);
         verify(chunkProcessorServiceSpy, times(1)).checkPayloadValidity(payload);
         verify(chunkProcessorServiceSpy, times(1)).getIdentifierFromPayload(payload);
-        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase("TDB_00000001", payload, INVALID);
+        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase(TestDataProvider.validTradeIdSupplier.get(), payload, INVALID);
         verify(chunkProcessorServiceSpy, times(0)).sendForProcessing(any());
     }
 
@@ -209,7 +209,7 @@ class ChunkProcessorServiceTest {
         String payload = TestDataProvider.invalidPayloadAccountNumberSupplier.get();
         TradeIdAndAccNum identifierFromPayload = ChunkProcessorService.getInstance().getIdentifierFromPayload(payload);
 
-        assertEquals("TDB_00000001", identifierFromPayload.tradeID());
+        assertEquals(TestDataProvider.validTradeIdSupplier.get(), identifierFromPayload.tradeID());
         assertEquals(INVALID, identifierFromPayload.accountNumber());
     }
 
