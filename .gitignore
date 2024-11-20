@@ -12,7 +12,7 @@ school-cli/.idea/
 pipeline-multithreaded-trade-processing/trade-processor-app/.idea
 pipeline-multithreaded-trade-processing/trade-producer-app/.idea/
 pipeline-multithreaded-trade-processing/trade-producer-app/target/
-pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/10000trades.csv
+pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/1trades.csv
 pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/0trades.csv
 pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/800trades.csv
 pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/1111trades.csv
