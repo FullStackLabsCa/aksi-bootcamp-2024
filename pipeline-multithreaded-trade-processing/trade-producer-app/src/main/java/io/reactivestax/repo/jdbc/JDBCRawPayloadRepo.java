@@ -24,13 +24,15 @@ public class JDBCRawPayloadRepo implements RawPayloadRepo {
     public void writeToRawPayloadTable(String tradeID, String payload, String validityStatus) {
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement psQuery = connection.prepareStatement(INSERT_INTO_TRADES_PAYLOAD_QUERY)) {
+            JDBCUtils.getInstance().startTransaction();
             psQuery.setString(1, tradeID);
             psQuery.setString(2, validityStatus);
             psQuery.setString(3, payload);
             psQuery.executeUpdate();
-
+            JDBCUtils.getInstance().commitTransaction();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Failed to write to Raw Payload Table");
+            JDBCUtils.getInstance().rollbackTransaction();
         }
     }
 }
