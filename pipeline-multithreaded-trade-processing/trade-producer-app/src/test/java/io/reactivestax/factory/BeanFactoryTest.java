@@ -37,8 +37,8 @@ public class BeanFactoryTest {
         Runnable test = () -> {
             RawPayloadRepo rawPayloadRepoFromBeanFactory = BeanFactory.getRawPayloadRepo();
             RawPayloadRepo expectedRawPayloadRepo = expectedClass == JDBCRawPayloadRepo.class
-                                                                    ? JDBCRawPayloadRepo.getInstance()
-                                                                    : HibernateRawPayloadRepo.getInstance();
+                    ? JDBCRawPayloadRepo.getInstance()
+                    : HibernateRawPayloadRepo.getInstance();
             // Check not Null
             assertNotNull(rawPayloadRepoFromBeanFactory);
             // Instance Verification
@@ -66,37 +66,33 @@ public class BeanFactoryTest {
         }
     }
 
-    @Test
-    void testGetMessageReceiver_RabbitMQ() {
+    @ParameterizedTest
+    @MethodSource("messageSenderTests")
+    void getRawPayloadTest(String messagingTechnology, Class<?> expectedClass) {
         Runnable test = () -> {
-            MessageSender<TradeIdAndAccNum> messageReceiver = BeanFactory.getMessageSender();
-            MessageSender<TradeIdAndAccNum> rabbitMQReceiver = RabbitMQSender.getInstance();
+            MessageSender<TradeIdAndAccNum> messageSenderFromBeanFactory = BeanFactory.getMessageSender();
+            MessageSender<TradeIdAndAccNum> expectedMessageSender = expectedClass == RabbitMQSender.class
+                                                                    ? RabbitMQSender.getInstance()
+                                                                    : InMemorySender.getInstance();
 
-            assertNotNull(messageReceiver);
-            assertInstanceOf(RabbitMQSender.class, messageReceiver);
+            assertNotNull(messageSenderFromBeanFactory);
+            assertInstanceOf(expectedClass, messageSenderFromBeanFactory);
             // Singleton Verification
-            assertEquals(messageReceiver, rabbitMQReceiver);
+            assertEquals(expectedMessageSender, messageSenderFromBeanFactory);
         };
 
-        withMockedProperty("messaging.technology", "rabbitmq", test);
+        withMockedProperty("messaging.technology", messagingTechnology, test);
+    }
+
+    static Stream<Arguments> messageSenderTests() {
+        return Stream.of(
+                Arguments.of("rabbitmq", RabbitMQSender.class),
+                Arguments.of("in-memory", InMemorySender.class)
+        );
     }
 
     @Test
-    void testGetMessageReceiver_InMemory() {
-        Runnable test = () -> {
-            MessageSender<TradeIdAndAccNum> messageSender = BeanFactory.getMessageSender();
-            MessageSender<TradeIdAndAccNum> inMemorySender = InMemorySender.getInstance();
-
-            assertNotNull(messageSender);
-            assertInstanceOf(InMemorySender.class, messageSender);
-            // Singleton Verification
-            assertEquals(messageSender, inMemorySender);
-        };
-        withMockedProperty("messaging.technology", "in-memory", test);
-    }
-
-    @Test
-    void testGetMessageReceiver_InvalidTech() {
+    void testGetMessageSender_InvalidTech() {
         Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageSender);
 
         withMockedProperty("messaging.technology", "invalid", test);
