@@ -44,43 +44,134 @@ class TradeProcessorServiceTest {
     }
 
 //runTradeProcessorTest
+    /* Mocked Test
 
+     */
+
+    /* Integration Test
+
+     */
 
 //getTradeIdTest
+    /* Mocked Test
 
+     */
+
+    /* Integration Test
+
+     */
 
 //readPayloadTest
+    /* Mocked Test
 
+     */
+
+    /* Integration Test
+
+     */
 
 //readPayloadFromRawDatabaseTest
+    /* Mocked Test
 
+     */
+
+    /* Integration Test
+
+     */
 
 //validatePayloadAndCreateChunkTest
+    /* Mocked Test
 
+     */
+
+    /* Integration Test
+
+     */
 
 //convertStringToSQLDateTest
+    /* Mocked Test
 
+     */
+
+    /* Integration Test
+
+     */
 
 //processTradeTest
+    /* Mocked Test
 
+     */
+
+    /* Integration Test
+
+     */
 
 //validateBusinessLogicTest
+    /* Mocked Test
 
+     */
+
+    /* Integration Test
+
+     */
 
 //updateSecurityLookupStatusInRawPayloadTest
+    /* Mocked Test
 
+     */
+
+    /* Integration Test
+
+     */
 
 //updateJournalEntryAndPositionsTest
+    /* Mocked Test
 
+     */
+
+    /* Integration Test
+
+     */
 
 //writeToJournalTableTest
-    
+    /* Mocked Test
+
+     */
+
+    /* Integration Test
+
+     */
 
 //writeToPositionTableTest
+    /* Mocked Test
 
+     */
+
+    /* Integration Test
+
+     */
 
 //updateJEPostedStatusInRawPayloadTest
+    /* Mocked Test
 
+     */
+
+    /* Integration Test
+
+     */
 
 //UpdatePositionPostedStatusInJETest
+    /* Mocked Test
+    -   Anything Happens
+            updatePositionPostedStatusInJournalEntry is called Once
+            getPersistenceBean is called once
+    -   Assert Throws
+            updatePositionPostedStatusInJournalEntry throws UpdateException
+     */
+
+    /* Integration Test
+    -   null trade
+    -   invalid trade
+    -   ExceptionCase for PositionStatusUpdateInJournalEntry
+     */
 }
