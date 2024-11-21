@@ -14,7 +14,7 @@ public class ApplicationPropertyUtils {
     private static void readPropertiesFile(){
         Properties properties = new Properties();
 
-        try (FileInputStream fis = new FileInputStream("src/main/resources/application.properties")) {
+        try (FileInputStream fis = new FileInputStream("src/main/resources/application.properties")) { // TODO
             properties.load(fis);
         } catch (IOException e) {
             System.out.println(e.getMessage());

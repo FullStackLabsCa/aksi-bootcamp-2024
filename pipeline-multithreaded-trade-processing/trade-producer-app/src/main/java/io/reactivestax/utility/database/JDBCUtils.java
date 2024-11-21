@@ -47,7 +47,7 @@ public class JDBCUtils implements ConnectionUtil<Connection>, TransactionUtil {
 
     private static void configureHikariCP(String portNum, String dbName) {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:"+portNum+"/"+dbName);
+        config.setJdbcUrl("jdbc:mysql://localhost:"+portNum+"/"+dbName); // TODO
         config.setUsername(getFileProperty("db.username"));
         config.setPassword(getFileProperty("db.password"));
 

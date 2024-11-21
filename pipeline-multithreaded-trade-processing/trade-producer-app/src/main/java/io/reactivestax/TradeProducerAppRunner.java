@@ -21,7 +21,7 @@ class FileReaderRunner implements Runnable{
     @Override
     public void run(){
         String folderPath = getFileProperty("resourcesFolderPath");
-        reader.readFileAndCreateChunks(folderPath+"/"+getFileProperty("dataFileName"), null);
+        reader.readFileAndCreateChunks(folderPath+"/"+getFileProperty("dataFileName"), null); // TODO
     }
 }
 
