@@ -14,6 +14,9 @@ import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 public class BeanFactory {
 
+    private static final String PERSISTENCE_TECHNOLOGY = "persistence.technology";
+    private static final String MESSAGING_TECHNOLOGY = "messaging.technology";
+
     private BeanFactory() {
     }
 
@@ -26,9 +29,9 @@ public class BeanFactory {
     public static RawPayloadRepo getRawPayloadRepo() {
         RawPayloadRepo rawPayloadRepo;
 
-        if(JDBC_PERSISTENCE_TECH.equals(getFileProperty("persistence.technology"))){
+        if(JDBC_PERSISTENCE_TECH.equals(getFileProperty(PERSISTENCE_TECHNOLOGY))){
             rawPayloadRepo = JDBCRawPayloadRepo.getInstance();
-        } else if (HIBERNATE_PERSISTENCE_TECH.equals(getFileProperty("persistence.technology"))){
+        } else if (HIBERNATE_PERSISTENCE_TECH.equals(getFileProperty(PERSISTENCE_TECHNOLOGY))){
             rawPayloadRepo = HibernateRawPayloadRepo.getInstance();
         } else {
             throw new InvalidPersistenceTechException();
@@ -40,9 +43,9 @@ public class BeanFactory {
     public static MessageSender<TradeIdAndAccNum> getMessageSender() {
         MessageSender<TradeIdAndAccNum> messageSender;
 
-        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
+        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
             messageSender = RabbitMQSender.getInstance();
-        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
+        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
             messageSender = InMemorySender.getInstance();
         } else {
             throw new InvalidMessagingTechnologyException();
