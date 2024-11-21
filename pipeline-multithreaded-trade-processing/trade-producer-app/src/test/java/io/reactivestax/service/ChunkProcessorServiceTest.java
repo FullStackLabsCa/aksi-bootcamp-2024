@@ -232,6 +232,25 @@ class ChunkProcessorServiceTest {
         assertEquals(INVALID, identifierFromPayload.accountNumber());
     }
 
+//getRawPayloadFromStringPayload
+    @Test
+    void getRawPayloadFromStringPayloadTest_NullPayload(){
+        RawPayload expectedPayload = TestDataProvider.nullRawPayloadSupplier.get();
+        assertEquals(expectedPayload, ChunkProcessorService.getInstance().getRawPayloadFromStringPayload(null));
+    }
+
+    @Test
+    void getRawPayloadFromStringPayloadTest_EmptyPayload(){
+        RawPayload expectedPayload = TestDataProvider.nullRawPayloadSupplier.get();
+        assertEquals(expectedPayload, ChunkProcessorService.getInstance().getRawPayloadFromStringPayload(""));
+    }
+
+    @Test
+    void getRawPayloadFromStringPayloadTest_ValidPayload(){
+        RawPayload expectedPayload = TestDataProvider.validRawPayloadSupplier.get();
+        assertEquals(expectedPayload, ChunkProcessorService.getInstance().getRawPayloadFromStringPayload(TestDataProvider.validTradePayloadSupplier.get()));
+    }
+
 //writePayloadToPayloadDatabaseTest
     @Test
     void writePayloadToPayloadDBTest(){
