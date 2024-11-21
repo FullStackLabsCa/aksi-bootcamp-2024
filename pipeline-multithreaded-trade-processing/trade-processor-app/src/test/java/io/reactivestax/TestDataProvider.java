@@ -70,15 +70,18 @@ public interface TestDataProvider {
 
     Supplier<Trade> validTradeForPayloadSupplier = () -> Trade.builder()
             .tradeID("TDB_00000001")
-            .accountNumber("123")
-            .activity("BUY")
-            .price(0.0)
-            .transactionTime(new java.sql.Date(2024))
+            .accountNumber("TDB_CUST_2517563")
+            .activity("SELL")
+            .price(1480.82)
+            .transactionTime(new java.sql.Date(2024, 9, 25))
             .cusip("TSLA")
-            .quantity(10)
+            .quantity(45)
             .build();
 
     //Payload Supplier
     Supplier<String> validTradePayloadSupplier = () -> "TDB_00000001,2024-09-25 06:58:37,TDB_CUST_2517563,TSLA,SELL,45,1480.82";
     Supplier<String> invalidTradePayloadSupplier = () -> "TDB_00000001,TDB_CUST_2517563,TSLA,SELL,45,1480.82";
+
+    //TradeID Supplier
+    Supplier<String> tradeIdSupplier = () -> "TDB_00000001";
 }

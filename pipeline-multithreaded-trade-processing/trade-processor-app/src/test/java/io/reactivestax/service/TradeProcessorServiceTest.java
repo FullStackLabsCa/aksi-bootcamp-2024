@@ -6,10 +6,10 @@ import io.reactivestax.factory.BeanFactory;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.PositionsRepo;
-import io.reactivestax.repo.SecuritiesReferenceRepo;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import io.reactivestax.utility.exceptions.TradeCreationFailedException;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +19,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -39,16 +40,21 @@ class TradeProcessorServiceTest {
     @Spy
     private PositionsRepo positionsRepoSpy;
 
-    @Spy
-    private SecuritiesReferenceRepo securitiesReferenceRepoSpy;
-
     @InjectMocks
     private TradeProcessorService tradeProcessorService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+//        clearDataInTables();
     }
+
+//    private void clearDataInTables(){
+//
+//    }
+
+    @AfterEach
+    void cleanUp(){}
 
     @Test
     void getInstanceSingleThreadTest() {
@@ -108,13 +114,19 @@ class TradeProcessorServiceTest {
      */
 
 //readPayloadFromRawDatabaseTest
-    /* Mocked Test
+    @ParameterizedTest
+    @MethodSource("readPayloadFromRawPayloadDBTests")
+    void readPayloadFromRawPayloadDBTest_ReadBeforeInsertion(String tradeId) {
+        Optional<String> payloadReadFromDB = TradeProcessorService.getInstance().readPayloadFromRawPayloadDB(tradeId);
+        assertEquals(Optional.empty(), payloadReadFromDB);
+    }
 
-     */
-
-    /* Integration Test
-
-     */
+    static Stream<Arguments> readPayloadFromRawPayloadDBTests() {
+        return Stream.of(
+                Arguments.of(TestDataProvider.tradeIdSupplier.get()),
+                Arguments.of((Object) null)
+        );
+    }
 
 //validatePayloadAndCreateChunkTest
     @ParameterizedTest

@@ -43,11 +43,11 @@ public class TradeProcessorService implements TradeProcessing {
     }
 
     private Optional<String> readPayload(String tradeID) {
-        return readPayloadFromRawDatabase(tradeID);
+        return readPayloadFromRawPayloadDB(tradeID);
     }
 
     @Override
-    public Optional<String> readPayloadFromRawDatabase(String tradeID) {
+    public Optional<String> readPayloadFromRawPayloadDB(String tradeID) {
         RawPayloadRepo rawPayloadRepo = BeanFactory.getPersistenceBean(RawPayloadRepo.class);
         return rawPayloadRepo.readPayloadFromRawPayloadsTable(tradeID);
     }

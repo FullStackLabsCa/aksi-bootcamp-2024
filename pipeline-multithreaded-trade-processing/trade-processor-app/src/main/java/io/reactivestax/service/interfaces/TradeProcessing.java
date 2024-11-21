@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface TradeProcessing {
 
     Optional<String> getTradeID(MessageProvider messageProvider) throws InterruptedException;
-    Optional<String> readPayloadFromRawDatabase(String tradeID);
+    Optional<String> readPayloadFromRawPayloadDB(String tradeID);
     Trade validatePayloadAndCreateTrade(String payload);
     String validateBusinessLogic(Trade trade);
     void writeToJournalTable(Trade trade) throws WriteToJournalEntryFailed;
