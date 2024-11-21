@@ -18,7 +18,6 @@ import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.database.TransactionUtil;
 import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
-import io.reactivestax.utility.exceptions.NoLongerSupportedException;
 import io.reactivestax.utility.messaging.MessageProvider;
 import io.reactivestax.utility.messaging.MessageReceiver;
 import io.reactivestax.utility.messaging.MessageRetry;
@@ -279,7 +278,7 @@ class BeanFactoryTest {
 
     @Test
     void testGetMessageReceiver_InMemory(){
-        Runnable test = () -> assertThrows(NoLongerSupportedException.class,BeanFactory::getMessageReceiver);
+        Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class,BeanFactory::getMessageReceiver);
 
         withMockedProperty("messaging.technology","in-memory", test);
     }

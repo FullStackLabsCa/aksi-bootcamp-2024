@@ -6,7 +6,7 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.database.HibernateUtils;
-import io.reactivestax.utility.exceptions.OptimisticLockingExceptionThrowable;
+import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -28,7 +28,7 @@ public class HibernatePositionsRepo implements PositionsRepo {
     }
 
     @Override
-    public void updatePositionsTable(Trade trade) throws OptimisticLockingExceptionThrowable {
+    public void updatePositionsTable(Trade trade) throws OptimisticLockingException {
         Session session = HibernateUtils.getInstance().getConnection();
         JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         HibernatePositionsRepo positionsReference = HibernatePositionsRepo.getInstance();
@@ -71,7 +71,7 @@ public class HibernatePositionsRepo implements PositionsRepo {
                 updatePositionQuery.setParameter("currentVersion", version);
 
                 if (updatePositionQuery.executeUpdate() == 0)
-                    throw new OptimisticLockingExceptionThrowable("Optimistic Locking Occurring!!!!!");
+                    throw new OptimisticLockingException("Optimistic Locking Occurring!!!!!");
             }
         } catch (Exception e) {
             e.printStackTrace();

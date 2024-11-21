@@ -5,7 +5,7 @@ import io.reactivestax.entity.Position;
 import io.reactivestax.entity.PositionCompositeKey;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.JDBCUtils;
-import io.reactivestax.utility.exceptions.OptimisticLockingExceptionThrowable;
+import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,7 +94,7 @@ public class JDBCPositionsRepoTest {
     }
 
     @Test
-    public void getVersionIdTradeAfterUpdateTest() throws OptimisticLockingExceptionThrowable {
+    public void getVersionIdTradeAfterUpdateTest() throws OptimisticLockingException {
         // Setup
         Trade trade = TestDataProvider.goodTradeSupplier.get();
         int version = JDBCPositionsRepo.getInstance().getVersionIdForPosition(trade, 157001093);
@@ -110,7 +110,7 @@ public class JDBCPositionsRepoTest {
     }
 
     @Test
-    public void getVersionIdFailedTest() throws OptimisticLockingExceptionThrowable {
+    public void getVersionIdFailedTest() throws OptimisticLockingException {
         System.setOut(new PrintStream(outputStreamCaptor));
 
         doAnswer(invocationOnMock -> {
@@ -164,7 +164,7 @@ public class JDBCPositionsRepoTest {
     }
 
     @Test
-    public void positionUpdate_newPosition_buy_test() throws OptimisticLockingExceptionThrowable {
+    public void positionUpdate_newPosition_buy_test() throws OptimisticLockingException {
 
         long sizeOfTableBeforeUpdate = getSizeOfTable();
         Trade trade = TestDataProvider.goodBuyTradeSupplier.get();
@@ -189,7 +189,7 @@ public class JDBCPositionsRepoTest {
     }
 
     @Test
-    public void positionUpdate_newPosition_sell_test() throws OptimisticLockingExceptionThrowable {
+    public void positionUpdate_newPosition_sell_test() throws OptimisticLockingException {
         long sizeOfTableBeforeUpdate = getSizeOfTable();
         Trade trade = TestDataProvider.goodSellTradeSupplier.get();
 
@@ -213,7 +213,7 @@ public class JDBCPositionsRepoTest {
     }
 
     @Test
-    public void positionUpdate_newPosition_invalidActivity_test() throws OptimisticLockingExceptionThrowable {
+    public void positionUpdate_newPosition_invalidActivity_test() throws OptimisticLockingException {
         System.setOut(new PrintStream(outputStreamCaptor));
 
         Trade trade = TestDataProvider.invalidActivityTradeSupplier.get();
@@ -234,7 +234,7 @@ public class JDBCPositionsRepoTest {
     }
 
     @Test
-    public void positionUpdate_updatePosition_buy_test() throws OptimisticLockingExceptionThrowable {
+    public void positionUpdate_updatePosition_buy_test() throws OptimisticLockingException {
         Trade trade = TestDataProvider.goodBuyTradeSupplier.get();
         JDBCUtils.getInstance().startTransaction();
         JDBCPositionsRepo.getInstance().updatePositionsTable(trade);
@@ -262,7 +262,7 @@ public class JDBCPositionsRepoTest {
     }
 
     @Test
-    public void positionUpdate_updatePosition_sell_test() throws OptimisticLockingExceptionThrowable {
+    public void positionUpdate_updatePosition_sell_test() throws OptimisticLockingException {
         Trade buyTrade = TestDataProvider.goodBuyTradeSupplier.get();
         Trade sellTrade = TestDataProvider.goodSellTradeSupplier.get();
         JDBCUtils.getInstance().startTransaction();
@@ -291,7 +291,7 @@ public class JDBCPositionsRepoTest {
     }
 
     @Test
-    public void positionUpdate_updatePosition_invalidActivity_test() throws OptimisticLockingExceptionThrowable {
+    public void positionUpdate_updatePosition_invalidActivity_test() throws OptimisticLockingException {
         System.setOut(new PrintStream(outputStreamCaptor));
 
         Trade buyTrade = TestDataProvider.goodBuyTradeSupplier.get();
@@ -326,7 +326,7 @@ public class JDBCPositionsRepoTest {
     }
 
     @Test
-    public void positionUpdate_updateFailed_test() throws OptimisticLockingExceptionThrowable {
+    public void positionUpdate_updateFailed_test() throws OptimisticLockingException {
         System.setOut(new PrintStream(outputStreamCaptor));
 
         doAnswer(invocationOnMock -> {
