@@ -18,6 +18,7 @@ public class ChunkProcessorService implements ChunkProcessing {
     private static final String splitter = ",";
     private static final String VALID = "Valid";
     private static final String INVALID = "Invalid";
+    private static final String NOT_POSTED = "Not Posted";
     private static ChunkProcessorService instance;
 
     private ChunkProcessorService() {
@@ -86,8 +87,8 @@ public class ChunkProcessorService implements ChunkProcessing {
                 .tradeID(fieldsOfPayload[0])
                 .payload(payload)
                 .status(checkPayloadValidity(payload))
-                .lookupStatus("Not Posted")
-                .postedStatus("Not Posted")
+                .lookupStatus(NOT_POSTED)
+                .postedStatus(NOT_POSTED)
                 .build();
     }
 
