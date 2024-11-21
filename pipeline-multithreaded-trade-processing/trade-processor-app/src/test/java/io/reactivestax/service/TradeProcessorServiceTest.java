@@ -8,6 +8,7 @@ import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.SecuritiesReferenceRepo;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
+import io.reactivestax.utility.exceptions.TradeCreationFailedException;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -116,13 +117,27 @@ class TradeProcessorServiceTest {
      */
 
 //validatePayloadAndCreateChunkTest
-    /* Mocked Test
+    @ParameterizedTest
+    @MethodSource("validatePayloadAndCreateTradeFailingTests")
+    void validatePayloadAndCreateTradeTest_NullPayload(String payload){
+        assertThrows(TradeCreationFailedException.class, () -> TradeProcessorService.getInstance().validatePayloadAndCreateTrade(payload));
+    }
 
-     */
+    static Stream<Arguments> validatePayloadAndCreateTradeFailingTests(){
+        return Stream.of(
+                Arguments.of((Object) null),
+                Arguments.of(""),
+                Arguments.of(TestDataProvider.invalidTradePayloadSupplier.get())
+        );
+    }
 
-    /* Integration Test
+    @Test
+    void validatePayloadAndCreateChunkTest_ValidPayload(){
+        Trade expectedTrade = TestDataProvider.validTradeForPayloadSupplier.get();
+        String payload = TestDataProvider.validTradePayloadSupplier.get();
 
-     */
+        assertEquals(expectedTrade, TradeProcessorService.getInstance().validatePayloadAndCreateTrade(payload));
+    }
 
 //convertStringToSQLDateTest
     /* Mocked Test

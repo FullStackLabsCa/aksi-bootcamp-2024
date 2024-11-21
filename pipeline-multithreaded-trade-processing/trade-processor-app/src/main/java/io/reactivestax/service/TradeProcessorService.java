@@ -54,8 +54,8 @@ public class TradeProcessorService implements TradeProcessing {
 
     @Override
     public Trade validatePayloadAndCreateTrade(String payload) {
-        if (payload == null) {
-            throw new NullPayloadException("Payload Validation Failed. Payload NULL!");
+        if (payload == null || payload.trim().isEmpty()) {
+            throw new TradeCreationFailedException("Payload NULL!");
         }
         try {
             String[] payloadData = payload.split(",");
