@@ -31,7 +31,7 @@ public class TradeProcessorService implements TradeProcessing {
         while (true) {
             Optional<String> tradeID = getTradeID(messageProvider);
             if(tradeID.isEmpty()) break;
-            tradeID.flatMap(this::readPayload)
+            tradeID.flatMap(this::readPayloadFromRawPayloadDB)
                     .map(this::validatePayloadAndCreateTrade)
                     .ifPresent(this::processTrade);
         }
@@ -40,10 +40,6 @@ public class TradeProcessorService implements TradeProcessing {
     @Override
     public Optional<String> getTradeID(MessageProvider messageProvider){
         return BeanFactory.getMessageReceiver().receiveMessage(messageProvider);
-    }
-
-    private Optional<String> readPayload(String tradeID) {
-        return readPayloadFromRawPayloadDB(tradeID);
     }
 
     @Override
