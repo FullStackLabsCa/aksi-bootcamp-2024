@@ -7,6 +7,7 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
+import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,12 +41,12 @@ class TradeProcessorServiceTest {
     private TradeProcessorService tradeProcessorService;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void getInstanceSingleThreadTest(){
+    void getInstanceSingleThreadTest() {
         // Get two instances
         TradeProcessorService instance1 = TradeProcessorService.getInstance();
         TradeProcessorService instance2 = TradeProcessorService.getInstance();
@@ -166,12 +167,37 @@ class TradeProcessorServiceTest {
      */
 
 //writeToJournalTableTest
-    /* Mocked Test
-        -   verify the calls to methods
-        -   verify exceptional case
-     */
+    @ParameterizedTest
+    @MethodSource("writeToJournalTableTests")
+    void writeToJournalTable_MethodCallVerification_MockedTest(Trade trade) throws WriteToJournalEntryFailed {
+        try (MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)) {
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(any())).thenReturn(journalEntryRepoSpy);
+            doNothing().when(journalEntryRepoSpy).writeTradeToJournalEntryTable(any());
+            tradeProcessorService.writeToJournalTable(trade);
+            verify(journalEntryRepoSpy, times(1)).writeTradeToJournalEntryTable(trade);
+        }
+    }
 
-    /* Integration Test
+    static Stream<Arguments> writeToJournalTableTests() {
+        return Stream.of(
+                Arguments.of(TestDataProvider.badTradeSupplier.get()),
+                Arguments.of(TestDataProvider.goodTradeSupplier.get()),
+                Arguments.of((Object) null)
+        );
+    }
+
+    @Test
+    void writeToJournalTable_ExceptionCase_MockedTest() throws WriteToJournalEntryFailed {
+        Trade trade = TestDataProvider.goodTradeSupplier.get();
+        try (MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)) {
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(any())).thenReturn(journalEntryRepoSpy);
+            doThrow(WriteToJournalEntryFailed.class).when(journalEntryRepoSpy).writeTradeToJournalEntryTable(any());
+            assertThrows(WriteToJournalEntryFailed.class, () -> tradeProcessorService.writeToJournalTable(trade));
+            verify(journalEntryRepoSpy, times(1)).writeTradeToJournalEntryTable(trade);
+        }
+    }
+
+    /* Integration Test TODO
         -   null Trade
         -   invalid trade
         -   valid trade
@@ -183,7 +209,7 @@ class TradeProcessorServiceTest {
     @ParameterizedTest
     @MethodSource("writeToPositionsTests")
     void writeToPositionsTable_MethodCallVerification_MockedTest(Trade trade) throws OptimisticLockingException {
-        try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)) {
+        try (MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)) {
             beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(any())).thenReturn(positionsRepoSpy);
             doNothing().when(positionsRepoSpy).updatePositionsTable(any());
             tradeProcessorService.writeToPositionsTable(trade);
@@ -191,7 +217,7 @@ class TradeProcessorServiceTest {
         }
     }
 
-    static Stream<Arguments> writeToPositionsTests(){
+    static Stream<Arguments> writeToPositionsTests() {
         return Stream.of(
                 Arguments.of(TestDataProvider.badTradeSupplier.get()),
                 Arguments.of(TestDataProvider.goodTradeSupplier.get()),
@@ -202,7 +228,7 @@ class TradeProcessorServiceTest {
     @Test
     void writeToPositionsTable_ExceptionCase_MockedTest() throws OptimisticLockingException {
         Trade trade = TestDataProvider.goodTradeSupplier.get();
-        try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)) {
+        try (MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)) {
             beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(any())).thenReturn(positionsRepoSpy);
             doThrow(OptimisticLockingException.class).when(positionsRepoSpy).updatePositionsTable(any());
             assertThrows(OptimisticLockingException.class, () -> tradeProcessorService.writeToPositionsTable(trade));
