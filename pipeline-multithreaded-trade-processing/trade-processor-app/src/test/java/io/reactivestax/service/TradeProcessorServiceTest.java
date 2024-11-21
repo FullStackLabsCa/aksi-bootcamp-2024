@@ -6,6 +6,7 @@ import io.reactivestax.factory.BeanFactory;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.PositionsRepo;
+import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import io.reactivestax.utility.exceptions.TradeCreationFailedException;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
@@ -40,21 +41,16 @@ class TradeProcessorServiceTest {
     @Spy
     private PositionsRepo positionsRepoSpy;
 
+    @Spy
+    private RawPayloadRepo rawPayloadRepoSpy;
+
     @InjectMocks
     private TradeProcessorService tradeProcessorService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-//        clearDataInTables();
     }
-
-//    private void clearDataInTables(){
-//
-//    }
-
-    @AfterEach
-    void cleanUp(){}
 
     @Test
     void getInstanceSingleThreadTest() {
@@ -117,13 +113,22 @@ class TradeProcessorServiceTest {
     @ParameterizedTest
     @MethodSource("readPayloadFromRawPayloadDBTests")
     void readPayloadFromRawPayloadDBTest_ReadBeforeInsertion(String tradeId) {
-        Optional<String> payloadReadFromDB = TradeProcessorService.getInstance().readPayloadFromRawPayloadDB(tradeId);
-        assertEquals(Optional.empty(), payloadReadFromDB);
+        try (MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)) {
+            //Setup
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(any())).thenReturn(rawPayloadRepoSpy);
+            doReturn(Optional.empty()).when(rawPayloadRepoSpy).readPayloadFromRawPayloadsTable(any());
+            //Action
+            Optional<String> payloadFromDB = tradeProcessorService.readPayloadFromRawPayloadDB(tradeId);
+            //Assert
+            assertEquals(Optional.empty(), payloadFromDB);
+            verify(rawPayloadRepoSpy, times(1)).readPayloadFromRawPayloadsTable(tradeId);
+        }
     }
 
     static Stream<Arguments> readPayloadFromRawPayloadDBTests() {
         return Stream.of(
                 Arguments.of(TestDataProvider.tradeIdSupplier.get()),
+                Arguments.of(""),
                 Arguments.of((Object) null)
         );
     }
