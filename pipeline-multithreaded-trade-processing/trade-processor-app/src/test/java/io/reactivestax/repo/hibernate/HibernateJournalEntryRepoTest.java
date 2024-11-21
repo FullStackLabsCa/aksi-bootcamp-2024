@@ -4,7 +4,7 @@ import io.reactivestax.TestDataProvider;
 import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.HibernateUtils;
-import io.reactivestax.utility.exceptions.PositionUpdateForJournalEntryFailed;
+import io.reactivestax.utility.exceptions.UpdatePositionStatusInJournalEntryFailed;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
 import org.hibernate.query.Query;
 import org.junit.After;
@@ -140,7 +140,7 @@ public class HibernateJournalEntryRepoTest {
     }
 
     @Test
-    public void updatePositionPostedStatusInJournalEntrySuccessfulTest() throws WriteToJournalEntryFailed, PositionUpdateForJournalEntryFailed {
+    public void updatePositionPostedStatusInJournalEntrySuccessfulTest() throws WriteToJournalEntryFailed, UpdatePositionStatusInJournalEntryFailed {
         // create trade
         Trade trade = TestDataProvider.goodTradeSupplier.get();
 
@@ -172,7 +172,7 @@ public class HibernateJournalEntryRepoTest {
 
     @Test
     public void updatePositionPostedStatusInJournalEntryFailedTest() {
-        assertThrows(PositionUpdateForJournalEntryFailed.class, () -> HibernateJournalEntryRepo.getInstance().updatePositionPostedStatusInJournalEntry(null));
+        assertThrows(UpdatePositionStatusInJournalEntryFailed.class, () -> HibernateJournalEntryRepo.getInstance().updatePositionPostedStatusInJournalEntry(null));
     }
 
 }

@@ -5,7 +5,7 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.database.HibernateUtils;
-import io.reactivestax.utility.exceptions.PositionUpdateForJournalEntryFailed;
+import io.reactivestax.utility.exceptions.UpdatePositionStatusInJournalEntryFailed;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaUpdate;
@@ -46,7 +46,7 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
     }
 
     @Override
-    public void updatePositionPostedStatusInJournalEntry(Trade trade) throws PositionUpdateForJournalEntryFailed {
+    public void updatePositionPostedStatusInJournalEntry(Trade trade) throws UpdatePositionStatusInJournalEntryFailed {
         Session session = HibernateUtils.getInstance().getConnection();
         try {
             CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -58,7 +58,7 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
             session.createQuery(positionStatusUpdate).executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new PositionUpdateForJournalEntryFailed();
+            throw new UpdatePositionStatusInJournalEntryFailed();
         }
     }
 }

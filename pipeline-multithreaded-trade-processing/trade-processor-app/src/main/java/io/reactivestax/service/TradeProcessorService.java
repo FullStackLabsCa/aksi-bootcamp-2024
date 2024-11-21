@@ -121,7 +121,7 @@ public class TradeProcessorService implements TradeProcessing {
                 BeanFactory.getPersistenceBean(TransactionUtil.class).commitTransaction();
 
             } catch (WriteToJournalEntryFailed | UpdateJournalEntryStatusInRawPayloadFailed |
-                     OptimisticLockingException | PositionUpdateForJournalEntryFailed |
+                     OptimisticLockingException | UpdatePositionStatusInJournalEntryFailed |
                      Exception e) {
                 e.printStackTrace();
                 BeanFactory.getPersistenceBean(TransactionUtil.class).rollbackTransaction();
@@ -149,7 +149,7 @@ public class TradeProcessorService implements TradeProcessing {
         rawPayloadRepo.updateJournalEntryStatusInRawPayloadsTable(trade);
     }
 
-    private void updatePositionPostedStatusInJournalEntry(Trade trade) throws PositionUpdateForJournalEntryFailed {
+    private void updatePositionPostedStatusInJournalEntry(Trade trade) throws UpdatePositionStatusInJournalEntryFailed {
         JournalEntryRepo journalEntryRepo = BeanFactory.getPersistenceBean(JournalEntryRepo.class);
         journalEntryRepo.updatePositionPostedStatusInJournalEntry(trade);
     }

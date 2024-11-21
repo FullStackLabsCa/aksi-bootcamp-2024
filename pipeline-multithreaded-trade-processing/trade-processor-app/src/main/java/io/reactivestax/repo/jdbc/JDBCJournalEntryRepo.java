@@ -3,7 +3,7 @@ package io.reactivestax.repo.jdbc;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.utility.database.JDBCUtils;
-import io.reactivestax.utility.exceptions.PositionUpdateForJournalEntryFailed;
+import io.reactivestax.utility.exceptions.UpdatePositionStatusInJournalEntryFailed;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
 
 import java.sql.Connection;
@@ -49,7 +49,7 @@ public class JDBCJournalEntryRepo implements JournalEntryRepo {
     }
 
     @Override
-    public void updatePositionPostedStatusInJournalEntry(Trade trade) throws PositionUpdateForJournalEntryFailed {
+    public void updatePositionPostedStatusInJournalEntry(Trade trade) throws UpdatePositionStatusInJournalEntryFailed {
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement psUpdateJe = connection.prepareStatement(UPDATE_JE_POSITION_POSTING_STATUS_QUERY)) {
             psUpdateJe.setString(1, "Posted");
@@ -58,7 +58,7 @@ public class JDBCJournalEntryRepo implements JournalEntryRepo {
             psUpdateJe.executeUpdate();
 
         } catch (Exception e) {
-            throw new PositionUpdateForJournalEntryFailed();
+            throw new UpdatePositionStatusInJournalEntryFailed();
         }
     }
 }
