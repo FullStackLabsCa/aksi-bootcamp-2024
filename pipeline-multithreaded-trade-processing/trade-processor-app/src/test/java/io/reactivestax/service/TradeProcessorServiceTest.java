@@ -6,6 +6,7 @@ import io.reactivestax.factory.BeanFactory;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.PositionsRepo;
+import io.reactivestax.repo.SecuritiesReferenceRepo;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +37,9 @@ class TradeProcessorServiceTest {
 
     @Spy
     private PositionsRepo positionsRepoSpy;
+
+    @Spy
+    private SecuritiesReferenceRepo securitiesReferenceRepoSpy;
 
     @InjectMocks
     private TradeProcessorService tradeProcessorService;
@@ -139,13 +143,19 @@ class TradeProcessorServiceTest {
      */
 
 //validateBusinessLogicTest
-    /* Mocked Test
+    @ParameterizedTest
+    @MethodSource("validateBusinessLogicTests")
+    void validateBusinessLogic_MethodCallVerification_MockedTest(Trade trade, String validity){
+        assertEquals(validity, TradeProcessorService.getInstance().validateBusinessLogic(trade));
+    }
 
-     */
-
-    /* Integration Test
-
-     */
+    static Stream<Arguments> validateBusinessLogicTests() {
+        return Stream.of(
+                Arguments.of(TestDataProvider.invalidCusipTradeSupplier.get(), "Invalid"),
+                Arguments.of(TestDataProvider.goodTradeSupplier.get(), "Valid"),
+                Arguments.of((Object) null, "Unable to Check CUSIP.")
+        );
+    }
 
 //updateSecurityLookupStatusInRawPayloadTest
     /* Mocked Test
