@@ -1,6 +1,8 @@
 package io.reactivestax.repo;
 
+import io.reactivestax.entity.RawPayload;
+
 public interface RawPayloadRepo {
 
-    void writeToRawPayloadTable(String tradeID, String payload, String validityStatus);
+    void writeToRawPayloadTable(RawPayload rawPayload);
 }

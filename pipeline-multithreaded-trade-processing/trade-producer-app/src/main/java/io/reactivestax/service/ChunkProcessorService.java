@@ -1,5 +1,6 @@
 package io.reactivestax.service;
 
+import io.reactivestax.entity.RawPayload;
 import io.reactivestax.factory.BeanFactory;
 import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.service.interfaces.ChunkProcessing;
@@ -38,12 +39,12 @@ public class ChunkProcessorService implements ChunkProcessing {
 
     @Override
     public void processPayload(String payload) {
-        String tradeValidity = checkPayloadValidity(payload);
+        RawPayload rawPayload = getRawPayloadFromStringPayload(payload);
         TradeIdAndAccNum tradeIdentifiers = getIdentifierFromPayload(payload);
 
-        writePayloadToPayloadDatabase(tradeIdentifiers.tradeID(), payload, tradeValidity);
+        writePayloadToPayloadDatabase(rawPayload);
 
-        if (tradeValidity.equals(VALID)) {
+        if (VALID.equals(rawPayload.getStatus())) {
             sendForProcessing(tradeIdentifiers);
         }
     }
@@ -58,7 +59,6 @@ public class ChunkProcessorService implements ChunkProcessing {
         }
     }
 
-    @Override
     public TradeIdAndAccNum getIdentifierFromPayload(String payload) {
         if (payload == null || payload.trim().isEmpty()) {
             return new TradeIdAndAccNum(INVALID, INVALID);
@@ -77,10 +77,24 @@ public class ChunkProcessorService implements ChunkProcessing {
         return new TradeIdAndAccNum(tradeId, accountNumber);
     }
 
+    // This can be refactored into the repo class?
+    public RawPayload getRawPayloadFromStringPayload(String payload){
+        if(payload == null || payload.trim().isEmpty())
+            return RawPayload.builder().build();
+        String[] fieldsOfPayload = payload.split(splitter);
+        return RawPayload.builder()
+                .tradeID(fieldsOfPayload[0])
+                .payload(payload)
+                .status(checkPayloadValidity(payload))
+                .lookupStatus("Not Posted")
+                .postedStatus("Not Posted")
+                .build();
+    }
+
     @Override
-    public void writePayloadToPayloadDatabase(String tradeID, String payload, String tradeStatus) {
+    public void writePayloadToPayloadDatabase(RawPayload rawPayload) {
         RawPayloadRepo payloadRepo = BeanFactory.getRawPayloadRepo();
-        payloadRepo.writeToRawPayloadTable(tradeID, payload, tradeStatus);
+        payloadRepo.writeToRawPayloadTable(rawPayload);
     }
 
     @Override

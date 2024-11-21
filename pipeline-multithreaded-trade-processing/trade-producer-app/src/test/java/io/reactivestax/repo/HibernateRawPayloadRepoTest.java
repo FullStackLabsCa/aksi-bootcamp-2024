@@ -79,7 +79,7 @@ public class HibernateRawPayloadRepoTest {
         String tradeID = TestDataProvider.validTradeIdSupplier.get();
         String payload = TestDataProvider.validTradePayloadSupplier.get();
         String validStatus = "Valid";
-        HibernateRawPayloadRepo.getInstance().writeToRawPayloadTable(tradeID, payload, validStatus);
+        HibernateRawPayloadRepo.getInstance().writeToRawPayloadTable(TestDataProvider.validRawPayloadSupplier.get());
 
         long sizeOfTableAfterInsertion = getSizeOfTable();
         List<RawPayload> entriesInTableAfterInsertion = getEntriesInTable();

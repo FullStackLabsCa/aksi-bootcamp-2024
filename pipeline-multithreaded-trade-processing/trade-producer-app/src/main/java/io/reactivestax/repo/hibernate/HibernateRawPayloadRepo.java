@@ -18,20 +18,11 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
     }
 
     @Override
-    public void writeToRawPayloadTable(String tradeID, String payload, String validityStatus) {
+    public void writeToRawPayloadTable(RawPayload rawPayload) {
         Session session = HibernateUtils.getInstance().getConnection();
-        HibernateUtils.getInstance().startTransaction();
         try {
-            RawPayload rawPayload = RawPayload.builder()
-                    .tradeID(tradeID)
-                    .status(validityStatus)
-                    .payload(payload)
-                    .lookupStatus("Non Posted")
-                    .postedStatus("Non Posted")
-                    .build();
-
+            HibernateUtils.getInstance().startTransaction();
             session.persist(rawPayload);
-
             HibernateUtils.getInstance().commitTransaction();
         } catch (Exception e) {
             HibernateUtils.getInstance().rollbackTransaction();

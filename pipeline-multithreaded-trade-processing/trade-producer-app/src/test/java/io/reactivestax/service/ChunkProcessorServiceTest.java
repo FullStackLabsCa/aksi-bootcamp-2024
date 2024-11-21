@@ -2,6 +2,7 @@ package io.reactivestax.service;
 
 
 import io.reactivestax.TestDataProvider;
+import io.reactivestax.entity.RawPayload;
 import io.reactivestax.factory.BeanFactory;
 import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.service.interfaces.TradeIdAndAccNum;
@@ -122,43 +123,52 @@ class ChunkProcessorServiceTest {
     @Test
     void processPayloadTest_ValidPayload(){
         String payload = TestDataProvider.validTradePayloadSupplier.get();
+        RawPayload rawPayload = TestDataProvider.validRawPayloadSupplier.get();
         chunkProcessorServiceSpy.processPayload(payload);
+        verify(chunkProcessorServiceSpy, times(1)).getRawPayloadFromStringPayload(payload);
         verify(chunkProcessorServiceSpy, times(1)).checkPayloadValidity(payload);
         verify(chunkProcessorServiceSpy, times(1)).getIdentifierFromPayload(payload);
-        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase(TestDataProvider.validTradeIdSupplier.get(), payload, VALID);
+        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase(rawPayload);
         verify(chunkProcessorServiceSpy, times(1)).sendForProcessing(new TradeIdAndAccNum("TDB_00000001", "TDB_CUST_2517563"));
     }
 
     @Test
     void processPayloadTest_InvalidPayload(){
         String payload = TestDataProvider.invalidPayloadLengthSupplier.get();
+        RawPayload rawPayload = TestDataProvider.invalidRawPayloadSupplier.get();
         chunkProcessorServiceSpy.processPayload(payload);
+        verify(chunkProcessorServiceSpy, times(1)).getRawPayloadFromStringPayload(payload);
         verify(chunkProcessorServiceSpy, times(1)).checkPayloadValidity(payload);
         verify(chunkProcessorServiceSpy, times(1)).getIdentifierFromPayload(payload);
-        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase(TestDataProvider.validTradeIdSupplier.get(), payload, INVALID);
+        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase(rawPayload);
         verify(chunkProcessorServiceSpy, times(0)).sendForProcessing(any());
     }
 
     @Test
     void processPayloadTest_NullPayload(){
         String payload = TestDataProvider.nullTradePayloadSupplier.get();
+        RawPayload rawPayload = TestDataProvider.nullRawPayloadSupplier.get();
         chunkProcessorServiceSpy.processPayload(payload);
-        verify(chunkProcessorServiceSpy, times(1)).checkPayloadValidity(payload);
+        verify(chunkProcessorServiceSpy, times(1)).getRawPayloadFromStringPayload(payload);
+        verify(chunkProcessorServiceSpy, times(0)).checkPayloadValidity(payload);
         verify(chunkProcessorServiceSpy, times(1)).getIdentifierFromPayload(payload);
-        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase(INVALID, payload, INVALID);
+        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase(rawPayload);
         verify(chunkProcessorServiceSpy, times(0)).sendForProcessing(any());
     }
 
     @Test
     void processPayloadTest_EmptyPayload(){
 
-        doNothing().when(chunkProcessorServiceSpy).writePayloadToPayloadDatabase(any(), any(), any());
+        doNothing().when(chunkProcessorServiceSpy).writePayloadToPayloadDatabase(any());
 
         String payload = TestDataProvider.emptyTradePayloadSupplier.get();
+        RawPayload rawPayload = TestDataProvider.nullRawPayloadSupplier.get();
+
         chunkProcessorServiceSpy.processPayload(payload);
-        verify(chunkProcessorServiceSpy, times(1)).checkPayloadValidity(payload);
+        verify(chunkProcessorServiceSpy, times(1)).getRawPayloadFromStringPayload(payload);
+        verify(chunkProcessorServiceSpy, times(0)).checkPayloadValidity(payload);
         verify(chunkProcessorServiceSpy, times(1)).getIdentifierFromPayload(payload);
-        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase(INVALID, payload, INVALID);
+        verify(chunkProcessorServiceSpy, times(1)).writePayloadToPayloadDatabase(rawPayload);
         verify(chunkProcessorServiceSpy, times(0)).sendForProcessing(any());
     }
 
@@ -225,15 +235,14 @@ class ChunkProcessorServiceTest {
 //writePayloadToPayloadDatabaseTest
     @Test
     void writePayloadToPayloadDBTest(){
-        String tradeId = TestDataProvider.validTradeIdSupplier.get();
-        String payload = TestDataProvider.validTradePayloadSupplier.get();
+        RawPayload rawPayload = TestDataProvider.validRawPayloadSupplier.get();
         try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
 
             beanFactoryMockedStatic.when(BeanFactory::getRawPayloadRepo).thenReturn(rawPayloadRepoMock);
-            ChunkProcessorService.getInstance().writePayloadToPayloadDatabase(tradeId, payload, VALID);
+            ChunkProcessorService.getInstance().writePayloadToPayloadDatabase(rawPayload);
 
             beanFactoryMockedStatic.verify(BeanFactory::getRawPayloadRepo, times(1));
-            verify(rawPayloadRepoMock, times(1)).writeToRawPayloadTable(any(), any(), any());
+            verify(rawPayloadRepoMock, times(1)).writeToRawPayloadTable(any());
         }
     }
 

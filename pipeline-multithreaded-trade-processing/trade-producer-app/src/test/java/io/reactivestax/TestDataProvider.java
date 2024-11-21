@@ -1,5 +1,6 @@
 package io.reactivestax;
 
+import io.reactivestax.entity.RawPayload;
 import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 
 import java.util.function.Supplier;
@@ -12,6 +13,27 @@ public interface TestDataProvider {
     Supplier<String> invalidPayloadAccountNumberSupplier = () -> "TDB_00000001";
     Supplier<String> emptyTradePayloadSupplier = () -> "";
     Supplier<String> nullTradePayloadSupplier = () -> null;
+
+    //RawPayload
+    Supplier<RawPayload> validRawPayloadSupplier = () ->
+                RawPayload.builder()
+                    .tradeID("TDB_00000001")
+                    .payload("TDB_00000001,2024-09-25 06:58:37,TDB_CUST_2517563,TSLA,SELL,45,1480.82")
+                    .status("Valid")
+                    .lookupStatus("Not Posted")
+                    .postedStatus("Not Posted")
+                .build();
+
+    Supplier<RawPayload> invalidRawPayloadSupplier = () ->
+            RawPayload.builder()
+                    .tradeID("TDB_00000001")
+                    .payload("TDB_00000001,TDB_CUST_2517563,TSLA,SELL,45,1480.82")
+                    .status("Invalid")
+                    .lookupStatus("Not Posted")
+                    .postedStatus("Not Posted")
+                    .build();
+
+    Supplier<RawPayload> nullRawPayloadSupplier = () -> RawPayload.builder().build();
 
     //Trade ID
     Supplier<String> validTradeIdSupplier = () -> "TDB_00000001";

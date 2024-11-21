@@ -83,7 +83,7 @@ public class JDBCRawPayloadRepoTest {
         String tradeID = TestDataProvider.validTradeIdSupplier.get();
         String payload = TestDataProvider.validTradePayloadSupplier.get();
         String validStatus = "Valid";
-        JDBCRawPayloadRepo.getInstance().writeToRawPayloadTable(tradeID, payload, validStatus);
+        JDBCRawPayloadRepo.getInstance().writeToRawPayloadTable(TestDataProvider.validRawPayloadSupplier.get());
 
         long sizeOfTableAfterInsertion = getSizeOfTable();
         List<RawPayload> entriesInTableAfterInsertion = getEntriesInTable();
