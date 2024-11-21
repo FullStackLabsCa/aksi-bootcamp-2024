@@ -7,6 +7,6 @@ import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
 public interface JournalEntryRepo {
 
     void writeTradeToJournalEntryTable(Trade trade) throws WriteToJournalEntryFailed;
-    void updateJournalEntryForPositionUpdateStatus(Trade trade) throws PositionUpdateForJournalEntryFailed;
+    void updatePositionPostedStatusInJournalEntry(Trade trade) throws PositionUpdateForJournalEntryFailed;
 
 }

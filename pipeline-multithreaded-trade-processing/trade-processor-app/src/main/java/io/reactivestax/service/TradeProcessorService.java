@@ -113,10 +113,10 @@ public class TradeProcessorService implements TradeProcessing {
             BeanFactory.getPersistenceBean(TransactionUtil.class).startTransaction();
             try {
                 writeToJournalTable(trade);
-                updatePayloadDbForJournalEntry(trade);
+                updateJEPostedStatusInRawPayload(trade);
 
                 writeToPositionsTable(trade);
-                updateJEForPositionsUpdate(trade);
+                updatePositionPostedStatusInJournalEntry(trade);
 
                 BeanFactory.getPersistenceBean(TransactionUtil.class).commitTransaction();
 
@@ -144,14 +144,14 @@ public class TradeProcessorService implements TradeProcessing {
         positionsRepo.updatePositionsTable(trade);
     }
 
-    private void updatePayloadDbForJournalEntry(Trade trade) throws UpdateJournalEntryStatusInRawPayloadFailed{
+    private void updateJEPostedStatusInRawPayload(Trade trade) throws UpdateJournalEntryStatusInRawPayloadFailed{
         RawPayloadRepo rawPayloadRepo = BeanFactory.getPersistenceBean(RawPayloadRepo.class);
         rawPayloadRepo.updateJournalEntryStatusInRawPayloadsTable(trade);
     }
 
-    private void updateJEForPositionsUpdate(Trade trade) throws PositionUpdateForJournalEntryFailed {
+    private void updatePositionPostedStatusInJournalEntry(Trade trade) throws PositionUpdateForJournalEntryFailed {
         JournalEntryRepo journalEntryRepo = BeanFactory.getPersistenceBean(JournalEntryRepo.class);
-        journalEntryRepo.updateJournalEntryForPositionUpdateStatus(trade);
+        journalEntryRepo.updatePositionPostedStatusInJournalEntry(trade);
     }
 
 }

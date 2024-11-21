@@ -140,7 +140,7 @@ public class HibernateJournalEntryRepoTest {
     }
 
     @Test
-    public void updateJournalEntryForPositionUpdateStatusSuccessfulTest() throws WriteToJournalEntryFailed, PositionUpdateForJournalEntryFailed {
+    public void updatePositionPostedStatusInJournalEntrySuccessfulTest() throws WriteToJournalEntryFailed, PositionUpdateForJournalEntryFailed {
         // create trade
         Trade trade = TestDataProvider.goodTradeSupplier.get();
 
@@ -159,7 +159,7 @@ public class HibernateJournalEntryRepoTest {
 
         // call updateJournalEntryForPositionUpdate
         HibernateUtils.getInstance().startTransaction();
-        HibernateJournalEntryRepo.getInstance().updateJournalEntryForPositionUpdateStatus(trade);
+        HibernateJournalEntryRepo.getInstance().updatePositionPostedStatusInJournalEntry(trade);
         HibernateUtils.getInstance().commitTransaction();
 
         // the posted status now will be posted
@@ -171,8 +171,8 @@ public class HibernateJournalEntryRepoTest {
     }
 
     @Test
-    public void updateJournalEntryForPositionUpdateStatusFailedTest() {
-        assertThrows(PositionUpdateForJournalEntryFailed.class, () -> HibernateJournalEntryRepo.getInstance().updateJournalEntryForPositionUpdateStatus(null));
+    public void updatePositionPostedStatusInJournalEntryFailedTest() {
+        assertThrows(PositionUpdateForJournalEntryFailed.class, () -> HibernateJournalEntryRepo.getInstance().updatePositionPostedStatusInJournalEntry(null));
     }
 
 }

@@ -49,7 +49,7 @@ public class JDBCJournalEntryRepo implements JournalEntryRepo {
     }
 
     @Override
-    public void updateJournalEntryForPositionUpdateStatus(Trade trade) throws PositionUpdateForJournalEntryFailed {
+    public void updatePositionPostedStatusInJournalEntry(Trade trade) throws PositionUpdateForJournalEntryFailed {
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement psUpdateJe = connection.prepareStatement(UPDATE_JE_POSITION_POSTING_STATUS_QUERY)) {
             psUpdateJe.setString(1, "Posted");

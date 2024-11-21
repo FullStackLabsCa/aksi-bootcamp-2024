@@ -178,7 +178,7 @@ public class JDBCJournalEntryRepoTest {
     }
 
     @Test
-    public void updateJournalEntryForPositionUpdateStatusSuccessfulTest() throws WriteToJournalEntryFailed, PositionUpdateForJournalEntryFailed {
+    public void updatePositionPostedStatusInJournalEntrySuccessfulTest() throws WriteToJournalEntryFailed, PositionUpdateForJournalEntryFailed {
         // create trade
         Trade trade = TestDataProvider.goodTradeSupplier.get();
 
@@ -195,7 +195,7 @@ public class JDBCJournalEntryRepoTest {
 
         // call updateJournalEntryForPositionUpdate
         JDBCUtils.getInstance().startTransaction();
-        JDBCJournalEntryRepo.getInstance().updateJournalEntryForPositionUpdateStatus(trade);
+        JDBCJournalEntryRepo.getInstance().updatePositionPostedStatusInJournalEntry(trade);
         JDBCUtils.getInstance().commitTransaction();
 
         // the posted status now will be posted
@@ -206,7 +206,7 @@ public class JDBCJournalEntryRepoTest {
     }
 
     @Test
-    public void updateJournalEntryForPositionUpdateStatusFailedTest() {
-        assertThrows(PositionUpdateForJournalEntryFailed.class, () -> JDBCJournalEntryRepo.getInstance().updateJournalEntryForPositionUpdateStatus(null));
+    public void updatePositionPostedStatusInJournalEntryFailedTest() {
+        assertThrows(PositionUpdateForJournalEntryFailed.class, () -> JDBCJournalEntryRepo.getInstance().updatePositionPostedStatusInJournalEntry(null));
     }
 }

@@ -46,7 +46,7 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
     }
 
     @Override
-    public void updateJournalEntryForPositionUpdateStatus(Trade trade) throws PositionUpdateForJournalEntryFailed {
+    public void updatePositionPostedStatusInJournalEntry(Trade trade) throws PositionUpdateForJournalEntryFailed {
         Session session = HibernateUtils.getInstance().getConnection();
         try {
             CriteriaBuilder builder = session.getCriteriaBuilder();
