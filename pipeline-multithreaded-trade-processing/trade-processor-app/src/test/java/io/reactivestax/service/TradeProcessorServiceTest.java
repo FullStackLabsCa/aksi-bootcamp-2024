@@ -98,7 +98,7 @@ class TradeProcessorServiceTest {
 //getTradeIdTest
     @ParameterizedTest
     @MethodSource("getTradeIdTests_MessageProviders")
-    void getTradeIdTest(MessageProvider messageProvider){
+    void getTradeIdTest_NullProvider(MessageProvider messageProvider){
         try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
             beanFactoryMockedStatic.when(BeanFactory::getMessageReceiver).thenReturn(messageReceiverSpy);
             doReturn(null).when(messageReceiverSpy).receiveMessage(any());
@@ -110,9 +110,20 @@ class TradeProcessorServiceTest {
 
     static Stream<Arguments> getTradeIdTests_MessageProviders(){
         return Stream.of(
-                Arguments.of((Object) null),
-                Arguments.of(BeanFactory.getMessageProvider(1))
+                Arguments.of((Object) null)
         );
+    }
+
+    @Test
+    void getTradeIdTest_MessageProvider(){
+        MessageProvider messageProvider = BeanFactory.getMessageProvider(1);
+        try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
+            beanFactoryMockedStatic.when(BeanFactory::getMessageReceiver).thenReturn(messageReceiverSpy);
+            doReturn(null).when(messageReceiverSpy).receiveMessage(any());
+            tradeProcessorService.getTradeID(messageProvider);
+            verify(messageReceiverSpy, times(1)).receiveMessage(messageProvider);
+            beanFactoryMockedStatic.verify(BeanFactory::getMessageReceiver, times(1));
+        }
     }
 
 //readPayloadFromRawDatabaseTest
