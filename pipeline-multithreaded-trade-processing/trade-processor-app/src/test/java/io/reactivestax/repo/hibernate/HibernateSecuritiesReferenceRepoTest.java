@@ -1,19 +1,20 @@
 package io.reactivestax.repo.hibernate;
 
 import io.reactivestax.model.Trade;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class HibernateSecuritiesReferenceRepoTest {
+
+class HibernateSecuritiesReferenceRepoTest {
 
     @Test
-    public void getInstanceSingleThreadTest() {
+    void getInstanceSingleThreadTest() {
         // Get two instances
         HibernateSecuritiesReferenceRepo instance1 = HibernateSecuritiesReferenceRepo.getInstance();
         HibernateSecuritiesReferenceRepo instance2 = HibernateSecuritiesReferenceRepo.getInstance();
@@ -26,7 +27,7 @@ public class HibernateSecuritiesReferenceRepoTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<HibernateSecuritiesReferenceRepo> getInstance = HibernateSecuritiesReferenceRepo::getInstance;
@@ -43,13 +44,13 @@ public class HibernateSecuritiesReferenceRepoTest {
     }
 
     @Test
-    public void getSecurityIdTest(){
+    void getSecurityIdTest(){
         int securityId = HibernateSecuritiesReferenceRepo.getInstance().getSecurityIdForCusip("Akshat");
         assertEquals(0, securityId);
     }
 
     @Test
-    public void checkValidCusip(){
+    void checkValidCusip(){
         String validityStatus = HibernateSecuritiesReferenceRepo.getInstance().checkIfValidCusip(Trade.builder().build());
         assertEquals("", validityStatus);
     }
