@@ -5,9 +5,9 @@ import io.reactivestax.factory.BeanFactory;
 import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQReceiver;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -23,29 +23,30 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RabbitMQReceiverTest {
+class RabbitMQReceiverTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
     @Spy
     private RabbitMQReceiver rabbitMQReceiver = RabbitMQReceiver.getInstance();
 
-    @Before
-    public void setUp(){
+    @BeforeEach
+    void setUp(){
         MockitoAnnotations.openMocks(this);
     }
 
-    @After
-    public void cleanUp(){
+    @AfterEach
+    void cleanUp(){
         RabbitMQUtils.getInstance().clearThreadResponse();
         RabbitMQUtils.getInstance().clearRabbitMQMessageProvider();
         RabbitMQUtils.getInstance().closeRabbitMQChannel();
     }
 
     @Test
-    public void getInstanceSingleThreadTest(){
+    void getInstanceSingleThreadTest(){
         // Get two instances
         RabbitMQReceiver instance1 = RabbitMQReceiver.getInstance();
         RabbitMQReceiver instance2 = RabbitMQReceiver.getInstance();
@@ -58,7 +59,7 @@ public class RabbitMQReceiverTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<RabbitMQReceiver> getInstance = RabbitMQReceiver::getInstance;
@@ -75,7 +76,7 @@ public class RabbitMQReceiverTest {
     }
 
     @Test
-    public void receiveMessageWithDataAvailableInQueueTest(){
+    void receiveMessageWithDataAvailableInQueueTest(){
         try {
             // Setup RabbitMQ Producer
             Channel channel = RabbitMQUtils.getInstance().getRabbitMQChannel();
@@ -111,7 +112,7 @@ public class RabbitMQReceiverTest {
     }
 
     @Test
-    public void receiveMessageErrorInRabbitMQSetupTest(){
+    void receiveMessageErrorInRabbitMQSetupTest(){
             // Mock the Consumer to read from the Queue
             try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)){
                 MessageReceiver<String> messageReceiver;
@@ -124,7 +125,7 @@ public class RabbitMQReceiverTest {
     }
 
     @Test
-    public void rabbitMQThrowExceptionTest(){
+    void rabbitMQThrowExceptionTest(){
         System.setOut(new PrintStream(outputStreamCaptor));
         try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
             mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
