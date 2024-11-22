@@ -7,9 +7,9 @@ import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.exceptions.UpdatePositionStatusInJournalEntryFailed;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
 import org.hibernate.query.Query;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
 import java.util.List;
@@ -17,17 +17,19 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import static org.junit.Assert.*;
 
-public class HibernateJournalEntryRepoTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-    @Before
-    public void setUp() {
+class HibernateJournalEntryRepoTest {
+
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
-    @After
-    public void cleanUp(){
+    @AfterEach
+    void cleanUp(){
         try {
             HibernateUtils.getInstance().startTransaction();
             String sql = "delete from JournalEntry";
@@ -42,7 +44,7 @@ public class HibernateJournalEntryRepoTest {
 
 
     @Test
-    public void getInstanceSingleThreadTest() {
+    void getInstanceSingleThreadTest() {
         // Get two instances
         HibernateJournalEntryRepo instance1 = HibernateJournalEntryRepo.getInstance();
         HibernateJournalEntryRepo instance2 = HibernateJournalEntryRepo.getInstance();
@@ -55,7 +57,7 @@ public class HibernateJournalEntryRepoTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<HibernateJournalEntryRepo> getInstance = HibernateJournalEntryRepo::getInstance;
@@ -72,7 +74,7 @@ public class HibernateJournalEntryRepoTest {
     }
 
     @Test
-    public void writeTradeToJournalEntryTableSizeTest() throws WriteToJournalEntryFailed {
+    void writeTradeToJournalEntryTableSizeTest() throws WriteToJournalEntryFailed {
         // Get the size of table before writing
         // should be 0
         String hql = "SELECT COUNT(e) FROM JournalEntry e";
@@ -98,7 +100,7 @@ public class HibernateJournalEntryRepoTest {
     }
 
     @Test
-    public void writeTradeToJournalEntryTableDataTest() throws WriteToJournalEntryFailed {
+    void writeTradeToJournalEntryTableDataTest() throws WriteToJournalEntryFailed {
         // Get the data of table before writing
         // should be null
         String hql = "SELECT e FROM JournalEntry e";
@@ -135,12 +137,12 @@ public class HibernateJournalEntryRepoTest {
     }
 
     @Test
-    public void writeTradeToJournalEntryFailedTest() {
+    void writeTradeToJournalEntryFailedTest() {
         assertThrows(WriteToJournalEntryFailed.class, () -> HibernateJournalEntryRepo.getInstance().writeTradeToJournalEntryTable(null));
     }
 
     @Test
-    public void updatePositionPostedStatusInJournalEntrySuccessfulTest() throws WriteToJournalEntryFailed, UpdatePositionStatusInJournalEntryFailed {
+    void updatePositionPostedStatusInJournalEntrySuccessfulTest() throws WriteToJournalEntryFailed, UpdatePositionStatusInJournalEntryFailed {
         // create trade
         Trade trade = TestDataProvider.goodTradeSupplier.get();
 
@@ -171,7 +173,7 @@ public class HibernateJournalEntryRepoTest {
     }
 
     @Test
-    public void updatePositionPostedStatusInJournalEntryFailedTest() {
+    void updatePositionPostedStatusInJournalEntryFailedTest() {
         assertThrows(UpdatePositionStatusInJournalEntryFailed.class, () -> HibernateJournalEntryRepo.getInstance().updatePositionPostedStatusInJournalEntry(null));
     }
 
