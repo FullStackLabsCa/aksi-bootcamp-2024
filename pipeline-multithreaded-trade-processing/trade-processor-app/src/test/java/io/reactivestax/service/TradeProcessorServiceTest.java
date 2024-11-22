@@ -11,6 +11,7 @@ import io.reactivestax.utility.database.TransactionUtil;
 import io.reactivestax.utility.exceptions.*;
 import io.reactivestax.utility.messaging.MessageProvider;
 import io.reactivestax.utility.messaging.MessageReceiver;
+import io.reactivestax.utility.messaging.MessageRetry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,6 +50,9 @@ class TradeProcessorServiceTest {
 
     @Spy
     private MessageProvider messageProviderSpy;
+
+    @Spy
+    private MessageRetry<Trade> messageRetryerSpy;
 
     @Spy
     private TransactionUtil transactionUtilSpy;
@@ -107,6 +111,7 @@ class TradeProcessorServiceTest {
             beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(RawPayloadRepo.class)).thenReturn(rawPayloadRepoSpy);
             beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(JournalEntryRepo.class)).thenReturn(journalEntryRepoSpy);
             beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(PositionsRepo.class)).thenReturn(positionsRepoSpy);
+            beanFactoryMockedStatic.when(BeanFactory::getMessageRetryer).thenReturn(messageRetryerSpy);
 
             when(tradeProcessorService.getTradeID(any()))
                     .thenReturn(Optional.of(tradeId))
@@ -141,6 +146,61 @@ class TradeProcessorServiceTest {
             verify(positionsRepoSpy, times(1)).updatePositionsTable(trade);
             verify(journalEntryRepoSpy, times(1)).updatePositionPostedStatusInJournalEntry(trade);
             verify(transactionUtilSpy, times(1)).commitTransaction();
+            verify(transactionUtilSpy, times(0)).rollbackTransaction();
+            verify(messageRetryerSpy, times(0)).retryMessage(any());
+        }
+    }
+
+    @Test
+    void runTradeProcessorTest_WritJournalEntryFailed() throws WriteToJournalEntryFailed, OptimisticLockingException, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
+        try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
+
+            String tradeId = TestDataProvider.tradeIdSupplier.get();
+            String payload = TestDataProvider.validTradePayloadSupplier.get();
+            Trade trade = TestDataProvider.validTradeForPayloadSupplier.get();
+
+            //Setup
+            beanFactoryMockedStatic.when(BeanFactory::getMessageReceiver).thenReturn(messageReceiverSpy);
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(TransactionUtil.class)).thenReturn(transactionUtilSpy);
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(RawPayloadRepo.class)).thenReturn(rawPayloadRepoSpy);
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(JournalEntryRepo.class)).thenReturn(journalEntryRepoSpy);
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(PositionsRepo.class)).thenReturn(positionsRepoSpy);
+            beanFactoryMockedStatic.when(BeanFactory::getMessageRetryer).thenReturn(messageRetryerSpy);
+
+            when(tradeProcessorService.getTradeID(any()))
+                    .thenReturn(Optional.of(tradeId))
+                    .thenReturn(Optional.empty());
+            doReturn(Optional.of(payload)).when(tradeProcessorService).readPayloadFromRawPayloadDB(any());
+            doReturn(trade).when(tradeProcessorService).validatePayloadAndCreateTrade(any());
+            doReturn("Valid").when(tradeProcessorService).validateBusinessLogic(any());
+
+            doNothing().when(rawPayloadRepoSpy).updateSecurityLookupStatusInRawPayloadsTable(any(), any());
+            doNothing().when(messageRetryerSpy).retryMessage(any());
+            doThrow(WriteToJournalEntryFailed.class).when(journalEntryRepoSpy).writeTradeToJournalEntryTable(any());
+
+            //Action
+            tradeProcessorService.runTradeProcessor(messageProviderSpy);
+
+            //Assert
+            beanFactoryMockedStatic.verify(BeanFactory::getMessageReceiver, times(1));
+            verify(messageReceiverSpy, times(1)).receiveMessage(any());
+            verify(tradeProcessorService, times(2)).getTradeID(any());
+            verify(tradeProcessorService, times(1)).readPayloadFromRawPayloadDB(tradeId);
+            verify(tradeProcessorService, times(1)).validatePayloadAndCreateTrade(payload);
+            //processTradeMethodVerification
+            verify(tradeProcessorService, times(1)).validateBusinessLogic(trade);
+            ////updateTradeSecurityLookUpInPayloadTable
+            verify(rawPayloadRepoSpy, times(1)).updateSecurityLookupStatusInRawPayloadsTable(trade, "Valid");
+            ////updateJournalEntryAndPositions
+            verify(transactionUtilSpy, times(1)).startTransaction();
+            verify(journalEntryRepoSpy,times(1)).writeTradeToJournalEntryTable(trade);
+            verify(rawPayloadRepoSpy, times(0)).updateJournalEntryStatusInRawPayloadsTable(trade);
+            verify(positionsRepoSpy, times(0)).updatePositionsTable(trade);
+            verify(journalEntryRepoSpy, times(0)).updatePositionPostedStatusInJournalEntry(trade);
+            verify(transactionUtilSpy, times(0)).commitTransaction();
+            verify(transactionUtilSpy, times(1)).rollbackTransaction();
+            verify(messageRetryerSpy, times(1)).retryMessage(trade);
+
         }
     }
 
