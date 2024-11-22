@@ -86,9 +86,7 @@ public class TradeProcessorService implements TradeProcessing {
         if (trade != null) {
             String lookupStatus = validateBusinessLogic(trade);
             updateTradeSecurityLookupInPayloadTable(trade, lookupStatus);
-
             updateJournalEntryAndPositions(trade, lookupStatus);
-
         }
     }
 
@@ -109,20 +107,15 @@ public class TradeProcessorService implements TradeProcessing {
             try {
                 writeToJournalTable(trade);
                 updateJEPostedStatusInRawPayload(trade);
-
                 writeToPositionsTable(trade);
                 updatePositionPostedStatusInJournalEntry(trade);
-
                 BeanFactory.getPersistenceBean(TransactionUtil.class).commitTransaction();
-
             } catch (WriteToJournalEntryFailed | UpdateJournalEntryStatusInRawPayloadFailed |
-                     OptimisticLockingException | UpdatePositionStatusInJournalEntryFailed |
-                     Exception e) {
-                e.printStackTrace();
+                     OptimisticLockingException | UpdatePositionStatusInJournalEntryFailed e) {
+                System.out.println("Failed to Update Journal Entry and Positions");
                 BeanFactory.getPersistenceBean(TransactionUtil.class).rollbackTransaction();
                 BeanFactory.getMessageRetryer().retryMessage(trade);
             }
-
         }
         //Disabled Logging to the Log File - No one looks at error log files
     }
@@ -148,6 +141,5 @@ public class TradeProcessorService implements TradeProcessing {
         JournalEntryRepo journalEntryRepo = BeanFactory.getPersistenceBean(JournalEntryRepo.class);
         journalEntryRepo.updatePositionPostedStatusInJournalEntry(trade);
     }
-
 }
 
