@@ -35,6 +35,9 @@ import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 public class BeanFactory {
 
+    private static final String PERSISTENCE_TECHNOLOGY = "persistence.technology";
+    private static final String MESSAGING_TECHNOLOGY = "messaging.technology";
+
     private BeanFactory() {
     }
 
@@ -80,7 +83,7 @@ public class BeanFactory {
     }
 
     public static <T> T getPersistenceBean(Class<T> classType){
-        return Optional.ofNullable(mapOfTech.get(getFileProperty("persistence.technology")))
+        return Optional.ofNullable(mapOfTech.get(getFileProperty(PERSISTENCE_TECHNOLOGY)))
                 .map(techMap -> techMap.get(classType))
                 .flatMap(BeanFactory::callSafely)
                 .map(classType::cast)
@@ -90,9 +93,9 @@ public class BeanFactory {
     public static MessageReceiver<String> getMessageReceiver(){
         MessageReceiver<String> messageReceiver;
 
-        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
+        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
             messageReceiver = RabbitMQReceiver.getInstance();
-        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
+        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
             throw new InvalidMessagingTechnologyException();
         } else {
             throw new InvalidMessagingTechnologyException();
@@ -104,9 +107,9 @@ public class BeanFactory {
     public static MessageRetry<Trade> getMessageRetryer(){
         MessageRetry<Trade> messageRetryer;
 
-        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
+        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
             messageRetryer = RabbitMQRetry.getInstance();
-        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
+        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
             throw new InvalidMessagingTechnologyException();
         } else {
             throw new InvalidMessagingTechnologyException();
@@ -118,7 +121,7 @@ public class BeanFactory {
     public static MessageProvider getMessageProvider(int index){
         MessageProvider messageProvider;
 
-        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
+        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
             RabbitMQMessageProvider rabbitMQMessageProvider = new RabbitMQMessageProvider();
             rabbitMQMessageProvider.setMainExchangeName(getFileProperty("rabbitMQ.main.exchange.name"));
             rabbitMQMessageProvider.setMainQueueName(getFileProperty("rabbitMQ.main.queue"+index+".name"));
@@ -130,7 +133,7 @@ public class BeanFactory {
             RabbitMQUtils.getInstance().setRabbitMQMessageProvider(rabbitMQMessageProvider);
             messageProvider = rabbitMQMessageProvider;
 
-        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty("messaging.technology"))){
+        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
             throw new InvalidMessagingTechnologyException();
         } else {
             throw new InvalidMessagingTechnologyException();
