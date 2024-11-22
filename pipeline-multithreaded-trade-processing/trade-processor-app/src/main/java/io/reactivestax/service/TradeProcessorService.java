@@ -116,8 +116,8 @@ public class TradeProcessorService implements TradeProcessing {
                 BeanFactory.getPersistenceBean(TransactionUtil.class).rollbackTransaction();
                 BeanFactory.getMessageRetryer().retryMessage(trade);
             }
-        }
-        //Disabled Logging to the Log File - No one looks at error log files
+        } else
+            System.out.println("Invalid Cusip, Not Being Processed for Journal Entry and Positions Update");
     }
 
     @Override

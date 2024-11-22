@@ -98,7 +98,7 @@ class TradeProcessorServiceTest {
 
 //runTradeProcessorTest
     @Test
-    void runTradeProcessor_Successful_Test() throws WriteToJournalEntryFailed, OptimisticLockingException, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
+    void runTradeProcessorTest_ValidCusipTrade() throws WriteToJournalEntryFailed, OptimisticLockingException, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
         try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
 
             String tradeId = TestDataProvider.tradeIdSupplier.get();
@@ -146,6 +146,54 @@ class TradeProcessorServiceTest {
             verify(positionsRepoSpy, times(1)).updatePositionsTable(trade);
             verify(journalEntryRepoSpy, times(1)).updatePositionPostedStatusInJournalEntry(trade);
             verify(transactionUtilSpy, times(1)).commitTransaction();
+            verify(transactionUtilSpy, times(0)).rollbackTransaction();
+            verify(messageRetryerSpy, times(0)).retryMessage(any());
+        }
+    }
+
+    @Test
+    void runTradeProcessorTest_InvalidCusipTrade() throws WriteToJournalEntryFailed, OptimisticLockingException, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
+        try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
+
+            String tradeId = TestDataProvider.tradeIdSupplier.get();
+            String payload = TestDataProvider.validTradePayloadSupplier.get();
+            Trade trade = TestDataProvider.validTradeForPayloadSupplier.get();
+
+            //Setup
+            beanFactoryMockedStatic.when(BeanFactory::getMessageReceiver).thenReturn(messageReceiverSpy);
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(TransactionUtil.class)).thenReturn(transactionUtilSpy);
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(RawPayloadRepo.class)).thenReturn(rawPayloadRepoSpy);
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(JournalEntryRepo.class)).thenReturn(journalEntryRepoSpy);
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(PositionsRepo.class)).thenReturn(positionsRepoSpy);
+            beanFactoryMockedStatic.when(BeanFactory::getMessageRetryer).thenReturn(messageRetryerSpy);
+
+            when(tradeProcessorService.getTradeID(any()))
+                    .thenReturn(Optional.of(tradeId))
+                    .thenReturn(Optional.empty());
+            doReturn(Optional.of(payload)).when(tradeProcessorService).readPayloadFromRawPayloadDB(any());
+            doReturn(trade).when(tradeProcessorService).validatePayloadAndCreateTrade(any());
+            doReturn("Invalid").when(tradeProcessorService).validateBusinessLogic(any());
+
+            //Action
+            tradeProcessorService.runTradeProcessor(messageProviderSpy);
+
+            //Assert
+            beanFactoryMockedStatic.verify(BeanFactory::getMessageReceiver, times(1));
+            verify(messageReceiverSpy, times(1)).receiveMessage(any());
+            verify(tradeProcessorService, times(2)).getTradeID(any());
+            verify(tradeProcessorService, times(1)).readPayloadFromRawPayloadDB(tradeId);
+            verify(tradeProcessorService, times(1)).validatePayloadAndCreateTrade(payload);
+            //processTradeMethodVerification
+            verify(tradeProcessorService, times(1)).validateBusinessLogic(trade);
+            ////updateTradeSecurityLookUpInPayloadTable
+            verify(rawPayloadRepoSpy, times(1)).updateSecurityLookupStatusInRawPayloadsTable(trade, "Invalid");
+            ////updateJournalEntryAndPositions
+            verify(transactionUtilSpy, times(0)).startTransaction();
+            verify(journalEntryRepoSpy,times(0)).writeTradeToJournalEntryTable(trade);
+            verify(rawPayloadRepoSpy, times(0)).updateJournalEntryStatusInRawPayloadsTable(trade);
+            verify(positionsRepoSpy, times(0)).updatePositionsTable(trade);
+            verify(journalEntryRepoSpy, times(0)).updatePositionPostedStatusInJournalEntry(trade);
+            verify(transactionUtilSpy, times(0)).commitTransaction();
             verify(transactionUtilSpy, times(0)).rollbackTransaction();
             verify(messageRetryerSpy, times(0)).retryMessage(any());
         }
