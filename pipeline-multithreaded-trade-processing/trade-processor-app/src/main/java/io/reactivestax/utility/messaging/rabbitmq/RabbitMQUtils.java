@@ -48,7 +48,7 @@ public class RabbitMQUtils {
         }
     }
 
-    public void closeRabbitMQConnection() throws IOException {
+    public void closeRabbitMQConnection(){
         try {
             rabbitMQConnection.close();
         } catch (IOException | NullPointerException e) {
