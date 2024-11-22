@@ -4,8 +4,8 @@ import io.reactivestax.TestDataProvider;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.UpdateJournalEntryStatusInRawPayloadFailed;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,9 +23,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class JDBCRawPayloadRepoTest {
+
+class JDBCRawPayloadRepoTest {
 
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
@@ -33,8 +34,8 @@ public class JDBCRawPayloadRepoTest {
     private static final String READ_SECURITYLOOKUPSTATUS_QUERY = "Select lookupStatus from trades_payload where trade_id=?";
     private static final String READ_POSITIONUPDATESTATUS_QUERY = "Select postedStatus from trades_payload where trade_id=?";
 
-    @After
-    public void cleanUp(){
+    @AfterEach
+    void cleanUp(){
         String sql = "delete from trades_payload";
         try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql)) {
             JDBCUtils.getInstance().startTransaction();
@@ -49,7 +50,7 @@ public class JDBCRawPayloadRepoTest {
     }
 
     @Test
-    public void getInstanceSingleThreadTest() {
+    void getInstanceSingleThreadTest() {
         // Get two instances
         JDBCRawPayloadRepo instance1 = JDBCRawPayloadRepo.getInstance();
         JDBCRawPayloadRepo instance2 = JDBCRawPayloadRepo.getInstance();
@@ -62,7 +63,7 @@ public class JDBCRawPayloadRepoTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<JDBCRawPayloadRepo> getInstance = JDBCRawPayloadRepo::getInstance;
@@ -79,7 +80,7 @@ public class JDBCRawPayloadRepoTest {
     }
 
     @Test
-    public void readPayloadFromRawPayload_TradeIdDoesNotExists_Test(){
+    void readPayloadFromRawPayload_TradeIdDoesNotExists_Test(){
         System.setOut(new PrintStream(outputStreamCaptor));
 
         // Read the Payload for a tradeId, It will be Optional.empty()
@@ -92,7 +93,7 @@ public class JDBCRawPayloadRepoTest {
     }
 
     @Test
-    public void readPayloadFromRawPayload_tradeIdExists_Test(){
+    void readPayloadFromRawPayload_tradeIdExists_Test(){
         String tradePayload = TestDataProvider.validTradePayloadSupplier.get();
 
         // Insert the Trade with Payload into the DB
@@ -103,7 +104,7 @@ public class JDBCRawPayloadRepoTest {
         assertEquals(tradePayload, payloadReadFromRawPayloadTable.get());
     }
 
-    public void insertIntoRawPayloadTable(String tradeID, String payload) {
+    void insertIntoRawPayloadTable(String tradeID, String payload) {
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement psQuery = connection.prepareStatement(INSERT_INTO_TRADES_PAYLOAD_QUERY)) {
             psQuery.setString(1, tradeID);
@@ -150,7 +151,7 @@ public class JDBCRawPayloadRepoTest {
     }
 
     @Test
-    public void updateSecurityLookUpStatusFailedTest(){
+    void updateSecurityLookUpStatusFailedTest(){
         System.setOut(new PrintStream(outputStreamCaptor));
 
         JDBCRawPayloadRepo.getInstance().updateSecurityLookupStatusInRawPayloadsTable(null, null);
@@ -171,7 +172,7 @@ public class JDBCRawPayloadRepoTest {
     }
 
     @Test
-    public void updateJournalEntryStatusTest() throws UpdateJournalEntryStatusInRawPayloadFailed, SQLException {
+    void updateJournalEntryStatusTest() throws UpdateJournalEntryStatusInRawPayloadFailed, SQLException {
         Trade trade = TestDataProvider.validTradeForPayloadSupplier.get();
         insertIntoRawPayloadTable("TDB_00000001", TestDataProvider.validTradePayloadSupplier.get());
 
@@ -186,7 +187,7 @@ public class JDBCRawPayloadRepoTest {
     }
 
     @Test
-    public void updateJournalEntryStatusFailedTest() {
+    void updateJournalEntryStatusFailedTest() {
         assertThrows(UpdateJournalEntryStatusInRawPayloadFailed.class, () -> JDBCRawPayloadRepo.getInstance().updateJournalEntryStatusInRawPayloadsTable(null));
     }
 }
