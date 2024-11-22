@@ -66,7 +66,7 @@ public class JDBCPositionsRepo implements PositionsRepo {
                 psPositionUpdateQuery.setInt(2, version);
 
                 if (psPositionUpdateQuery.executeUpdate() == 0)
-                    throw new OptimisticLockingException("Optimistic Locking Occurring!!!!!");
+                    throw new OptimisticLockingException();
             }
         } catch (SQLException e) {
             System.out.println("Failed to Update Position");

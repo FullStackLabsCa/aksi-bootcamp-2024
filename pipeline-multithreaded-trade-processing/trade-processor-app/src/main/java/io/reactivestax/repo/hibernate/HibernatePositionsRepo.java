@@ -71,7 +71,7 @@ public class HibernatePositionsRepo implements PositionsRepo {
                 updatePositionQuery.setParameter("currentVersion", version);
 
                 if (updatePositionQuery.executeUpdate() == 0)
-                    throw new OptimisticLockingException("Optimistic Locking Occurring!!!!!");
+                    throw new OptimisticLockingException();
             }
         } catch (Exception e) {
             e.printStackTrace();
