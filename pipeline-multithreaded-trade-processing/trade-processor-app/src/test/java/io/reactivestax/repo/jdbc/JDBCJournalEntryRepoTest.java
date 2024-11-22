@@ -6,9 +6,9 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.UpdatePositionStatusInJournalEntryFailed;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
 import java.sql.PreparedStatement;
@@ -20,17 +20,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class JDBCJournalEntryRepoTest {
-    @Before
-    public void setUp() {
+
+class JDBCJournalEntryRepoTest {
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
-    @After
-    public void cleanUp(){
+    @AfterEach
+    void cleanUp(){
         String sql = "delete from journal_entry";
         try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql)) {
             JDBCUtils.getInstance().startTransaction();
@@ -45,7 +46,7 @@ public class JDBCJournalEntryRepoTest {
     }
 
     @Test
-    public void getInstanceSingleThreadTest() {
+    void getInstanceSingleThreadTest() {
         // Get two instances
         JDBCJournalEntryRepo instance1 = JDBCJournalEntryRepo.getInstance();
         JDBCJournalEntryRepo instance2 = JDBCJournalEntryRepo.getInstance();
@@ -58,7 +59,7 @@ public class JDBCJournalEntryRepoTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<JDBCJournalEntryRepo> getInstance = JDBCJournalEntryRepo::getInstance;
@@ -116,7 +117,7 @@ public class JDBCJournalEntryRepoTest {
     }
 
     @Test
-    public void writeTradeToJournalEntryTableSizeTest() throws WriteToJournalEntryFailed {
+    void writeTradeToJournalEntryTableSizeTest() throws WriteToJournalEntryFailed {
         // Get the size of table before writing
         // should be 0
         long countBeforeInsertion = getSizeOfTable();
@@ -139,7 +140,7 @@ public class JDBCJournalEntryRepoTest {
     }
 
     @Test
-    public void writeTradeToJournalEntryTableDataTest() throws WriteToJournalEntryFailed {
+    void writeTradeToJournalEntryTableDataTest() throws WriteToJournalEntryFailed {
         // Get the data of table before writing
         // should be null
         List<JournalEntry> entriesBeforeInsertion = getEntriesInTable();
@@ -173,12 +174,12 @@ public class JDBCJournalEntryRepoTest {
     }
 
     @Test
-    public void writeTradeToJournalEntryFailedTest() {
+    void writeTradeToJournalEntryFailedTest() {
         assertThrows(WriteToJournalEntryFailed.class, () -> JDBCJournalEntryRepo.getInstance().writeTradeToJournalEntryTable(null));
     }
 
     @Test
-    public void updatePositionPostedStatusInJournalEntrySuccessfulTest() throws WriteToJournalEntryFailed, UpdatePositionStatusInJournalEntryFailed {
+    void updatePositionPostedStatusInJournalEntrySuccessfulTest() throws WriteToJournalEntryFailed, UpdatePositionStatusInJournalEntryFailed {
         // create trade
         Trade trade = TestDataProvider.goodTradeSupplier.get();
 
@@ -206,7 +207,7 @@ public class JDBCJournalEntryRepoTest {
     }
 
     @Test
-    public void updatePositionPostedStatusInJournalEntryFailedTest() {
+    void updatePositionPostedStatusInJournalEntryFailedTest() {
         assertThrows(UpdatePositionStatusInJournalEntryFailed.class, () -> JDBCJournalEntryRepo.getInstance().updatePositionPostedStatusInJournalEntry(null));
     }
 }
