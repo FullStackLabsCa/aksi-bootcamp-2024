@@ -9,8 +9,8 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -25,15 +25,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class HibernateRawPayloadRepoTest {
+
+class HibernateRawPayloadRepoTest {
 
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
-    @After
-    public void cleanUp(){
+    @AfterEach
+    void cleanUp(){
         try {
             HibernateUtils.getInstance().startTransaction();
             String sql = "delete from RawPayload";
@@ -47,7 +48,7 @@ public class HibernateRawPayloadRepoTest {
     }
 
     @Test
-    public void getInstanceSingleThreadTest() {
+    void getInstanceSingleThreadTest() {
         // Get two instances
         HibernateRawPayloadRepo instance1 = HibernateRawPayloadRepo.getInstance();
         HibernateRawPayloadRepo instance2 = HibernateRawPayloadRepo.getInstance();
@@ -60,7 +61,7 @@ public class HibernateRawPayloadRepoTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<HibernateRawPayloadRepo> getInstance = HibernateRawPayloadRepo::getInstance;
@@ -77,7 +78,7 @@ public class HibernateRawPayloadRepoTest {
     }
 
     @Test
-    public void readPayloadFromRawPayload_tradeIdExists_Test(){
+    void readPayloadFromRawPayload_tradeIdExists_Test(){
         String tradePayload = TestDataProvider.validTradePayloadSupplier.get();
 
         // Insert the Trade with Payload into the DB
@@ -109,7 +110,7 @@ public class HibernateRawPayloadRepoTest {
     }
 
     @Test
-    public void readPayloadFromRawPayload_TradeIdDoesNotExists_Test(){
+    void readPayloadFromRawPayload_TradeIdDoesNotExists_Test(){
         // Read the Payload for a tradeId, It will be Optional.empty()
         Optional<String> payloadReadFromRawPayloadTable = HibernateRawPayloadRepo.getInstance().readPayloadFromRawPayloadsTable("test-trade");
         assertEquals(Optional.empty(), payloadReadFromRawPayloadTable);
@@ -149,7 +150,7 @@ public class HibernateRawPayloadRepoTest {
     }
 
     @Test
-    public void updateSecurityLookUpStatusFailedTest(){
+    void updateSecurityLookUpStatusFailedTest(){
         System.setOut(new PrintStream(outputStreamCaptor));
 
         HibernateRawPayloadRepo.getInstance().updateSecurityLookupStatusInRawPayloadsTable(null, null);
@@ -159,7 +160,7 @@ public class HibernateRawPayloadRepoTest {
     }
 
     @Test
-    public void updateJournalEntryStatusTest() throws UpdateJournalEntryStatusInRawPayloadFailed {
+    void updateJournalEntryStatusTest() throws UpdateJournalEntryStatusInRawPayloadFailed {
         Trade trade = TestDataProvider.validTradeForPayloadSupplier.get();
         insertIntoRawPayloadTable("TDB_00000001", TestDataProvider.validTradePayloadSupplier.get());
 
@@ -177,7 +178,7 @@ public class HibernateRawPayloadRepoTest {
     }
 
     @Test
-    public void updateJournalEntryStatusFailedTest() {
+    void updateJournalEntryStatusFailedTest() {
         assertThrows(UpdateJournalEntryStatusInRawPayloadFailed.class, () -> HibernateRawPayloadRepo.getInstance().updateJournalEntryStatusInRawPayloadsTable(null));
     }
 }
