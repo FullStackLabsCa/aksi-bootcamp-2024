@@ -18,12 +18,12 @@ import java.util.List;
 public class HibernatePositionsRepo implements PositionsRepo {
     private static HibernatePositionsRepo instance;
 
-    private HibernatePositionsRepo(){
+    private HibernatePositionsRepo() {
         // Private Constructor to avoid anyone creating instance of this class
     }
 
-    public static synchronized HibernatePositionsRepo getInstance(){
-        if(instance == null) instance = new HibernatePositionsRepo();
+    public static synchronized HibernatePositionsRepo getInstance() {
+        if (instance == null) instance = new HibernatePositionsRepo();
         return instance;
     }
 
@@ -39,9 +39,13 @@ public class HibernatePositionsRepo implements PositionsRepo {
 
             if (version == -1) {
                 //Perform Insertion Logic
+                PositionCompositeKey positionCompositeKey = PositionCompositeKey.builder()
+                        .accountNumber(trade.getAccountNumber())
+                        .securityID(securityID)
+                        .build();
                 Position position = new Position();
 
-                position.setPositionID(new PositionCompositeKey(trade.getAccountNumber(), securityID));
+                position.setPositionID(positionCompositeKey);
                 position.setVersion(0);
                 if ("BUY".equals(trade.getActivity())) {
                     position.setPositionAmount(trade.getQuantity());
@@ -85,7 +89,7 @@ public class HibernatePositionsRepo implements PositionsRepo {
         Root<Position> root = getPositionVersionQuery.from(Position.class);
         getPositionVersionQuery.select(root).where(
                 builder.and(
-                        builder.equal(root.get("positionID"), new PositionCompositeKey(trade.getAccountNumber(), securityId))
+                        builder.equal(root.get("positionID"), PositionCompositeKey.builder().accountNumber(trade.getAccountNumber()).securityID(securityId).build())
                 ));
         List<Position> result = session.createQuery(getPositionVersionQuery).getResultList();
 
