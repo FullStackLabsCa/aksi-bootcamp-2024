@@ -26,7 +26,6 @@ class HibernateUtilsTest {
             query.executeUpdate();
             HibernateUtils.getInstance().commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
             HibernateUtils.getInstance().rollbackTransaction();
         }
 
@@ -187,7 +186,7 @@ class HibernateUtilsTest {
         Query queryWithNewSession = HibernateUtils.getInstance().getConnection().createQuery(hql, Long.class);
         Long sizeAfterCommitting = (Long) queryWithNewSession.getSingleResult();
 
-        assertEquals((long) sizeBeforeCommitting + 1, (long) sizeAfterCommitting);
+        assertEquals(sizeBeforeCommitting + 1, (long) sizeAfterCommitting);
     }
 
     @Test

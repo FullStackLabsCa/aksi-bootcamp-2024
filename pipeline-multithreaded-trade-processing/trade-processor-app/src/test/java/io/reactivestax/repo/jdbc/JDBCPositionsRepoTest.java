@@ -110,7 +110,7 @@ class JDBCPositionsRepoTest {
     }
 
     @Test
-    void getVersionIdFailedTest() throws OptimisticLockingException {
+    void getVersionIdFailedTest() {
         System.setOut(new PrintStream(outputStreamCaptor));
 
         doAnswer(invocationOnMock -> {

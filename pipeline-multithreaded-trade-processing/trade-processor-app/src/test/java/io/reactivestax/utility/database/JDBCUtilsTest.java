@@ -1,6 +1,5 @@
 package io.reactivestax.utility.database;
 
-import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,9 +26,6 @@ import static org.mockito.Mockito.*;
 class JDBCUtilsTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
-
-    @Spy
-    private HikariDataSource dataSource;
 
     @Spy
     @InjectMocks
@@ -203,7 +199,6 @@ class JDBCUtilsTest {
             JDBCUtils.getInstance().commitTransaction();
 
         } catch (Exception e){
-            e.printStackTrace();
             System.out.println("Error with getting sizeBeforeCommit / Inserting into the Positions table...");
         }
 

@@ -6,15 +6,11 @@ import io.reactivestax.utility.exceptions.MessageProviderNotSetException;
 import io.reactivestax.utility.exceptions.NullResponseForThreadException;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQMessageProvider;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotEquals;
 
 public class RabbitMQUtilsTest {
 
