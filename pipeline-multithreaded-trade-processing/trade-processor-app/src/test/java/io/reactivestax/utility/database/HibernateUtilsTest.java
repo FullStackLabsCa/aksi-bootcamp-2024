@@ -5,19 +5,20 @@ import io.reactivestax.entity.PositionCompositeKey;
 import jakarta.persistence.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class HibernateUtilsTest {
 
-    @Before
-    public void cleanUp(){
+class HibernateUtilsTest {
+
+    @BeforeEach
+    void cleanUp(){
         try {
             HibernateUtils.getInstance().startTransaction();
             String sql = "delete from Position";
@@ -32,7 +33,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void getInstanceSingleThreadTest(){
+    void getInstanceSingleThreadTest(){
         // Get two instances
         HibernateUtils instance1 = HibernateUtils.getInstance();
         HibernateUtils instance2 = HibernateUtils.getInstance();
@@ -45,7 +46,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<HibernateUtils> getHibernateUtilInstance = HibernateUtils::getInstance;
@@ -62,7 +63,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void getConnectionMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getConnectionMultiThreadTest() throws ExecutionException, InterruptedException {
         // Spawn multiple threads and make each of them get 2 connections
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
@@ -97,7 +98,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void startTransactionSingleTest(){
+    void startTransactionSingleTest(){
         Transaction transaction;
 
         Session session = HibernateUtils.getInstance().getConnection();
@@ -108,7 +109,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void startTransactionMultiThreadTest() throws ExecutionException, InterruptedException {
+    void startTransactionMultiThreadTest() throws ExecutionException, InterruptedException {
         Transaction transactionThread1;
         Transaction transactionThread2;
 
@@ -133,7 +134,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void commitTransactionSingleThreadTransactionActiveTest(){
+    void commitTransactionSingleThreadTransactionActiveTest(){
         HibernateUtils.getInstance().startTransaction();
         assertTrue(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
         HibernateUtils.getInstance().commitTransaction();
@@ -141,7 +142,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void commitTransactionMultiThreadTransactionActiveTest() throws ExecutionException, InterruptedException {
+    void commitTransactionMultiThreadTransactionActiveTest() throws ExecutionException, InterruptedException {
         Callable<Boolean> getTransactionActivityAfterCommit = () -> {
             HibernateUtils.getInstance().startTransaction();
             HibernateUtils.getInstance().commitTransaction();
@@ -167,7 +168,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void commitTransactionTableSizeTest(){
+    void commitTransactionTableSizeTest(){
         // Check that the size of the table will increase by the number of insertions
         Session session = HibernateUtils.getInstance().getConnection();
         HibernateUtils.getInstance().startTransaction();
@@ -190,7 +191,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void commitTransactionTableDataTest(){
+    void commitTransactionTableDataTest(){
         // Check if the inserted data exists in the DB
         Session session = HibernateUtils.getInstance().getConnection();
         HibernateUtils.getInstance().startTransaction();
@@ -217,7 +218,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void rollbackTransactionSingleThreadTransactionActiveTest(){
+    void rollbackTransactionSingleThreadTransactionActiveTest(){
         HibernateUtils.getInstance().startTransaction();
         assertTrue(HibernateUtils.getInstance().getConnection().getTransaction().isActive());
         HibernateUtils.getInstance().rollbackTransaction();
@@ -225,7 +226,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void rollbackTransactionMultiThreadTransactionActiveTest() throws ExecutionException, InterruptedException {
+    void rollbackTransactionMultiThreadTransactionActiveTest() throws ExecutionException, InterruptedException {
         Callable<Boolean> getTransactionActivityAfterCommit = () -> {
             HibernateUtils.getInstance().startTransaction();
             HibernateUtils.getInstance().rollbackTransaction();
@@ -250,7 +251,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void rollbackTransactionTableSizeTest(){
+    void rollbackTransactionTableSizeTest(){
         // Should be the same as before
         Session session = HibernateUtils.getInstance().getConnection();
         HibernateUtils.getInstance().startTransaction();
@@ -274,7 +275,7 @@ public class HibernateUtilsTest {
     }
 
     @Test
-    public void rollbackTransactionTableDataTest(){
+    void rollbackTransactionTableDataTest(){
         // Should be the same as before
         Session session = HibernateUtils.getInstance().getConnection();
         HibernateUtils.getInstance().startTransaction();
