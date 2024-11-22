@@ -162,7 +162,7 @@ class JDBCJournalEntryRepoTest {
         JournalEntry expectedJournalEntry = JournalEntry.builder()
                 .accountNumber(trade.getAccountNumber())
                 .activity(trade.getActivity())
-                .positionPostedStatus("Non Posted")
+                .positionPostedStatus("Not Posted")
                 .quantity(trade.getQuantity())
                 .securityID(157001093)
                 .tradeExecutionTime(trade.getTransactionTime())
@@ -192,7 +192,7 @@ class JDBCJournalEntryRepoTest {
         List<JournalEntry> entriesInJournalEntryTable = getEntriesInTable();
 
         JournalEntry journalEntryFromDB = entriesInJournalEntryTable.get(0);
-        assertEquals("Non Posted", journalEntryFromDB.getPositionPostedStatus());
+        assertEquals("Not Posted", journalEntryFromDB.getPositionPostedStatus());
 
         // call updateJournalEntryForPositionUpdate
         JDBCUtils.getInstance().startTransaction();

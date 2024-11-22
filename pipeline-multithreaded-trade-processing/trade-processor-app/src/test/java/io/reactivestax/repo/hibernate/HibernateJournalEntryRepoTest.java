@@ -124,7 +124,7 @@ class HibernateJournalEntryRepoTest {
         JournalEntry expectedJournalEntry = JournalEntry.builder()
                 .accountNumber(trade.getAccountNumber())
                 .activity(trade.getActivity())
-                .positionPostedStatus("Non Posted")
+                .positionPostedStatus("Not Posted")
                 .quantity(trade.getQuantity())
                 .securityID(157001093)
                 .tradeExecutionTime(trade.getTransactionTime())
@@ -156,7 +156,7 @@ class HibernateJournalEntryRepoTest {
         List<JournalEntry> entriesInJournalEntryTable = query.getResultList();
 
         JournalEntry journalEntryFromDB = entriesInJournalEntryTable.get(0);
-        assertEquals("Non Posted", journalEntryFromDB.getPositionPostedStatus());
+        assertEquals("Not Posted", journalEntryFromDB.getPositionPostedStatus());
 
         // call updateJournalEntryForPositionUpdate
         HibernateUtils.getInstance().startTransaction();

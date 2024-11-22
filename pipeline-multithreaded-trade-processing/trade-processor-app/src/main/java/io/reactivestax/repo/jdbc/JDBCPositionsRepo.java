@@ -14,6 +14,9 @@ public class JDBCPositionsRepo implements PositionsRepo {
     private static final String POSITION_INSERT_QUERY = "Insert into positions (account_number, security_id, position, version) values (?,?,?,0)";
     private static final String POSITION_UPDATE_QUERY = "update positions set position = (position + ?), version = (version + 1) where version = ?";
     private static final String GET_VERSION_ID = "SELECT version FROM positions WHERE account_number = ? and security_id = ?";
+    private static final String BUY = "BUY";
+    private static final String SELL = "SELL";
+    private static final String UNRECOGNISED_ACTIVITY_OPERATION_EXCEPTION = "UnrecognisedActivityOperationException";
     private static JDBCPositionsRepo instance;
 
     private JDBCPositionsRepo() {
@@ -42,12 +45,12 @@ public class JDBCPositionsRepo implements PositionsRepo {
                 psPositionInsertQuery.setString(1, trade.getAccountNumber());
                 psPositionInsertQuery.setInt(2, securityID);
 
-                if ("BUY".equals(trade.getActivity())) {
+                if (BUY.equals(trade.getActivity())) {
                     psPositionInsertQuery.setInt(3, trade.getQuantity());
-                } else if ("SELL".equals(trade.getActivity())) {
+                } else if (SELL.equals(trade.getActivity())) {
                     psPositionInsertQuery.setInt(3, -trade.getQuantity());
                 } else {
-                    System.out.println("UnrecognisedActivityOperationException");
+                    System.out.println(UNRECOGNISED_ACTIVITY_OPERATION_EXCEPTION);
                     return;
                 }
 
@@ -55,12 +58,12 @@ public class JDBCPositionsRepo implements PositionsRepo {
 
             } else {
                 //Perform Update Logic
-                if ("BUY".equals(trade.getActivity())) {
+                if (BUY.equals(trade.getActivity())) {
                     psPositionUpdateQuery.setInt(1, trade.getQuantity());
-                } else if ("SELL".equals(trade.getActivity())) {
+                } else if (SELL.equals(trade.getActivity())) {
                     psPositionUpdateQuery.setInt(1, -trade.getQuantity());
                 } else {
-                    System.out.println("UnrecognisedActivityOperationException");
+                    System.out.println(UNRECOGNISED_ACTIVITY_OPERATION_EXCEPTION);
                     return;
                 }
                 psPositionUpdateQuery.setInt(2, version);

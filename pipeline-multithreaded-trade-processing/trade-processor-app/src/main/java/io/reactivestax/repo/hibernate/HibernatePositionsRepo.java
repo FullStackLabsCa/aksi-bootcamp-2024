@@ -16,6 +16,9 @@ import org.hibernate.Session;
 import java.util.List;
 
 public class HibernatePositionsRepo implements PositionsRepo {
+    private static final String BUY = "BUY";
+    private static final String SELL = "SELL";
+    private static final String UNRECOGNISED_ACTIVITY_OPERATION_EXCEPTION = "UnrecognisedActivityOperationException...";
     private static HibernatePositionsRepo instance;
 
     private HibernatePositionsRepo() {
@@ -46,12 +49,12 @@ public class HibernatePositionsRepo implements PositionsRepo {
 
                 int positionAmount;
 
-                if ("BUY".equals(trade.getActivity())) {
+                if (BUY.equals(trade.getActivity())) {
                     positionAmount = trade.getQuantity();
-                } else if ("SELL".equals(trade.getActivity())) {
+                } else if (SELL.equals(trade.getActivity())) {
                     positionAmount = -trade.getQuantity();
                 } else {
-                    System.out.println("UnrecognisedActivityOperationException");
+                    System.out.println(UNRECOGNISED_ACTIVITY_OPERATION_EXCEPTION);
                     return;
                 }
 
@@ -68,12 +71,12 @@ public class HibernatePositionsRepo implements PositionsRepo {
                 String updateHQL = "update Position p set p.positionAmount = (p.positionAmount + :positionIncrement), p.version = (p.version +1) where p.version = :currentVersion";
                 Query updatePositionQuery = session.createQuery(updateHQL);
 
-                if ("BUY".equals(trade.getActivity())) {
+                if (BUY.equals(trade.getActivity())) {
                     updatePositionQuery.setParameter("positionIncrement", trade.getQuantity());
-                } else if ("SELL".equals(trade.getActivity())) {
+                } else if (SELL.equals(trade.getActivity())) {
                     updatePositionQuery.setParameter("positionIncrement", -trade.getQuantity());
                 } else {
-                    System.out.println("UnrecognisedActivityOperationException...");
+                    System.out.println(UNRECOGNISED_ACTIVITY_OPERATION_EXCEPTION);
                     return;
                 }
 
