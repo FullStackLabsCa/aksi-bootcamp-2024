@@ -37,7 +37,6 @@ class HibernateJournalEntryRepoTest {
             query.executeUpdate();
             HibernateUtils.getInstance().commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
             HibernateUtils.getInstance().rollbackTransaction();
         }
     }

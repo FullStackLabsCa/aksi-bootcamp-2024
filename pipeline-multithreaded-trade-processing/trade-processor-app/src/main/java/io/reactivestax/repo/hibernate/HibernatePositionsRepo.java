@@ -74,7 +74,6 @@ public class HibernatePositionsRepo implements PositionsRepo {
                     throw new OptimisticLockingException();
             }
         } catch (Exception e) {
-            e.printStackTrace();
             System.out.println("Failed to Update Position");
         }
     }

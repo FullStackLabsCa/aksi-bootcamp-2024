@@ -513,7 +513,7 @@ class TradeProcessorServiceTest {
         return Stream.of(
                 Arguments.of(TestDataProvider.invalidCusipTradeSupplier.get(), "Invalid"),
                 Arguments.of(TestDataProvider.goodTradeSupplier.get(), "Valid"),
-                Arguments.of((Object) null, "Unable to Check CUSIP.")
+                Arguments.of( null, "Unable to Check CUSIP.")
         );
     }
 

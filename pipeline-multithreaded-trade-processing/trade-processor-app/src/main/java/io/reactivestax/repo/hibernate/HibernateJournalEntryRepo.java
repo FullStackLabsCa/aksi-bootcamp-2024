@@ -57,7 +57,6 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
 
             session.createQuery(positionStatusUpdate).executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
             throw new UpdatePositionStatusInJournalEntryFailed();
         }
     }
