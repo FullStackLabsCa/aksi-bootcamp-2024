@@ -45,7 +45,6 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
             rabbitMQChannel.queueBind(getFileProperty("rabbitMQ.dlx.queue.name"), getFileProperty("rabbitMQ.dlx.exchange.name"), getFileProperty("rabbitMQ.dlx.routingKey"));
 
         } catch (Exception e) {
-            e.printStackTrace();
             System.out.println("Error Initializing RabbitMQ Retry....");
         }
     }
@@ -83,7 +82,6 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
 
         } catch (Exception e) {
             System.out.println("Some issues in RabbitMQ Consumer...readFromRabbitMQ");
-            e.printStackTrace();
             throw new RabbitMQException(e);
         }
     }

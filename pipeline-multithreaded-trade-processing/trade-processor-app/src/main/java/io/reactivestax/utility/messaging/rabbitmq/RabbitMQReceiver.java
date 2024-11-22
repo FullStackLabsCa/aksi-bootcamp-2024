@@ -70,7 +70,6 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
             }
         } catch (Exception e) {
             System.out.println("Some issues in RabbitMQ Consumer...readFromRabbitMQ");
-            e.printStackTrace();
             return Optional.empty();
         }
     }
