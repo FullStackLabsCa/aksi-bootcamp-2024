@@ -9,9 +9,9 @@ import io.reactivestax.utility.exceptions.RabbitMQException;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQMessageProvider;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
 import java.io.ByteArrayOutputStream;
@@ -25,32 +25,32 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class RabbitMQRetryTest {
+class RabbitMQRetryTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
     @Spy
     private RabbitMQRetry rabbitMQRetry = RabbitMQRetry.getInstance();
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
 
         RabbitMQUtils.getInstance().closeRabbitMQConnection();
     }
 
-    @After
-    public void cleanUp() {
+    @AfterEach
+    void cleanUp() {
         RabbitMQUtils.getInstance().clearThreadResponse();
         RabbitMQUtils.getInstance().clearRabbitMQMessageProvider();
         RabbitMQUtils.getInstance().closeRabbitMQChannel();
     }
 
     @Test
-    public void getInstance_SingleThreadTest() {
+    void getInstance_SingleThreadTest() {
         // Get two instances
         RabbitMQRetry instance1 = RabbitMQRetry.getInstance();
         RabbitMQRetry instance2 = RabbitMQRetry.getInstance();
@@ -63,7 +63,7 @@ public class RabbitMQRetryTest {
     }
 
     @Test
-    public void getInstance_MultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstance_MultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<RabbitMQRetry> getInstance = RabbitMQRetry::getInstance;
@@ -93,7 +93,7 @@ public class RabbitMQRetryTest {
 */
 
     @Test
-    public void retryMessage_FailedToGetChannelFromRabbitConnectionTest() {
+    void retryMessage_FailedToGetChannelFromRabbitConnectionTest() {
         System.setOut(new PrintStream(outputStreamCaptor));
         try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
 
@@ -110,7 +110,7 @@ public class RabbitMQRetryTest {
     }
 
     @Test
-    public void retryMessage_FailedToInitializeDLXExchangeTest() {
+    void retryMessage_FailedToInitializeDLXExchangeTest() {
         System.setOut(new PrintStream(outputStreamCaptor));
         try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
             mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
@@ -131,7 +131,7 @@ public class RabbitMQRetryTest {
     }
 
     @Test
-    public void retryMessage_GetMessageRetryCountFirstTimeTest() throws IOException, InterruptedException {
+    void retryMessage_GetMessageRetryCountFirstTimeTest() throws IOException, InterruptedException {
         purgeRabbitMQQueue();
         System.setOut(new PrintStream(outputStreamCaptor));
         try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
@@ -158,7 +158,7 @@ public class RabbitMQRetryTest {
     }
 
     @Test
-    public void retryMessage_GetMessageRetryCountNthTimeTest() throws IOException, InterruptedException {
+    void retryMessage_GetMessageRetryCountNthTimeTest() throws IOException, InterruptedException {
         purgeRabbitMQQueue();
         System.setOut(new PrintStream(outputStreamCaptor));
         try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
@@ -188,7 +188,7 @@ public class RabbitMQRetryTest {
     }
 
     @Test
-    public void retryMessage_RetryCountMoreThanMaxRetryTest() throws IOException, InterruptedException {
+    void retryMessage_RetryCountMoreThanMaxRetryTest() throws IOException, InterruptedException {
         purgeRabbitMQQueue();
         System.setOut(new PrintStream(outputStreamCaptor));
         try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
