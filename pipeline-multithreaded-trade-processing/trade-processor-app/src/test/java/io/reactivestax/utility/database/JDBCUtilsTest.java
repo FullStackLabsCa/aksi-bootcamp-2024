@@ -1,8 +1,8 @@
 package io.reactivestax.utility.database;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class JDBCUtilsTest {
+class JDBCUtilsTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
@@ -35,8 +35,8 @@ public class JDBCUtilsTest {
     @InjectMocks
     private JDBCUtils jdbcUtils;
 
-    @Before
-    public void cleanUp(){
+    @BeforeEach
+    void cleanUp(){
         MockitoAnnotations.openMocks(this);
         String sql = "delete from positions";
         Connection connection = JDBCUtils.getInstance().getConnection();
@@ -51,7 +51,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void getInstanceSingleThreadTest(){
+    void getInstanceSingleThreadTest(){
         // Get two instances
         JDBCUtils instance1 = JDBCUtils.getInstance();
         JDBCUtils instance2 = JDBCUtils.getInstance();
@@ -64,7 +64,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<JDBCUtils> getHibernateUtilInstance = JDBCUtils::getInstance;
@@ -81,7 +81,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void getConnectionMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getConnectionMultiThreadTest() throws ExecutionException, InterruptedException {
         // Spawn multiple threads and make each of them get 2 connections
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
@@ -111,7 +111,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void startTransactionSingleTest() throws SQLException {
+    void startTransactionSingleTest() throws SQLException {
         boolean autocommit;
 
         Connection connection = JDBCUtils.getInstance().getConnection();
@@ -121,7 +121,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void startTransactionMultiThreadTest() throws ExecutionException, InterruptedException {
+    void startTransactionMultiThreadTest() throws ExecutionException, InterruptedException {
         boolean autocommitThread1;
         boolean autocommitThread2;
 
@@ -143,7 +143,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void startTransactionThrowsExceptionTest() {
+    void startTransactionThrowsExceptionTest() {
         System.setOut(new PrintStream(outputStreamCaptor));
         doAnswer((Answer<String>) invocation -> {
             throw new SQLException();
@@ -156,7 +156,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void commitTransactionSingleThreadAutocommitTest() throws SQLException {
+    void commitTransactionSingleThreadAutocommitTest() throws SQLException {
         JDBCUtils.getInstance().startTransaction();
         assertFalse(JDBCUtils.getInstance().getConnection().getAutoCommit());
         JDBCUtils.getInstance().commitTransaction();
@@ -164,7 +164,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void commitTransactionMultiThreadAutocommitTest() throws Exception {
+    void commitTransactionMultiThreadAutocommitTest() throws Exception {
         Callable<Boolean> commitTransactionAndGetAutoCommit = () -> {
             JDBCUtils.getInstance().startTransaction();
             JDBCUtils.getInstance().commitTransaction();
@@ -186,7 +186,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void commitTransactionTableSizeTest(){
+    void commitTransactionTableSizeTest(){
         // Check that the size of the table will increase by the number of insertions
         Connection connection = JDBCUtils.getInstance().getConnection();
         String countSql = "Select count(*) as count from positions";
@@ -219,7 +219,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void commitTransactionTableDataTest(){
+    void commitTransactionTableDataTest(){
         String selectSql = "select * from positions";
         String insertSql = "Insert into positions (account_number, security_id, position, version) values ('AkshatSingla',333,303,0)";
 
@@ -269,7 +269,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void commitTransactionThrowsExceptionTest() {
+    void commitTransactionThrowsExceptionTest() {
         System.setOut(new PrintStream(outputStreamCaptor));
         doAnswer((Answer<String>) invocation -> {
             throw new SQLException();
@@ -282,7 +282,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void rollbackTransactionSingleThreadAutocommitTest() throws SQLException {
+    void rollbackTransactionSingleThreadAutocommitTest() throws SQLException {
         JDBCUtils.getInstance().startTransaction();
         assertFalse(JDBCUtils.getInstance().getConnection().getAutoCommit());
         JDBCUtils.getInstance().rollbackTransaction();
@@ -290,7 +290,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void rollbackTransactionMultiThreadAutocommitTest() throws Exception {
+    void rollbackTransactionMultiThreadAutocommitTest() throws Exception {
         Callable<Boolean> rollbackTransactionAndGetAutoCommit = () -> {
             JDBCUtils.getInstance().startTransaction();
             JDBCUtils.getInstance().rollbackTransaction();
@@ -312,7 +312,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void rollbackTransactionTableSizeTest(){
+    void rollbackTransactionTableSizeTest(){
         // Check that the size of the table will increase by the number of insertions
         Connection connection = JDBCUtils.getInstance().getConnection();
         String countSql = "Select count(*) as count from positions";
@@ -344,7 +344,7 @@ public class JDBCUtilsTest {
     }
 
     @Test
-    public void rollbackTransactionThrowsExceptionTest() {
+    void rollbackTransactionThrowsExceptionTest() {
         System.setOut(new PrintStream(outputStreamCaptor));
         doAnswer((Answer<String>) invocation -> {
             throw new SQLException();
