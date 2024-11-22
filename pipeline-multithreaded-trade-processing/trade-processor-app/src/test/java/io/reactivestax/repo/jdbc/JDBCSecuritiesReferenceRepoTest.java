@@ -1,7 +1,7 @@
 package io.reactivestax.repo.jdbc;
 
 import io.reactivestax.TestDataProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -10,16 +10,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class JDBCSecuritiesReferenceRepoTest {
+class JDBCSecuritiesReferenceRepoTest {
 
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
     @Test
-    public void getInstanceSingleThreadTest() {
+    void getInstanceSingleThreadTest() {
         // Get two instances
         JDBCSecuritiesReferenceRepo instance1 = JDBCSecuritiesReferenceRepo.getInstance();
         JDBCSecuritiesReferenceRepo instance2 = JDBCSecuritiesReferenceRepo.getInstance();
@@ -32,7 +32,7 @@ public class JDBCSecuritiesReferenceRepoTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<JDBCSecuritiesReferenceRepo> getInstance = JDBCSecuritiesReferenceRepo::getInstance;
@@ -49,27 +49,27 @@ public class JDBCSecuritiesReferenceRepoTest {
     }
 
     @Test
-    public void checkIfValidForValidCusipTest(){
+    void checkIfValidForValidCusipTest(){
         assertEquals("Valid", JDBCSecuritiesReferenceRepo.getInstance().checkIfValidCusip(TestDataProvider.goodBuyTradeSupplier.get()));
     }
 
     @Test
-    public void checkIfValidForInvalidCusipTest(){
+    void checkIfValidForInvalidCusipTest(){
         assertEquals("Invalid", JDBCSecuritiesReferenceRepo.getInstance().checkIfValidCusip(TestDataProvider.invalidCusipTradeSupplier.get()));
     }
 
     @Test
-    public void checkIfValidCusipExceptionTest(){
+    void checkIfValidCusipExceptionTest(){
         assertEquals("Unable to Check CUSIP.", JDBCSecuritiesReferenceRepo.getInstance().checkIfValidCusip(null));
     }
 
     @Test
-    public void getSecurityIdForValidCusipTest(){
+    void getSecurityIdForValidCusipTest(){
         assertEquals(157001093, JDBCSecuritiesReferenceRepo.getInstance().getSecurityIdForCusip("TSLA"));
     }
 
     @Test
-    public void getSecurityIdForInvalidCusipTest(){
+    void getSecurityIdForInvalidCusipTest(){
         System.setOut(new PrintStream(outputStreamCaptor));
 
         assertEquals(0, JDBCSecuritiesReferenceRepo.getInstance().getSecurityIdForCusip("Invalid"));
