@@ -10,6 +10,8 @@ import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.utility.exceptions.OptimisticLockingException;
 import io.reactivestax.utility.exceptions.TradeCreationFailedException;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
+import io.reactivestax.utility.messaging.MessageProvider;
+import io.reactivestax.utility.messaging.MessageReceiver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +44,9 @@ class TradeProcessorServiceTest {
 
     @Spy
     private RawPayloadRepo rawPayloadRepoSpy;
+
+    @Spy
+    private MessageReceiver<String> messageReceiverSpy;
 
     @InjectMocks
     private TradeProcessorService tradeProcessorService;
@@ -91,13 +96,24 @@ class TradeProcessorServiceTest {
      */
 
 //getTradeIdTest
-    /* Mocked Test
+    @ParameterizedTest
+    @MethodSource("getTradeIdTests_MessageProviders")
+    void getTradeIdTest(MessageProvider messageProvider){
+        try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
+            beanFactoryMockedStatic.when(BeanFactory::getMessageReceiver).thenReturn(messageReceiverSpy);
+            doReturn(null).when(messageReceiverSpy).receiveMessage(any());
+            tradeProcessorService.getTradeID(messageProvider);
+            verify(messageReceiverSpy, times(1)).receiveMessage(messageProvider);
+            beanFactoryMockedStatic.verify(BeanFactory::getMessageReceiver, times(1));
+        }
+    }
 
-     */
-
-    /* Integration Test
-
-     */
+    static Stream<Arguments> getTradeIdTests_MessageProviders(){
+        return Stream.of(
+                Arguments.of((Object) null),
+                Arguments.of(BeanFactory.getMessageProvider(1))
+        );
+    }
 
 //readPayloadFromRawDatabaseTest
     @ParameterizedTest
