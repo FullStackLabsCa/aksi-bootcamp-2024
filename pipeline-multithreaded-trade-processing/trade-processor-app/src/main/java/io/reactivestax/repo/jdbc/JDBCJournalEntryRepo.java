@@ -37,7 +37,7 @@ public class JDBCJournalEntryRepo implements JournalEntryRepo {
             insertionQuery.setInt(2, securitiesReference.getSecurityIdForCusip(trade.getCusip()));
             insertionQuery.setString(3, trade.getActivity());
             insertionQuery.setInt(4, trade.getQuantity());
-            insertionQuery.setString(5, "Non Posted");
+            insertionQuery.setString(5, "Not Posted");
             insertionQuery.setTimestamp(6, new Timestamp(trade.getTransactionTime().getTime()));
             insertionQuery.setString(7, trade.getTradeID());
 

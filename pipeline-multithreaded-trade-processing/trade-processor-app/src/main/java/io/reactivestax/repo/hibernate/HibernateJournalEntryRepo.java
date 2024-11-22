@@ -32,7 +32,7 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
             JournalEntry journalEntry = JournalEntry.builder()
                     .accountNumber(trade.getAccountNumber())
                     .activity(trade.getActivity())
-                    .positionPostedStatus("Non Posted")
+                    .positionPostedStatus("Not Posted")
                     .quantity(trade.getQuantity())
                     .securityID(securitiesReference.getSecurityIdForCusip(trade.getCusip()))
                     .tradeExecutionTime(trade.getTransactionTime())
