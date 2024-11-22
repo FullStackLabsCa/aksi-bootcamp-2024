@@ -43,18 +43,23 @@ public class HibernatePositionsRepo implements PositionsRepo {
                         .accountNumber(trade.getAccountNumber())
                         .securityID(securityID)
                         .build();
-                Position position = new Position();
 
-                position.setPositionID(positionCompositeKey);
-                position.setVersion(0);
+                int positionAmount;
+
                 if ("BUY".equals(trade.getActivity())) {
-                    position.setPositionAmount(trade.getQuantity());
+                    positionAmount = trade.getQuantity();
                 } else if ("SELL".equals(trade.getActivity())) {
-                    position.setPositionAmount(-trade.getQuantity());
+                    positionAmount = -trade.getQuantity();
                 } else {
                     System.out.println("UnrecognisedActivityOperationException");
                     return;
                 }
+
+                Position position = Position.builder()
+                        .positionID(positionCompositeKey)
+                        .version(0)
+                        .positionAmount(positionAmount)
+                        .build();
 
                 session.persist(position);
 
