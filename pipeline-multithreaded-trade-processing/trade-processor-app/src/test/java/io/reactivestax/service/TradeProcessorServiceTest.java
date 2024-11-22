@@ -7,9 +7,8 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.RawPayloadRepo;
-import io.reactivestax.utility.exceptions.OptimisticLockingException;
-import io.reactivestax.utility.exceptions.TradeCreationFailedException;
-import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
+import io.reactivestax.utility.database.TransactionUtil;
+import io.reactivestax.utility.exceptions.*;
 import io.reactivestax.utility.messaging.MessageProvider;
 import io.reactivestax.utility.messaging.MessageReceiver;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +47,14 @@ class TradeProcessorServiceTest {
     @Spy
     private MessageReceiver<String> messageReceiverSpy;
 
+    @Spy
+    private MessageProvider messageProviderSpy;
+
+    @Spy
+    private TransactionUtil transactionUtilSpy;
+
     @InjectMocks
+    @Spy
     private TradeProcessorService tradeProcessorService;
 
     @BeforeEach
@@ -87,13 +93,56 @@ class TradeProcessorServiceTest {
     }
 
 //runTradeProcessorTest
-    /* Mocked Test
+    @Test
+    void runTradeProcessor_Successful_Test() throws WriteToJournalEntryFailed, OptimisticLockingException, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
+        try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
 
-     */
+            String tradeId = TestDataProvider.tradeIdSupplier.get();
+            String payload = TestDataProvider.validTradePayloadSupplier.get();
+            Trade trade = TestDataProvider.validTradeForPayloadSupplier.get();
 
-    /* Integration Test
+            //Setup
+            beanFactoryMockedStatic.when(BeanFactory::getMessageReceiver).thenReturn(messageReceiverSpy);
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(TransactionUtil.class)).thenReturn(transactionUtilSpy);
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(RawPayloadRepo.class)).thenReturn(rawPayloadRepoSpy);
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(JournalEntryRepo.class)).thenReturn(journalEntryRepoSpy);
+            beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(PositionsRepo.class)).thenReturn(positionsRepoSpy);
 
-     */
+            when(tradeProcessorService.getTradeID(any()))
+                    .thenReturn(Optional.of(tradeId))
+                    .thenReturn(Optional.empty());
+            doReturn(Optional.of(payload)).when(tradeProcessorService).readPayloadFromRawPayloadDB(any());
+            doReturn(trade).when(tradeProcessorService).validatePayloadAndCreateTrade(any());
+            doReturn("Valid").when(tradeProcessorService).validateBusinessLogic(any());
+
+            doNothing().when(rawPayloadRepoSpy).updateSecurityLookupStatusInRawPayloadsTable(any(), any());
+            doNothing().when(rawPayloadRepoSpy).updateJournalEntryStatusInRawPayloadsTable(any());
+            doNothing().when(journalEntryRepoSpy).writeTradeToJournalEntryTable(any());
+            doNothing().when(journalEntryRepoSpy).updatePositionPostedStatusInJournalEntry(any());
+            doNothing().when(positionsRepoSpy).updatePositionsTable(any());
+
+            //Action
+            tradeProcessorService.runTradeProcessor(messageProviderSpy);
+
+            //Assert
+            beanFactoryMockedStatic.verify(BeanFactory::getMessageReceiver, times(1));
+            verify(messageReceiverSpy, times(1)).receiveMessage(any());
+            verify(tradeProcessorService, times(2)).getTradeID(any());
+            verify(tradeProcessorService, times(1)).readPayloadFromRawPayloadDB(tradeId);
+            verify(tradeProcessorService, times(1)).validatePayloadAndCreateTrade(payload);
+            //processTradeMethodVerification
+            verify(tradeProcessorService, times(1)).validateBusinessLogic(trade);
+            ////updateTradeSecurityLookUpInPayloadTable
+            verify(rawPayloadRepoSpy, times(1)).updateSecurityLookupStatusInRawPayloadsTable(trade, "Valid");
+            ////updateJournalEntryAndPositions
+            verify(transactionUtilSpy, times(1)).startTransaction();
+            verify(journalEntryRepoSpy,times(1)).writeTradeToJournalEntryTable(trade);
+            verify(rawPayloadRepoSpy, times(1)).updateJournalEntryStatusInRawPayloadsTable(trade);
+            verify(positionsRepoSpy, times(1)).updatePositionsTable(trade);
+            verify(journalEntryRepoSpy, times(1)).updatePositionPostedStatusInJournalEntry(trade);
+            verify(transactionUtilSpy, times(1)).commitTransaction();
+        }
+    }
 
 //getTradeIdTest
     @ParameterizedTest
@@ -116,12 +165,12 @@ class TradeProcessorServiceTest {
 
     @Test
     void getTradeIdTest_MessageProvider(){
-        MessageProvider messageProvider = BeanFactory.getMessageProvider(1);
+        MessageProvider messageProviderFromBeanFactory = BeanFactory.getMessageProvider(1);
         try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
             beanFactoryMockedStatic.when(BeanFactory::getMessageReceiver).thenReturn(messageReceiverSpy);
             doReturn(null).when(messageReceiverSpy).receiveMessage(any());
-            tradeProcessorService.getTradeID(messageProvider);
-            verify(messageReceiverSpy, times(1)).receiveMessage(messageProvider);
+            tradeProcessorService.getTradeID(messageProviderFromBeanFactory);
+            verify(messageReceiverSpy, times(1)).receiveMessage(messageProviderFromBeanFactory);
             beanFactoryMockedStatic.verify(BeanFactory::getMessageReceiver, times(1));
         }
     }
