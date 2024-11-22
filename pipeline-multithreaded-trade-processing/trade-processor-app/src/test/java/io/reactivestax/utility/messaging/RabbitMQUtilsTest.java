@@ -6,22 +6,26 @@ import io.reactivestax.utility.exceptions.MessageProviderNotSetException;
 import io.reactivestax.utility.exceptions.NullResponseForThreadException;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQMessageProvider;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-public class RabbitMQUtilsTest {
 
-    @Before
-    public void cleanUp() {
+class RabbitMQUtilsTest {
+
+    @BeforeEach
+    void cleanUp() {
         RabbitMQUtils.getInstance().clearRabbitMQMessageProvider();
         RabbitMQUtils.getInstance().clearThreadResponse();
     }
 
     @Test
-    public void getInstanceSingleThreadTest(){
+    void getInstanceSingleThreadTest(){
         // Get two instances
         RabbitMQUtils instance1 = RabbitMQUtils.getInstance();
         RabbitMQUtils instance2 = RabbitMQUtils.getInstance();
@@ -34,7 +38,7 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<RabbitMQUtils> getRabbitMQUtilsInstance = RabbitMQUtils::getInstance;
@@ -51,7 +55,7 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void getRabbitMQChannelMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getRabbitMQChannelMultiThreadTest() throws ExecutionException, InterruptedException {
         // Spawn multiple threads and make each of them get 2 connections
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
@@ -87,7 +91,7 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void closeRabbitMQSingleThreadTest(){
+    void closeRabbitMQSingleThreadTest(){
         Channel channel = RabbitMQUtils.getInstance().getRabbitMQChannel();
         assertTrue(channel.isOpen());
         RabbitMQUtils.getInstance().closeRabbitMQChannel();
@@ -95,7 +99,7 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void closeRabbitMQMultiThreadTest() throws ExecutionException, InterruptedException {
+    void closeRabbitMQMultiThreadTest() throws ExecutionException, InterruptedException {
         Callable<Boolean> closeChannelAndGetOpenStatus = () -> {
             Channel channel = RabbitMQUtils.getInstance().getRabbitMQChannel();
             RabbitMQUtils.getInstance().closeRabbitMQChannel();
@@ -118,7 +122,7 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void setThreadResponseSingleThreadTest(){
+    void setThreadResponseSingleThreadTest(){
         assertThrows(NullResponseForThreadException.class, RabbitMQUtils.getInstance()::getThreadResponse);
         RabbitMQUtils.getInstance().setThreadResponse(new GetResponse(null,null,null,0));
         GetResponse response = RabbitMQUtils.getInstance().getThreadResponse();
@@ -127,12 +131,12 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void getThreadResponseWithoutBeingSetSingleThreadTest(){
+    void getThreadResponseWithoutBeingSetSingleThreadTest(){
         assertThrows(NullResponseForThreadException.class, RabbitMQUtils.getInstance()::getThreadResponse);
     }
 
     @Test
-    public void getThreadResponseAfterBeingSetSingleThreadTest(){
+    void getThreadResponseAfterBeingSetSingleThreadTest(){
         GetResponse getResponse = new GetResponse(null, null, null, 1);
         RabbitMQUtils.getInstance().setThreadResponse(getResponse);
         GetResponse responseAfterBeingSet = RabbitMQUtils.getInstance().getThreadResponse();
@@ -141,7 +145,7 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void getThreadResponseMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getThreadResponseMultiThreadTest() throws ExecutionException, InterruptedException {
         Callable<GetResponse> getResponse = () -> {
             RabbitMQUtils.getInstance().setThreadResponse(new GetResponse(null,null,null,0));
             return RabbitMQUtils.getInstance().getThreadResponse();
@@ -160,12 +164,12 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void getRabbitMQMessageProviderBeforeSetSingleThreadTest(){
+    void getRabbitMQMessageProviderBeforeSetSingleThreadTest(){
         assertThrows(MessageProviderNotSetException.class, RabbitMQUtils.getInstance()::getRabbitMQMessageProvider);
     }
 
     @Test
-    public void getRabbitMQMessageProviderMultiThreadTest(){
+    void getRabbitMQMessageProviderMultiThreadTest(){
         // Main thread
         assertThrows(MessageProviderNotSetException.class, RabbitMQUtils.getInstance()::getRabbitMQMessageProvider);
 
@@ -177,7 +181,7 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void rabbitMQMessageProviderSingleThreadTest(){
+    void rabbitMQMessageProviderSingleThreadTest(){
         assertThrows(MessageProviderNotSetException.class, RabbitMQUtils.getInstance()::getRabbitMQMessageProvider);
         RabbitMQUtils.getInstance().setRabbitMQMessageProvider(new RabbitMQMessageProvider());
         assertNotNull(RabbitMQUtils.getInstance().getRabbitMQMessageProvider());
@@ -185,7 +189,7 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void rabbitMQMessageProviderMultiThreadTest(){
+    void rabbitMQMessageProviderMultiThreadTest(){
         Runnable checkGetRabbitMQMessageProvider = () -> {
             assertThrows(MessageProviderNotSetException.class, RabbitMQUtils.getInstance()::getRabbitMQMessageProvider);
             RabbitMQUtils.getInstance().setRabbitMQMessageProvider(new RabbitMQMessageProvider());
