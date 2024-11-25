@@ -1,5 +1,7 @@
 package io.reactivestax.utility;
 
+import io.reactivestax.utility.exceptions.SystemInitializationException;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -25,7 +27,15 @@ public class ApplicationPropertyUtils {
 
     public static String getFileProperty(String propertyName){
         if(fileProperties == null) readPropertiesFile();
-        return fileProperties.getProperty(propertyName);
+        String propertyReadFromApplicationProperties;
+        try {
+            propertyReadFromApplicationProperties = fileProperties.getProperty(propertyName);
+        } catch (NullPointerException e) {
+            throw new SystemInitializationException("Null Property");
+        }
+        if(propertyReadFromApplicationProperties == null || propertyReadFromApplicationProperties.trim().isEmpty())
+            throw new SystemInitializationException("Failed to Read Property from the application Properties");
+        else return fileProperties.getProperty(propertyName);
     }
 
 }
