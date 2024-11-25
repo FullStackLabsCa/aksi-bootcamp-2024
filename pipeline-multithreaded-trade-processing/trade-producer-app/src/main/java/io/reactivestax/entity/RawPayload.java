@@ -3,6 +3,8 @@ package io.reactivestax.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
+
 
 @Entity
 @Table (name="trades_payload", indexes = {
@@ -33,4 +35,17 @@ public class RawPayload {
 
     @Column
     private String postedStatus;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RawPayload that = (RawPayload) o;
+        return Objects.equals(tradeID, that.tradeID) && Objects.equals(payload, that.payload) && Objects.equals(status, that.status) && Objects.equals(lookupStatus, that.lookupStatus) && Objects.equals(postedStatus, that.postedStatus);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tradeID, payload, status, lookupStatus, postedStatus);
+    }
 }
