@@ -4,6 +4,7 @@ import io.reactivestax.utility.exceptions.SystemInitializationException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class ApplicationPropertyUtils {
@@ -16,7 +17,7 @@ public class ApplicationPropertyUtils {
     private static void readPropertiesFile(){
         Properties properties = new Properties();
 
-        try (FileInputStream fis = new FileInputStream("src/main/resources/application.properties")) { // TODO
+        try (InputStream fis = ApplicationPropertyUtils.class.getClassLoader().getResourceAsStream("application.properties")) {
             properties.load(fis);
         } catch (IOException e) {
             System.out.println(e.getMessage());
