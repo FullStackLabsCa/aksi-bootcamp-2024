@@ -4,7 +4,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.GetResponse;
-import io.reactivestax.utility.exceptions.RabbitMQException;
+import io.reactivestax.utility.exceptions.SystemInitializationException;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -39,12 +39,12 @@ public class RabbitMQUtils {
             try {
                 rabbitMQConnection = rabbitMQFactory.newConnection();
             } catch (IOException | TimeoutException e) {
-                throw new RabbitMQException(e);
+                throw new SystemInitializationException("Failed to get RabbitMQ Connection");
             }
         }
     }
 
-    public void closeRabbitMQConnection() throws IOException {
+    public void closeRabbitMQConnection() {
         try {
             rabbitMQConnection.close();
         } catch (IOException | NullPointerException e) {
@@ -64,7 +64,7 @@ public class RabbitMQUtils {
             } catch (Exception e) {
                 System.out.println("Unable to provide Channel from the Rabbit MQ Connection...");
                 e.printStackTrace();
-                throw new RabbitMQException(e);
+                throw new SystemInitializationException("Failed to get RabbitMQ Channel");
             }
         }
         return channel;
@@ -78,7 +78,7 @@ public class RabbitMQUtils {
                 getResponseThreadLocal.remove();
             }
         } catch (IOException | TimeoutException e) {
-            throw new RabbitMQException(e);
+            throw new SystemInitializationException("Error While Closing RabbitMQ Channel");
         }
     }
 }

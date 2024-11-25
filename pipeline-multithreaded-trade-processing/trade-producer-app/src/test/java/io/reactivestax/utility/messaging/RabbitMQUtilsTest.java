@@ -2,7 +2,7 @@ package io.reactivestax.utility.messaging;
 
 import com.rabbitmq.client.Channel;
 import io.reactivestax.utility.ApplicationPropertyUtils;
-import io.reactivestax.utility.exceptions.RabbitMQException;
+import io.reactivestax.utility.exceptions.SystemInitializationException;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -103,7 +103,7 @@ public class RabbitMQUtilsTest {
             mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
 
 
-            assertThrows(RabbitMQException.class, () -> RabbitMQUtils.getInstance().getRabbitMQChannel());
+            assertThrows(SystemInitializationException.class, () -> RabbitMQUtils.getInstance().getRabbitMQChannel());
             assertTrue(outputStreamCaptor.toString().contains("Unable to provide Channel from the Rabbit MQ Connection..."));
         }
         System.setOut(originalOut);
