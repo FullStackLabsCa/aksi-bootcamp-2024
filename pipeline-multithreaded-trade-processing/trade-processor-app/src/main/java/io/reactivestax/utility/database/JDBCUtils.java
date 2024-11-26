@@ -41,13 +41,13 @@ public class JDBCUtils implements ConnectionUtil<Connection>, TransactionUtil {
     }
 
     private static DataSource getHikariDataSource(){
-        if(dataSource == null) configureHikariCP(getFileProperty("db.port.num"), getFileProperty("db.name"));
+        if(dataSource == null) configureHikariCP();
         return dataSource;
     }
 
-    private static void configureHikariCP(String portNum, String dbName) { // TODO
+    private static void configureHikariCP() {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:"+portNum+"/"+dbName);
+        config.setJdbcUrl(getFileProperty("db.url"));
         config.setUsername(getFileProperty("db.username"));
         config.setPassword(getFileProperty("db.password"));
 
