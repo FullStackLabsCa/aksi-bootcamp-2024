@@ -45,7 +45,7 @@ public class TradeFileReaderTest {
 
     static Stream<Arguments> invalidFilePathTests(){
         return Stream.of(
-                Arguments.of(""), // Empty
+                Arguments.of((Object) null),
                 Arguments.of(TestDataProvider.invalidFilePathSupplier.get()) // Invalid
         );
     }

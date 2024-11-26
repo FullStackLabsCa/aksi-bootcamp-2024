@@ -7,6 +7,7 @@ import io.reactivestax.utility.messaging.ChunksStream;
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 import java.io.*;
+import java.util.Objects;
 import java.util.Scanner;
 
 
@@ -14,7 +15,7 @@ public class TradesFileReader implements TradesFileReading {
 
     @Override
     public void readFileAndCreateChunks(String filePath, String fileType) {
-        try (Scanner fileReader = new Scanner(new FileReader(filePath))) {
+        try (Scanner fileReader = new Scanner(Objects.requireNonNull(TradesFileReader.class.getClassLoader().getResourceAsStream(filePath)))) {
 
             int numOfFilesGenerated = 0;
             int maxNumOfLines = Integer.parseInt(getFileProperty("chunkSize"));

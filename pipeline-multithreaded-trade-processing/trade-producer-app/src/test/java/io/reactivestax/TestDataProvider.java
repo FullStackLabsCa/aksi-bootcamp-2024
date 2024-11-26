@@ -45,14 +45,25 @@ public interface TestDataProvider {
     Supplier<TradeIdAndAccNum> validTradeIdentifierSupplier = () -> new TradeIdAndAccNum("TDB_00000001", "TDB_CUST_2517563");
 
     //File Paths
-    Supplier<String> invalidFilePathSupplier = () -> "src/test/resources/trade-files/non-existing-file.csv";
-    Supplier<String> trades_0_FilePathSupplier = () -> "src/test/resources/0trades.csv";
-    Supplier<String> trades_1_FilePathSupplier = () -> "src/test/resources/1trades.csv";
-    Supplier<String> trades_10000_FilePathSupplier = () -> "src/test/resources/10000trades.csv";
-    Supplier<String> trades_1000_FilePathSupplier = () -> "src/test/resources/1000trades.csv";
-    Supplier<String> trades_800_FilePathSupplier = () -> "src/test/resources/800trades.csv";
-    Supplier<String> trades_999_FilePathSupplier = () -> "src/test/resources/999trades.csv";
-    Supplier<String> trades_9999_FilePathSupplier = () -> "src/test/resources/9999trades.csv";
-    Supplier<String> trades_1111_FilePathSupplier = () -> "src/test/resources/1111trades.csv";
-    Supplier<String> trades_10001_FilePathSupplier = () -> "src/test/resources/10001trades.csv";
+    Supplier<String> invalidFilePathSupplier = () -> "non-existing-file.csv";
+    Supplier<String> trades_0_FilePathSupplier = () -> "0trades.csv";
+    Supplier<String> trades_1_FilePathSupplier = () -> "1trades.csv";
+    Supplier<String> trades_10000_FilePathSupplier = () -> "10000trades.csv";
+    Supplier<String> trades_1000_FilePathSupplier = () -> "1000trades.csv";
+    Supplier<String> trades_800_FilePathSupplier = () -> "800trades.csv";
+    Supplier<String> trades_999_FilePathSupplier = () -> "999trades.csv";
+    Supplier<String> trades_9999_FilePathSupplier = () -> "9999trades.csv";
+    Supplier<String> trades_1111_FilePathSupplier = () -> "1111trades.csv";
+    Supplier<String> trades_10001_FilePathSupplier = () -> "10001trades.csv";
+
+    Supplier<String> invalidFileAbsPathSupplier = () -> "src/test/resources/trade-files/non-existing-file.csv";
+    Supplier<String> trades_0_FileAbsPathSupplier = () -> "src/test/resources/0trades.csv";
+    Supplier<String> trades_1_FileAbsPathSupplier = () -> "src/test/resources/1trades.csv";
+    Supplier<String> trades_10000_FileAbsPathSupplier = () -> "src/test/resources/10000trades.csv";
+    Supplier<String> trades_1000_FileAbsPathSupplier = () -> "src/test/resources/1000trades.csv";
+    Supplier<String> trades_800_FileAbsPathSupplier = () -> "src/test/resources/800trades.csv";
+    Supplier<String> trades_999_FileAbsPathSupplier = () -> "src/test/resources/999trades.csv";
+    Supplier<String> trades_9999_FileAbsPathSupplier = () -> "src/test/resources/9999trades.csv";
+    Supplier<String> trades_1111_FileAbsPathSupplier = () -> "src/test/resources/1111trades.csv";
+    Supplier<String> trades_10001_FileAbsPathSupplier = () -> "src/test/resources/10001trades.csv";
 }

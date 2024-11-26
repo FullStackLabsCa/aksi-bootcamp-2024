@@ -108,11 +108,11 @@ class ChunkProcessorServiceTest {
 
     static Stream<Arguments> tradesChunkProcessTestCases(){
         return Stream.of(
-                Arguments.of( TestDataProvider.trades_0_FilePathSupplier.get(), 0),
-                Arguments.of(TestDataProvider.trades_10000_FilePathSupplier.get(), 10000),
-                Arguments.of(TestDataProvider.trades_800_FilePathSupplier.get(), 800),
-                Arguments.of(TestDataProvider.trades_999_FilePathSupplier.get(), 999),
-                Arguments.of(TestDataProvider.trades_1111_FilePathSupplier.get(), 1111)
+                Arguments.of( TestDataProvider.trades_0_FileAbsPathSupplier.get(), 0),
+                Arguments.of(TestDataProvider.trades_10000_FileAbsPathSupplier.get(), 10000),
+                Arguments.of(TestDataProvider.trades_800_FileAbsPathSupplier.get(), 800),
+                Arguments.of(TestDataProvider.trades_999_FileAbsPathSupplier.get(), 999),
+                Arguments.of(TestDataProvider.trades_1111_FileAbsPathSupplier.get(), 1111)
         );
     }
 
