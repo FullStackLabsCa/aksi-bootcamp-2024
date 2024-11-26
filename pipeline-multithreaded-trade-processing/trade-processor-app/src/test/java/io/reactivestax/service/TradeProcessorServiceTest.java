@@ -36,25 +36,25 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TradeProcessorServiceTest {
 
-    @Spy
+    @Mock
     private JournalEntryRepo journalEntryRepoSpy;
 
-    @Spy
+    @Mock
     private PositionsRepo positionsRepoSpy;
 
-    @Spy
+    @Mock
     private RawPayloadRepo rawPayloadRepoSpy;
 
-    @Spy
+    @Mock
     private MessageReceiver<String> messageReceiverSpy;
 
-    @Spy
+    @Mock
     private MessageProvider messageProviderSpy;
 
-    @Spy
+    @Mock
     private MessageRetry<Trade> messageRetryerSpy;
 
-    @Spy
+    @Mock
     private TransactionUtil transactionUtilSpy;
 
     @InjectMocks
