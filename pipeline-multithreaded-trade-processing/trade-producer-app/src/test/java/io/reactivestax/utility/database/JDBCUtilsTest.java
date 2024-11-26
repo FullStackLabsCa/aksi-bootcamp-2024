@@ -3,7 +3,6 @@ package io.reactivestax.utility.database;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -198,7 +197,6 @@ public class JDBCUtilsTest {
             JDBCUtils.getInstance().commitTransaction();
 
         } catch (Exception e){
-            e.printStackTrace();
             System.out.println("Error with getting sizeBeforeCommit / Inserting into the Positions table...");
         }
 
