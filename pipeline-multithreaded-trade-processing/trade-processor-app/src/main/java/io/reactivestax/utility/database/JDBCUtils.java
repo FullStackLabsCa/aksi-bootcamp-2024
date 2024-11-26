@@ -2,7 +2,7 @@ package io.reactivestax.utility.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.reactivestax.utility.exceptions.HikariConnectionGetException;
+import io.reactivestax.utility.exceptions.SystemInitializationException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -34,7 +34,7 @@ public class JDBCUtils implements ConnectionUtil<Connection>, TransactionUtil {
                 connectionHolder.set(connection);
             } catch (SQLException e) {
                 System.out.println("Error Getting Connection from Datasource....");
-                throw new HikariConnectionGetException();
+                throw new SystemInitializationException("Failed to Get Connection...");
             }
         }
         return connection;

@@ -4,9 +4,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.GetResponse;
-import io.reactivestax.utility.exceptions.MessageProviderNotSetException;
 import io.reactivestax.utility.exceptions.NullResponseForThreadException;
-import io.reactivestax.utility.exceptions.RabbitMQException;
+import io.reactivestax.utility.exceptions.SystemInitializationException;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -43,7 +42,7 @@ public class RabbitMQUtils {
             try {
                 rabbitMQConnection = rabbitMQFactory.newConnection();
             } catch (IOException | TimeoutException e) {
-                throw new RabbitMQException(e);
+                throw new SystemInitializationException("Failed to get RabbitMQ Connection");
             }
         }
     }
@@ -67,7 +66,7 @@ public class RabbitMQUtils {
                 channelThreadLocal.set(channel);
             } catch (Exception e) {
                 System.out.println("Unable to provide Channel from the Rabbit MQ Connection...");
-                throw new RabbitMQException(e);
+                throw new SystemInitializationException("Failed to get RabbitMQ Channel");
             }
         }
         return channel;
@@ -104,7 +103,7 @@ public class RabbitMQUtils {
         RabbitMQMessageProvider rabbitMQMessageProvider = getMessageProviderThreadLocal.get();
 
         if (rabbitMQMessageProvider != null) return rabbitMQMessageProvider;
-        else throw new MessageProviderNotSetException();
+        else throw new SystemInitializationException("Message Provider not set");
     }
 
     public void setRabbitMQMessageProvider(RabbitMQMessageProvider messageProvider) {

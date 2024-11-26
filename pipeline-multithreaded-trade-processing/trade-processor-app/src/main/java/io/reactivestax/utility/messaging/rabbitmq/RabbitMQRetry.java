@@ -4,7 +4,7 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.GetResponse;
 import io.reactivestax.model.Trade;
-import io.reactivestax.utility.exceptions.RabbitMQException;
+import io.reactivestax.utility.exceptions.SystemInitializationException;
 import io.reactivestax.utility.messaging.MessageRetry;
 
 import java.util.HashMap;
@@ -82,7 +82,7 @@ public class RabbitMQRetry implements MessageRetry<Trade> {
 
         } catch (Exception e) {
             System.out.println("Some issues in RabbitMQ Consumer...readFromRabbitMQ");
-            throw new RabbitMQException(e);
+            throw new SystemInitializationException("Failure in ReadFromRabbitMQ");
         }
     }
 

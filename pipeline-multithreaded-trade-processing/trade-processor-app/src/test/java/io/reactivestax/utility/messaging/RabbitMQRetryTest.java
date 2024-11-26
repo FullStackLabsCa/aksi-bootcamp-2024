@@ -5,7 +5,7 @@ import com.rabbitmq.client.GetResponse;
 import io.reactivestax.factory.BeanFactory;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.ApplicationPropertyUtils;
-import io.reactivestax.utility.exceptions.RabbitMQException;
+import io.reactivestax.utility.exceptions.SystemInitializationException;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQMessageProvider;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQRetry;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
@@ -36,7 +36,7 @@ class RabbitMQRetryTest {
     private RabbitMQRetry rabbitMQRetry = RabbitMQRetry.getInstance();
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
 
         RabbitMQUtils.getInstance().closeRabbitMQConnection();
@@ -102,7 +102,7 @@ class RabbitMQRetryTest {
             MessageRetry<Trade> messageRetryer = this.rabbitMQRetry;
             Trade trade = Trade.builder().build();
 
-            assertThrows(RabbitMQException.class, () -> messageRetryer.retryMessage(trade));
+            assertThrows(SystemInitializationException.class, () -> messageRetryer.retryMessage(trade));
             assertTrue(outputStreamCaptor.toString().contains("Unable to provide Channel from the Rabbit MQ Connection..."));
             verify(messageRetryer, times(1)).retryMessage(any());
         }
@@ -124,7 +124,7 @@ class RabbitMQRetryTest {
 
             MessageRetry<Trade> messageRetry = rabbitMQRetry;
             Trade trade = Trade.builder().build();
-            assertThrows(RabbitMQException.class, () -> messageRetry.retryMessage(trade));
+            assertThrows(SystemInitializationException.class, () -> messageRetry.retryMessage(trade));
             assertTrue(outputStreamCaptor.toString().contains("Error Initializing RabbitMQ Retry...."));
         }
         System.setOut(originalOut);

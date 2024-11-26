@@ -2,7 +2,7 @@ package io.reactivestax.utility.messaging.rabbitmq;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.GetResponse;
-import io.reactivestax.utility.exceptions.RabbitMQException;
+import io.reactivestax.utility.exceptions.SystemInitializationException;
 import io.reactivestax.utility.messaging.MessageProvider;
 import io.reactivestax.utility.messaging.MessageReceiver;
 
@@ -37,7 +37,7 @@ public class RabbitMQReceiver implements MessageReceiver<String> {
 
         } catch (Exception e) {
             System.out.println("Error Initializing RabbitMQ Receiver Main....");
-            throw new RabbitMQException(e);
+            throw new SystemInitializationException("Failed to Initialize Rabbit MQ Exchange");
         }
     }
 
