@@ -8,9 +8,7 @@ import static io.reactivestax.utility.ApplicationPropertyUtils.*;
 public class TradeProducerAppRunner {
 
     public static void main(String[] args) {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Shutdown hook triggered. Cleaning up...");
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutdown hook triggered. Cleaning up...")));
         (new Thread(new FileReaderRunner())).start();
         (new Thread(new ChunkProcessorRunner())).start();
 
