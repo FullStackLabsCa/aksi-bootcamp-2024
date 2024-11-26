@@ -28,7 +28,6 @@ public class JDBCUtilsTest {
     private final PrintStream originalOut = System.out;
 
     @Spy
-    @InjectMocks
     private JDBCUtils jdbcUtils;
 
     @BeforeEach
