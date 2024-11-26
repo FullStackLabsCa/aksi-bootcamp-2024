@@ -8,7 +8,6 @@ import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.repo.SecuritiesReferenceRepo;
-import io.reactivestax.repo.hibernate.HibernateSecuritiesReferenceRepo;
 import io.reactivestax.repo.jdbc.JDBCJournalEntryRepo;
 import io.reactivestax.repo.jdbc.JDBCPositionsRepo;
 import io.reactivestax.repo.jdbc.JDBCRawPayloadRepo;
@@ -70,7 +69,7 @@ public class BeanFactory {
         hibernateTech.put(RawPayloadRepo.class, HibernateRawPayloadRepo::getInstance);
         hibernateTech.put(JournalEntryRepo.class, HibernateJournalEntryRepo::getInstance);
         hibernateTech.put(PositionsRepo.class, HibernatePositionsRepo::getInstance);
-        hibernateTech.put(SecuritiesReferenceRepo.class, HibernateSecuritiesReferenceRepo::getInstance);
+        hibernateTech.put(SecuritiesReferenceRepo.class, JDBCSecuritiesReferenceRepo::getInstance);
         return hibernateTech;
     }
 
