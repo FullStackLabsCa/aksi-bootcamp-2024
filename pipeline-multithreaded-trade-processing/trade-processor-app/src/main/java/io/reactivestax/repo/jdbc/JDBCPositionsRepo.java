@@ -88,7 +88,6 @@ public class JDBCPositionsRepo implements PositionsRepo {
                 return -1;
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
             System.out.println("Failed to Get Version ID for Position.");
         }
         return 0;

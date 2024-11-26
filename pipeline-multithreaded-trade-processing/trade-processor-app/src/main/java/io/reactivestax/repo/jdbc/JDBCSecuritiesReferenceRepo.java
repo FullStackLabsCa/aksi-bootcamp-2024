@@ -35,7 +35,6 @@ public class JDBCSecuritiesReferenceRepo implements SecuritiesReferenceRepo {
             else return "Invalid";
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             return "Unable to Check CUSIP.";
         }
     }
