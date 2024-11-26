@@ -3,7 +3,7 @@ package io.reactivestax.repo.jdbc;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.utility.database.JDBCUtils;
-import io.reactivestax.utility.exceptions.OptimisticLockingException;
+import io.reactivestax.utility.exceptions.OptimisticLockingOccurrence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,7 +29,7 @@ public class JDBCPositionsRepo implements PositionsRepo {
     }
 
     @Override
-    public void updatePositionsTable(Trade trade) throws OptimisticLockingException {
+    public void updatePositionsTable(Trade trade) throws OptimisticLockingOccurrence {
         Connection connection = JDBCUtils.getInstance().getConnection();
         JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         JDBCPositionsRepo positionsReference = JDBCPositionsRepo.getInstance();
@@ -69,7 +69,7 @@ public class JDBCPositionsRepo implements PositionsRepo {
                 psPositionUpdateQuery.setInt(2, version);
 
                 if (psPositionUpdateQuery.executeUpdate() == 0)
-                    throw new OptimisticLockingException();
+                    throw new OptimisticLockingOccurrence();
             }
         } catch (SQLException e) {
             System.out.println("Failed to Update Position");

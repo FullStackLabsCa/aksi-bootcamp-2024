@@ -5,7 +5,7 @@ import io.reactivestax.entity.Position;
 import io.reactivestax.entity.PositionCompositeKey;
 import io.reactivestax.model.Trade;
 import io.reactivestax.utility.database.HibernateUtils;
-import io.reactivestax.utility.exceptions.OptimisticLockingException;
+import io.reactivestax.utility.exceptions.OptimisticLockingOccurrence;
 import org.hibernate.query.Query;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,7 +90,7 @@ class HibernatePositionRepoTest {
     }
 
     @Test
-    void getVersionIdTradeAfterUpdateTest() throws OptimisticLockingException {
+    void getVersionIdTradeAfterUpdateTest() throws OptimisticLockingOccurrence {
         // Setup
         Trade trade = TestDataProvider.goodTradeSupplier.get();
         int version = HibernatePositionsRepo.getInstance().getVersionIdForPosition(trade, 157001093);
@@ -118,7 +118,7 @@ class HibernatePositionRepoTest {
     }
 
     @Test
-    void positionUpdate_newPosition_buy_test() throws OptimisticLockingException {
+    void positionUpdate_newPosition_buy_test() throws OptimisticLockingOccurrence {
 
         long sizeOfTableBeforeUpdate = getSizeOfTable();
         Trade trade = TestDataProvider.goodBuyTradeSupplier.get();
@@ -143,7 +143,7 @@ class HibernatePositionRepoTest {
     }
 
     @Test
-    void positionUpdate_newPosition_sell_test() throws OptimisticLockingException {
+    void positionUpdate_newPosition_sell_test() throws OptimisticLockingOccurrence {
         long sizeOfTableBeforeUpdate = getSizeOfTable();
         Trade trade = TestDataProvider.goodSellTradeSupplier.get();
 
@@ -167,7 +167,7 @@ class HibernatePositionRepoTest {
     }
 
     @Test
-    void positionUpdate_newPosition_invalidActivity_test() throws OptimisticLockingException {
+    void positionUpdate_newPosition_invalidActivity_test() throws OptimisticLockingOccurrence {
         System.setOut(new PrintStream(outputStreamCaptor));
 
         Trade trade = TestDataProvider.invalidActivityTradeSupplier.get();
@@ -188,7 +188,7 @@ class HibernatePositionRepoTest {
     }
 
     @Test
-    void positionUpdate_updatePosition_buy_test() throws OptimisticLockingException {
+    void positionUpdate_updatePosition_buy_test() throws OptimisticLockingOccurrence {
         Trade trade = TestDataProvider.goodBuyTradeSupplier.get();
         HibernateUtils.getInstance().startTransaction();
         HibernatePositionsRepo.getInstance().updatePositionsTable(trade);
@@ -216,7 +216,7 @@ class HibernatePositionRepoTest {
     }
 
     @Test
-    void positionUpdate_updatePosition_sell_test() throws OptimisticLockingException {
+    void positionUpdate_updatePosition_sell_test() throws OptimisticLockingOccurrence {
         Trade buyTrade = TestDataProvider.goodBuyTradeSupplier.get();
         Trade sellTrade = TestDataProvider.goodSellTradeSupplier.get();
         HibernateUtils.getInstance().startTransaction();
@@ -245,7 +245,7 @@ class HibernatePositionRepoTest {
     }
 
     @Test
-    void positionUpdate_updatePosition_invalidActivity_test() throws OptimisticLockingException {
+    void positionUpdate_updatePosition_invalidActivity_test() throws OptimisticLockingOccurrence {
         System.setOut(new PrintStream(outputStreamCaptor));
 
         Trade buyTrade = TestDataProvider.goodBuyTradeSupplier.get();
@@ -280,7 +280,7 @@ class HibernatePositionRepoTest {
     }
 
     @Test
-    void positionUpdate_updateFailed_test() throws OptimisticLockingException {
+    void positionUpdate_updateFailed_test() throws OptimisticLockingOccurrence {
         System.setOut(new PrintStream(outputStreamCaptor));
 
         doAnswer(invocationOnMock -> {

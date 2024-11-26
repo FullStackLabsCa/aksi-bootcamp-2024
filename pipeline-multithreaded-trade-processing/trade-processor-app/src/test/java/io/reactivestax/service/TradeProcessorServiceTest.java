@@ -98,7 +98,7 @@ class TradeProcessorServiceTest {
 
 //runTradeProcessorTest
     @Test
-    void runTradeProcessorTest_ValidCusipTrade() throws WriteToJournalEntryFailed, OptimisticLockingException, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
+    void runTradeProcessorTest_ValidCusipTrade() throws WriteToJournalEntryFailed, OptimisticLockingOccurrence, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
         try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
 
             String tradeId = TestDataProvider.tradeIdSupplier.get();
@@ -152,7 +152,7 @@ class TradeProcessorServiceTest {
     }
 
     @Test
-    void runTradeProcessorTest_InvalidCusipTrade() throws WriteToJournalEntryFailed, OptimisticLockingException, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
+    void runTradeProcessorTest_InvalidCusipTrade() throws WriteToJournalEntryFailed, OptimisticLockingOccurrence, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
         try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
 
             String tradeId = TestDataProvider.tradeIdSupplier.get();
@@ -200,7 +200,7 @@ class TradeProcessorServiceTest {
     }
 
     @Test
-    void runTradeProcessorTest_WriteJournalEntryFailed() throws WriteToJournalEntryFailed, OptimisticLockingException, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
+    void runTradeProcessorTest_WriteJournalEntryFailed() throws WriteToJournalEntryFailed, OptimisticLockingOccurrence, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
         try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
 
             String tradeId = TestDataProvider.tradeIdSupplier.get();
@@ -253,7 +253,7 @@ class TradeProcessorServiceTest {
     }
 
     @Test
-    void runTradeProcessorTest_UpdateJournalEntryStatusInRawPayloadFailed() throws WriteToJournalEntryFailed, OptimisticLockingException, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
+    void runTradeProcessorTest_UpdateJournalEntryStatusInRawPayloadFailed() throws WriteToJournalEntryFailed, OptimisticLockingOccurrence, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
         try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
 
             String tradeId = TestDataProvider.tradeIdSupplier.get();
@@ -306,7 +306,7 @@ class TradeProcessorServiceTest {
     }
 
     @Test
-    void runTradeProcessorTest_OptimisticLockingException() throws WriteToJournalEntryFailed, OptimisticLockingException, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
+    void runTradeProcessorTest_OptimisticLockingException() throws WriteToJournalEntryFailed, OptimisticLockingOccurrence, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
         try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
 
             String tradeId = TestDataProvider.tradeIdSupplier.get();
@@ -332,7 +332,7 @@ class TradeProcessorServiceTest {
             doNothing().when(rawPayloadRepoSpy).updateJournalEntryStatusInRawPayloadsTable(any());
             doNothing().when(messageRetryerSpy).retryMessage(any());
             doNothing().when(journalEntryRepoSpy).writeTradeToJournalEntryTable(any());
-            doThrow(OptimisticLockingException.class).when(positionsRepoSpy).updatePositionsTable(any());
+            doThrow(OptimisticLockingOccurrence.class).when(positionsRepoSpy).updatePositionsTable(any());
 
             //Action
             tradeProcessorService.runTradeProcessor(messageProviderSpy);
@@ -360,7 +360,7 @@ class TradeProcessorServiceTest {
     }
 
     @Test
-    void runTradeProcessorTest_UpdatePositionStatusInJournalEntryFailed() throws WriteToJournalEntryFailed, OptimisticLockingException, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
+    void runTradeProcessorTest_UpdatePositionStatusInJournalEntryFailed() throws WriteToJournalEntryFailed, OptimisticLockingOccurrence, UpdateJournalEntryStatusInRawPayloadFailed, UpdatePositionStatusInJournalEntryFailed {
         try(MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)){
 
             String tradeId = TestDataProvider.tradeIdSupplier.get();
@@ -559,7 +559,7 @@ class TradeProcessorServiceTest {
 //writeToPositionTableTest
     @ParameterizedTest
     @MethodSource("writeToPositionsTests")
-    void writeToPositionsTable_MethodCallVerification_MockedTest(Trade trade) throws OptimisticLockingException {
+    void writeToPositionsTable_MethodCallVerification_MockedTest(Trade trade) throws OptimisticLockingOccurrence {
         try (MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)) {
             beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(any())).thenReturn(positionsRepoSpy);
             doNothing().when(positionsRepoSpy).updatePositionsTable(any());
@@ -577,12 +577,12 @@ class TradeProcessorServiceTest {
     }
 
     @Test
-    void writeToPositionsTable_ExceptionCase_MockedTest() throws OptimisticLockingException {
+    void writeToPositionsTable_ExceptionCase_MockedTest() throws OptimisticLockingOccurrence {
         Trade trade = TestDataProvider.goodTradeSupplier.get();
         try (MockedStatic<BeanFactory> beanFactoryMockedStatic = Mockito.mockStatic(BeanFactory.class)) {
             beanFactoryMockedStatic.when(() -> BeanFactory.getPersistenceBean(any())).thenReturn(positionsRepoSpy);
-            doThrow(OptimisticLockingException.class).when(positionsRepoSpy).updatePositionsTable(any());
-            assertThrows(OptimisticLockingException.class, () -> tradeProcessorService.writeToPositionsTable(trade));
+            doThrow(OptimisticLockingOccurrence.class).when(positionsRepoSpy).updatePositionsTable(any());
+            assertThrows(OptimisticLockingOccurrence.class, () -> tradeProcessorService.writeToPositionsTable(trade));
             verify(positionsRepoSpy, times(1)).updatePositionsTable(trade);
         }
     }
