@@ -32,6 +32,6 @@ class ApplicationPropertiesUtilsTest {
 
     @Test
     void getPropertyTest_NonExistingProperty(){
-        assertThrows(SystemInitializationException.class, () -> ApplicationPropertyUtils.getFileProperty(""));
+        assertThrows(SystemInitializationException.class, () -> ApplicationPropertyUtils.getFileProperty("non.existing"));
     }
 }
