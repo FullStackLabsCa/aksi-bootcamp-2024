@@ -5,8 +5,7 @@ import io.reactivestax.utility.exceptions.SystemInitializationException;
 import org.junit.jupiter.api.Test;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ApplicationPropertiesUtilsTest {
 
@@ -33,5 +32,12 @@ public class ApplicationPropertiesUtilsTest {
     @Test
     void getPropertyTest_NonExistingProperty(){
         assertThrows(SystemInitializationException.class, () -> ApplicationPropertyUtils.getFileProperty(""));
+    }
+
+    @Test
+    void getPropertyTestUsingCustomPropertiesFile(){
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+        assertNotEquals("credit_card_transactions",getFileProperty("rabbitMQ.main.exchange.name"));
+        assertEquals("test_exchange",getFileProperty("rabbitMQ.main.exchange.name"));
     }
 }

@@ -27,6 +27,19 @@ public class ApplicationPropertyUtils {
         fileProperties = properties;
     }
 
+    public static void readPropertiesFile(String filePath){
+        Properties properties = new Properties();
+
+        try (InputStream fis = new FileInputStream(filePath)) {
+            properties.load(fis);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            throw new SystemInitializationException("Failed to read the properties file. Check the path");
+        }
+
+        fileProperties = properties;
+    }
+
     public static String getFileProperty(String propertyName){
         if(fileProperties == null) readPropertiesFile();
         String propertyReadFromApplicationProperties;
