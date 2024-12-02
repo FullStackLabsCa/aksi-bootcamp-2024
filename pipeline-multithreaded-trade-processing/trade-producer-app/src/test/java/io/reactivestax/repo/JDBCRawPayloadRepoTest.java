@@ -3,6 +3,7 @@ package io.reactivestax.repo;
 import io.reactivestax.TestDataProvider;
 import io.reactivestax.entity.RawPayload;
 import io.reactivestax.repo.jdbc.JDBCRawPayloadRepo;
+import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.JDBCUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,14 +27,35 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(MockitoExtension.class)
 public class JDBCRawPayloadRepoTest {
 
+    static {
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+    }
+
     @BeforeEach
     void setUp(){
         MockitoAnnotations.openMocks(this);
+        // Create Table
+        String createTableQuery = """
+                CREATE TABLE trades_payload (
+                    trade_payload_id INT AUTO_INCREMENT PRIMARY KEY,
+                    trade_id VARCHAR(20) NOT NULL,
+                    status VARCHAR(10) NOT NULL,
+                    payload VARCHAR(500) NOT NULL,
+                    lookupStatus VARCHAR(255) NOT NULL,
+                    postedStatus VARCHAR(255) NOT NULL
+                );""";
+        try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(createTableQuery)) {
+            JDBCUtils.getInstance().startTransaction();
+            preparedStatement.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
     }
 
     @AfterEach
     void cleanUp(){
-        String sql = "delete from trades_payload";
+        String sql = "drop trades_payload";
         try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql)) {
             JDBCUtils.getInstance().startTransaction();
 
