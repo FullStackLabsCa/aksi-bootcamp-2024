@@ -27,12 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(MockitoExtension.class)
 public class JDBCRawPayloadRepoTest {
 
-    static {
-        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
-    }
-
     @BeforeEach
     void setUp(){
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+
         MockitoAnnotations.openMocks(this);
         // Create Table
         String createTableQuery = """
@@ -66,6 +64,8 @@ public class JDBCRawPayloadRepoTest {
         } catch (Exception e) {
             JDBCUtils.getInstance().rollbackTransaction();
         }
+
+        ApplicationPropertyUtils.resetProperties();
     }
 
     @Test

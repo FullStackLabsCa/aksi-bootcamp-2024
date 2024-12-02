@@ -33,11 +33,14 @@ public class ApplicationPropertyUtils {
         try (InputStream fis = new FileInputStream(filePath)) {
             properties.load(fis);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
             throw new SystemInitializationException("Failed to read the properties file. Check the path");
         }
 
         fileProperties = properties;
+    }
+
+    public static void resetProperties(){
+        fileProperties=null;
     }
 
     public static String getFileProperty(String propertyName){
