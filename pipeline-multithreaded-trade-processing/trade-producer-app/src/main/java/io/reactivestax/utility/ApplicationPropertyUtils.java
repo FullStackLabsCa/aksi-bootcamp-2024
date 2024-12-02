@@ -20,7 +20,6 @@ public class ApplicationPropertyUtils {
         try (InputStream fis = ApplicationPropertyUtils.class.getClassLoader().getResourceAsStream("application.properties")) {
             properties.load(fis);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
             throw new SystemInitializationException("Failed to read the properties file. Check the path");
         }
 
