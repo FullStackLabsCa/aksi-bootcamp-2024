@@ -13,3 +13,7 @@ pipeline-multithreaded-trade-processing/trade-processor-app/.idea
 pipeline-multithreaded-trade-processing/trade-producer-app/.idea/
 pipeline-multithreaded-trade-processing/trade-producer-app/target/
 pipeline-multithreaded-trade-processing/trade-producer-app/src/test/resources/*.csv
+pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/securities_custom_reference.csv
+pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/trade_records.csv
+pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/trades.csv
+pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/trades_all_duplicates.csv
