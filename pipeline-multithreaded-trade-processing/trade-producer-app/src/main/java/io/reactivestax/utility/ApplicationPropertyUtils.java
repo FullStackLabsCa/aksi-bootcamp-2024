@@ -48,7 +48,7 @@ public class ApplicationPropertyUtils {
         } catch (NullPointerException e) {
             throw new SystemInitializationException("Null Property");
         }
-        if(propertyReadFromApplicationProperties == null || propertyReadFromApplicationProperties.trim().isEmpty())
+        if(propertyReadFromApplicationProperties == null)
             throw new SystemInitializationException("Failed to Read Property from the application Properties");
         else return fileProperties.getProperty(propertyName);
     }
