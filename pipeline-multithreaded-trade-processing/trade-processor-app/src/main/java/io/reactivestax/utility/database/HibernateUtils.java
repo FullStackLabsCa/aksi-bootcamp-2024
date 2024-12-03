@@ -8,7 +8,7 @@ import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 public class HibernateUtils implements ConnectionUtil<Session>, TransactionUtil {
     private static HibernateUtils instance;
-    private static SessionFactory sessionFactory;
+    private SessionFactory sessionFactory;
     private static final ThreadLocal<Session> sessionHolder = new ThreadLocal<>();
 
     private HibernateUtils() {
@@ -30,12 +30,12 @@ public class HibernateUtils implements ConnectionUtil<Session>, TransactionUtil 
         return session;
     }
 
-    private static SessionFactory getSessionFactory(){
+    private synchronized SessionFactory getSessionFactory(){
         if(sessionFactory == null) configureHibernateSessionFactory();
         return sessionFactory;
     }
 
-    private static void configureHibernateSessionFactory(){
+    private void configureHibernateSessionFactory(){
         String hibernateConfigFile = "hibernate.cfg.xml";
         sessionFactory = getConfiguration()
                 .configure(hibernateConfigFile)
