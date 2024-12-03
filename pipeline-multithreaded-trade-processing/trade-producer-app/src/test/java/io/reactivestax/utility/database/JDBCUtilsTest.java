@@ -1,8 +1,13 @@
 package io.reactivestax.utility.database;
 
+import com.zaxxer.hikari.HikariDataSource;
+import io.reactivestax.utility.ApplicationPropertyUtils;
+import io.reactivestax.utility.exceptions.SystemInitializationException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,18 +25,47 @@ import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 public class JDBCUtilsTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
+    private static final String CREATE_TABLE_POSITIONS = """
+            create table if not exists positions (
+                account_number varchar(20) not null,
+                security_id int not null,
+                version int,
+                position double not null,
+                unique(account_number, security_id)
+            );""";
+
     @Spy
+    private HikariDataSource hikariDataSourceSpy;
+
+    @Spy
+    @InjectMocks
     private JDBCUtils jdbcUtils;
 
     @BeforeEach
-    public void cleanUp(){
+    void setUp(){
         MockitoAnnotations.openMocks(this);
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+
+        try (PreparedStatement createPositionsTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(CREATE_TABLE_POSITIONS)) {
+
+            JDBCUtils.getInstance().startTransaction();
+            createPositionsTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+    }
+
+    @AfterEach
+    void cleanUp(){
         String sql = "delete from positions";
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -42,6 +76,7 @@ public class JDBCUtilsTest {
             JDBCUtils.getInstance().rollbackTransaction();
         }
 
+        ApplicationPropertyUtils.resetProperties();
     }
 
     @Test
@@ -102,6 +137,13 @@ public class JDBCUtilsTest {
         assertNotEquals(System.identityHashCode(thread1Connections.get(0)), System.identityHashCode(thread2Connections.get(0)));
         assertNotEquals(thread1Connections.get(1).hashCode(), thread2Connections.get(1).hashCode());
         assertNotEquals(System.identityHashCode(thread1Connections.get(1)), System.identityHashCode(thread2Connections.get(1)));
+    }
+
+    @Test
+    void getConnectionExceptionTest() throws SQLException {
+        doThrow(SQLException.class).when(hikariDataSourceSpy).getConnection();
+        assertThrows(SQLException.class, hikariDataSourceSpy::getConnection);
+        assertThrows(SystemInitializationException.class, jdbcUtils::getConnection);
     }
 
     @Test
