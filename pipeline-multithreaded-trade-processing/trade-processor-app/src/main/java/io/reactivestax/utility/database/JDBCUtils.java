@@ -12,7 +12,7 @@ import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 public class JDBCUtils implements ConnectionUtil<Connection>, TransactionUtil {
     private static JDBCUtils instance;
-    private static DataSource dataSource;
+    private DataSource dataSource;
     private final ThreadLocal<Connection> connectionHolder = new ThreadLocal<>();
 
 
@@ -29,8 +29,9 @@ public class JDBCUtils implements ConnectionUtil<Connection>, TransactionUtil {
     public Connection getConnection() {
         Connection connection  = connectionHolder.get();
         if(connection == null) {
+            dataSource = getHikariDataSource();
             try {
-                connection = getHikariDataSource().getConnection();
+                connection = dataSource.getConnection();
                 connectionHolder.set(connection);
             } catch (SQLException e) {
                 System.out.println("Error Getting Connection from Datasource....");
@@ -40,12 +41,12 @@ public class JDBCUtils implements ConnectionUtil<Connection>, TransactionUtil {
         return connection;
     }
 
-    private static DataSource getHikariDataSource(){
+    private synchronized DataSource getHikariDataSource(){
         if(dataSource == null) configureHikariCP();
         return dataSource;
     }
 
-    private static void configureHikariCP() {
+    private void configureHikariCP() {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(getFileProperty("db.url"));
         config.setUsername(getFileProperty("db.username"));

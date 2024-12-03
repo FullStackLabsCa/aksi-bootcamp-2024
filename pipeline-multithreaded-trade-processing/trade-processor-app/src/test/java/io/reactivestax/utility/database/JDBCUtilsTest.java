@@ -1,11 +1,14 @@
 package io.reactivestax.utility.database;
 
+import com.zaxxer.hikari.HikariDataSource;
 import io.reactivestax.utility.ApplicationPropertyUtils;
+import io.reactivestax.utility.exceptions.SystemInitializationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,6 +40,9 @@ class JDBCUtilsTest {
                 position double not null,
                 unique(account_number, security_id)
             );""";
+
+    @Spy
+    private HikariDataSource hikariDataSourceSpy;
 
     @Spy
     @InjectMocks
@@ -71,6 +77,8 @@ class JDBCUtilsTest {
         }
 
         ApplicationPropertyUtils.resetProperties();
+
+        Mockito.reset(hikariDataSourceSpy, jdbcUtils);
     }
 
     @Test
@@ -131,6 +139,13 @@ class JDBCUtilsTest {
         assertNotEquals(System.identityHashCode(thread1Connections.get(0)), System.identityHashCode(thread2Connections.get(0)));
         assertNotEquals(thread1Connections.get(1).hashCode(), thread2Connections.get(1).hashCode());
         assertNotEquals(System.identityHashCode(thread1Connections.get(1)), System.identityHashCode(thread2Connections.get(1)));
+    }
+
+    @Test
+    void getConnectionExceptionTest() throws SQLException {
+        doThrow(SQLException.class).when(hikariDataSourceSpy).getConnection();
+        assertThrows(SQLException.class, hikariDataSourceSpy::getConnection);
+        assertThrows(SystemInitializationException.class, jdbcUtils::getConnection);
     }
 
     @Test
