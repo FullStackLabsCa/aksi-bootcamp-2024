@@ -63,7 +63,6 @@ public class RabbitMQUtils {
                 channelThreadLocal.set(channel);
             } catch (Exception e) {
                 System.out.println("Unable to provide Channel from the Rabbit MQ Connection...");
-                e.printStackTrace();
                 throw new SystemInitializationException("Failed to get RabbitMQ Channel");
             }
         }

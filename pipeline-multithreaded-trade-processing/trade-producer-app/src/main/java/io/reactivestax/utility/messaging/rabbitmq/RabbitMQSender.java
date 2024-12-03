@@ -35,7 +35,7 @@ public class RabbitMQSender implements MessageSender<TradeIdAndAccNum> {
             System.out.println(" [x] Sent '" + message + "' with routing key '" + routingKey + "'");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Failed to Send Message to Broker");
         }
     }
 
