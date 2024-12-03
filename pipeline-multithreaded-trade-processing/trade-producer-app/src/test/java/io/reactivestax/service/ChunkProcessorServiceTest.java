@@ -13,8 +13,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
+import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.exceptions.FilepathProcessingException;
 import io.reactivestax.utility.messaging.MessageSender;
+import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +50,12 @@ class ChunkProcessorServiceTest {
     @BeforeEach
     void setUp(){
         MockitoAnnotations.openMocks(this);
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+    }
+
+    @AfterEach
+    void cleanUp(){
+        ApplicationPropertyUtils.resetProperties();
     }
 
     //getInstanceTests

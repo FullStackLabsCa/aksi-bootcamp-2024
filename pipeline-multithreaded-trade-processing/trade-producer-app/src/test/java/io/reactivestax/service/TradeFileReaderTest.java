@@ -26,7 +26,6 @@ public class TradeFileReaderTest {
     @Spy
     private TradesFileReader tradesFileReaderSpy;
 
-
     @BeforeEach
     public void setUp(){
         MockitoAnnotations.openMocks(this);
