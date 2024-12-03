@@ -3,7 +3,9 @@ package io.reactivestax.repo.hibernate;
 import io.reactivestax.TestDataProvider;
 import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.model.Trade;
+import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.HibernateUtils;
+import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.UpdatePositionStatusInJournalEntryFailed;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
 import org.hibernate.query.Query;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -23,9 +26,39 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class HibernateJournalEntryRepoTest {
 
+    private static final String CREATE_TABLE_SECURITIES_REFERENCE = """
+            create table SecuritiesReferenceV2 (
+                    cusip varchar(15) not null unique,
+                    security_id int not null unique
+            );""";
+    private static final String POPULATE_TABLE_SECURITIES_REFERENCE = "insert into SecuritiesReferenceV2 (cusip, security_id) values ('TSLA', 157001093);";
+    private static final String DROP_SEC_REF_TABLE = "drop table SecuritiesReferenceV2";
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+
+        try (PreparedStatement createSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(CREATE_TABLE_SECURITIES_REFERENCE)) {
+
+            JDBCUtils.getInstance().startTransaction();
+            createSecRefTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+
+        try (PreparedStatement populateSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(POPULATE_TABLE_SECURITIES_REFERENCE)) {
+
+            JDBCUtils.getInstance().startTransaction();
+            populateSecRefTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+
     }
 
     @AfterEach
@@ -39,6 +72,18 @@ class HibernateJournalEntryRepoTest {
         } catch (Exception e) {
             HibernateUtils.getInstance().rollbackTransaction();
         }
+
+        try (PreparedStatement dropSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_SEC_REF_TABLE)) {
+            JDBCUtils.getInstance().startTransaction();
+
+            dropSecRefTableStmt.executeUpdate();
+
+            JDBCUtils.getInstance().commitTransaction();
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+
+        ApplicationPropertyUtils.resetProperties();
     }
 
 
