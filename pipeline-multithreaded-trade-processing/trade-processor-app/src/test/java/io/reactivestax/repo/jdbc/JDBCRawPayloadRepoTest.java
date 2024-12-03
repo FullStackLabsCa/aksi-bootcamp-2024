@@ -2,9 +2,11 @@ package io.reactivestax.repo.jdbc;
 
 import io.reactivestax.TestDataProvider;
 import io.reactivestax.model.Trade;
+import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.UpdateJournalEntryStatusInRawPayloadFailed;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -31,13 +33,37 @@ class JDBCRawPayloadRepoTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
     private static final String INSERT_INTO_TRADES_PAYLOAD_QUERY = "Insert into trades_payload (trade_id, status, payload, lookupStatus, postedStatus) values (?,?,?, 'Not Posted', 'Not Posted')";
-    private static final String READ_SECURITYLOOKUPSTATUS_QUERY = "Select lookupStatus from trades_payload where trade_id=?";
-    private static final String READ_POSITIONUPDATESTATUS_QUERY = "Select postedStatus from trades_payload where trade_id=?";
+    private static final String READ_SECURITY_LOOKUP_STATUS_QUERY = "Select lookupStatus from trades_payload where trade_id=?";
+    private static final String READ_POSITION_UPDATE_STATUS_QUERY = "Select postedStatus from trades_payload where trade_id=?";
+
+    private static final String CREATE_RAW_PAYLOAD_TABLE_QUERY = """
+                CREATE TABLE trades_payload (
+                    trade_payload_id INT AUTO_INCREMENT PRIMARY KEY,
+                    trade_id VARCHAR(20) NOT NULL,
+                    status VARCHAR(10) NOT NULL,
+                    payload VARCHAR(500) NOT NULL,
+                    lookupStatus VARCHAR(255) NOT NULL,
+                    postedStatus VARCHAR(255) NOT NULL
+                );""";
+
+    private static final String DROP_RAW_PAYLOAD_TABLE = "drop table trades_payload";
+
+    @BeforeEach
+    void setUp(){
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+
+        try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(CREATE_RAW_PAYLOAD_TABLE_QUERY)) {
+            JDBCUtils.getInstance().startTransaction();
+            preparedStatement.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+    }
 
     @AfterEach
     void cleanUp(){
-        String sql = "delete from trades_payload";
-        try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_RAW_PAYLOAD_TABLE)) {
             JDBCUtils.getInstance().startTransaction();
 
             int rowsAffected = preparedStatement.executeUpdate();
@@ -47,6 +73,8 @@ class JDBCRawPayloadRepoTest {
         } catch (Exception e) {
             JDBCUtils.getInstance().rollbackTransaction();
         }
+
+        ApplicationPropertyUtils.resetProperties();
     }
 
     @Test
@@ -134,7 +162,7 @@ class JDBCRawPayloadRepoTest {
 
     private String readSecurityLookUpStatusFromRawPayload(String tradeID) throws SQLException {
         Connection connection = JDBCUtils.getInstance().getConnection();
-        try (PreparedStatement psQuery = connection.prepareStatement(READ_SECURITYLOOKUPSTATUS_QUERY)) {
+        try (PreparedStatement psQuery = connection.prepareStatement(READ_SECURITY_LOOKUP_STATUS_QUERY)) {
 
             psQuery.setString(1, tradeID);
             ResultSet rsQuery = psQuery.executeQuery();
@@ -162,7 +190,7 @@ class JDBCRawPayloadRepoTest {
 
     private String readPostedStatusFromRawPayload(String tradeID) throws SQLException {
         Connection connection = JDBCUtils.getInstance().getConnection();
-        try (PreparedStatement psQuery = connection.prepareStatement(READ_POSITIONUPDATESTATUS_QUERY)) {
+        try (PreparedStatement psQuery = connection.prepareStatement(READ_POSITION_UPDATE_STATUS_QUERY)) {
 
             psQuery.setString(1, tradeID);
             ResultSet rsQuery = psQuery.executeQuery();
