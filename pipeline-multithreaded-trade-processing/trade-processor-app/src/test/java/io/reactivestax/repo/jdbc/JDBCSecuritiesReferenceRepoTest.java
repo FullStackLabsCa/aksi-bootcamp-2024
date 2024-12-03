@@ -1,10 +1,15 @@
 package io.reactivestax.repo.jdbc;
 
 import io.reactivestax.TestDataProvider;
+import io.reactivestax.utility.ApplicationPropertyUtils;
+import io.reactivestax.utility.database.JDBCUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.sql.PreparedStatement;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -17,6 +22,54 @@ class JDBCSecuritiesReferenceRepoTest {
 
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
+
+    private static final String CREATE_TABLE_SECURITIES_REFERENCE = """
+            create table SecuritiesReferenceV2 (
+                    cusip varchar(15) not null unique,
+                    security_id int not null unique
+            );""";
+
+    private static final String POPULATE_TABLE_SECURITIES_REFERENCE = "insert into SecuritiesReferenceV2 (cusip, security_id) values ('TSLA', 157001093);";
+
+    private static final String DROP_SEC_REF_TABLE = "drop table SecuritiesReferenceV2";
+
+    @BeforeEach
+    void setUp(){
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+
+        try (PreparedStatement createSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(CREATE_TABLE_SECURITIES_REFERENCE)) {
+
+            JDBCUtils.getInstance().startTransaction();
+            createSecRefTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+
+        try (PreparedStatement populateSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(POPULATE_TABLE_SECURITIES_REFERENCE)) {
+
+            JDBCUtils.getInstance().startTransaction();
+            populateSecRefTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+    }
+
+    @AfterEach
+    void cleanUp(){
+        try (PreparedStatement dropSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_SEC_REF_TABLE)) {
+            JDBCUtils.getInstance().startTransaction();
+            dropSecRefTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+
+        ApplicationPropertyUtils.resetProperties();
+    }
 
     @Test
     void getInstanceSingleThreadTest() {
