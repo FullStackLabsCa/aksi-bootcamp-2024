@@ -1,9 +1,11 @@
 package io.reactivestax.utility.database;
 
 import io.reactivestax.entity.RawPayload;
+import io.reactivestax.utility.ApplicationPropertyUtils;
 import jakarta.persistence.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +18,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class HibernateUtilsTest {
 
+
     @BeforeEach
+    void setUp(){
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+    }
+
+    @AfterEach
     public void cleanUp() {
         try {
             HibernateUtils.getInstance().startTransaction();
@@ -25,9 +33,10 @@ public class HibernateUtilsTest {
             query.executeUpdate();
             HibernateUtils.getInstance().commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
             HibernateUtils.getInstance().rollbackTransaction();
         }
+
+        ApplicationPropertyUtils.resetProperties();
 
     }
 
