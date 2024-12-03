@@ -4,6 +4,7 @@ import io.reactivestax.TestDataProvider;
 import io.reactivestax.entity.Position;
 import io.reactivestax.entity.PositionCompositeKey;
 import io.reactivestax.model.Trade;
+import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.OptimisticLockingOccurrence;
 import org.junit.jupiter.api.AfterEach;
@@ -33,27 +34,75 @@ class JDBCPositionsRepoTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
+    private static final String CREATE_TABLE_SECURITIES_REFERENCE = """
+            create table SecuritiesReferenceV2 (
+                    cusip varchar(15) not null unique,
+                    security_id int not null unique
+            );""";
+
+    private static final String CREATE_TABLE_POSITIONS = """
+            create table positions (
+                account_number varchar(20) not null,
+                security_id int not null,
+                version int,
+                position double not null,
+                unique(account_number, security_id)
+            );""";
+
+    private static final String POPULATE_TABLE_SECURITIES_REFERENCE = "insert into SecuritiesReferenceV2 (cusip, security_id) values ('TSLA', 157001093);";
+
+    private static final String DROP_SEC_REF_TABLE = "drop table SecuritiesReferenceV2";
+    private static final String DROP_POSITIONS_TABLE = "drop table positions";
+
+
     @Mock
     private Trade tradeMocked;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+
+        try (PreparedStatement createPositionsTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(CREATE_TABLE_POSITIONS);
+             PreparedStatement createSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(CREATE_TABLE_SECURITIES_REFERENCE)) {
+
+            JDBCUtils.getInstance().startTransaction();
+            createSecRefTableStmt.executeUpdate();
+            createPositionsTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+
+        try (PreparedStatement populateSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(POPULATE_TABLE_SECURITIES_REFERENCE)) {
+
+            JDBCUtils.getInstance().startTransaction();
+            populateSecRefTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+
     }
 
     @AfterEach
     void cleanUp(){
-            String sql = "delete from positions";
-        try (PreparedStatement preparedStatement =JDBCUtils.getInstance().getConnection().prepareStatement(sql)) {
+        try (PreparedStatement dropSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_SEC_REF_TABLE);
+             PreparedStatement dropPositionsTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_POSITIONS_TABLE)) {
             JDBCUtils.getInstance().startTransaction();
 
-                int rowsAffected = preparedStatement.executeUpdate();
-                System.out.println("Deleted " + rowsAffected + " rows from Position table.");
+            dropSecRefTableStmt.executeUpdate();
+            dropPositionsTableStmt.executeUpdate();
 
             JDBCUtils.getInstance().commitTransaction();
         } catch (Exception e) {
             JDBCUtils.getInstance().rollbackTransaction();
         }
+
+        ApplicationPropertyUtils.resetProperties();
     }
 
     @Test
