@@ -1,5 +1,7 @@
 package io.reactivestax.utility.database;
 
+import io.reactivestax.utility.ApplicationPropertyUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,14 +29,38 @@ class JDBCUtilsTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
+    private static final String CREATE_TABLE_POSITIONS = """
+            create table positions (
+                account_number varchar(20) not null,
+                security_id int not null,
+                version int,
+                position double not null,
+                unique(account_number, security_id)
+            );""";
+
     @Spy
     @InjectMocks
     private JDBCUtils jdbcUtils;
 
     @BeforeEach
-    void cleanUp(){
+    void setUp(){
         MockitoAnnotations.openMocks(this);
-        String sql = "delete from positions";
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+
+        try (PreparedStatement createPositionsTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(CREATE_TABLE_POSITIONS)) {
+
+            JDBCUtils.getInstance().startTransaction();
+            createPositionsTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+    }
+
+    @AfterEach
+    void cleanUp(){
+        String sql = "drop table positions";
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             JDBCUtils.getInstance().startTransaction();
@@ -44,6 +70,7 @@ class JDBCUtilsTest {
             JDBCUtils.getInstance().rollbackTransaction();
         }
 
+        ApplicationPropertyUtils.resetProperties();
     }
 
     @Test

@@ -7,6 +7,8 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
 import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.RawPayloadRepo;
+import io.reactivestax.utility.ApplicationPropertyUtils;
+import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.database.TransactionUtil;
 import io.reactivestax.utility.exceptions.*;
 import io.reactivestax.utility.messaging.MessageProvider;
@@ -21,6 +23,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.sql.PreparedStatement;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -35,6 +38,14 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TradeProcessorServiceTest {
+
+    private static final String CREATE_TABLE_SECURITIES_REFERENCE = """
+            create table SecuritiesReferenceV2 (
+                    cusip varchar(15) not null unique,
+                    security_id int not null unique
+            );""";
+    private static final String POPULATE_TABLE_SECURITIES_REFERENCE = "insert into SecuritiesReferenceV2 (cusip, security_id) values ('TSLA', 157001093);";
+    private static final String DROP_SEC_REF_TABLE = "drop table SecuritiesReferenceV2";
 
     @Mock
     private JournalEntryRepo journalEntryRepoSpy;
@@ -506,7 +517,11 @@ class TradeProcessorServiceTest {
     @ParameterizedTest
     @MethodSource("validateBusinessLogicTests")
     void validateBusinessLogic_MethodCallVerification_MockedTest(Trade trade, String validity){
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+        createSecurityRefTableAndPopulateIt();
         assertEquals(validity, TradeProcessorService.getInstance().validateBusinessLogic(trade));
+        dropSecuritiesRefTable();
+        ApplicationPropertyUtils.resetProperties();
     }
 
     static Stream<Arguments> validateBusinessLogicTests() {
@@ -515,6 +530,40 @@ class TradeProcessorServiceTest {
                 Arguments.of(TestDataProvider.goodTradeSupplier.get(), "Valid"),
                 Arguments.of( null, "Unable to Check CUSIP.")
         );
+    }
+
+    private void createSecurityRefTableAndPopulateIt(){
+        try (PreparedStatement createSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(CREATE_TABLE_SECURITIES_REFERENCE)) {
+
+            JDBCUtils.getInstance().startTransaction();
+            createSecRefTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+
+        try (PreparedStatement populateSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(POPULATE_TABLE_SECURITIES_REFERENCE)) {
+
+            JDBCUtils.getInstance().startTransaction();
+            populateSecRefTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+    }
+
+    private void dropSecuritiesRefTable(){
+        try (PreparedStatement dropSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_SEC_REF_TABLE)) {
+            JDBCUtils.getInstance().startTransaction();
+
+            dropSecRefTableStmt.executeUpdate();
+
+            JDBCUtils.getInstance().commitTransaction();
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
     }
 
 //writeToJournalTableTest
