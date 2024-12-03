@@ -1,9 +1,10 @@
 package io.reactivestax.utility.database;
 
-import io.reactivestax.utility.ApplicationPropertyUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+
+import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
 public class HibernateUtils implements ConnectionUtil<Session>, TransactionUtil {
     private static HibernateUtils instance;
@@ -35,15 +36,20 @@ public class HibernateUtils implements ConnectionUtil<Session>, TransactionUtil 
     }
 
     private static void configureHibernateSessionFactory(){
-        String hibernateConfigFile;
-        if("true".equals(ApplicationPropertyUtils.getFileProperty("test.mode"))){
-            hibernateConfigFile = "hibernate_testing.cfg.xml";
-        } else {
-            hibernateConfigFile = "hibernate.cfg.xml";
-        }
-        sessionFactory = new Configuration()
+        String hibernateConfigFile = "hibernate.cfg.xml";
+        sessionFactory = getConfiguration()
                 .configure(hibernateConfigFile)
                 .buildSessionFactory();
+    }
+
+    private static Configuration getConfiguration(){
+        return new Configuration()
+                .setProperty("hibernate.connection.url", getFileProperty("db.url"))
+                .setProperty("hibernate.connection.username", getFileProperty("db.username"))
+                .setProperty("hibernate.connection.password", getFileProperty("db.password"))
+                .setProperty("hibernate.hbm2ddl.auto", getFileProperty("db.hibernate.mode"))
+                .setProperty("hibernate.connection.driver_class", getFileProperty("db.hibernate.driver.class"))
+                .setProperty("hibernate.dialect", getFileProperty("db.hibernate.dialect"));
     }
 
     @Override
