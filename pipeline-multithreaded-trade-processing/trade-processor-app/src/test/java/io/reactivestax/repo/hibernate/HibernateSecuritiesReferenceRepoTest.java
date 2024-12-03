@@ -1,6 +1,9 @@
 package io.reactivestax.repo.hibernate;
 
 import io.reactivestax.model.Trade;
+import io.reactivestax.utility.ApplicationPropertyUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
@@ -12,6 +15,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 class HibernateSecuritiesReferenceRepoTest {
+
+    @BeforeEach
+    void setUp(){
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+    }
+
+    @AfterEach
+    void cleanUp(){
+        ApplicationPropertyUtils.resetProperties();
+    }
 
     @Test
     void getInstanceSingleThreadTest() {
