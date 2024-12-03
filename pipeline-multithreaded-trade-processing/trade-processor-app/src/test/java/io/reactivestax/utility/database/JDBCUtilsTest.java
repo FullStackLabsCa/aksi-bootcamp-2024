@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -77,8 +76,6 @@ class JDBCUtilsTest {
         }
 
         ApplicationPropertyUtils.resetProperties();
-
-        Mockito.reset(hikariDataSourceSpy, jdbcUtils);
     }
 
     @Test
