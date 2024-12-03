@@ -45,7 +45,7 @@ class TradeProcessorServiceTest {
                     security_id int not null unique
             );""";
     private static final String POPULATE_TABLE_SECURITIES_REFERENCE = "insert into SecuritiesReferenceV2 (cusip, security_id) values ('TSLA', 157001093);";
-    private static final String DROP_SEC_REF_TABLE = "drop table SecuritiesReferenceV2";
+    private static final String DELETE_FROM_SECURITIES_REFERENCE_V_2 = "delete from SecuritiesReferenceV2";
 
     @Mock
     private JournalEntryRepo journalEntryRepoSpy;
@@ -555,7 +555,7 @@ class TradeProcessorServiceTest {
     }
 
     private void dropSecuritiesRefTable(){
-        try (PreparedStatement dropSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_SEC_REF_TABLE)) {
+        try (PreparedStatement dropSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DELETE_FROM_SECURITIES_REFERENCE_V_2)) {
             JDBCUtils.getInstance().startTransaction();
 
             dropSecRefTableStmt.executeUpdate();

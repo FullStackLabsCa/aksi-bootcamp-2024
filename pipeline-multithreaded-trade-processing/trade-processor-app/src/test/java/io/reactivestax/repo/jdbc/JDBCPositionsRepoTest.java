@@ -35,13 +35,13 @@ class JDBCPositionsRepoTest {
     private final PrintStream originalOut = System.out;
 
     private static final String CREATE_TABLE_SECURITIES_REFERENCE = """
-            create table SecuritiesReferenceV2 (
+            create table if not exists SecuritiesReferenceV2 (
                     cusip varchar(15) not null unique,
                     security_id int not null unique
             );""";
 
     private static final String CREATE_TABLE_POSITIONS = """
-            create table positions (
+            create table if not exists positions (
                 account_number varchar(20) not null,
                 security_id int not null,
                 version int,
@@ -51,8 +51,8 @@ class JDBCPositionsRepoTest {
 
     private static final String POPULATE_TABLE_SECURITIES_REFERENCE = "insert into SecuritiesReferenceV2 (cusip, security_id) values ('TSLA', 157001093);";
 
-    private static final String DROP_SEC_REF_TABLE = "drop table SecuritiesReferenceV2";
-    private static final String DROP_POSITIONS_TABLE = "drop table positions";
+    private static final String DELETE_FROM_SECURITIES_REFERENCE_V_2 = "delete from SecuritiesReferenceV2";
+    private static final String DELETE_FROM_POSITIONS = "delete from positions";
 
 
     @Mock
@@ -90,8 +90,8 @@ class JDBCPositionsRepoTest {
 
     @AfterEach
     void cleanUp(){
-        try (PreparedStatement dropSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_SEC_REF_TABLE);
-             PreparedStatement dropPositionsTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_POSITIONS_TABLE)) {
+        try (PreparedStatement dropSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DELETE_FROM_SECURITIES_REFERENCE_V_2);
+             PreparedStatement dropPositionsTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DELETE_FROM_POSITIONS)) {
             JDBCUtils.getInstance().startTransaction();
 
             dropSecRefTableStmt.executeUpdate();

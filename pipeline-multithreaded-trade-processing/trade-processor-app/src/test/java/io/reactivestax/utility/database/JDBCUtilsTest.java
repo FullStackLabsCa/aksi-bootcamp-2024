@@ -30,7 +30,7 @@ class JDBCUtilsTest {
     private final PrintStream originalOut = System.out;
 
     private static final String CREATE_TABLE_POSITIONS = """
-            create table positions (
+            create table if not exists positions (
                 account_number varchar(20) not null,
                 security_id int not null,
                 version int,
@@ -60,7 +60,7 @@ class JDBCUtilsTest {
 
     @AfterEach
     void cleanUp(){
-        String sql = "drop table positions";
+        String sql = "delete from positions";
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             JDBCUtils.getInstance().startTransaction();

@@ -2,9 +2,11 @@ package io.reactivestax.utility.database;
 
 import io.reactivestax.entity.Position;
 import io.reactivestax.entity.PositionCompositeKey;
+import io.reactivestax.utility.ApplicationPropertyUtils;
 import jakarta.persistence.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +20,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class HibernateUtilsTest {
 
     @BeforeEach
+    void setUp(){
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+    }
+
+    @AfterEach
     void cleanUp(){
         try {
             HibernateUtils.getInstance().startTransaction();
@@ -28,7 +35,7 @@ class HibernateUtilsTest {
         } catch (Exception e) {
             HibernateUtils.getInstance().rollbackTransaction();
         }
-
+        ApplicationPropertyUtils.resetProperties();
     }
 
     @Test

@@ -37,7 +37,7 @@ class JDBCRawPayloadRepoTest {
     private static final String READ_POSITION_UPDATE_STATUS_QUERY = "Select postedStatus from trades_payload where trade_id=?";
 
     private static final String CREATE_RAW_PAYLOAD_TABLE_QUERY = """
-                CREATE TABLE trades_payload (
+                CREATE TABLE if not exists trades_payload (
                     trade_payload_id INT AUTO_INCREMENT PRIMARY KEY,
                     trade_id VARCHAR(20) NOT NULL,
                     status VARCHAR(10) NOT NULL,
@@ -46,7 +46,7 @@ class JDBCRawPayloadRepoTest {
                     postedStatus VARCHAR(255) NOT NULL
                 );""";
 
-    private static final String DROP_RAW_PAYLOAD_TABLE = "drop table trades_payload";
+    private static final String DELETE_FROM_TRADES_PAYLOAD = "delete from trades_payload";
 
     @BeforeEach
     void setUp(){
@@ -63,7 +63,7 @@ class JDBCRawPayloadRepoTest {
 
     @AfterEach
     void cleanUp(){
-        try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_RAW_PAYLOAD_TABLE)) {
+        try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(DELETE_FROM_TRADES_PAYLOAD)) {
             JDBCUtils.getInstance().startTransaction();
 
             int rowsAffected = preparedStatement.executeUpdate();

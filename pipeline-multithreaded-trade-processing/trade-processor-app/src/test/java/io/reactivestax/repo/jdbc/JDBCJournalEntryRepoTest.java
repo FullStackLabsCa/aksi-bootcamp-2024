@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class JDBCJournalEntryRepoTest {
 
     private static final String CREATE_TABLE_JOURNAL_ENTRY_JOURNAL = """
-                create table journal_entry (
+                create table if not exists journal_entry (
                       journal_entry_id int auto_increment primary key,
                       accountNumber varchar(255) not null,
                       security_id int not null,
@@ -40,15 +40,15 @@ class JDBCJournalEntryRepoTest {
                   );""";
 
     private static final String CREATE_TABLE_SECURITIES_REFERENCE = """
-            create table SecuritiesReferenceV2 (
+            create table if not exists SecuritiesReferenceV2 (
                     cusip varchar(15) not null unique,
                     security_id int not null unique
             );""";
 
     private static final String POPULATE_TABLE_SECURITIES_REFERENCE = "insert into SecuritiesReferenceV2 (cusip, security_id) values ('TSLA', 157001093);";
 
-    private static final String DROP_TABLE_JOURNAL_ENTRY = "drop table journal_entry";
-    private static final String DROP_SEC_REF_TABLE = "drop table SecuritiesReferenceV2";
+    private static final String DELETE_FROM_JOURNAL_ENTRY = "delete from journal_entry";
+    private static final String DELETE_FROM_SECURITIES_REFERENCE_V_2 = "delete from SecuritiesReferenceV2";
 
     @BeforeEach
     void setUp() {
@@ -82,8 +82,8 @@ class JDBCJournalEntryRepoTest {
 
     @AfterEach
     void cleanUp(){
-        try (PreparedStatement dropJournalTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_TABLE_JOURNAL_ENTRY);
-             PreparedStatement dropSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_SEC_REF_TABLE)) {
+        try (PreparedStatement dropJournalTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DELETE_FROM_JOURNAL_ENTRY);
+             PreparedStatement dropSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DELETE_FROM_SECURITIES_REFERENCE_V_2)) {
             JDBCUtils.getInstance().startTransaction();
 
             dropJournalTableStmt.executeUpdate();
