@@ -3,14 +3,12 @@ package io.reactivestax.repo;
 import io.reactivestax.TestDataProvider;
 import io.reactivestax.entity.RawPayload;
 import io.reactivestax.repo.hibernate.HibernateRawPayloadRepo;
+import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.HibernateUtils;
 import org.hibernate.query.Query;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -21,12 +19,11 @@ import java.util.concurrent.Executors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-@ExtendWith(MockitoExtension.class)
 public class HibernateRawPayloadRepoTest {
 
     @BeforeEach
     void setUp(){
-        MockitoAnnotations.openMocks(this);
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
     }
 
     @AfterEach
@@ -40,6 +37,8 @@ public class HibernateRawPayloadRepoTest {
         } catch (Exception e) {
             HibernateUtils.getInstance().rollbackTransaction();
         }
+
+        ApplicationPropertyUtils.resetProperties();
     }
 
     @Test
