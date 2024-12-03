@@ -3,6 +3,7 @@ package io.reactivestax.repo.hibernate;
 import io.reactivestax.TestDataProvider;
 import io.reactivestax.entity.RawPayload;
 import io.reactivestax.model.Trade;
+import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.exceptions.UpdateJournalEntryStatusInRawPayloadFailed;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -10,6 +11,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -33,6 +35,11 @@ class HibernateRawPayloadRepoTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
+    @BeforeEach
+    void setUp(){
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+    }
+
     @AfterEach
     void cleanUp(){
         try {
@@ -44,6 +51,8 @@ class HibernateRawPayloadRepoTest {
         } catch (Exception e) {
             HibernateUtils.getInstance().rollbackTransaction();
         }
+
+        ApplicationPropertyUtils.resetProperties();
     }
 
     @Test
