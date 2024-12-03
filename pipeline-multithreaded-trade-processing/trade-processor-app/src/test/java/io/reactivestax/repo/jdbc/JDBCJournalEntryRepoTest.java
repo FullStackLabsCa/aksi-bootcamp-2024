@@ -3,6 +3,7 @@ package io.reactivestax.repo.jdbc;
 import io.reactivestax.TestDataProvider;
 import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.model.Trade;
+import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.UpdatePositionStatusInJournalEntryFailed;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
@@ -25,24 +26,75 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class JDBCJournalEntryRepoTest {
+
+    private static final String CREATE_TABLE_JOURNAL_ENTRY_JOURNAL = """
+                create table journal_entry (
+                      journal_entry_id int auto_increment primary key,
+                      accountNumber varchar(255) not null,
+                      security_id int not null,
+                      direction varchar(255) not null,
+                      quantity int not null,
+                      tradeExecutionTime date not null,
+                      positionPostedStatus varchar(255) not null,
+                      trade_id varchar(255) not null
+                  );""";
+
+    private static final String CREATE_TABLE_SECURITIES_REFERENCE = """
+            create table SecuritiesReferenceV2 (
+                    cusip varchar(15) not null unique,
+                    security_id int not null unique
+            );""";
+
+    private static final String POPULATE_TABLE_SECURITIES_REFERENCE = "insert into SecuritiesReferenceV2 (cusip, security_id) values ('TSLA', 157001093);";
+
+    private static final String DROP_TABLE_JOURNAL_ENTRY = "drop table journal_entry";
+    private static final String DROP_SEC_REF_TABLE = "drop table SecuritiesReferenceV2";
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        ApplicationPropertyUtils.readPropertiesFile("src/test/resources/test.application.properties");
+
+        try (PreparedStatement createJournalTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(CREATE_TABLE_JOURNAL_ENTRY_JOURNAL);
+             PreparedStatement createSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(CREATE_TABLE_SECURITIES_REFERENCE)) {
+
+            JDBCUtils.getInstance().startTransaction();
+            createJournalTableStmt.executeUpdate();
+            createSecRefTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+
+        try (PreparedStatement populateSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(POPULATE_TABLE_SECURITIES_REFERENCE)) {
+
+            JDBCUtils.getInstance().startTransaction();
+            populateSecRefTableStmt.executeUpdate();
+            JDBCUtils.getInstance().commitTransaction();
+
+        } catch (Exception e) {
+            JDBCUtils.getInstance().rollbackTransaction();
+        }
+
     }
 
     @AfterEach
     void cleanUp(){
-        String sql = "delete from journal_entry";
-        try (PreparedStatement preparedStatement = JDBCUtils.getInstance().getConnection().prepareStatement(sql)) {
+        try (PreparedStatement dropJournalTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_TABLE_JOURNAL_ENTRY);
+             PreparedStatement dropSecRefTableStmt = JDBCUtils.getInstance().getConnection().prepareStatement(DROP_SEC_REF_TABLE)) {
             JDBCUtils.getInstance().startTransaction();
 
-            int rowsAffected = preparedStatement.executeUpdate();
-            System.out.println("Deleted " + rowsAffected + " rows from journal_entry table.");
+            dropJournalTableStmt.executeUpdate();
+            dropSecRefTableStmt.executeUpdate();
 
             JDBCUtils.getInstance().commitTransaction();
         } catch (Exception e) {
             JDBCUtils.getInstance().rollbackTransaction();
         }
+
+        ApplicationPropertyUtils.resetProperties();
     }
 
     @Test
