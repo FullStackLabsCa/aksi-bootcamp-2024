@@ -8,8 +8,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -44,7 +42,7 @@ class RabbitMQUtilsTest {
     }
 
     @AfterEach
-    void cleanUp() throws IOException {
+    void cleanUp() {
         RabbitMQUtils.getInstance().closeRabbitMQConnection();
     }
 
