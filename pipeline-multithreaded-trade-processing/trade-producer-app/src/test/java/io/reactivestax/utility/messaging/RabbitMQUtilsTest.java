@@ -157,27 +157,37 @@ class RabbitMQUtilsTest {
 
     @Test
     void closeRabbitMQChannel_IOExceptionTest() throws IOException, TimeoutException {
+        System.setOut(new PrintStream(outputStreamCaptor));
+
         RabbitMQUtils.getInstance().getRabbitMQChannel();
         try(MockedStatic<RabbitMQUtils> rabbitMQUtilsMockedStatic = Mockito.mockStatic(RabbitMQUtils.class)){
-            rabbitMQUtilsMockedStatic.when(RabbitMQUtils::getInstance).thenReturn(rabbitMQUtils);
 
+            rabbitMQUtilsMockedStatic.when(RabbitMQUtils::getInstance).thenReturn(rabbitMQUtils);
             doReturn(channelSpy).when(rabbitMQUtils).getRabbitMQChannel();
             doThrow(IOException.class).when(channelSpy).close();
 
-            assertThrows(SystemInitializationException.class, () -> rabbitMQUtils.closeRabbitMQChannel());
+            rabbitMQUtils.closeRabbitMQChannel();
+
+            assertTrue(outputStreamCaptor.toString().contains("RabbitMQ Channel already closed!"));
+            System.setOut(originalOut);
         }
     }
 
     @Test
     void closeRabbitMQChannel_TimeoutExceptionTest() throws IOException, TimeoutException {
+        System.setOut(new PrintStream(outputStreamCaptor));
+
         RabbitMQUtils.getInstance().getRabbitMQChannel();
         try(MockedStatic<RabbitMQUtils> rabbitMQUtilsMockedStatic = Mockito.mockStatic(RabbitMQUtils.class)){
-            rabbitMQUtilsMockedStatic.when(RabbitMQUtils::getInstance).thenReturn(rabbitMQUtils);
 
+            rabbitMQUtilsMockedStatic.when(RabbitMQUtils::getInstance).thenReturn(rabbitMQUtils);
             doReturn(channelSpy).when(rabbitMQUtils).getRabbitMQChannel();
             doThrow(TimeoutException.class).when(channelSpy).close();
 
-            assertThrows(SystemInitializationException.class, () -> rabbitMQUtils.closeRabbitMQChannel());
+            rabbitMQUtils.closeRabbitMQChannel();
+
+            assertTrue(outputStreamCaptor.toString().contains("RabbitMQ Channel already closed!"));
+            System.setOut(originalOut);
         }
     }
 }

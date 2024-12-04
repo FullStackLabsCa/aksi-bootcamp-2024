@@ -77,7 +77,7 @@ public class RabbitMQUtils {
                 getResponseThreadLocal.remove();
             }
         } catch (IOException | TimeoutException e) {
-            throw new SystemInitializationException("Error While Closing RabbitMQ Channel");
+            System.out.println("RabbitMQ Channel already closed!");
         }
     }
 }
