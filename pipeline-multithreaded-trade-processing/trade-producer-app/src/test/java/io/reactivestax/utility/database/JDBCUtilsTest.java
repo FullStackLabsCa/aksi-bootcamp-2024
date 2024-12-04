@@ -7,9 +7,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
@@ -24,8 +22,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class JDBCUtilsTest {
@@ -43,6 +40,9 @@ public class JDBCUtilsTest {
 
     @Spy
     private HikariDataSource hikariDataSourceSpy;
+
+    @Spy
+    private Connection connectionSpy;
 
     @Spy
     @InjectMocks
@@ -389,6 +389,21 @@ public class JDBCUtilsTest {
 
         assertTrue(outputStreamCaptor.toString().contains("Failed to rollback Transaction...."));
         System.setOut(originalOut);
+    }
+
+    @Test
+    void closeConnectionExceptionCase() throws SQLException {
+        System.setOut(new PrintStream(outputStreamCaptor));
+        try(MockedStatic<JDBCUtils> jdbcUtilsMockedStatic = Mockito.mockStatic(JDBCUtils.class)){
+            jdbcUtilsMockedStatic.when(JDBCUtils::getInstance).thenReturn(jdbcUtils);
+            doReturn(connectionSpy).when(jdbcUtils).getConnection();
+            doThrow(SQLException.class).when(connectionSpy).close();
+
+            jdbcUtils.rollbackTransaction();
+
+            assertTrue(outputStreamCaptor.toString().contains("Failed to Close Transaction...."));
+            System.setOut(originalOut);
+        }
     }
 
 }
