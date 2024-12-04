@@ -5,9 +5,13 @@ import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.exceptions.SystemInitializationException;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,19 +22,34 @@ import java.util.concurrent.*;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
-public class RabbitMQUtilsTest {
+@ExtendWith(MockitoExtension.class)
+class RabbitMQUtilsTest {
 
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
+    @Spy
+    private Channel channelSpy;
+
+    @InjectMocks
+    @Spy
+    private RabbitMQUtils rabbitMQUtils;
+
+    @BeforeEach
+    void setUp(){
+        MockitoAnnotations.openMocks(this);
+    }
+
     @AfterEach
-    public void cleanUp() throws IOException {
+    void cleanUp() throws IOException {
         RabbitMQUtils.getInstance().closeRabbitMQConnection();
     }
 
     @Test
-    public void getInstanceSingleThreadTest(){
+    void getInstanceSingleThreadTest(){
         // Get two instances
         RabbitMQUtils instance1 = RabbitMQUtils.getInstance();
         RabbitMQUtils instance2 = RabbitMQUtils.getInstance();
@@ -43,7 +62,7 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getInstanceMultiThreadTest() throws ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         Callable<RabbitMQUtils> getRabbitMQUtilsInstance = RabbitMQUtils::getInstance;
@@ -60,7 +79,7 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void getRabbitMQChannelMultiThreadTest() throws ExecutionException, InterruptedException {
+    void getRabbitMQChannelMultiThreadTest() throws ExecutionException, InterruptedException {
         // Spawn multiple threads and make each of them get 2 connections
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
@@ -97,11 +116,10 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void failedToGetChannelFromRabbitConnectionTest() {
+    void failedToGetChannelFromRabbitConnectionTest() {
         System.setOut(new PrintStream(outputStreamCaptor));
         try (MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
             mockedStatic.when(() -> getFileProperty("messaging.technology")).thenReturn("rabbitmq");
-
 
             assertThrows(SystemInitializationException.class, () -> RabbitMQUtils.getInstance().getRabbitMQChannel());
             assertTrue(outputStreamCaptor.toString().contains("Unable to provide Channel from the Rabbit MQ Connection..."));
@@ -110,7 +128,7 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void closeRabbitMQSingleThreadTest(){
+    void closeRabbitMQSingleThreadTest(){
         Channel channel = RabbitMQUtils.getInstance().getRabbitMQChannel();
         assertTrue(channel.isOpen());
         RabbitMQUtils.getInstance().closeRabbitMQChannel();
@@ -118,7 +136,7 @@ public class RabbitMQUtilsTest {
     }
 
     @Test
-    public void closeRabbitMQMultiThreadTest() throws ExecutionException, InterruptedException {
+    void closeRabbitMQMultiThreadTest() throws ExecutionException, InterruptedException {
         Callable<Boolean> closeChannelAndGetOpenStatus = () -> {
             Channel channel = RabbitMQUtils.getInstance().getRabbitMQChannel();
             RabbitMQUtils.getInstance().closeRabbitMQChannel();
@@ -137,5 +155,31 @@ public class RabbitMQUtilsTest {
 
         RabbitMQUtils.getInstance().closeRabbitMQChannel();
         assertFalse(channelMainThread.isOpen());
+    }
+
+    @Test
+    void closeRabbitMQChannel_IOExceptionTest() throws IOException, TimeoutException {
+        RabbitMQUtils.getInstance().getRabbitMQChannel();
+        try(MockedStatic<RabbitMQUtils> rabbitMQUtilsMockedStatic = Mockito.mockStatic(RabbitMQUtils.class)){
+            rabbitMQUtilsMockedStatic.when(RabbitMQUtils::getInstance).thenReturn(rabbitMQUtils);
+
+            doReturn(channelSpy).when(rabbitMQUtils).getRabbitMQChannel();
+            doThrow(IOException.class).when(channelSpy).close();
+
+            assertThrows(SystemInitializationException.class, () -> rabbitMQUtils.closeRabbitMQChannel());
+        }
+    }
+
+    @Test
+    void closeRabbitMQChannel_TimeoutExceptionTest() throws IOException, TimeoutException {
+        RabbitMQUtils.getInstance().getRabbitMQChannel();
+        try(MockedStatic<RabbitMQUtils> rabbitMQUtilsMockedStatic = Mockito.mockStatic(RabbitMQUtils.class)){
+            rabbitMQUtilsMockedStatic.when(RabbitMQUtils::getInstance).thenReturn(rabbitMQUtils);
+
+            doReturn(channelSpy).when(rabbitMQUtils).getRabbitMQChannel();
+            doThrow(TimeoutException.class).when(channelSpy).close();
+
+            assertThrows(SystemInitializationException.class, () -> rabbitMQUtils.closeRabbitMQChannel());
+        }
     }
 }
