@@ -42,7 +42,7 @@ public class HibernateUtils implements ConnectionUtil<Session>, TransactionUtil 
                 .buildSessionFactory();
     }
 
-    private static Configuration getConfiguration(){
+    private Configuration getConfiguration(){
         return new Configuration()
                 .setProperty("hibernate.connection.url", getFileProperty("db.url"))
                 .setProperty("hibernate.connection.username", getFileProperty("db.username"))

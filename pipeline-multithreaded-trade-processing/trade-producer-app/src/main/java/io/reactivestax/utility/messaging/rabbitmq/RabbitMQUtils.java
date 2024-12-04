@@ -26,14 +26,14 @@ public class RabbitMQUtils {
         return instance;
     }
 
-    private static void configureRabbitMQ(String host, String guest, String password){
+    private void configureRabbitMQ(String host, String guest, String password){
         rabbitMQFactory = new ConnectionFactory();
         rabbitMQFactory.setHost(host); // Or the RabbitMQ server IP/hostname
         rabbitMQFactory.setUsername(guest); // RabbitMQ username
         rabbitMQFactory.setPassword(password); // RabbitMQ password
     }
 
-    private static synchronized void getRabbitMQConnection(){
+    private synchronized void getRabbitMQConnection(){
         if(rabbitMQFactory == null) configureRabbitMQ(getFileProperty("rabbitMQ.hostName"), getFileProperty("rabbitMQ.guest"), getFileProperty("rabbitMQ.pass"));
         if(rabbitMQConnection == null) {
             try {

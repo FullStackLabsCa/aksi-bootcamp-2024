@@ -14,7 +14,7 @@ public class ApplicationPropertyUtils {
 
     private static Properties fileProperties;
 
-    private static void readPropertiesFile(){
+    private static synchronized void readPropertiesFile(){
         Properties properties = new Properties();
 
         try (InputStream fis = ApplicationPropertyUtils.class.getClassLoader().getResourceAsStream("application.properties")) {
@@ -26,7 +26,7 @@ public class ApplicationPropertyUtils {
         fileProperties = properties;
     }
 
-    public static void readPropertiesFile(String filePath){
+    public static synchronized void readPropertiesFile(String filePath){
         Properties properties = new Properties();
 
         try (InputStream fis = new FileInputStream(filePath)) {

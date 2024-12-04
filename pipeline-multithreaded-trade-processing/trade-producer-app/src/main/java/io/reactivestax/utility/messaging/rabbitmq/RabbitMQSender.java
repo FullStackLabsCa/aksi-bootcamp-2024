@@ -39,11 +39,11 @@ public class RabbitMQSender implements MessageSender<TradeIdAndAccNum> {
         }
     }
 
-    private static String getRoutingKey(TradeIdAndAccNum tradeIdentifiers) {
+    private String getRoutingKey(TradeIdAndAccNum tradeIdentifiers) {
         return "cc_partition_" + getQueueMapping(tradeIdentifiers);
     }
 
-    private static Integer getQueueMapping(TradeIdAndAccNum tradeIdentifiers) {
+    private Integer getQueueMapping(TradeIdAndAccNum tradeIdentifiers) {
         String criteria = getFileProperty("trade.distribution.criteria");
 
         String criteriaField = criteria.equals("tradeID") ? tradeIdentifiers.tradeID() : tradeIdentifiers.accountNumber();

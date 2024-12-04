@@ -78,7 +78,7 @@ public class ChunkProcessorService implements ChunkProcessing {
         return new TradeIdAndAccNum(tradeId, accountNumber);
     }
 
-    // This can be refactored into the repo class?
+    // This can be made Private!!! (Will have to update tests accordingly)
     public RawPayload getRawPayloadFromStringPayload(String payload){
         if(payload == null || payload.trim().isEmpty())
             return RawPayload.builder().build();
