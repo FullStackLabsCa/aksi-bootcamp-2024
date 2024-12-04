@@ -59,7 +59,7 @@ public class RabbitMQUtils {
 
     public Channel getRabbitMQChannel() {
         Channel channel = channelThreadLocal.get();
-        if (channel == null) {
+        if (channel == null || !channel.isOpen()) {
             try {
                 if (rabbitMQConnection == null) getRabbitMQConnection();
                 channel = rabbitMQConnection.createChannel();

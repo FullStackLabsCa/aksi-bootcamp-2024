@@ -8,18 +8,37 @@ import io.reactivestax.utility.messaging.rabbitmq.RabbitMQMessageProvider;
 import io.reactivestax.utility.messaging.rabbitmq.RabbitMQUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
-
+@ExtendWith(MockitoExtension.class)
 class RabbitMQUtilsTest {
+
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    private final PrintStream originalOut = System.out;
+
+    @Spy
+    private Channel channelSpy;
+
+    @InjectMocks
+    @Spy
+    private RabbitMQUtils rabbitMQUtils;
 
     @BeforeEach
     void cleanUp() {
+        MockitoAnnotations.openMocks(this);
         RabbitMQUtils.getInstance().clearRabbitMQMessageProvider();
         RabbitMQUtils.getInstance().clearThreadResponse();
     }
@@ -119,6 +138,42 @@ class RabbitMQUtilsTest {
         RabbitMQUtils.getInstance().closeRabbitMQChannel();
         assertFalse(channelMainThread.isOpen());
 
+    }
+
+    @Test
+    void closeRabbitMQChannel_IOExceptionTest() throws IOException, TimeoutException {
+        System.setOut(new PrintStream(outputStreamCaptor));
+
+        RabbitMQUtils.getInstance().getRabbitMQChannel();
+        try(MockedStatic<RabbitMQUtils> rabbitMQUtilsMockedStatic = Mockito.mockStatic(RabbitMQUtils.class)){
+
+            rabbitMQUtilsMockedStatic.when(RabbitMQUtils::getInstance).thenReturn(rabbitMQUtils);
+            doReturn(channelSpy).when(rabbitMQUtils).getRabbitMQChannel();
+            doThrow(IOException.class).when(channelSpy).close();
+
+            rabbitMQUtils.closeRabbitMQChannel();
+
+            assertTrue(outputStreamCaptor.toString().contains("RabbitMQ Channel already closed!"));
+            System.setOut(originalOut);
+        }
+    }
+
+    @Test
+    void closeRabbitMQChannel_TimeoutExceptionTest() throws IOException, TimeoutException {
+        System.setOut(new PrintStream(outputStreamCaptor));
+
+        RabbitMQUtils.getInstance().getRabbitMQChannel();
+        try(MockedStatic<RabbitMQUtils> rabbitMQUtilsMockedStatic = Mockito.mockStatic(RabbitMQUtils.class)){
+
+            rabbitMQUtilsMockedStatic.when(RabbitMQUtils::getInstance).thenReturn(rabbitMQUtils);
+            doReturn(channelSpy).when(rabbitMQUtils).getRabbitMQChannel();
+            doThrow(TimeoutException.class).when(channelSpy).close();
+
+            rabbitMQUtils.closeRabbitMQChannel();
+
+            assertTrue(outputStreamCaptor.toString().contains("RabbitMQ Channel already closed!"));
+            System.setOut(originalOut);
+        }
     }
 
     @Test
