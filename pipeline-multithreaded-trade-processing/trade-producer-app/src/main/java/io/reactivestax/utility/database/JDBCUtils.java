@@ -28,14 +28,18 @@ public class JDBCUtils implements ConnectionUtil<Connection>, TransactionUtil {
     @Override
     public Connection getConnection() {
         Connection connection  = connectionHolder.get();
-        if(connection == null) {
-            try {
-                connection = getHikariDataSource().getConnection();
-                connectionHolder.set(connection);
-            } catch (SQLException e) {
-                System.out.println("Error Getting Connection from Datasource....");
-                throw new SystemInitializationException("Failed to Get Connection from Hikari");
+        try {
+            if(connection == null || connection.isClosed()) {
+                try {
+                    connection = getHikariDataSource().getConnection();
+                    connectionHolder.set(connection);
+                } catch (SQLException e) {
+                    System.out.println("Error Getting Connection from Datasource....");
+                    throw new SystemInitializationException("Failed to Get Connection from Hikari");
+                }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return connection;
     }
