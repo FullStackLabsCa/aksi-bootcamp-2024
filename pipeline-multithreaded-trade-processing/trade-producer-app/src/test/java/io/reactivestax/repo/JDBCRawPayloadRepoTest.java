@@ -9,11 +9,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -22,10 +24,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
 public class JDBCRawPayloadRepoTest {
+
+    @Spy
+    private JDBCUtils jdbcUtilsSpy;
+
+    @InjectMocks
+    private JDBCRawPayloadRepo jdbcRawPayloadRepo;
 
     @BeforeEach
     void setUp(){
@@ -153,6 +162,18 @@ public class JDBCRawPayloadRepoTest {
         return rawPayloads;
     }
 
-//    @Test # TODO
-//    writeToRawPayloadExceptionTest
+    @Test
+    void writeToRawPayloadExceptionTest(){
+        Connection connection = JDBCUtils.getInstance().getConnection();
+        try(MockedStatic<JDBCUtils> jdbcUtilsMockedStatic = Mockito.mockStatic(JDBCUtils.class)){
+            jdbcUtilsMockedStatic.when(JDBCUtils::getInstance).thenReturn(jdbcUtilsSpy);
+            doReturn(connection).when(jdbcUtilsSpy).getConnection();
+            doAnswer(invocationOnMock -> {throw new SQLException();}).when(jdbcUtilsSpy).startTransaction();
+
+            jdbcRawPayloadRepo.writeToRawPayloadTable(TestDataProvider.validRawPayloadSupplier.get());
+
+            verify(jdbcUtilsSpy, times(0)).commitTransaction();
+            verify(jdbcUtilsSpy, times(1)).rollbackTransaction();
+        }
+    }
 }
