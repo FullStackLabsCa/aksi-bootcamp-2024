@@ -23,7 +23,7 @@ public class HibernateUtils implements ConnectionUtil<Session>, TransactionUtil 
     @Override
     public Session getConnection() {
         Session session = sessionHolder.get();
-        if(session == null) {
+        if(session == null || !session.isOpen()) {
             session = getSessionFactory().openSession();
             sessionHolder.set(session);
         }
