@@ -4,6 +4,7 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.OptimisticLockingOccurrence;
+import io.reactivestax.utility.exceptions.PositionUpdateFailed;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,7 +30,7 @@ public class JDBCPositionsRepo implements PositionsRepo {
     }
 
     @Override
-    public void updatePositionsTable(Trade trade) throws OptimisticLockingOccurrence {
+    public void updatePositionsTable(Trade trade) throws OptimisticLockingOccurrence, PositionUpdateFailed {
         Connection connection = JDBCUtils.getInstance().getConnection();
         JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         JDBCPositionsRepo positionsReference = JDBCPositionsRepo.getInstance();
@@ -73,6 +74,7 @@ public class JDBCPositionsRepo implements PositionsRepo {
             }
         } catch (SQLException e) {
             System.out.println("Failed to Update Position");
+            throw new PositionUpdateFailed();
         }
     }
 

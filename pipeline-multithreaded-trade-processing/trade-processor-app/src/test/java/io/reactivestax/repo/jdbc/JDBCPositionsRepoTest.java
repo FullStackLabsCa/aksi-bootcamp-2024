@@ -7,6 +7,7 @@ import io.reactivestax.model.Trade;
 import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.exceptions.OptimisticLockingOccurrence;
+import io.reactivestax.utility.exceptions.PositionUpdateFailed;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,8 +26,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doAnswer;
 
 class JDBCPositionsRepoTest {
@@ -143,7 +143,7 @@ class JDBCPositionsRepoTest {
     }
 
     @Test
-    void getVersionIdTradeAfterUpdateTest() throws OptimisticLockingOccurrence {
+    void getVersionIdTradeAfterUpdateTest() throws OptimisticLockingOccurrence, PositionUpdateFailed {
         // Setup
         Trade trade = TestDataProvider.goodTradeSupplier.get();
         int version = JDBCPositionsRepo.getInstance().getVersionIdForPosition(trade, 157001093);
@@ -213,7 +213,7 @@ class JDBCPositionsRepoTest {
     }
 
     @Test
-    void positionUpdate_newPosition_buy_test() throws OptimisticLockingOccurrence {
+    void positionUpdate_newPosition_buy_test() throws OptimisticLockingOccurrence, PositionUpdateFailed {
 
         long sizeOfTableBeforeUpdate = getSizeOfTable();
         Trade trade = TestDataProvider.goodBuyTradeSupplier.get();
@@ -238,7 +238,7 @@ class JDBCPositionsRepoTest {
     }
 
     @Test
-    void positionUpdate_newPosition_sell_test() throws OptimisticLockingOccurrence {
+    void positionUpdate_newPosition_sell_test() throws OptimisticLockingOccurrence, PositionUpdateFailed {
         long sizeOfTableBeforeUpdate = getSizeOfTable();
         Trade trade = TestDataProvider.goodSellTradeSupplier.get();
 
@@ -262,7 +262,7 @@ class JDBCPositionsRepoTest {
     }
 
     @Test
-    void positionUpdate_newPosition_invalidActivity_test() throws OptimisticLockingOccurrence {
+    void positionUpdate_newPosition_invalidActivity_test() throws OptimisticLockingOccurrence, PositionUpdateFailed {
         System.setOut(new PrintStream(outputStreamCaptor));
 
         Trade trade = TestDataProvider.invalidActivityTradeSupplier.get();
@@ -283,7 +283,7 @@ class JDBCPositionsRepoTest {
     }
 
     @Test
-    void positionUpdate_updatePosition_buy_test() throws OptimisticLockingOccurrence {
+    void positionUpdate_updatePosition_buy_test() throws OptimisticLockingOccurrence, PositionUpdateFailed {
         Trade trade = TestDataProvider.goodBuyTradeSupplier.get();
         JDBCUtils.getInstance().startTransaction();
         JDBCPositionsRepo.getInstance().updatePositionsTable(trade);
@@ -311,7 +311,7 @@ class JDBCPositionsRepoTest {
     }
 
     @Test
-    void positionUpdate_updatePosition_sell_test() throws OptimisticLockingOccurrence {
+    void positionUpdate_updatePosition_sell_test() throws OptimisticLockingOccurrence, PositionUpdateFailed {
         Trade buyTrade = TestDataProvider.goodBuyTradeSupplier.get();
         Trade sellTrade = TestDataProvider.goodSellTradeSupplier.get();
         JDBCUtils.getInstance().startTransaction();
@@ -340,7 +340,7 @@ class JDBCPositionsRepoTest {
     }
 
     @Test
-    void positionUpdate_updatePosition_invalidActivity_test() throws OptimisticLockingOccurrence {
+    void positionUpdate_updatePosition_invalidActivity_test() throws OptimisticLockingOccurrence, PositionUpdateFailed {
         System.setOut(new PrintStream(outputStreamCaptor));
 
         Trade buyTrade = TestDataProvider.goodBuyTradeSupplier.get();
@@ -375,19 +375,12 @@ class JDBCPositionsRepoTest {
     }
 
     @Test
-    void positionUpdate_updateFailed_test() throws OptimisticLockingOccurrence {
-        System.setOut(new PrintStream(outputStreamCaptor));
-
+    void positionUpdate_updateFailed_test() throws OptimisticLockingOccurrence, PositionUpdateFailed {
         doAnswer(invocationOnMock -> {
             throw new SQLException();
         }).when(tradeMocked).getCusip();
 
         JDBCUtils.getInstance().startTransaction();
-        JDBCPositionsRepo.getInstance().updatePositionsTable(tradeMocked);
-        JDBCUtils.getInstance().commitTransaction();
-
-        assertTrue(outputStreamCaptor.toString().contains("Failed to Update Position"));
-
-        System.setOut(originalOut);
+        assertThrows(PositionUpdateFailed.class,()->JDBCPositionsRepo.getInstance().updatePositionsTable(tradeMocked));
     }
 }
