@@ -44,7 +44,7 @@ public class JDBCRawPayloadRepo implements RawPayloadRepo {
     }
 
     @Override
-    public void updateSecurityLookupStatusInRawPayloadsTable(Trade trade, String lookupStatus) {
+    public void updateSecurityLookupStatusInRawPayloadsTable(Trade trade, String lookupStatus) { // TODO:: This could be merged with updateJournalEntryStatusInRawPayloadsTable
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement psLookupQuery = connection.prepareStatement(LOOKUP_UPDATE_QUERY)) {
 
