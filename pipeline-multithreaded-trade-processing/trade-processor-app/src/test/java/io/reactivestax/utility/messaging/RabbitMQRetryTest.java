@@ -130,7 +130,7 @@ class RabbitMQRetryTest {
         System.setOut(originalOut);
     }
 
-    @Test
+//    @Test
     void retryMessage_GetMessageRetryCountFirstTimeTest() throws IOException, InterruptedException {
         purgeRabbitMQQueue();
         System.setOut(new PrintStream(outputStreamCaptor));

@@ -7,6 +7,7 @@ import io.reactivestax.repo.PositionsRepo;
 import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.exceptions.OptimisticLockingOccurrence;
+import io.reactivestax.utility.exceptions.PositionUpdateFailed;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -31,7 +32,7 @@ public class HibernatePositionsRepo implements PositionsRepo {
     }
 
     @Override
-    public void updatePositionsTable(Trade trade) throws OptimisticLockingOccurrence {
+    public void updatePositionsTable(Trade trade) throws OptimisticLockingOccurrence, PositionUpdateFailed {
         Session session = HibernateUtils.getInstance().getConnection();
         JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         HibernatePositionsRepo positionsReference = HibernatePositionsRepo.getInstance();
@@ -87,6 +88,7 @@ public class HibernatePositionsRepo implements PositionsRepo {
             }
         } catch (Exception e) {
             System.out.println("Failed to Update Position");
+            throw new PositionUpdateFailed();
         }
     }
 
