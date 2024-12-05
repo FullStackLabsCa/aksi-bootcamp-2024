@@ -26,9 +26,9 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
 
     @Override
     public void writeTradeToJournalEntryTable(Trade trade) throws WriteToJournalEntryFailed {
-        Session session = HibernateUtils.getInstance().getConnection();
-        JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         try {
+            Session session = HibernateUtils.getInstance().getConnection();
+            JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
             JournalEntry journalEntry = JournalEntry.builder()
                     .accountNumber(trade.getAccountNumber())
                     .activity(trade.getActivity())
@@ -47,8 +47,8 @@ public class HibernateJournalEntryRepo implements JournalEntryRepo {
 
     @Override
     public void updatePositionPostedStatusInJournalEntry(Trade trade) throws UpdatePositionStatusInJournalEntryFailed {
-        Session session = HibernateUtils.getInstance().getConnection();
         try {
+            Session session = HibernateUtils.getInstance().getConnection();
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaUpdate<JournalEntry> positionStatusUpdate = builder.createCriteriaUpdate(JournalEntry.class);
             Root<JournalEntry> root = positionStatusUpdate.from(JournalEntry.class);
