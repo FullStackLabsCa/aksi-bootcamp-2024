@@ -15,7 +15,6 @@ import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.database.TransactionUtil;
-import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
 import io.reactivestax.utility.exceptions.SystemInitializationException;
 import io.reactivestax.utility.messaging.MessageProvider;
 import io.reactivestax.utility.messaging.MessageReceiver;
@@ -86,7 +85,7 @@ public class BeanFactory {
                 .map(techMap -> techMap.get(classType))
                 .flatMap(BeanFactory::callSafely)
                 .map(classType::cast)
-                .orElseThrow(InvalidPersistenceTechException::new);
+                .orElseThrow(() -> new SystemInitializationException("Invalid Persistence Technology!!!"));
     }
 
     public static MessageReceiver<String> getMessageReceiver(){

@@ -16,7 +16,6 @@ import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.database.TransactionUtil;
-import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
 import io.reactivestax.utility.exceptions.SystemInitializationException;
 import io.reactivestax.utility.messaging.MessageProvider;
 import io.reactivestax.utility.messaging.MessageReceiver;
@@ -80,7 +79,7 @@ class BeanFactoryTest {
         try(MockedStatic<ApplicationPropertyUtils> mockedStatic = Mockito.mockStatic(ApplicationPropertyUtils.class)) {
             mockedStatic.when(() -> getFileProperty("persistence.technology")).thenReturn("invalidTech");
 
-            assertThrows(InvalidPersistenceTechException.class, () -> BeanFactory.getPersistenceBean(TransactionUtil.class));
+            assertThrows(SystemInitializationException.class, () -> BeanFactory.getPersistenceBean(TransactionUtil.class));
         }
     }
 
@@ -163,7 +162,7 @@ class BeanFactoryTest {
 
     @Test
     void testGetRawPayloadRepo_InvalidTech(){
-        Runnable test = () -> assertThrows(InvalidPersistenceTechException.class, () -> BeanFactory.getPersistenceBean(RawPayloadRepo.class));
+        Runnable test = () -> assertThrows(SystemInitializationException.class, () -> BeanFactory.getPersistenceBean(RawPayloadRepo.class));
 
         withMockedProperty("persistence.technology","invalid",test);
     }
@@ -202,7 +201,7 @@ class BeanFactoryTest {
 
     @Test
     void testGetJournalEntryRepo_InvalidTech(){
-        Runnable test = () -> assertThrows(InvalidPersistenceTechException.class, () -> BeanFactory.getPersistenceBean(JournalEntryRepo.class));
+        Runnable test = () -> assertThrows(SystemInitializationException.class, () -> BeanFactory.getPersistenceBean(JournalEntryRepo.class));
 
         withMockedProperty("persistence.technology","invalid",test);
     }
@@ -241,7 +240,7 @@ class BeanFactoryTest {
 
     @Test
     void testGetPositionRepo_InvalidTech(){
-        Runnable test = () -> assertThrows(InvalidPersistenceTechException.class, () -> BeanFactory.getPersistenceBean(PositionsRepo.class));
+        Runnable test = () -> assertThrows(SystemInitializationException.class, () -> BeanFactory.getPersistenceBean(PositionsRepo.class));
 
         withMockedProperty("persistence.technology","invalid",test);
     }
