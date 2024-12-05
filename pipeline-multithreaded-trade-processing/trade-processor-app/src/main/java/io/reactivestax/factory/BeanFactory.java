@@ -15,8 +15,8 @@ import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.database.TransactionUtil;
-import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
+import io.reactivestax.utility.exceptions.SystemInitializationException;
 import io.reactivestax.utility.messaging.MessageProvider;
 import io.reactivestax.utility.messaging.MessageReceiver;
 import io.reactivestax.utility.messaging.MessageRetry;
@@ -95,7 +95,7 @@ public class BeanFactory {
         if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
             messageReceiver = RabbitMQReceiver.getInstance();
         } else {
-            throw new InvalidMessagingTechnologyException();
+            throw new SystemInitializationException("Invalid Messaging Technology....");
         }
 
         return messageReceiver;
@@ -107,7 +107,7 @@ public class BeanFactory {
         if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
             messageRetryer = RabbitMQRetry.getInstance();
         } else {
-            throw new InvalidMessagingTechnologyException();
+            throw new SystemInitializationException("Invalid Messaging Technology....");
         }
 
         return messageRetryer;
@@ -129,9 +129,9 @@ public class BeanFactory {
             messageProvider = rabbitMQMessageProvider;
 
         } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
-            throw new InvalidMessagingTechnologyException();
+            throw new SystemInitializationException("Invalid Messaging Technology....");
         } else {
-            throw new InvalidMessagingTechnologyException();
+            throw new SystemInitializationException("Invalid Messaging Technology....");
         }
 
         return messageProvider;

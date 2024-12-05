@@ -16,8 +16,8 @@ import io.reactivestax.utility.ApplicationPropertyUtils;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.database.JDBCUtils;
 import io.reactivestax.utility.database.TransactionUtil;
-import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
+import io.reactivestax.utility.exceptions.SystemInitializationException;
 import io.reactivestax.utility.messaging.MessageProvider;
 import io.reactivestax.utility.messaging.MessageReceiver;
 import io.reactivestax.utility.messaging.MessageRetry;
@@ -278,14 +278,14 @@ class BeanFactoryTest {
 
     @Test
     void testGetMessageReceiver_InMemory(){
-        Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class,BeanFactory::getMessageReceiver);
+        Runnable test = () -> assertThrows(SystemInitializationException.class,BeanFactory::getMessageReceiver);
 
         withMockedProperty("messaging.technology","in-memory", test);
     }
 
     @Test
     void testGetMessageReceiver_InvalidTech(){
-        Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageReceiver);
+        Runnable test = () -> assertThrows(SystemInitializationException.class, BeanFactory::getMessageReceiver);
 
         withMockedProperty("messaging.technology","invalid",test);
     }
@@ -307,14 +307,14 @@ class BeanFactoryTest {
 
     @Test
     void testGetMessageRetryer_InMemory(){
-        Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class,BeanFactory::getMessageRetryer);
+        Runnable test = () -> assertThrows(SystemInitializationException.class,BeanFactory::getMessageRetryer);
 
         withMockedProperty("messaging.technology","in-memory", test);
     }
 
     @Test
     void testGetMessageRetryer_InvalidTech(){
-        Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class, BeanFactory::getMessageRetryer);
+        Runnable test = () -> assertThrows(SystemInitializationException.class, BeanFactory::getMessageRetryer);
 
         withMockedProperty("messaging.technology","invalid",test);
     }
@@ -339,14 +339,14 @@ class BeanFactoryTest {
 
     @Test
     void testGetMessageProvider_InMemory(){
-        Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class,() -> BeanFactory.getMessageProvider(0));
+        Runnable test = () -> assertThrows(SystemInitializationException.class,() -> BeanFactory.getMessageProvider(0));
 
         withMockedProperty("messaging.technology","in-memory", test);
     }
 
     @Test
     void testGetMessageProvider_InvalidTech(){
-        Runnable test = () -> assertThrows(InvalidMessagingTechnologyException.class, () -> BeanFactory.getMessageProvider(0));
+        Runnable test = () -> assertThrows(SystemInitializationException.class, () -> BeanFactory.getMessageProvider(0));
 
         withMockedProperty("messaging.technology","invalid",test);
     }
