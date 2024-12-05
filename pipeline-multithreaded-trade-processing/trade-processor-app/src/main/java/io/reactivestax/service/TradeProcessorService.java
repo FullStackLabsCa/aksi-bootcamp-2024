@@ -85,7 +85,7 @@ public class TradeProcessorService implements TradeProcessing {
     private void processTrade(Trade trade){
         if (trade != null) {
             String lookupStatus = validateBusinessLogic(trade);
-            updateTradeSecurityLookupInPayloadTable(trade, lookupStatus);
+            updateTradeSecurityLookupInPayloadTable(trade, lookupStatus); // TODO:: This could be merged into updateJEPostedStatusInRawPayload
             updateJournalEntryAndPositions(trade, lookupStatus);
         }
     }
