@@ -40,7 +40,7 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
     }
 
     @Override
-    public void updateSecurityLookupStatusInRawPayloadsTable(Trade trade, String lookupStatus) {
+    public void updateSecurityLookupStatusInRawPayloadsTable(Trade trade, String lookupStatus) { // TODO:: This will be merged into the method below updateJournalEntryStatusInRawPayloadsTable
         Session session = HibernateUtils.getInstance().getConnection();
         HibernateUtils.getInstance().startTransaction();
         try {

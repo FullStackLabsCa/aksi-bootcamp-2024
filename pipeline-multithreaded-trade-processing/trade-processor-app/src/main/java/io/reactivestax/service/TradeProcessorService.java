@@ -84,7 +84,7 @@ public class TradeProcessorService implements TradeProcessing {
 
     private void processTrade(Trade trade){
         if (trade != null) {
-            String lookupStatus = validateBusinessLogic(trade);
+            String lookupStatus = validateBusinessLogic(trade); // TODO:: This could Return the SecurityID if Valid otherwise Invalid and I could create DTO below and pass it over to UpdateJEAndPositionsTable
             updateTradeSecurityLookupInPayloadTable(trade, lookupStatus); // TODO:: This could be merged into updateJEPostedStatusInRawPayload
             updateJournalEntryAndPositions(trade, lookupStatus);
         }
