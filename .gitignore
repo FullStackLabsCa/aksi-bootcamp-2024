@@ -8,3 +8,4 @@ pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/trades_all_duplicates.csv
 .idea/
 pipeline-multithreaded-trade-processing/trade-processor-app/.idea/inspectionProfiles/
+bnym-parser/src/main/resources/
