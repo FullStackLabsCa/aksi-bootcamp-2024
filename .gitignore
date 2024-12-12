@@ -2,7 +2,8 @@ pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/t
 .DS_Store
 target
 sql-files/
-pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/data
+pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/data/
+pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/data/
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/trades_all_duplicates.csv
 .idea/
 pipeline-multithreaded-trade-processing/trade-processor-app/.idea/inspectionProfiles/
