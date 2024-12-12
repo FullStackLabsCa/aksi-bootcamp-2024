@@ -9,7 +9,11 @@ public class FileReader {
         try (Scanner fileReader = new Scanner(Objects.requireNonNull(FileReader.class.getClassLoader().getResourceAsStream(filePath)))) {
 
             while (fileReader.hasNextLine()) {
-                System.out.println(fileReader.nextLine());
+                String line = fileReader.nextLine();
+                String key = line.substring(0,2);
+                String value = line.substring(2);
+                System.out.println("key = " + key);
+                System.out.println("value = " + value);
             }
         }
     }

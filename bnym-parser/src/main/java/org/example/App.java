@@ -1,13 +1,12 @@
 package org.example;
 
-/**
- * Hello world!
- *
- */
-public class App 
+import java.io.File;
+
+public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+        FileReader fileReader = new FileReader();
+        fileReader.readFile("bony_cbna_ruleset_d100314.data");
     }
 }
