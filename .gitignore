@@ -4,3 +4,5 @@ target
 sql-files/
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/data/
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/trades_all_duplicates.csv
+.idea/
+pipeline-multithreaded-trade-processing/trade-processor-app/.idea/inspectionProfiles/
