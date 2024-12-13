@@ -36,7 +36,6 @@ public class FileReader {
 
             }
             clearStack();
-            publishMapToDB();
         }
     }
 
@@ -45,19 +44,20 @@ public class FileReader {
         poppedNode.setRightID(indexCounter + 1);
         indexCounter++;
         generalTree.get(poppedNode.getType()).add(poppedNode);
+
+        if(poppedNode.getType().equals("01")) publishMapToDB();
     }
 
     private void clearStack() {
         while(!stack.isEmpty()){
-            Node popped = stack.pop();
-            popped.setRightID(indexCounter + 1);
-            generalTree.get(popped.getType()).add(popped);
-            indexCounter++;
+            updateNodeInStack();
         }
     }
 
     private void publishMapToDB() {
         System.out.println("Publishing the Tree to DB. After Checking that the data in the Tree is not null " + generalTree.size());
+        stack.clear();
+        generalTree.clear();
     }
 
     private Node createNode(String key, String value, String rulesetID){
