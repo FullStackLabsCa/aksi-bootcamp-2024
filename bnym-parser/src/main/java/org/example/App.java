@@ -5,6 +5,6 @@ public class App
     public static void main( String[] args )
     {
         FileReader fileReader = new FileReader();
-        fileReader.readFile("test_data.data");
+        fileReader.readFile("bony_sal_ruleset_d050514.data");
     }
 }
