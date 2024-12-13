@@ -8,11 +8,9 @@ public class FileReader {
     int indexCounter = 0;
     Stack<Node> stack = new Stack<>();
 
-
     public void readFile(String filePath) {
 
         try (Scanner fileReader = new Scanner(Objects.requireNonNull(FileReader.class.getClassLoader().getResourceAsStream(filePath)))) {
-
             while (fileReader.hasNextLine()) {
                 String line = fileReader.nextLine().trim();
                 String key = line.substring(0, 2);
