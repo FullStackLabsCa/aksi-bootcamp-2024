@@ -9,6 +9,7 @@ import static org.example.ApplicationPropertyUtils.getFileProperty;
 public class DBUtils {
     private static DBUtils instance;
     private SessionFactory sessionFactory;
+    private Session session;
 
     private DBUtils() {
         // Private Constructor to Avoid Instance creation for this Class
@@ -20,7 +21,9 @@ public class DBUtils {
     }
 
     public Session getConnection() {
-        return getSessionFactory().openSession();
+        if(session == null || !session.isOpen())
+            session = getSessionFactory().openSession();
+        return session;
     }
 
     private synchronized SessionFactory getSessionFactory(){

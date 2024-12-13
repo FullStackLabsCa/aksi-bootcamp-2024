@@ -60,11 +60,11 @@ public class FileReader {
     }
 
     private void insertIntoDB() {
-        /**
-         * Establish DB Connection
-         * Create Batches for the data in the map
-         * Perform a batch insert in the DB
-         */
+        DBUtils.getInstance().startTransaction();
+        for (List<Node> list : generalTree.values()){
+            list.forEach(node -> DBUtils.getInstance().getConnection().persist(node));
+        }
+        DBUtils.getInstance().commitTransaction();
     }
 
     private Node createNode(String key, String value) {
