@@ -15,24 +15,27 @@ public class FileReader {
 
             while (fileReader.hasNextLine()) {
                 String line = fileReader.nextLine().trim();
-                String key = line.substring(0,2);
+                String key = line.substring(0, 2);
                 String value = line.substring(2);
 
-                if(!generalTree.containsKey(key)){
+                if (key.equals("01"))
+                    cleanStack();
+
+                if (!generalTree.containsKey(key)) {
                     generalTree.put(key, new ArrayList<>());
                 }
 
-                if ((Integer.parseInt(key) <= Integer.parseInt(stack.peek().getType())) || ((stack.peek().getType().equals("04")) && key.equals("07"))){
+                if (!stack.isEmpty() && ((Integer.parseInt(key) <= Integer.parseInt(stack.peek().getType())) || ((stack.peek().getType().equals("04")) && key.equals("07")))) {
                     updateNodeInStack();
                 }
 
                 Node node = createNode(key, value);
 
-                if(key.equals("01") || key.equals("03") || key.equals("04")) stack.push(node);
+                if (key.equals("01") || key.equals("03") || key.equals("04")) stack.push(node);
                 else generalTree.get(key).add(node);
 
             }
-            clearStack();
+            cleanStack();
         }
     }
 
@@ -42,11 +45,11 @@ public class FileReader {
         indexCounter++;
         generalTree.get(poppedNode.getType()).add(poppedNode);
 
-        if(poppedNode.getType().equals("01")) publishMapToDB();
+        if (poppedNode.getType().equals("01")) publishMapToDB();
     }
 
-    private void clearStack() {
-        while(!stack.isEmpty()){
+    private void cleanStack() {
+        while (!stack.isEmpty()) {
             updateNodeInStack();
         }
     }
@@ -66,26 +69,24 @@ public class FileReader {
          */
     }
 
-    private Node createNode(String key, String value){
-        if(key.equals("02") || key.equals("05") || key.equals("06") || key.equals("07"))
-        {
-            Node node = Node.builder()
+    private Node createNode(String key, String value) {
+        Node node;
+        if (key.equals("02") || key.equals("05") || key.equals("06") || key.equals("07")) {
+            node = Node.builder()
                     .type(key)
                     .value(value)
                     .leftID(indexCounter + 1)
                     .rightID(indexCounter + 2)
                     .build();
-            indexCounter = indexCounter+2;
-            return node;
-        }
-        else {
-            Node node = Node.builder()
+            indexCounter = indexCounter + 2;
+        } else {
+            node = Node.builder()
                     .type(key)
                     .value(value)
                     .leftID(indexCounter + 1)
                     .build();
             indexCounter++;
-            return node;
         }
+        return node;
     }
 }
