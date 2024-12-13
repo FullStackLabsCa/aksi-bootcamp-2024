@@ -54,7 +54,6 @@ public class FileReader {
             generalTree.get(popped.getType()).add(popped);
             indexCounter++;
         }
-        System.out.println("Make sure stack is cleared. Otherwise throw a warning...");
     }
 
     private void publishMapToDB() {
