@@ -9,5 +9,5 @@ pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/t
 .idea/
 pipeline-multithreaded-trade-processing/trade-processor-app/.idea/inspectionProfiles/
 bnym-parser/src/main/resources/
-!bnym-parser/src/main/resources/application.properties
-!bnym-parser/src/main/resources/hibernate.cfg.xml
+!/bnym-parser/src/main/resources/application.properties
+!/bnym-parser/src/main/resources/hibernate.cfg.xml
