@@ -24,10 +24,8 @@ public class FileReader {
                 }
 
                 if(key.equals("01")){
-                    publishMapToDB();
-                    clearStack();
                     rulesetID = value;
-                } else if (Integer.parseInt(key) <= Integer.parseInt(stack.peek().getType())){
+                } else if ((Integer.parseInt(key) <= Integer.parseInt(stack.peek().getType())) || ((stack.peek().getType().equals("04")) && key.equals("07"))){
                     updateNodeInStack();
                 }
 
@@ -37,6 +35,8 @@ public class FileReader {
                 else generalTree.get(key).add(node);
 
             }
+            clearStack();
+            publishMapToDB();
         }
     }
 
@@ -48,6 +48,12 @@ public class FileReader {
     }
 
     private void clearStack() {
+        while(!stack.isEmpty()){
+            Node popped = stack.pop();
+            popped.setRightID(indexCounter + 1);
+            generalTree.get(popped.getType()).add(popped);
+            indexCounter++;
+        }
         System.out.println("Make sure stack is cleared. Otherwise throw a warning...");
     }
 
