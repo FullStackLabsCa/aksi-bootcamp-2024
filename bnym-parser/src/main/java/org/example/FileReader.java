@@ -10,7 +10,6 @@ public class FileReader {
 
 
     public void readFile(String filePath) {
-        String rulesetID = "";
 
         try (Scanner fileReader = new Scanner(Objects.requireNonNull(FileReader.class.getClassLoader().getResourceAsStream(filePath)))) {
 
@@ -23,13 +22,11 @@ public class FileReader {
                     generalTree.put(key, new ArrayList<>());
                 }
 
-                if(key.equals("01")){
-                    rulesetID = value;
-                } else if ((Integer.parseInt(key) <= Integer.parseInt(stack.peek().getType())) || ((stack.peek().getType().equals("04")) && key.equals("07"))){
+                if ((Integer.parseInt(key) <= Integer.parseInt(stack.peek().getType())) || ((stack.peek().getType().equals("04")) && key.equals("07"))){
                     updateNodeInStack();
                 }
 
-                Node node = createNode(key, value, rulesetID);
+                Node node = createNode(key, value);
 
                 if(key.equals("01") || key.equals("03") || key.equals("04")) stack.push(node);
                 else generalTree.get(key).add(node);
@@ -56,11 +53,20 @@ public class FileReader {
 
     private void publishMapToDB() {
         System.out.println("Publishing the Tree to DB. After Checking that the data in the Tree is not null " + generalTree.size());
+        insertIntoDB();
         stack.clear();
         generalTree.clear();
     }
 
-    private Node createNode(String key, String value, String rulesetID){
+    private void insertIntoDB() {
+        /**
+         * Establish DB Connection
+         * Create Batches for the data in the map
+         * Perform a batch insert in the DB
+         */
+    }
+
+    private Node createNode(String key, String value){
         if(key.equals("02") || key.equals("05") || key.equals("06") || key.equals("07"))
         {
             Node node = Node.builder()
@@ -68,7 +74,6 @@ public class FileReader {
                     .value(value)
                     .leftID(indexCounter + 1)
                     .rightID(indexCounter + 2)
-                    .rulesetID(rulesetID)
                     .build();
             indexCounter = indexCounter+2;
             return node;
@@ -78,7 +83,6 @@ public class FileReader {
                     .type(key)
                     .value(value)
                     .leftID(indexCounter + 1)
-                    .rulesetID(rulesetID)
                     .build();
             indexCounter++;
             return node;

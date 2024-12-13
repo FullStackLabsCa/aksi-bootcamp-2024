@@ -14,6 +14,4 @@ public class Node {
     private int leftID;
     private int rightID;
     private String value;
-    private String rulesetID;
-    private String account;
 }
