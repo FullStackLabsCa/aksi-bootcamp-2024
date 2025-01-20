@@ -5,10 +5,12 @@ spring:
   application:
     name: ems
   datasource:
-    url: jdbc:postgresql://localhost:5432/ems-app
+    url: jdbc:postgresql://localhost:5432/ems_app
     username: postgres
     password: postgres
   jpa:
+    hibernate:
+      ddl-auto: update
     show-sql: true
   activemq:
     broker-url: tcp://localhost:61616
