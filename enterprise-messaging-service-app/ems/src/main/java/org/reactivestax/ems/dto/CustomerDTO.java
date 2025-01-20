@@ -3,6 +3,8 @@ package org.reactivestax.ems.dto;
 import lombok.Data;
 import org.reactivestax.ems.MessageType;
 
+import java.time.LocalDateTime;
+
 @Data
 public class CustomerDTO {
     private Long id;
@@ -16,4 +18,5 @@ public class CustomerDTO {
     private String otp;
 
     private Boolean verificationStatus;
+    private LocalDateTime updatedTime;
 }

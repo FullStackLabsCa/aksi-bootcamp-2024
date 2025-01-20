@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import org.reactivestax.ems.MessageType;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @Builder
@@ -28,4 +30,8 @@ public class Customer {
 
     @Builder.Default
     private Boolean verificationStatus = false;
+
+    @Builder.Default
+    private LocalDateTime creationTime = LocalDateTime.now();
+    private LocalDateTime updatedTime;
 }
