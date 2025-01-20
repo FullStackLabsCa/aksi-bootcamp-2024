@@ -6,9 +6,6 @@ import lombok.Data;
 public class CustomerDTO {
     private Long id;
     private String customerId;
-
     private String message;
-    private String otp;
-
     private Boolean verificationStatus;
 }
