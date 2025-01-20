@@ -6,6 +6,7 @@ import org.reactivestax.ems.dto.CustomerDTO;
 import org.reactivestax.ems.enums.DeliveryMode;
 import org.reactivestax.ems.enums.MessageType;
 import org.reactivestax.ems.repository.CustomerRepository;
+import org.reactivestax.ems.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,9 @@ public class EnsService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     @Autowired
     private JmsTemplate jmsTemplate;
@@ -31,10 +35,11 @@ public class EnsService {
                 .messageData(customerDTO.getMessage())
                 .build();
         customer.addMessageForCustomer(message);
+        message.setCustomer(customer);
 
-        customerRepository.save(customer);
+        messageRepository.save(message);
 
-        jmsTemplate.convertAndSend(message.getId());
+        jmsTemplate.convertAndSend("myDefaultQueue", message.getId());
     }
 
     public void sendMessageViaCall(CustomerDTO customerDTO) {
