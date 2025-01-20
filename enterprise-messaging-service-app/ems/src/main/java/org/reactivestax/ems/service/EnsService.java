@@ -1,4 +1,4 @@
 package org.reactivestax.ems.service;
 
-public class EmsService {
+public class EnsService {
 }
