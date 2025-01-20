@@ -30,7 +30,7 @@ public class EnsService {
                 .messageType(messageType)
                 .messageData(customerDTO.getMessage())
                 .build();
-        customer.setMessage(message);
+        customer.addMessageForCustomer(message);
 
         customerRepository.save(customer);
 
