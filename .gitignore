@@ -18,3 +18,4 @@ pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/tr
 pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/trades.csv
 pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/trades_all_duplicates.csv
 pipeline-multithreaded-trade-processing/trade-processor-app/.idea/compiler.xml
+bnym-parser/src/main/resources/
