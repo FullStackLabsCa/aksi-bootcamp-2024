@@ -1,1 +1,12 @@
-spring.application.name=ems
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ems
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ems-app
+    username: postgres
+    password: postgres
+  jpa:
+    show-sql: true
