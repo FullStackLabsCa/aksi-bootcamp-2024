@@ -24,7 +24,7 @@ public class Customer {
     private Long phoneNumber;
     private String emailAddress;
 
-    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonBackReference
     private List<Message> messages = new ArrayList<>();
 
