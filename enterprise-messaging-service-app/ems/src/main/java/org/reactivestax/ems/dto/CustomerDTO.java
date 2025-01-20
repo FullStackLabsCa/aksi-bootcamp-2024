@@ -1,14 +1,19 @@
 package org.reactivestax.ems.dto;
 
 import lombok.Data;
+import org.reactivestax.ems.MessageType;
 
 @Data
 public class CustomerDTO {
     private Long id;
     private String customerId;
-    private String message;
-    private String otp;
-    private Boolean verificationStatus;
     private Long phoneNumber;
     private String emailAddress;
+
+    private MessageType messageType;
+
+    private String message;
+    private String otp;
+
+    private Boolean verificationStatus;
 }
