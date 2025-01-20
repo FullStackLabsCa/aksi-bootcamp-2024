@@ -1,5 +1,6 @@
 package org.reactivestax.ems.controller;
 
+import jakarta.validation.Valid;
 import org.reactivestax.ems.domain.Customer;
 import org.reactivestax.ems.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class CustomerController {
     private CustomerService customerService;
 
     @PostMapping("/customer")
-    public ResponseEntity<String> createCustomer(@RequestBody Customer customer){
+    public ResponseEntity<String> createCustomer(@Valid @RequestBody Customer customer){
         customerService.saveCustomer(customer);
         return  ResponseEntity.ok("Customer Created.");
     }

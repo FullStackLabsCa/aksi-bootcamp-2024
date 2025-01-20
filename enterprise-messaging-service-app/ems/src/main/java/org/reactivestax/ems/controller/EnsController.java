@@ -1,5 +1,6 @@
 package org.reactivestax.ems.controller;
 
+import jakarta.validation.Valid;
 import org.reactivestax.ems.dto.CustomerDTO;
 import org.reactivestax.ems.service.EnsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +18,19 @@ public class EnsController {
     private EnsService ensService;
 
     @PostMapping("/sms")
-    public ResponseEntity<String> sendMessageViaSms(@RequestBody CustomerDTO customerDTO){
+    public ResponseEntity<String> sendMessageViaSms(@Valid @RequestBody CustomerDTO customerDTO){
         ensService.sendMessageViaSms(customerDTO);
         return  ResponseEntity.ok("Message Sent Via SMS.");
     }
 
     @PostMapping("/call")
-    public ResponseEntity<String> sendMessageViaCall(@RequestBody CustomerDTO customerDTO){
+    public ResponseEntity<String> sendMessageViaCall(@Valid @RequestBody CustomerDTO customerDTO){
         ensService.sendMessageViaCall(customerDTO);
         return  ResponseEntity.ok("Message Sent Via Call.");
     }
 
     @PostMapping("/email")
-    public ResponseEntity<String> sendMessageViaEmail(@RequestBody CustomerDTO customerDTO){
+    public ResponseEntity<String> sendMessageViaEmail(@Valid @RequestBody CustomerDTO customerDTO){
         ensService.sendMessageViaEmail(customerDTO);
         return  ResponseEntity.ok("Message Sent Via Email.");
     }
