@@ -4,11 +4,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Data;
 import org.reactivestax.ems.MessageType;
 
 @Entity
 @Data
+@Builder
 public class Customer {
 
     @Id
@@ -24,5 +26,6 @@ public class Customer {
     private String message;
     private String otp;
 
-    private Boolean verificationStatus;
+    @Builder.Default
+    private Boolean verificationStatus = false;
 }
