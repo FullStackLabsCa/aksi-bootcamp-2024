@@ -24,7 +24,7 @@ public class EnsService {
     private JmsTemplate jmsTemplate;
 
     public void sendMessageViaSms(CustomerDTO customerDTO) {
-        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.SMS, MessageType.Message);
+        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.SMS, MessageType.MESSAGE);
     }
 
     private void createCustomerAndSendIdToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode, MessageType messageType) {
@@ -43,10 +43,10 @@ public class EnsService {
     }
 
     public void sendMessageViaCall(CustomerDTO customerDTO) {
-        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.CALL, MessageType.Message);
+        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.CALL, MessageType.MESSAGE);
     }
 
     public void sendMessageViaEmail(CustomerDTO customerDTO) {
-        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.EMAIL, MessageType.Message);
+        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.EMAIL, MessageType.MESSAGE);
     }
 }
