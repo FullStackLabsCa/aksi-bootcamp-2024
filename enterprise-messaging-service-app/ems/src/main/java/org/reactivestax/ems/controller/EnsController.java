@@ -1,6 +1,7 @@
 package org.reactivestax.ems.controller;
 
 import org.reactivestax.ems.dto.CallDTO;
+import org.reactivestax.ems.dto.CustomerDTO;
 import org.reactivestax.ems.dto.EmailDTO;
 import org.reactivestax.ems.dto.SmsDTO;
 import org.reactivestax.ems.service.EnsService;
@@ -19,20 +20,20 @@ public class EnsController {
     private EnsService ensService;
 
     @PostMapping("/sms")
-    public ResponseEntity<String> sendMessageViaSms(@RequestBody SmsDTO smsDTO){
-        ensService.sendMessageViaSms(smsDTO);
+    public ResponseEntity<String> sendMessageViaSms(@RequestBody CustomerDTO customerDTO){
+        ensService.sendMessageViaSms(customerDTO);
         return  ResponseEntity.ok("Message Sent Via SMS.");
     }
 
     @PostMapping("/call")
-    public ResponseEntity<String> sendMessageViaCall(@RequestBody CallDTO callDTO){
-        ensService.sendMessageViaCall(callDTO);
+    public ResponseEntity<String> sendMessageViaCall(@RequestBody CustomerDTO customerDTO){
+        ensService.sendMessageViaCall(customerDTO);
         return  ResponseEntity.ok("Message Sent Via Call.");
     }
 
     @PostMapping("/email")
-    public ResponseEntity<String> sendMessageViaEmail(@RequestBody EmailDTO emailDTO){
-        ensService.sendMessageViaEmail(emailDTO);
+    public ResponseEntity<String> sendMessageViaEmail(@RequestBody CustomerDTO customerDTO){
+        ensService.sendMessageViaEmail(customerDTO);
         return  ResponseEntity.ok("Message Sent Via Email.");
     }
 
