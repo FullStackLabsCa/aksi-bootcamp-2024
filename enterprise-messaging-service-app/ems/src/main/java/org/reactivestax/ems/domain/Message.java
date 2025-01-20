@@ -1,9 +1,7 @@
 package org.reactivestax.ems.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import org.reactivestax.ems.enums.DeliveryMode;
@@ -20,6 +18,9 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "customerId")
+    @JsonManagedReference
     private Customer customer;
 
     private String messageData;

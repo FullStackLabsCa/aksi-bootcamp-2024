@@ -1,13 +1,13 @@
 package org.reactivestax.ems.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -24,7 +24,9 @@ public class Customer {
     private Long phoneNumber;
     private String emailAddress;
 
-    private Message message;
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
+    @JsonBackReference
+    private List<Message> messages = new ArrayList<>();
 
     @Builder.Default
     private Boolean verificationStatus = false;
@@ -32,4 +34,8 @@ public class Customer {
     @Builder.Default
     private LocalDateTime creationTime = LocalDateTime.now();
     private LocalDateTime updatedTime;
+
+    public void addMessageForCustomer(Message message){
+        this.messages.add(message);
+    }
 }
