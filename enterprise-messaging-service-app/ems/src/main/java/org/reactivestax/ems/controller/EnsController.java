@@ -1,9 +1,6 @@
 package org.reactivestax.ems.controller;
 
-import org.reactivestax.ems.dto.CallDTO;
 import org.reactivestax.ems.dto.CustomerDTO;
-import org.reactivestax.ems.dto.EmailDTO;
-import org.reactivestax.ems.dto.SmsDTO;
 import org.reactivestax.ems.service.EnsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
