@@ -24,7 +24,6 @@ public class Message {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customerId")
-    @JsonManagedReference
     private Customer customer;
 
     private String messageData;

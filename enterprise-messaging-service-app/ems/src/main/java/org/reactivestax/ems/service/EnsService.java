@@ -33,8 +33,8 @@ public class EnsService {
                 .deliveryMode(deliveryMode)
                 .messageType(messageType)
                 .messageData(customerDTO.getMessage())
+                .customer(customer)
                 .build();
-        customer.addMessageForCustomer(message);
         message.setCustomer(customer);
 
         messageRepository.save(message);

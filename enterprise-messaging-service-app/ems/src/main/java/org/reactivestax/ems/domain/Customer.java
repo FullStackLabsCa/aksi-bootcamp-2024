@@ -28,10 +28,6 @@ public class Customer {
     private Long phoneNumber;
     private String emailAddress;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
-    @JsonBackReference
-    private List<Message> messages = new ArrayList<>();
-
     @Builder.Default
     private Boolean verificationStatus = false;
 
@@ -39,7 +35,4 @@ public class Customer {
     private LocalDateTime creationTime = LocalDateTime.now();
     private LocalDateTime updatedTime;
 
-    public void addMessageForCustomer(Message message){
-        this.messages.add(message);
-    }
 }
