@@ -14,3 +14,6 @@ spring:
     show-sql: true
   activemq:
     broker-url: tcp://localhost:61616
+  jms:
+    template:
+      default-destination: myDefaultQueue
