@@ -19,19 +19,19 @@ public class OtpController {
     @PostMapping("/sms")
     public ResponseEntity<String> sendOTPViaSms(@RequestBody CustomerDTO customerDTO){
         otpService.sendMessageViaSms(customerDTO);
-        return  ResponseEntity.ok("Message Sent Via SMS.");
+        return  ResponseEntity.ok("OTP Sent Via SMS.");
     }
 
     @PostMapping("/call")
     public ResponseEntity<String> sendOTPViaCall(@RequestBody CustomerDTO customerDTO){
         otpService.sendMessageViaCall(customerDTO);
-        return  ResponseEntity.ok("Message Sent Via Call.");
+        return  ResponseEntity.ok("OTP Sent Via Call.");
     }
 
     @PostMapping("/email")
     public ResponseEntity<String> sendOTPViaEmail(@RequestBody CustomerDTO customerDTO){
         otpService.sendMessageViaEmail(customerDTO);
-        return  ResponseEntity.ok("Message Sent Via Email.");
+        return  ResponseEntity.ok("OTP Sent Via Email.");
     }
 
 }
