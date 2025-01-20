@@ -6,7 +6,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Data;
-import org.reactivestax.ems.MessageType;
 
 import java.time.LocalDateTime;
 
@@ -20,13 +19,12 @@ public class Customer {
     private Long id;
 
     private String customerId;
+    private String firstName;
+    private String lastName;
     private Long phoneNumber;
     private String emailAddress;
 
-    private MessageType messageType;
-
-    private String message;
-    private String otp;
+    private Message message;
 
     @Builder.Default
     private Boolean verificationStatus = false;
