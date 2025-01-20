@@ -10,3 +10,5 @@ spring:
     password: postgres
   jpa:
     show-sql: true
+  activemq:
+    broker-url: tcp://localhost:61616
