@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
+
 @Service
 public class OtpService {
 
@@ -23,7 +25,7 @@ public class OtpService {
     @Autowired
     private JmsTemplate jmsTemplate;
 
-    public void sendMessageViaSms(CustomerDTO customerDTO) {
+    public void sendOtpViaSms(CustomerDTO customerDTO) {
         createCustomerAndSendIdToJms(customerDTO, DeliveryMode.SMS, MessageType.OTP);
     }
 
@@ -32,7 +34,7 @@ public class OtpService {
         Message message = Message.builder()
                 .deliveryMode(deliveryMode)
                 .messageType(messageType)
-                .messageData(customerDTO.getMessage())
+                .messageData(generateRandomOTP())
                 .customer(customer)
                 .build();
         message.setCustomer(customer);
@@ -42,11 +44,17 @@ public class OtpService {
         jmsTemplate.convertAndSend("myDefaultQueue", message.getId());
     }
 
-    public void sendMessageViaCall(CustomerDTO customerDTO) {
+    private String generateRandomOTP() {
+        Random random = new Random();
+        int randomSixDigitNumber = random.nextInt(900000) + 100000;
+        return String.valueOf(randomSixDigitNumber);
+    }
+
+    public void sendOtpViaCall(CustomerDTO customerDTO) {
         createCustomerAndSendIdToJms(customerDTO, DeliveryMode.CALL, MessageType.OTP);
     }
 
-    public void sendMessageViaEmail(CustomerDTO customerDTO) {
+    public void sendOtpViaEmail(CustomerDTO customerDTO) {
         createCustomerAndSendIdToJms(customerDTO, DeliveryMode.EMAIL, MessageType.OTP);
     }
 
