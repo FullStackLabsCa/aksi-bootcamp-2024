@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -60,22 +61,24 @@ public class OtpService {
 
     public boolean verifyOtp(CustomerDTO customerDTO) {
         String otpData = customerDTO.getMessage();
-        String otpGenerated = getGeneratedOTP();
+        String otpGenerated = getGeneratedOTP(customerDTO.getCustomerId());
         if(otpData.equals(otpGenerated)){
-            updateCustomerStatusToVerified(customerDTO);
+            updateCustomerStatusToVerified(customerDTO.getCustomerId());
             return true;
         } else return false;
     }
 
-    private void updateCustomerStatusToVerified(CustomerDTO customerDTO) {
-        Customer customer = customerRepository.findByCustomerId(customerDTO.getCustomerId());
+    private void updateCustomerStatusToVerified(String customerId) {
+        Customer customer = customerRepository.findByCustomerId(customerId);
         customer.setVerificationStatus(true);
         customerRepository.save(customer);
     }
 
-    private String getGeneratedOTP() {
-        // Get the Last Posted Message of Type OTP from the Message Table for this customerID TODO
-        return "null";
+    private String getGeneratedOTP(String customerId) {
+        // Get the Last Posted Message of Type OTP from the Message Table for this customerID
+        Optional<Message> message = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeOrderByCreationTimeDesc(customerId, MessageType.OTP);
+        if (message.isPresent()) return message.get().getMessageData();
+        else return "11111111";
     }
 
     public Boolean checkCustomerVerificationStatus(String customerId) {
