@@ -81,7 +81,7 @@ public class OtpService {
     }
 
     private String getGeneratedOTP(String customerId) {
-        LocalDateTime deadlineTime = LocalDateTime.now().minusMinutes(Integer.parseInt(Objects.requireNonNull(environment.getProperty("otp-timeout"))));
+        LocalDateTime deadlineTime = LocalDateTime.now().minusMinutes(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp-timeout"))));
         Optional<Message> message = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(customerId, MessageType.OTP, deadlineTime);
         if (message.isPresent()) return message.get().getMessageData();
         else return "11111111";
