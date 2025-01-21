@@ -44,7 +44,7 @@ public class MessageProcessorService {
                     break;
                 case CALL:
                     log.info("Calling to " + messageFromRepo.get().getCustomer().getPhoneNumber() + " with data " + messageData);
-                    callWithTwilio(messageData, messageFromRepo.get().getCustomer().getPhoneNumber());
+//                    callWithTwilio(messageData, messageFromRepo.get().getCustomer().getPhoneNumber());
                     break;
                 case EMAIL:
                     emailWithTwilio(messageData, messageFromRepo.get().getCustomer().getEmailAddress());

@@ -20,8 +20,8 @@ spring:
 
 twilio:
   account:
-    sid: ACa6f9b0890a5fca44de9b1f11ca7c3b2b
+    sid: ACa3d8cdff74f4a66fb011dbca6369a629
   auth:
-    token: db2af8b842233a0f59843b5f17cbf8df
+    token: 93e1b74881158db84bd1e55028828327
   phone:
-    number: +16203901709
+    number: +16813666513
