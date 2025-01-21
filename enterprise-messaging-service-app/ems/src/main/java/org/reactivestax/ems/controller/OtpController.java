@@ -5,10 +5,7 @@ import org.reactivestax.ems.service.OtpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/otp")
@@ -39,6 +36,14 @@ public class OtpController {
     public ResponseEntity<String> verifyCustomerForOTP(@RequestBody CustomerDTO customerDTO){ // Use Validated with grouping to validated for OTP TODO
         boolean isOtpValid = otpService.verifyOtp(customerDTO);
         if(isOtpValid) return ResponseEntity.ok("Customer Verified");
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Verification Failed!");
+    }
+
+    @GetMapping("/{customerId}/status")
+    public ResponseEntity<String> checkCustomerVerificationStatus(@PathVariable String customerId){
+        Boolean isCustomerVerified = otpService.checkCustomerVerificationStatus(customerId);
+        if(Boolean.TRUE.equals(isCustomerVerified)) return ResponseEntity.ok("Customer Verified");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Verification Failed!");
     }

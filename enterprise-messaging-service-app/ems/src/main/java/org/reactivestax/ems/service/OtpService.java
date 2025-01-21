@@ -69,4 +69,9 @@ public class OtpService {
         // Get the Last Posted Message of Type OTP from the Message Table for this customerID TODO
         return "null";
     }
+
+    public Boolean checkCustomerVerificationStatus(String customerId) {
+        Customer customer = customerRepository.findByCustomerId(customerId);
+        return customer.getVerificationStatus();
+    }
 }
