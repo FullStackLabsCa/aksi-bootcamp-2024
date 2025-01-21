@@ -4,6 +4,7 @@ server:
 spring:
   application:
     name: ems
+    otp-timeout: 2
   datasource:
     url: jdbc:postgresql://localhost:5432/ems_app
     username: postgres

@@ -8,10 +8,12 @@ import org.reactivestax.ems.enums.MessageType;
 import org.reactivestax.ems.repository.CustomerRepository;
 import org.reactivestax.ems.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
@@ -26,6 +28,9 @@ public class OtpService {
 
     @Autowired
     private JmsTemplate jmsTemplate;
+
+    @Autowired
+    private Environment environment;
 
     public void sendOtpViaSms(CustomerDTO customerDTO) {
         createCustomerAndSendIdToJms(customerDTO, DeliveryMode.SMS, MessageType.OTP);
@@ -76,7 +81,7 @@ public class OtpService {
     }
 
     private String getGeneratedOTP(String customerId) {
-        LocalDateTime deadlineTime = LocalDateTime.now().minusMinutes(2);
+        LocalDateTime deadlineTime = LocalDateTime.now().minusMinutes(Integer.parseInt(Objects.requireNonNull(environment.getProperty("otp-timeout"))));
         // Get the Last Posted Message of Type OTP from the Message Table for this customerID
         Optional<Message> message = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(customerId, MessageType.OTP, deadlineTime);
         if (message.isPresent()) return message.get().getMessageData();
