@@ -21,6 +21,7 @@ public class OtpController {
      * Only CustomerId
      * @param customerDTO
      * @return
+     * TODO
      */
     @PostMapping("/sms")
     public ResponseEntity<String> sendOTPViaSms(@RequestBody CustomerDTO customerDTO){
