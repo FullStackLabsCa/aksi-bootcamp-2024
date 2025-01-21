@@ -5,8 +5,9 @@ import org.reactivestax.ems.enums.MessageType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface MessageRepository extends JpaRepository<Message, Long>, JpaSpecificationExecutor<Message> {
-    Optional<Message> findFirstByCustomer_CustomerIdAndMessageTypeOrderByCreationTimeDesc(String customerId, MessageType messageType);
+    Optional<Message> findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(String customerId, MessageType messageType, LocalDateTime creationTimeAfter);
 }

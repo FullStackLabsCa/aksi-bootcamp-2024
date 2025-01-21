@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
@@ -75,8 +76,9 @@ public class OtpService {
     }
 
     private String getGeneratedOTP(String customerId) {
+        LocalDateTime deadlineTime = LocalDateTime.now().minusMinutes(2);
         // Get the Last Posted Message of Type OTP from the Message Table for this customerID
-        Optional<Message> message = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeOrderByCreationTimeDesc(customerId, MessageType.OTP);
+        Optional<Message> message = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(customerId, MessageType.OTP, deadlineTime);
         if (message.isPresent()) return message.get().getMessageData();
         else return "11111111";
     }
