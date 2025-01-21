@@ -14,26 +14,34 @@ public class OtpController {
     @Autowired
     private OtpService otpService;
 
+    /**
+     * Validation:
+     * with group
+     * Null Message Data (Must be)
+     * Only CustomerId
+     * @param customerDTO
+     * @return
+     */
     @PostMapping("/sms")
-    public ResponseEntity<String> sendOTPViaSms(@RequestBody CustomerDTO customerDTO){ // Use Validated with grouping to validated for OTP TODO
-        otpService.sendMessageViaSms(customerDTO);
+    public ResponseEntity<String> sendOTPViaSms(@RequestBody CustomerDTO customerDTO){
+        otpService.sendOtpViaSms(customerDTO);
         return  ResponseEntity.ok("OTP Sent Via SMS.");
     }
 
     @PostMapping("/call")
-    public ResponseEntity<String> sendOTPViaCall(@RequestBody CustomerDTO customerDTO){ // Use Validated with grouping to validated for OTP TODO
-        otpService.sendMessageViaCall(customerDTO);
+    public ResponseEntity<String> sendOTPViaCall(@RequestBody CustomerDTO customerDTO){
+        otpService.sendOtpViaCall(customerDTO);
         return  ResponseEntity.ok("OTP Sent Via Call.");
     }
 
     @PostMapping("/email")
-    public ResponseEntity<String> sendOTPViaEmail(@RequestBody CustomerDTO customerDTO){ // Use Validated with grouping to validated for OTP TODO
-        otpService.sendMessageViaEmail(customerDTO);
+    public ResponseEntity<String> sendOTPViaEmail(@RequestBody CustomerDTO customerDTO){
+        otpService.sendOtpViaEmail(customerDTO);
         return  ResponseEntity.ok("OTP Sent Via Email.");
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<String> verifyCustomerForOTP(@RequestBody CustomerDTO customerDTO){ // Use Validated with grouping to validated for OTP TODO
+    public ResponseEntity<String> verifyCustomerForOTP(@RequestBody CustomerDTO customerDTO){
         boolean isOtpValid = otpService.verifyOtp(customerDTO);
         if(isOtpValid) return ResponseEntity.ok("Customer Verified");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
