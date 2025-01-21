@@ -49,4 +49,24 @@ public class OtpService {
     public void sendMessageViaEmail(CustomerDTO customerDTO) {
         createCustomerAndSendIdToJms(customerDTO, DeliveryMode.EMAIL, MessageType.OTP);
     }
+
+    public boolean verifyOtp(CustomerDTO customerDTO) {
+        String otpData = customerDTO.getMessage();
+        String otpGenerated = getGeneratedOTP();
+        if(otpData.equals(otpGenerated)){
+            updateCustomerStatusToVerified(customerDTO);
+            return true;
+        } else return false;
+    }
+
+    private void updateCustomerStatusToVerified(CustomerDTO customerDTO) {
+        Customer customer = customerRepository.findByCustomerId(customerDTO.getCustomerId());
+        customer.setVerificationStatus(true);
+        customerRepository.save(customer);
+    }
+
+    private String getGeneratedOTP() {
+        // Get the Last Posted Message of Type OTP from the Message Table for this customerID TODO
+        return "null";
+    }
 }
