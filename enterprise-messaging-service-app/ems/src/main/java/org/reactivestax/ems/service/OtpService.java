@@ -105,7 +105,8 @@ public class OtpService {
     public boolean verifyOtp(CustomerDTO customerDTO) {
         String userEnteredOtp = customerDTO.getMessage();
         Optional<Message> otpGeneratedMessage = getGeneratedOTPMessage(customerDTO.getCustomerId());
-        return validateOtp(otpGeneratedMessage, userEnteredOtp);
+        if(otpGeneratedMessage.isPresent()) return validateOtp(otpGeneratedMessage.get(), userEnteredOtp);
+        else return false;
     }
 
     private Optional<Message> getGeneratedOTPMessage(String customerId) {
@@ -114,19 +115,17 @@ public class OtpService {
         return messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountLessThanOrderByCreationTimeDesc(customerId, MessageType.OTP, deadlineTime, maxFailureCount);
     }
 
-    private boolean validateOtp(Optional<Message> otpGeneratedMessage, String userEnteredOtp) {
-        if(otpGeneratedMessage.isPresent()) {
-            String otpGenerated = otpGeneratedMessage.get().getMessageData();
-            if (userEnteredOtp.equals(otpGenerated)) {
-                otpGeneratedMessage.get().setVerificationStatus(true);
-                messageRepository.save(otpGeneratedMessage.get());
-                return true;
-            } else {
-                otpGeneratedMessage.get().setOtpFailureCount(otpGeneratedMessage.get().getOtpFailureCount() + 1);
-                messageRepository.save(otpGeneratedMessage.get());
-            }
+    private boolean validateOtp(Message otpGeneratedMessage, String userEnteredOtp) {
+        String otpGenerated = otpGeneratedMessage.getMessageData();
+        if (userEnteredOtp.equals(otpGenerated)) {
+            otpGeneratedMessage.setVerificationStatus(true);
+            messageRepository.save(otpGeneratedMessage);
+            return true;
+        } else {
+            otpGeneratedMessage.setOtpFailureCount(otpGeneratedMessage.getOtpFailureCount() + 1);
+            messageRepository.save(otpGeneratedMessage);
+            return false;
         }
-        return false;
     }
 
     public Boolean checkCustomerVerificationStatus(String customerId) {
