@@ -32,6 +32,8 @@ public class EnsService {
         Message message = Message.builder()
                 .deliveryMode(deliveryMode)
                 .messageType(messageType)
+                .phoneNumber(customerDTO.getPhoneNumber())
+                .emailAddress(customerDTO.getEmailAddress())
                 .messageData(customerDTO.getMessage())
                 .customer(customer)
                 .build();

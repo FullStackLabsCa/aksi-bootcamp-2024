@@ -85,6 +85,8 @@ public class OtpService {
         Customer customer = customerRepository.findByCustomerId(customerDTO.getCustomerId());
         Message message = Message.builder()
                 .deliveryMode(deliveryMode)
+                .phoneNumber(customerDTO.getPhoneNumber())
+                .emailAddress(customerDTO.getEmailAddress())
                 .messageType(MessageType.OTP)
                 .messageData(generateRandomOTP())
                 .customer(customer)
