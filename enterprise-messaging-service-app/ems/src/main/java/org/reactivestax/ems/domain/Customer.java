@@ -24,7 +24,7 @@ public class Customer {
     private String customerId;
     private String firstName;
     private String lastName;
-    private Long phoneNumber;
+    private String phoneNumber;
     private String emailAddress;
 
     @Builder.Default
