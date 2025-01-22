@@ -26,7 +26,7 @@ public class CustomerDTO {
 
     @NotNull(groups = {MessageGroup.class, OtpVerifyGroup.class}, message = "OTP cannot be Null")
     @NotBlank(groups = {MessageGroup.class, OtpVerifyGroup.class}, message = "OTP cannot be Blank")
-    @Null(groups = {OtpCreationGroup.class})
+    @Null(groups = {OtpCreationGroup.class}, message = "Message has to be null while generating OTP.")
     @Size(min = 6, max = 6, groups = {OtpVerifyGroup.class}, message = "Invalid length for OTP")
     @Pattern(regexp = "^\\d+$", groups = {OtpVerifyGroup.class}, message = "Invalid format for OTP, Please Use Valid Characters.")
     @Size(min = 1, groups = {MessageGroup.class}, message = "Invalid length for the Message")
