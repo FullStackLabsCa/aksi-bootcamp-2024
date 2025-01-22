@@ -33,6 +33,9 @@ public class Message {
     private int otpFailureCount = 0;
 
     @Builder.Default
+    private boolean verificationStatus = false;
+
+    @Builder.Default
     private LocalDateTime creationTime = LocalDateTime.now();
     private LocalDateTime updatedTime;
 }
