@@ -109,16 +109,17 @@ public class OtpService {
     }
 
     public boolean verifyOtp(CustomerDTO customerDTO) {
-        String otpData = customerDTO.getMessage();
+        String userEnteredOtp = customerDTO.getMessage();
         Optional<Message> otpGeneratedMessage = getGeneratedOTPMessage(customerDTO.getCustomerId());
-        return validateOtp(customerDTO, otpGeneratedMessage, otpData);
+        return validateOtp(otpGeneratedMessage, userEnteredOtp);
     }
 
-    private boolean validateOtp(CustomerDTO customerDTO, Optional<Message> otpGeneratedMessage, String otpData) {
+    private boolean validateOtp(Optional<Message> otpGeneratedMessage, String userEnteredOtp) {
         if(otpGeneratedMessage.isPresent()) {
             String otpGenerated = otpGeneratedMessage.get().getMessageData();
-            if (otpData.equals(otpGenerated)) {
-                updateCustomerStatusToVerified(customerDTO.getCustomerId());
+            if (userEnteredOtp.equals(otpGenerated)) {
+                otpGeneratedMessage.get().setVerificationStatus(true);
+                messageRepository.save(otpGeneratedMessage.get());
                 return true;
             } else {
                 otpGeneratedMessage.get().setOtpFailureCount(otpGeneratedMessage.get().getOtpFailureCount() + 1);
@@ -128,15 +129,9 @@ public class OtpService {
         return false;
     }
 
-    private void updateCustomerStatusToVerified(String customerId) {
-        Customer customer = customerRepository.findByCustomerId(customerId);
-        customer.setVerificationStatus(true);
-        customer.setOtpGenerationCount(0);
-        customerRepository.save(customer);
-    }
-
     public Boolean checkCustomerVerificationStatus(String customerId) {
-        Customer customer = customerRepository.findByCustomerId(customerId);
-        return customer.getVerificationStatus();
+        LocalDateTime verificationValidTime = LocalDateTime.now().minusMinutes(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.verification-timeout-min"))));
+        Optional<Message> otpMessage = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(customerId, MessageType.OTP, verificationValidTime);
+        return otpMessage.map(Message::isVerificationStatus).orElse(false);
     }
 }
