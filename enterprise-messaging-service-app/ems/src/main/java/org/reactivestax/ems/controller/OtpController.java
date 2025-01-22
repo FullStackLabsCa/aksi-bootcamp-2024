@@ -17,15 +17,6 @@ public class OtpController {
     @Autowired
     private OtpService otpService;
 
-    /**
-     * Validation:
-     * with group
-     * Null Message Data (Must be)
-     * Only CustomerId
-     * @param customerDTO
-     * @return
-     * TODO
-     */
     @PostMapping("/sms")
     public ResponseEntity<String> sendOTPViaSms(@RequestBody @Validated(OtpCreationGroup.class) CustomerDTO customerDTO){
         boolean otpSendStatus = otpService.sendOtpViaSms(customerDTO);
