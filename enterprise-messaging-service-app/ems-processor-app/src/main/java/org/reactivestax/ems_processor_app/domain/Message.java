@@ -25,12 +25,18 @@ public class Message {
     @JoinColumn(name = "customerId")
     private Customer customer;
 
+    private String phoneNumber;
+    private String emailAddress;
+
     private String messageData;
     private MessageType messageType;
     private DeliveryMode deliveryMode;
 
-    @Builder.Default
-    private LocalDateTime creationTime = LocalDateTime.now();
+    private int otpFailureCount;
+
+    private boolean verificationStatus;
+
+    private LocalDateTime creationTime;
     private LocalDateTime updatedTime;
 }
 
