@@ -33,10 +33,19 @@ public class OtpService {
     private Environment environment;
 
     public void sendOtpViaSms(CustomerDTO customerDTO) {
-        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.SMS, MessageType.OTP);
+        // validateOtpFailureBlock
+        createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.SMS, MessageType.OTP);
     }
 
-    private void createCustomerAndSendIdToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode, MessageType messageType) {
+    public void sendOtpViaCall(CustomerDTO customerDTO) {
+        createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.CALL, MessageType.OTP);
+    }
+
+    public void sendOtpViaEmail(CustomerDTO customerDTO) {
+        createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.EMAIL, MessageType.OTP);
+    }
+
+    private void createCustomerAndSendMsgIdToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode, MessageType messageType) {
         Customer customer = customerRepository.findByCustomerId(customerDTO.getCustomerId());
         Message message = Message.builder()
                 .deliveryMode(deliveryMode)
@@ -57,12 +66,10 @@ public class OtpService {
         return String.valueOf(randomSixDigitNumber);
     }
 
-    public void sendOtpViaCall(CustomerDTO customerDTO) {
-        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.CALL, MessageType.OTP);
-    }
-
-    public void sendOtpViaEmail(CustomerDTO customerDTO) {
-        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.EMAIL, MessageType.OTP);
+    private Optional<Message> getGeneratedOTPMessage(String customerId) {
+        LocalDateTime deadlineTime = LocalDateTime.now().minusMinutes(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.timeout"))));
+        int maxFailureCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.max-failure-count")));
+        return messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountLessThanOrderByCreationTimeDesc(customerId, MessageType.OTP, deadlineTime, maxFailureCount);
     }
 
     public boolean verifyOtp(CustomerDTO customerDTO) {
@@ -89,12 +96,6 @@ public class OtpService {
         Customer customer = customerRepository.findByCustomerId(customerId);
         customer.setVerificationStatus(true);
         customerRepository.save(customer);
-    }
-
-    private Optional<Message> getGeneratedOTPMessage(String customerId) {
-        LocalDateTime deadlineTime = LocalDateTime.now().minusMinutes(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.timeout"))));
-        int maxFailureCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.max-failure-count")));
-        return messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountLessThanOrderByCreationTimeDesc(customerId, MessageType.OTP, deadlineTime, maxFailureCount);
     }
 
     public Boolean checkCustomerVerificationStatus(String customerId) {
