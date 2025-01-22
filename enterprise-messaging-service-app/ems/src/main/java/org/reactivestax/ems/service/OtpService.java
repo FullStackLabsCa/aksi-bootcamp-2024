@@ -34,7 +34,7 @@ public class OtpService {
 
     public boolean sendOtpViaSms(CustomerDTO customerDTO) {
         if(!isOtpGenerationBlocked(customerDTO)) {
-            createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.SMS, MessageType.OTP);
+            fetchCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.SMS);
             return true;
         }
         return false;
@@ -42,7 +42,7 @@ public class OtpService {
 
     public boolean sendOtpViaCall(CustomerDTO customerDTO) {
         if(!isOtpGenerationBlocked(customerDTO)) {
-            createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.CALL, MessageType.OTP);
+            fetchCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.CALL);
             return true;
         }
         return false;
@@ -50,7 +50,7 @@ public class OtpService {
 
     public boolean sendOtpViaEmail(CustomerDTO customerDTO) {
         if(!isOtpGenerationBlocked(customerDTO)) {
-            createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.EMAIL, MessageType.OTP);
+            fetchCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.EMAIL);
             return true;
         }
         return false;
@@ -60,27 +60,36 @@ public class OtpService {
         boolean isBlocked = true;
 
         // Blocking because of OTP Failure
-        LocalDateTime deadlineTime = LocalDateTime.now().minusHours(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.failure.block-timeout"))));
+        LocalDateTime deadlineTimeForFailure = LocalDateTime.now().minusHours(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.failure.block-timeout"))));
         int maxFailureCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.failure.max-count")));
 
-        Optional<Message> otpMessage = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(customerDTO.getCustomerId(), MessageType.OTP, deadlineTime);
-        if (otpMessage.isPresent() && otpMessage.get().getOtpFailureCount() < maxFailureCount) isBlocked = false;
-
-
-        return isBlocked;
+        Optional<Message> otpMessageForFailureCheck = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(customerDTO.getCustomerId(), MessageType.OTP, deadlineTimeForFailure);
+        if (otpMessageForFailureCheck.isPresent()) {
+            isBlocked = otpMessageForFailureCheck.get().getOtpFailureCount() >= maxFailureCount;
+        } else isBlocked = false;
 
         // Blocking because of OTP Generation
+        LocalDateTime deadlineTimeForGeneration = LocalDateTime.now().minusHours(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.generation.block-timeout"))));
+        int maxGenerationCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.generation.max-count")));
+
+        Optional<Message> otpMessageForGenerationCheck = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(customerDTO.getCustomerId(), MessageType.OTP, deadlineTimeForGeneration);
+        if(otpMessageForGenerationCheck.isPresent()) {
+            isBlocked = otpMessageForGenerationCheck.get().getCustomer().getOtpGenerationCount() >= maxGenerationCount;
+        } else isBlocked = false;
+
+        return isBlocked;
     }
 
-    private void createCustomerAndSendMsgIdToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode, MessageType messageType) {
+    private void fetchCustomerAndSendMsgIdToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode) {
         Customer customer = customerRepository.findByCustomerId(customerDTO.getCustomerId());
         Message message = Message.builder()
                 .deliveryMode(deliveryMode)
-                .messageType(messageType)
+                .messageType(MessageType.OTP)
                 .messageData(generateRandomOTP())
                 .customer(customer)
                 .build();
         message.setCustomer(customer);
+        customer.setOtpGenerationCount(customer.getOtpGenerationCount() + 1);
 
         messageRepository.save(message);
 
@@ -122,6 +131,7 @@ public class OtpService {
     private void updateCustomerStatusToVerified(String customerId) {
         Customer customer = customerRepository.findByCustomerId(customerId);
         customer.setVerificationStatus(true);
+        customer.setOtpGenerationCount(0);
         customerRepository.save(customer);
     }
 

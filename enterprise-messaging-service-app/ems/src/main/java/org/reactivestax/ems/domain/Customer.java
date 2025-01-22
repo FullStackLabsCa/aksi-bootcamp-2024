@@ -30,6 +30,9 @@ public class Customer {
     private Boolean verificationStatus = false;
 
     @Builder.Default
+    private int otpGenerationCount = 0;
+
+    @Builder.Default
     private LocalDateTime creationTime = LocalDateTime.now();
     private LocalDateTime updatedTime;
 
