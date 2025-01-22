@@ -27,12 +27,6 @@ public class Customer {
     private String emailAddress;
 
     @Builder.Default
-    private Boolean verificationStatus = false;
-
-    @Builder.Default
-    private int otpGenerationCount = 0;
-
-    @Builder.Default
     private LocalDateTime creationTime = LocalDateTime.now();
     private LocalDateTime updatedTime;
 
