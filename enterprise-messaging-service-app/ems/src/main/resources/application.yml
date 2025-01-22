@@ -6,6 +6,7 @@ spring:
     name: ems
     otp:
       timeout-min: 2
+      verification-timeout-min: 5
       failure:
         max-count: 3
         block-timeout-hr: 2
