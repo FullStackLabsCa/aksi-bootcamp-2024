@@ -49,11 +49,17 @@ public class OtpService {
     }
 
     private boolean checkBlocksOnOtpGeneration(CustomerDTO customerDTO){
+        boolean isBlocked = true;
+
         // Blocking because of OTP Failure
         LocalDateTime deadlineTime = LocalDateTime.now().minusHours(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.failure.block-timeout"))));
         int maxFailureCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.failure.max-count")));
-        Optional<Message> otpMessage = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountGreaterThanOrderByCreationTimeDesc(customerDTO.getCustomerId(), MessageType.OTP, deadlineTime, maxFailureCount - 1);
-        return otpMessage.isPresent();
+
+        Optional<Message> otpMessage = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(customerDTO.getCustomerId(), MessageType.OTP, deadlineTime);
+        if (otpMessage.isPresent() && otpMessage.get().getOtpFailureCount() < maxFailureCount) isBlocked = false;
+
+
+        return isBlocked;
 
         // Blocking because of OTP Generation
     }
