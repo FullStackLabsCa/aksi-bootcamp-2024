@@ -19,18 +19,13 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String customerId;
     private String firstName;
     private String lastName;
-    private Long phoneNumber;
+    private String phoneNumber;
     private String emailAddress;
 
-    @Builder.Default
-    private Boolean verificationStatus = false;
-
-    @Builder.Default
-    private LocalDateTime creationTime = LocalDateTime.now();
+    private LocalDateTime creationTime;
     private LocalDateTime updatedTime;
 
 }
