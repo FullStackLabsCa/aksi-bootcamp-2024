@@ -33,14 +33,18 @@ public class OtpController {
 
     @PostMapping("/call")
     public ResponseEntity<String> sendOTPViaCall(@RequestBody CustomerDTO customerDTO){
-        otpService.sendOtpViaCall(customerDTO);
-        return  ResponseEntity.ok("OTP Sent Via Call.");
+        boolean otpSendStatus = otpService.sendOtpViaCall(customerDTO);
+        if(otpSendStatus) return  ResponseEntity.ok("OTP Sent Via Call.");
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Failed to send OTP!");
     }
 
     @PostMapping("/email")
     public ResponseEntity<String> sendOTPViaEmail(@RequestBody CustomerDTO customerDTO){
-        otpService.sendOtpViaEmail(customerDTO);
-        return  ResponseEntity.ok("OTP Sent Via Email.");
+        boolean otpSendStatus = otpService.sendOtpViaEmail(customerDTO);
+        if(otpSendStatus) return  ResponseEntity.ok("OTP Sent Via Email.");
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Failed to send OTP!");
     }
 
     @PostMapping("/verify")

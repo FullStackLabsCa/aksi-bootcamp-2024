@@ -33,22 +33,30 @@ public class OtpService {
     private Environment environment;
 
     public boolean sendOtpViaSms(CustomerDTO customerDTO) {
-        if(!checkBlocksOnOtpGeneration(customerDTO)) {
+        if(!isOtpGenerationBlocked(customerDTO)) {
             createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.SMS, MessageType.OTP);
             return true;
         }
         return false;
     }
 
-    public void sendOtpViaCall(CustomerDTO customerDTO) {
-        createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.CALL, MessageType.OTP);
+    public boolean sendOtpViaCall(CustomerDTO customerDTO) {
+        if(!isOtpGenerationBlocked(customerDTO)) {
+            createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.CALL, MessageType.OTP);
+            return true;
+        }
+        return false;
     }
 
-    public void sendOtpViaEmail(CustomerDTO customerDTO) {
-        createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.EMAIL, MessageType.OTP);
+    public boolean sendOtpViaEmail(CustomerDTO customerDTO) {
+        if(!isOtpGenerationBlocked(customerDTO)) {
+            createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.EMAIL, MessageType.OTP);
+            return true;
+        }
+        return false;
     }
 
-    private boolean checkBlocksOnOtpGeneration(CustomerDTO customerDTO){
+    private boolean isOtpGenerationBlocked(CustomerDTO customerDTO){
         boolean isBlocked = true;
 
         // Blocking because of OTP Failure
