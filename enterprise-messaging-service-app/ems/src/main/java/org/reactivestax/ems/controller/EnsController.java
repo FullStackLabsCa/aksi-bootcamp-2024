@@ -1,6 +1,5 @@
 package org.reactivestax.ems.controller;
 
-import jakarta.validation.Valid;
 import org.reactivestax.ems.dto.CustomerDTO;
 import org.reactivestax.ems.service.EnsService;
 import org.reactivestax.ems.validation.MessageGroup;

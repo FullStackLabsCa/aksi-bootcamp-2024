@@ -12,7 +12,7 @@ import org.reactivestax.ems.validation.OtpVerifyGroup;
 public class CustomerDTO {
     private Long id;
 
-    @NotNull
+    @NotNull(groups = {MessageGroup.class, OtpVerifyGroup.class, OtpCreationGroup.class})
     private String customerId;
 
     @NotNull(groups = {MessageGroup.class, OtpVerifyGroup.class})
