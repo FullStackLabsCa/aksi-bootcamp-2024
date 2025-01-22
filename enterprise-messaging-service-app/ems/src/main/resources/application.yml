@@ -6,7 +6,12 @@ spring:
     name: ems
     otp:
       timeout: 2
-      max-failure-count: 3
+      failure:
+        max-count: 3
+        block-timeout: 2
+      generation:
+        max-count: 5
+        block-timeout: 8
   datasource:
     url: jdbc:postgresql://localhost:5432/ems_app
     username: postgres

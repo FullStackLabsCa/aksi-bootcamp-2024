@@ -32,9 +32,12 @@ public class OtpService {
     @Autowired
     private Environment environment;
 
-    public void sendOtpViaSms(CustomerDTO customerDTO) {
-        // validateOtpFailureBlock
-        createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.SMS, MessageType.OTP);
+    public boolean sendOtpViaSms(CustomerDTO customerDTO) {
+        if(!checkBlocksOnOtpGeneration(customerDTO)) {
+            createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.SMS, MessageType.OTP);
+            return true;
+        }
+        return false;
     }
 
     public void sendOtpViaCall(CustomerDTO customerDTO) {
@@ -43,6 +46,16 @@ public class OtpService {
 
     public void sendOtpViaEmail(CustomerDTO customerDTO) {
         createCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.EMAIL, MessageType.OTP);
+    }
+
+    private boolean checkBlocksOnOtpGeneration(CustomerDTO customerDTO){
+        // Blocking because of OTP Failure
+        LocalDateTime deadlineTime = LocalDateTime.now().minusHours(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.failure.block-timeout"))));
+        int maxFailureCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.failure.max-count")));
+        Optional<Message> otpMessage = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountGreaterThanOrderByCreationTimeDesc(customerDTO.getCustomerId(), MessageType.OTP, deadlineTime, maxFailureCount - 1);
+        return otpMessage.isPresent();
+
+        // Blocking because of OTP Generation
     }
 
     private void createCustomerAndSendMsgIdToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode, MessageType messageType) {
@@ -68,7 +81,7 @@ public class OtpService {
 
     private Optional<Message> getGeneratedOTPMessage(String customerId) {
         LocalDateTime deadlineTime = LocalDateTime.now().minusMinutes(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.timeout"))));
-        int maxFailureCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.max-failure-count")));
+        int maxFailureCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.failure.max-count")));
         return messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountLessThanOrderByCreationTimeDesc(customerId, MessageType.OTP, deadlineTime, maxFailureCount);
     }
 

@@ -10,4 +10,5 @@ import java.util.Optional;
 
 public interface MessageRepository extends JpaRepository<Message, Long>, JpaSpecificationExecutor<Message> {
     Optional<Message> findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountLessThanOrderByCreationTimeDesc(String customerId, MessageType messageType, LocalDateTime creationTimeAfter, int otpMaxFailureCount);
+    Optional<Message> findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountGreaterThanOrderByCreationTimeDesc(String customerId, MessageType messageType, LocalDateTime creationTimeAfter, int otpMaxFailureCount);
 }

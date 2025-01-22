@@ -25,8 +25,10 @@ public class OtpController {
      */
     @PostMapping("/sms")
     public ResponseEntity<String> sendOTPViaSms(@RequestBody CustomerDTO customerDTO){
-        otpService.sendOtpViaSms(customerDTO);
-        return  ResponseEntity.ok("OTP Sent Via SMS.");
+        boolean otpSendStatus = otpService.sendOtpViaSms(customerDTO);
+        if(otpSendStatus) return  ResponseEntity.ok("OTP Sent Via SMS.");
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Failed to send OTP!");
     }
 
     @PostMapping("/call")
