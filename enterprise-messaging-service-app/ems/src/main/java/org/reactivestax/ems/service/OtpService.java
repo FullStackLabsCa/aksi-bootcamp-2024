@@ -119,6 +119,7 @@ public class OtpService {
         String otpGenerated = otpGeneratedMessage.getMessageData();
         if (userEnteredOtp.equals(otpGenerated)) {
             otpGeneratedMessage.setVerificationStatus(true);
+            otpGeneratedMessage.setVerifiedTime(LocalDateTime.now());
             messageRepository.save(otpGeneratedMessage);
             return true;
         } else {

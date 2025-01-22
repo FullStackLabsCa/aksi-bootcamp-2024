@@ -37,5 +37,5 @@ public class Message {
 
     @Builder.Default
     private LocalDateTime creationTime = LocalDateTime.now();
-    private LocalDateTime updatedTime;
+    private LocalDateTime verifiedTime;
 }
