@@ -67,11 +67,22 @@ public class OtpService {
 
     public boolean verifyOtp(CustomerDTO customerDTO) {
         String otpData = customerDTO.getMessage();
-        String otpGenerated = getGeneratedOTP(customerDTO.getCustomerId());
-        if(otpData.equals(otpGenerated)){
-            updateCustomerStatusToVerified(customerDTO.getCustomerId());
-            return true;
-        } else return false;
+        Optional<Message> otpGeneratedMessage = getGeneratedOTPMessage(customerDTO.getCustomerId());
+        return validateOtp(customerDTO, otpGeneratedMessage, otpData);
+    }
+
+    private boolean validateOtp(CustomerDTO customerDTO, Optional<Message> otpGeneratedMessage, String otpData) {
+        if(otpGeneratedMessage.isPresent()) {
+            String otpGenerated = otpGeneratedMessage.get().getMessageData();
+            if (otpData.equals(otpGenerated)) {
+                updateCustomerStatusToVerified(customerDTO.getCustomerId());
+                return true;
+            } else {
+                otpGeneratedMessage.get().setOtpFailureCount(otpGeneratedMessage.get().getOtpFailureCount() + 1);
+                messageRepository.save(otpGeneratedMessage.get());
+            }
+        }
+        return false;
     }
 
     private void updateCustomerStatusToVerified(String customerId) {
@@ -80,11 +91,10 @@ public class OtpService {
         customerRepository.save(customer);
     }
 
-    private String getGeneratedOTP(String customerId) {
-        LocalDateTime deadlineTime = LocalDateTime.now().minusMinutes(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp-timeout"))));
-        Optional<Message> message = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(customerId, MessageType.OTP, deadlineTime);
-        if (message.isPresent()) return message.get().getMessageData();
-        else return "11111111";
+    private Optional<Message> getGeneratedOTPMessage(String customerId) {
+        LocalDateTime deadlineTime = LocalDateTime.now().minusMinutes(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.timeout"))));
+        int maxFailureCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.max-failure-count")));
+        return messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountLessThanOrderByCreationTimeDesc(customerId, MessageType.OTP, deadlineTime, maxFailureCount);
     }
 
     public Boolean checkCustomerVerificationStatus(String customerId) {
