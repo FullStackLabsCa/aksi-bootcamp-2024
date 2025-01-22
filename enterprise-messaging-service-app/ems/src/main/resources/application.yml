@@ -5,13 +5,13 @@ spring:
   application:
     name: ems
     otp:
-      timeout: 2
+      timeout-min: 2
       failure:
         max-count: 3
-        block-timeout: 2
+        block-timeout-hr: 2
       generation:
         max-count: 5
-        block-timeout: 8
+        block-timeout-hr: 8
   datasource:
     url: jdbc:postgresql://localhost:5432/ems_app
     username: postgres
