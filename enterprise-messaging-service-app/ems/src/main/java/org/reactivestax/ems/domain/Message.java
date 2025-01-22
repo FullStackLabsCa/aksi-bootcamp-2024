@@ -30,6 +30,9 @@ public class Message {
     private DeliveryMode deliveryMode;
 
     @Builder.Default
+    private int otpFailureCount = 0;
+
+    @Builder.Default
     private LocalDateTime creationTime = LocalDateTime.now();
     private LocalDateTime updatedTime;
 }
