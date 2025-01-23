@@ -25,10 +25,10 @@ public class EnsService {
     private JmsTemplate jmsTemplate;
 
     public void sendMessageViaSms(CustomerDTO customerDTO) {
-        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.SMS);
+        findCustomerAndSaveToDbAndSendMsgToJms(customerDTO, DeliveryMode.SMS);
     }
 
-    private void createCustomerAndSendIdToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode) {
+    private void findCustomerAndSaveToDbAndSendMsgToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode) {
         Customer customer = customerRepository.findByCustomerId(customerDTO.getCustomerId());
 
         Message message = Message.builder()
@@ -45,10 +45,10 @@ public class EnsService {
     }
 
     public void sendMessageViaCall(CustomerDTO customerDTO) {
-        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.CALL);
+        findCustomerAndSaveToDbAndSendMsgToJms(customerDTO, DeliveryMode.CALL);
     }
 
     public void sendMessageViaEmail(CustomerDTO customerDTO) {
-        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.EMAIL);
+        findCustomerAndSaveToDbAndSendMsgToJms(customerDTO, DeliveryMode.EMAIL);
     }
 }
