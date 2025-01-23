@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxOTPFailureCountReachedException.class)
     public ResponseEntity<Map<String, Object>> handleMaxOtpFailureHitException(
-            CustomerNotFoundException exception, WebRequest request){
+            MaxOTPFailureCountReachedException exception, WebRequest request){
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.METHOD_NOT_ALLOWED.value());
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxOTPGenerationCountReachedException.class)
     public ResponseEntity<Map<String, Object>> handleMaxOtpGenerationHitException(
-            CustomerNotFoundException exception, WebRequest request){
+            MaxOTPGenerationCountReachedException exception, WebRequest request){
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.METHOD_NOT_ALLOWED.value());
