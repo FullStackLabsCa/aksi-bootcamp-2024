@@ -6,6 +6,8 @@ import org.reactivestax.ems.dto.CustomerDTO;
 import org.reactivestax.ems.enums.DeliveryMode;
 import org.reactivestax.ems.enums.MessageType;
 import org.reactivestax.ems.exception.CustomerNotFoundException;
+import org.reactivestax.ems.exception.MaxOTPFailureCountReachedException;
+import org.reactivestax.ems.exception.MaxOTPGenerationCountReachedException;
 import org.reactivestax.ems.repository.CustomerRepository;
 import org.reactivestax.ems.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,9 +79,13 @@ public class OtpService {
         if(otpMessageForFailureCheck.isEmpty()) return false;
         Message mostRecentMessage = otpMessageForFailureCheck.get(0);
 
-        if(Duration.between(mostRecentMessage.getCreationTime(), LocalDateTime.now()).toHours() < timeoutForFailure && mostRecentMessage.getOtpFailureCount() >= maxFailureCount) return true;
+        if(Duration.between(mostRecentMessage.getCreationTime(), LocalDateTime.now()).toHours() < timeoutForFailure && mostRecentMessage.getOtpFailureCount() >= maxFailureCount)
+            throw new MaxOTPFailureCountReachedException("Max Failure Count Reached.");
 
-        return otpMessageForFailureCheck.size() >= maxGenerationCount;
+        if (otpMessageForFailureCheck.size() >= maxGenerationCount)
+            throw new MaxOTPGenerationCountReachedException("Max OTP Generation Count Reached.");
+
+        return false;
     }
 
     private void fetchCustomerAndSaveMessageAndSendMsgToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode) {

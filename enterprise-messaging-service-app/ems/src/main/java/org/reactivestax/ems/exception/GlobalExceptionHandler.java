@@ -27,6 +27,28 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(MaxOTPFailureCountReachedException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxOtpFailureHitException(
+            CustomerNotFoundException exception, WebRequest request){
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.METHOD_NOT_ALLOWED.value());
+        body.put("error", "OTP Generation Failed because Max Failure Count Reached. Customer Blocked for 2 Hours.");
+        body.put("path", request.getDescription(false).replace("uri=", ""));
+        return new ResponseEntity<>(body, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(MaxOTPGenerationCountReachedException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxOtpGenerationHitException(
+            CustomerNotFoundException exception, WebRequest request){
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.METHOD_NOT_ALLOWED.value());
+        body.put("error", "OTP Generation Failed because Max OTP Generation Count Reached. Customer Blocked for 8 hours.");
+        body.put("path", request.getDescription(false).replace("uri=", ""));
+        return new ResponseEntity<>(body, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
     // Handle general exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGlobalException(
