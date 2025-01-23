@@ -39,7 +39,7 @@ public class OtpService {
 
     public boolean sendOtpViaSms(CustomerDTO customerDTO) {
         if(!isOtpGenerationBlocked(customerDTO)) {
-            fetchCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.SMS);
+            fetchCustomerAndSaveMessageAndSendMsgToJms(customerDTO, DeliveryMode.SMS);
             return true;
         }
         return false;
@@ -47,7 +47,7 @@ public class OtpService {
 
     public boolean sendOtpViaCall(CustomerDTO customerDTO) {
         if(!isOtpGenerationBlocked(customerDTO)) {
-            fetchCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.CALL);
+            fetchCustomerAndSaveMessageAndSendMsgToJms(customerDTO, DeliveryMode.CALL);
             return true;
         }
         return false;
@@ -55,7 +55,7 @@ public class OtpService {
 
     public boolean sendOtpViaEmail(CustomerDTO customerDTO) {
         if(!isOtpGenerationBlocked(customerDTO)) {
-            fetchCustomerAndSendMsgIdToJms(customerDTO, DeliveryMode.EMAIL);
+            fetchCustomerAndSaveMessageAndSendMsgToJms(customerDTO, DeliveryMode.EMAIL);
             return true;
         }
         return false;
@@ -81,7 +81,7 @@ public class OtpService {
         return otpMessageForFailureCheck.size() >= maxGenerationCount;
     }
 
-    private void fetchCustomerAndSendMsgIdToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode) {
+    private void fetchCustomerAndSaveMessageAndSendMsgToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode) {
         Customer customer = customerRepository.findByCustomerId(customerDTO.getCustomerId());
         Message message = Message.builder()
                 .deliveryMode(deliveryMode)
