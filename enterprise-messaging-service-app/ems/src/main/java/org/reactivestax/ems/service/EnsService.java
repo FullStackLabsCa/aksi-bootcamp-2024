@@ -5,6 +5,7 @@ import org.reactivestax.ems.domain.Message;
 import org.reactivestax.ems.dto.CustomerDTO;
 import org.reactivestax.ems.enums.DeliveryMode;
 import org.reactivestax.ems.enums.MessageType;
+import org.reactivestax.ems.exception.CustomerNotFoundException;
 import org.reactivestax.ems.repository.CustomerRepository;
 import org.reactivestax.ems.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,31 +25,30 @@ public class EnsService {
     private JmsTemplate jmsTemplate;
 
     public void sendMessageViaSms(CustomerDTO customerDTO) {
-        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.SMS, MessageType.MESSAGE);
+        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.SMS);
     }
 
-    private void createCustomerAndSendIdToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode, MessageType messageType) {
+    private void createCustomerAndSendIdToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode) {
         Customer customer = customerRepository.findByCustomerId(customerDTO.getCustomerId());
+
         Message message = Message.builder()
                 .deliveryMode(deliveryMode)
-                .messageType(messageType)
+                .messageType(MessageType.MESSAGE)
                 .phoneNumber(customerDTO.getPhoneNumber())
                 .emailAddress(customerDTO.getEmailAddress())
                 .messageData(customerDTO.getMessage())
                 .customer(customer)
                 .build();
-        message.setCustomer(customer);
 
         messageRepository.save(message);
-
         jmsTemplate.convertAndSend("myDefaultQueue", message.getId());
     }
 
     public void sendMessageViaCall(CustomerDTO customerDTO) {
-        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.CALL, MessageType.MESSAGE);
+        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.CALL);
     }
 
     public void sendMessageViaEmail(CustomerDTO customerDTO) {
-        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.EMAIL, MessageType.MESSAGE);
+        createCustomerAndSendIdToJms(customerDTO, DeliveryMode.EMAIL);
     }
 }
