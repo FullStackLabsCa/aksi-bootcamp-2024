@@ -30,6 +30,7 @@ public class EnsService {
 
     private void findCustomerAndSaveToDbAndSendMsgToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode) {
         Customer customer = customerRepository.findByCustomerId(customerDTO.getCustomerId());
+        if(customer == null) throw new CustomerNotFoundException("Customer Not Found.");
 
         Message message = Message.builder()
                 .deliveryMode(deliveryMode)
