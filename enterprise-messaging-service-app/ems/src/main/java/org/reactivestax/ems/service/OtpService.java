@@ -5,6 +5,7 @@ import org.reactivestax.ems.domain.Message;
 import org.reactivestax.ems.dto.CustomerDTO;
 import org.reactivestax.ems.enums.DeliveryMode;
 import org.reactivestax.ems.enums.MessageType;
+import org.reactivestax.ems.exception.CustomerNotFoundException;
 import org.reactivestax.ems.repository.CustomerRepository;
 import org.reactivestax.ems.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,8 @@ public class OtpService {
 
     private void fetchCustomerAndSaveMessageAndSendMsgToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode) {
         Customer customer = customerRepository.findByCustomerId(customerDTO.getCustomerId());
+        if(customer == null) throw new CustomerNotFoundException("Customer Not Found.");
+
         Message message = Message.builder()
                 .deliveryMode(deliveryMode)
                 .phoneNumber(customerDTO.getPhoneNumber())
@@ -91,10 +94,8 @@ public class OtpService {
                 .messageData(generateRandomOTP())
                 .customer(customer)
                 .build();
-        message.setCustomer(customer);
 
         messageRepository.save(message);
-
         jmsTemplate.convertAndSend("myDefaultQueue", message.getId());
     }
 
