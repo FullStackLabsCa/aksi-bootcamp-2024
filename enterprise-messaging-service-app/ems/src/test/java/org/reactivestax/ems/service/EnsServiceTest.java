@@ -59,4 +59,48 @@ class EnsServiceTest {
 
         assertThrows(CustomerNotFoundException.class,() -> ensService.sendMessageViaSms(customerDTO));
     }
+
+    @Test
+    void testSendMessageViaCall_ValidCustomer(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDto.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+
+        ensService.sendMessageViaCall(customerDTO);
+
+        verify(messageRepository, times(1)).save(any(Message.class));
+//        verify(jmsTemplate, times(1)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
+    }
+
+    @Test
+    void testSendMessageViaCall_InvalidCustomer(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDto.get();
+
+        doReturn(null).when(customerRepository).findByCustomerId(any(String.class));
+
+        assertThrows(CustomerNotFoundException.class,() -> ensService.sendMessageViaCall(customerDTO));
+    }
+
+    @Test
+    void testSendMessageViaEmail_ValidCustomer(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDto.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+
+        ensService.sendMessageViaEmail(customerDTO);
+
+        verify(messageRepository, times(1)).save(any(Message.class));
+//        verify(jmsTemplate, times(1)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
+    }
+
+    @Test
+    void testSendMessageViaEmail_InvalidCustomer(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDto.get();
+
+        doReturn(null).when(customerRepository).findByCustomerId(any(String.class));
+
+        assertThrows(CustomerNotFoundException.class,() -> ensService.sendMessageViaEmail(customerDTO));
+    }
 }
