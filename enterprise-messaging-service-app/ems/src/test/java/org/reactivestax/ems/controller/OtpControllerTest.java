@@ -119,7 +119,7 @@ class OtpControllerTest {
     void testSendOTP_BadCustomerWithoutCustomerId(String deliveryOption) throws Exception{
         String uriTemplate = "/api/otp/" + deliveryOption;
 
-        String customerJson = TestDataProvider.badCustomerJsonWithNullCustomerId.get();
+        String customerJson = TestDataProvider.badCustomerJsonWithNullCustomerIdWithoutMessage.get();
 
         mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
@@ -133,7 +133,7 @@ class OtpControllerTest {
     void testSendOTP_BadCustomerWithBlankCustomerId(String deliveryOption) throws Exception{
         String uriTemplate = "/api/otp/" + deliveryOption;
 
-        String customerJson = TestDataProvider.badCustomerJsonWithBlankCustomerId.get();
+        String customerJson = TestDataProvider.badCustomerJsonWithBlankCustomerIdWithoutMessage.get();
 
         mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
