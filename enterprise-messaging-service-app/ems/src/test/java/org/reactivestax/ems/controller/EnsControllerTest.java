@@ -16,14 +16,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
 @WebMvcTest(EnsController.class)
 public class EnsControllerTest {
 
@@ -35,12 +27,6 @@ public class EnsControllerTest {
 
     @Test
     void testSendMessageWithSmsGoodCustomer() throws  Exception {
-        /**
-         * send the CustomerJson (Good One)
-         * expect the method to execute successfully
-         * expect ResponseEntity.ok()
-         * expect the body of the ResponseEntity to be "Message Sent Via SMS."
-         */
         String customerJson = TestDataProvider.goodCustomerJson.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
