@@ -54,6 +54,6 @@ public class OtpController {
         Boolean isCustomerVerified = otpService.checkCustomerVerificationStatus(customerId);
         if(Boolean.TRUE.equals(isCustomerVerified)) return ResponseEntity.ok("Customer Verified");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Verification Failed!");
+                .body("Customer NOT Verified!");
     }
 }
