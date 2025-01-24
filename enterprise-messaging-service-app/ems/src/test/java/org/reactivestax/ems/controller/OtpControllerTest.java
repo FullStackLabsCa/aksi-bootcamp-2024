@@ -162,6 +162,24 @@ class OtpControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
+    void testSendOTP_WhenServiceFailsForSomeReason(String deliveryOption) throws Exception{
+        String uriTemplate = "/api/otp/" + deliveryOption;
+
+        String customerJson = TestDataProvider.badCustomerJsonWithInvalidCustomerIdWithoutMessage.get();
+
+        doReturn(false).when(otpService).sendOtpViaSms(any(CustomerDTO.class));
+        doReturn(false).when(otpService).sendOtpViaCall(any(CustomerDTO.class));
+        doReturn(false).when(otpService).sendOtpViaEmail(any(CustomerDTO.class));
+
+        mockMvc.perform(post(uriTemplate)
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Failed to send OTP!"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("messageDeliveryOptions")
     void testSendOTP_BadCustomerWithWrongPhoneNumberLength(String deliveryOption) throws Exception{
         String uriTemplate = "/api/otp/" + deliveryOption;
 
