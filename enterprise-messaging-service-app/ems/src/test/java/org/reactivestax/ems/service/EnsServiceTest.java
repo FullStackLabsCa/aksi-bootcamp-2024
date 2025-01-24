@@ -1,12 +1,27 @@
 package org.reactivestax.ems.service;
 
+import jakarta.validation.constraints.Null;
+import nl.altindag.log.LogCaptor;
 import org.junit.jupiter.api.Test;
+import org.reactivestax.ems.TestDataProvider;
+import org.reactivestax.ems.domain.Customer;
+import org.reactivestax.ems.domain.Message;
+import org.reactivestax.ems.dto.CustomerDTO;
+import org.reactivestax.ems.exception.CustomerNotFoundException;
 import org.reactivestax.ems.repository.CustomerRepository;
 import org.reactivestax.ems.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import javax.lang.model.type.NullType;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class EnsServiceTest {
@@ -25,22 +40,23 @@ class EnsServiceTest {
 
     @Test
     void testSendMessageViaSms_ValidCustomer(){
-        /**
-         * Create a CustomerDTO
-         * Create a Customer that is Expected to be returned back by the Repo
-         * Mock the customerRepo to return the created Customer
-         * Mock the messageRepository
-         * Mock jmsTemplate
-         * Verify some logs
-         */
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDto.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+
+        ensService.sendMessageViaSms(customerDTO);
+
+        verify(messageRepository, times(1)).save(any(Message.class));
+//        verify(jmsTemplate, times(1)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
     }
 
     @Test
     void testSendMessageViaSms_InvalidCustomer(){
-        /**
-         * Create a CustomerDTO
-         * mock the customerRepo to return null
-         * handle the exception
-         */
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDto.get();
+
+        doReturn(null).when(customerRepository).findByCustomerId(any(String.class));
+
+        assertThrows(CustomerNotFoundException.class,() -> ensService.sendMessageViaSms(customerDTO));
     }
 }
