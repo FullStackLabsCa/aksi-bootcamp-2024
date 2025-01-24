@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -40,11 +40,13 @@ class OtpControllerTest {
     @MethodSource("messageDeliveryOptions")
     void testSendMessage_GoodCustomer(String deliveryOption, String messageExpected) throws  Exception {
         String uriTemplate = "/api/otp/" + deliveryOption;
-        String expectedContent = "Message Sent Via " + messageExpected + ".";
+        String expectedContent = "OTP Sent Via " + messageExpected + ".";
 
-        String customerJson = TestDataProvider.goodCustomerJson.get();
+        String customerJson = TestDataProvider.goodCustomerJsonWithoutMessage.get();
 
-        when(otpService.sendOtpViaSms(any(CustomerDTO.class)).thenReturn(true);
+        doReturn(true).when(otpService).sendOtpViaSms(any(CustomerDTO.class));
+        doReturn(true).when(otpService).sendOtpViaCall(any(CustomerDTO.class));
+        doReturn(true).when(otpService).sendOtpViaEmail(any(CustomerDTO.class));
 
         mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
@@ -57,7 +59,7 @@ class OtpControllerTest {
     @MethodSource("messageDeliveryOptions")
     void testSendMessage_GoodCustomerWithPhoneNumber(String deliveryOption, String messageExpected) throws  Exception {
         String uriTemplate = "/api/otp/" + deliveryOption;
-        String expectedContent = "Message Sent Via " + messageExpected + ".";
+        String expectedContent = "OTP Sent Via " + messageExpected + ".";
 
         String customerJson = TestDataProvider.goodCustomerJsonWithPhoneNumber.get();
 
@@ -74,7 +76,7 @@ class OtpControllerTest {
     @MethodSource("messageDeliveryOptions")
     void testSendMessage_GoodCustomerWithEmail(String deliveryOption, String messageExpected) throws  Exception {
         String uriTemplate = "/api/otp/" + deliveryOption;
-        String expectedContent = "Message Sent Via " + messageExpected + ".";
+        String expectedContent = "OTP Sent Via " + messageExpected + ".";
 
         String customerJson = TestDataProvider.goodCustomerJsonWithEmail.get();
 
@@ -91,7 +93,7 @@ class OtpControllerTest {
     @MethodSource("messageDeliveryOptions")
     void testSendMessageWithSms_GoodCustomerWithPhNumAndEmail(String deliveryOption, String messageExpected) throws  Exception {
         String uriTemplate = "/api/otp/" + deliveryOption;
-        String expectedContent = "Message Sent Via " + messageExpected + ".";
+        String expectedContent = "OTP Sent Via " + messageExpected + ".";
 
         String customerJson = TestDataProvider.goodCustomerJsonWithPhoneNumAndEmail.get();
 
