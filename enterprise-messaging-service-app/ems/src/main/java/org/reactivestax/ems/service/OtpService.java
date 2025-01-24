@@ -118,6 +118,7 @@ public class OtpService {
     }
 
     public boolean verifyOtp(CustomerDTO customerDTO) {
+        checkCustomerValidity(customerDTO.getCustomerId());
         String userEnteredOtp = customerDTO.getMessage();
         Optional<Message> otpGeneratedMessage = getGeneratedOTPMessage(customerDTO.getCustomerId());
         if(otpGeneratedMessage.isPresent()) return validateOtp(otpGeneratedMessage.get(), userEnteredOtp);
@@ -145,6 +146,7 @@ public class OtpService {
     }
 
     public Boolean checkCustomerVerificationStatus(String customerId) {
+        checkCustomerValidity(customerId);
         LocalDateTime verificationValidTime = LocalDateTime.now().minusMinutes(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.verification-timeout-min"))));
         Optional<Message> otpMessage = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(customerId, MessageType.OTP, verificationValidTime);
         return otpMessage.map(Message::isVerificationStatus).orElse(false);
