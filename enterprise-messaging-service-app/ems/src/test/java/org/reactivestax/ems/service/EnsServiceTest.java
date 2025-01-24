@@ -1,7 +1,5 @@
 package org.reactivestax.ems.service;
 
-import jakarta.validation.constraints.Null;
-import nl.altindag.log.LogCaptor;
 import org.junit.jupiter.api.Test;
 import org.reactivestax.ems.TestDataProvider;
 import org.reactivestax.ems.domain.Customer;
@@ -14,10 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
-import javax.lang.model.type.NullType;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
