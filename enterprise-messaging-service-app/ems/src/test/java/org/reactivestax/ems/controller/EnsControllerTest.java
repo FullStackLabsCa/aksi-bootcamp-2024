@@ -102,4 +102,30 @@ public class EnsControllerTest {
                 .andExpect(jsonPath("$.customerId").value("Customer Id cannot be blank."));
     }
 
+    @Test
+    void testSendMessageWithSms_BadCustomerWithWrongPhoneNumberLength() throws Exception{
+        String customerJson = TestDataProvider.badCustomerJsonWithWrongPhoneNumLen.get();
+
+        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+
+        mockMvc.perform(post("/api/ens/sms")
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.phoneNumber").value("Invalid length of Phone Number"));
+    }
+
+    @Test
+    void testSendMessageWithSms_BadCustomerWithWrongPhoneNumberData() throws Exception{
+        String customerJson = TestDataProvider.badCustomerJsonWithWrongPhoneNumData.get();
+
+        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+
+        mockMvc.perform(post("/api/ens/sms")
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.phoneNumber").value("Invalid digits in Phone Number"));
+    }
+
 }
