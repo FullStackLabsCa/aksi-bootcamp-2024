@@ -1,5 +1,6 @@
 package org.reactivestax.ems.controller;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -219,5 +220,96 @@ class OtpControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.emailAddress").value("Invalid Email Address"));
     }
+
+    @Test
+    void testVerifyOTP_GoodCustomerAndGoodOTP() throws Exception {
+        String customerJson = TestDataProvider.goodCustomerJsonForVerifyOtp.get();
+
+        doReturn(true).when(otpService).verifyOtp(any(CustomerDTO.class));
+
+        mockMvc.perform(post("/api/otp/verify")
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Customer Verified"));
+    }
+
+    @Test
+    void testVerifyOTP_GoodCustomerAndBadPayloadSize() throws Exception {
+        String customerJson = TestDataProvider.badCustomerJsonForVerifyOtpWrongSize.get();
+
+        mockMvc.perform(post("/api/otp/verify")
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid length for OTP"));
+    }
+
+    @Test
+    void testVerifyOTP_GoodCustomerAndBadPayloadData() throws Exception {
+        String customerJson = TestDataProvider.badCustomerJsonForVerifyOtpWrongDataType.get();
+
+        mockMvc.perform(post("/api/otp/verify")
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid format for OTP, Please Use Valid Characters."));
+    }
+
+    @Test
+    void testVerifyOTP_NullCustomer() throws Exception {
+        String customerJson = TestDataProvider.badCustomerJsonNullCustomerForVerifyOtp.get();
+
+        mockMvc.perform(post("/api/otp/verify")
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.customerId").value("Customer Id cannot be blank."));
+    }
+
+    @Test
+    void testVerifyOTP_BlankCustomer() throws Exception {
+        String customerJson = TestDataProvider.badCustomerJsonBlankCustomerForVerifyOtp.get();
+
+        mockMvc.perform(post("/api/otp/verify")
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.customerId").value("Customer Id cannot be blank."));
+    }
+
+    @Test
+    void testVerifyOTP_CustomerDNE() throws Exception {
+        String customerJson = TestDataProvider.badCustomerJsonCustomerDNEForVerifyOtp.get();
+
+        doThrow(CustomerNotFoundException.class).when(otpService).verifyOtp(any(CustomerDTO.class));
+
+        mockMvc.perform(post("/api/otp/verify")
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Customer Not Found"));
+    }
+
+    @Test
+    void testVerifyOTP_WhenServiceFailsForSomeReason() throws Exception{
+        String uriTemplate = "/api/otp/verify";
+
+        String customerJson = TestDataProvider.goodCustomerJsonForVerifyOtp.get();
+
+        doReturn(false).when(otpService).verifyOtp(any(CustomerDTO.class));
+
+        mockMvc.perform(post(uriTemplate)
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Verification Failed!"));
+    }
+
+    /** TODO
+     * Verify throw exception and
+     * check Attempt Count Reached
+     * check Generation Count Reached!
+     */
 
 }
