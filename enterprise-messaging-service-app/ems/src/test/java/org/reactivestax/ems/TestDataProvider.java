@@ -145,4 +145,46 @@ public interface TestDataProvider {
           "emailAddress": "testData"
         }
         """;
+
+    Supplier<String> goodCustomerJsonForVerifyOtp = () -> """
+        {
+          "customerId": "testData",
+          "message": "789789"
+        }
+        """;
+
+    Supplier<String> badCustomerJsonCustomerDNEForVerifyOtp = () -> """
+        {
+          "customerId": "doesNotExist",
+          "message": "789789"
+        }
+        """;
+
+    Supplier<String> badCustomerJsonNullCustomerForVerifyOtp = () -> """
+        {
+          "message": "789789"
+        }
+        """;
+
+    Supplier<String> badCustomerJsonBlankCustomerForVerifyOtp = () -> """
+        {
+          "customerId": "  ",
+          "message": "789789"
+        }
+        """;
+
+    Supplier<String> badCustomerJsonForVerifyOtpWrongSize = () -> """
+        {
+          "customerId": "testData",
+          "message": "7897"
+        }
+        """;
+
+    Supplier<String> badCustomerJsonForVerifyOtpWrongDataType = () -> """
+        {
+          "customerId": "testData",
+          "message": "78978a"
+        }
+        """;
+
 }
