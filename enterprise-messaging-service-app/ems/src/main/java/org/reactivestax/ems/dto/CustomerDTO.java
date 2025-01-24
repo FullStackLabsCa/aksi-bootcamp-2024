@@ -11,8 +11,7 @@ import org.reactivestax.ems.validation.OtpVerifyGroup;
 public class CustomerDTO {
     private Long id;
 
-    @NotNull(groups = {MessageGroup.class, OtpVerifyGroup.class, OtpCreationGroup.class}, message = "Customer Id cannot be Null.")
-    @NotBlank(groups = {MessageGroup.class, OtpVerifyGroup.class, OtpCreationGroup.class}, message = "Customer ID cannot be blank.")
+    @NotBlank(groups = {MessageGroup.class, OtpVerifyGroup.class, OtpCreationGroup.class}, message = "Customer Id cannot be blank.")
     private String customerId;
 
     @Null(groups = {OtpVerifyGroup.class})
@@ -24,7 +23,6 @@ public class CustomerDTO {
     @Email(groups = {MessageGroup.class, OtpCreationGroup.class}, message = "Invalid Email Address")
     private String emailAddress;
 
-    @NotNull(groups = {MessageGroup.class, OtpVerifyGroup.class}, message = "OTP cannot be Null")
     @NotBlank(groups = {MessageGroup.class, OtpVerifyGroup.class}, message = "OTP cannot be Blank")
     @Null(groups = {OtpCreationGroup.class}, message = "Message has to be null while generating OTP.")
     @Size(min = 6, max = 6, groups = {OtpVerifyGroup.class}, message = "Invalid length for OTP")

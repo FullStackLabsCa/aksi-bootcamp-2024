@@ -36,9 +36,16 @@ public interface TestDataProvider {
         }
         """;
 
+    Supplier<String> badCustomerJsonWithNullCustomerId = () -> """
+        {
+            "message": "This is a message with blank CustomerId"
+        }
+        """;
+
     Supplier<String> badCustomerJsonWithBlankCustomerId = () -> """
         {
-            "message": "This is a message with blank CustomerId
+            "customerId": "  ",
+            "message": "This is a message with blank CustomerId"
         }
         """;
 

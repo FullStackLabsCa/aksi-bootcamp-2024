@@ -13,8 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EnsController.class)
 public class EnsControllerTest {
@@ -26,7 +25,7 @@ public class EnsControllerTest {
     private EnsService ensService;
 
     @Test
-    void testSendMessageWithSmsGoodCustomer() throws  Exception {
+    void testSendMessageWithSms_GoodCustomer() throws  Exception {
         String customerJson = TestDataProvider.goodCustomerJson.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
@@ -39,42 +38,68 @@ public class EnsControllerTest {
     }
 
     @Test
-    void testSendMessageWithSmsGoodCustomerWithPhoneNumber() throws  Exception {
+    void testSendMessageWithSms_GoodCustomerWithPhoneNumber() throws  Exception {
         String customerJson = TestDataProvider.goodCustomerJsonWithPhoneNumber.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
         mockMvc.perform(post("/api/ens/sms")
-                        .content(customerJson)
-                        .contentType(MediaType.APPLICATION_JSON))
+                .content(customerJson)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Message Sent Via SMS."));
     }
 
     @Test
-    void testSendMessageWithSmsGoodCustomerWithEmail() throws  Exception {
+    void testSendMessageWithSms_GoodCustomerWithEmail() throws  Exception {
         String customerJson = TestDataProvider.goodCustomerJsonWithEmail.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
         mockMvc.perform(post("/api/ens/sms")
-                        .content(customerJson)
-                        .contentType(MediaType.APPLICATION_JSON))
+                .content(customerJson)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Message Sent Via SMS."));
     }
 
     @Test
-    void testSendMessageWithSmsGoodCustomerWithPhNumAndEmail() throws  Exception {
+    void testSendMessageWithSms_GoodCustomerWithPhNumAndEmail() throws  Exception {
         String customerJson = TestDataProvider.goodCustomerJsonWithPhoneNumAndEmail.get();
+
+        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+
+        mockMvc.perform(post("/api/ens/sms")
+                .content(customerJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Message Sent Via SMS."));
+    }
+
+    @Test
+    void testSendMessageWithSms_BadCustomerWithoutCustomerId() throws Exception{
+        String customerJson = TestDataProvider.badCustomerJsonWithNullCustomerId.get();
+
+        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+
+        mockMvc.perform(post("/api/ens/sms")
+                .content(customerJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.customerId").value("Customer Id cannot be blank."));
+    }
+
+    @Test
+    void testSendMessageWithSms_BadCustomerWithBlankCustomerId() throws Exception{
+        String customerJson = TestDataProvider.badCustomerJsonWithBlankCustomerId.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
         mockMvc.perform(post("/api/ens/sms")
                         .content(customerJson)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Message Sent Via SMS."));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.customerId").value("Customer Id cannot be blank."));
     }
 
 }
