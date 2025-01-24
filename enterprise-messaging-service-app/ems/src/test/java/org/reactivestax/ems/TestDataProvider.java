@@ -1,5 +1,8 @@
 package org.reactivestax.ems;
 
+import org.reactivestax.ems.domain.Customer;
+import org.reactivestax.ems.dto.CustomerDTO;
+
 import java.util.function.Supplier;
 
 public interface TestDataProvider {
@@ -186,5 +189,39 @@ public interface TestDataProvider {
           "message": "78978a"
         }
         """;
+
+    Supplier<CustomerDTO> goodCustomerDto = () -> {
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setCustomerId("testDto");
+        customerDTO.setMessage("Test Message or the test DTO");
+        return customerDTO;
+    };
+
+    Supplier<CustomerDTO> goodCustomerDtoWithPhoneNum = () -> {
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setCustomerId("testDto");
+        customerDTO.setMessage("Test Message or the test DTO");
+        customerDTO.setPhoneNumber("1234567890");
+        return customerDTO;
+    };
+
+    Supplier<CustomerDTO> goodCustomerDtoWithEmail = () -> {
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setCustomerId("testDto");
+        customerDTO.setMessage("Test Message or the test DTO");
+        customerDTO.setEmailAddress("test@gmail.com");
+        return customerDTO;
+    };
+
+    Supplier<CustomerDTO> goodCustomerDtoWithEmailAndPhoneNum = () -> {
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setCustomerId("testDto");
+        customerDTO.setMessage("Test Message or the test DTO");
+        customerDTO.setPhoneNumber("1234567890");
+        customerDTO.setEmailAddress("test@gmail.com");
+        return customerDTO;
+    };
+
+    Supplier<Customer> goodCustomer = Customer::new;
 
 }
