@@ -1,6 +1,9 @@
 package org.reactivestax.ems.controller;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.reactivestax.ems.TestDataProvider;
 import org.reactivestax.ems.dto.CustomerDTO;
 import org.reactivestax.ems.exception.CustomerNotFoundException;
@@ -11,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.stream.Stream;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -18,7 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EnsController.class)
-public class EnsControllerTest {
+class EnsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -26,17 +31,29 @@ public class EnsControllerTest {
     @MockitoBean
     private EnsService ensService;
 
-    @Test
-    void testSendMessageWithSms_GoodCustomer() throws  Exception {
+    static Stream<Arguments> messageDeliveryOptions(){
+        return Stream.of(
+                Arguments.of("sms", "SMS"),
+                Arguments.of("call", "Call"),
+                Arguments.of("email", "Email")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("messageDeliveryOptions")
+    void testSendMessage_GoodCustomer(String deliveryOption, String messageExpected) throws  Exception {
+        String uriTemplate = "/api/ens/" + deliveryOption;
+        String expectedContent = "Message Sent Via " + messageExpected + ".";
+
         String customerJson = TestDataProvider.goodCustomerJson.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
-        mockMvc.perform(post("/api/ens/sms")
+        mockMvc.perform(post(uriTemplate)
                 .content(customerJson)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Message Sent Via SMS."));
+                .andExpect(content().string(expectedContent));
     }
 
     @Test
