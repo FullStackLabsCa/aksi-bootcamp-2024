@@ -5,6 +5,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.reactivestax.ems.TestDataProvider;
 import org.reactivestax.ems.dto.CustomerDTO;
+import org.reactivestax.ems.exception.CustomerNotFoundException;
 import org.reactivestax.ems.service.OtpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,6 +17,7 @@ import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -111,15 +113,13 @@ class OtpControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(expectedContent));
     }
-/*
+
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
     void testSendMessageWithSms_BadCustomerWithoutCustomerId(String deliveryOption) throws Exception{
         String uriTemplate = "/api/otp/" + deliveryOption;
 
         String customerJson = TestDataProvider.badCustomerJsonWithNullCustomerId.get();
-
-        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
         mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
@@ -135,8 +135,6 @@ class OtpControllerTest {
 
         String customerJson = TestDataProvider.badCustomerJsonWithBlankCustomerId.get();
 
-        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
-
         mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -149,11 +147,11 @@ class OtpControllerTest {
     void testSendMessageWithSms_NonExistingCustomer(String deliveryOption) throws Exception{
         String uriTemplate = "/api/otp/" + deliveryOption;
 
-        String customerJson = TestDataProvider.badCustomerJsonWithInvalidCustomerId.get();
+        String customerJson = TestDataProvider.badCustomerJsonWithInvalidCustomerIdWithoutMessage.get();
 
-        doThrow(CustomerNotFoundException.class).when(ensService).sendMessageViaSms(any(CustomerDTO.class));
-        doThrow(CustomerNotFoundException.class).when(ensService).sendMessageViaCall(any(CustomerDTO.class));
-        doThrow(CustomerNotFoundException.class).when(ensService).sendMessageViaEmail(any(CustomerDTO.class));
+        doThrow(CustomerNotFoundException.class).when(otpService).sendOtpViaSms(any(CustomerDTO.class));
+        doThrow(CustomerNotFoundException.class).when(otpService).sendOtpViaCall(any(CustomerDTO.class));
+        doThrow(CustomerNotFoundException.class).when(otpService).sendOtpViaEmail(any(CustomerDTO.class));
 
         mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
@@ -161,7 +159,7 @@ class OtpControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Customer Not Found"));
     }
-
+/*
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
     void testSendMessageWithSms_BadCustomerWithWrongPhoneNumberLength(String deliveryOption) throws Exception{
