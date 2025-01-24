@@ -91,7 +91,7 @@ class EnsControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_GoodCustomerWithPhNumAndEmail(String deliveryOption, String messageExpected) throws  Exception {
+    void testSendMessage_GoodCustomerWithPhNumAndEmail(String deliveryOption, String messageExpected) throws  Exception {
         String uriTemplate = "/api/ens/" + deliveryOption;
         String expectedContent = "Message Sent Via " + messageExpected + ".";
 
@@ -108,7 +108,7 @@ class EnsControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_BadCustomerWithoutCustomerId(String deliveryOption) throws Exception{
+    void testSendMessage_BadCustomerWithoutCustomerId(String deliveryOption) throws Exception{
         String uriTemplate = "/api/ens/" + deliveryOption;
 
         String customerJson = TestDataProvider.badCustomerJsonWithNullCustomerId.get();
@@ -124,7 +124,7 @@ class EnsControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_BadCustomerWithBlankCustomerId(String deliveryOption) throws Exception{
+    void testSendMessage_BadCustomerWithBlankCustomerId(String deliveryOption) throws Exception{
         String uriTemplate = "/api/ens/" + deliveryOption;
 
         String customerJson = TestDataProvider.badCustomerJsonWithBlankCustomerId.get();
@@ -140,7 +140,7 @@ class EnsControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_NonExistingCustomer(String deliveryOption) throws Exception{
+    void testSendMessage_NonExistingCustomer(String deliveryOption) throws Exception{
         String uriTemplate = "/api/ens/" + deliveryOption;
 
         String customerJson = TestDataProvider.badCustomerJsonWithInvalidCustomerId.get();
@@ -158,7 +158,7 @@ class EnsControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_BadCustomerWithWrongPhoneNumberLength(String deliveryOption) throws Exception{
+    void testSendMessage_BadCustomerWithWrongPhoneNumberLength(String deliveryOption) throws Exception{
         String uriTemplate = "/api/ens/" + deliveryOption;
 
         String customerJson = TestDataProvider.badCustomerJsonWithWrongPhoneNumLen.get();
@@ -174,7 +174,7 @@ class EnsControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_BadCustomerWithWrongPhoneNumberData(String deliveryOption) throws Exception{
+    void testSendMessage_BadCustomerWithWrongPhoneNumberData(String deliveryOption) throws Exception{
         String uriTemplate = "/api/ens/" + deliveryOption;
 
         String customerJson = TestDataProvider.badCustomerJsonWithWrongPhoneNumData.get();
@@ -190,7 +190,7 @@ class EnsControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_BadCustomerWithWrongEmail(String deliveryOption) throws Exception{
+    void testSendMessage_BadCustomerWithWrongEmail(String deliveryOption) throws Exception{
         String uriTemplate = "/api/ens/" + deliveryOption;
 
         String customerJson = TestDataProvider.badCustomerJsonWithWrongEmail.get();
