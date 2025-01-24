@@ -128,4 +128,17 @@ public class EnsControllerTest {
                 .andExpect(jsonPath("$.phoneNumber").value("Invalid digits in Phone Number"));
     }
 
+    @Test
+    void testSendMessageWithSms_BadCustomerWithWrongEmail() throws Exception{
+        String customerJson = TestDataProvider.badCustomerJsonWithWrongEmail.get();
+
+        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+
+        mockMvc.perform(post("/api/ens/sms")
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.emailAddress").value("Invalid Email Address"));
+    }
+
 }
