@@ -7,6 +7,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.reactivestax.ems.TestDataProvider;
 import org.reactivestax.ems.dto.CustomerDTO;
 import org.reactivestax.ems.exception.CustomerNotFoundException;
+import org.reactivestax.ems.exception.MaxOTPFailureCountReachedException;
+import org.reactivestax.ems.exception.MaxOTPGenerationCountReachedException;
 import org.reactivestax.ems.service.OtpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -306,10 +308,30 @@ class OtpControllerTest {
                 .andExpect(content().string("Verification Failed!"));
     }
 
-    /** TODO
-     * Verify throw exception and
-     * check Attempt Count Reached
-     * check Generation Count Reached!
-     */
+    @Test
+    void testVerifyOTP_OTPMaxFailureAttemptReached() throws Exception {
+        String customerJson = TestDataProvider.goodCustomerJsonForVerifyOtp.get();
+
+        doThrow(MaxOTPFailureCountReachedException.class).when(otpService).verifyOtp(any(CustomerDTO.class));
+
+        mockMvc.perform(post("/api/otp/verify")
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.error").value("OTP Generation Failed because Max Failure Count Reached. Customer Blocked for 2 Hours."));
+    }
+
+    @Test
+    void testVerifyOTP_OTPMaxGenerationAttemptReached() throws Exception {
+        String customerJson = TestDataProvider.goodCustomerJsonForVerifyOtp.get();
+
+        doThrow(MaxOTPGenerationCountReachedException.class).when(otpService).verifyOtp(any(CustomerDTO.class));
+
+        mockMvc.perform(post("/api/otp/verify")
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.error").value("OTP Generation Failed because Max OTP Generation Count Reached. Customer Blocked for 8 hours."));
+    }
 
 }
