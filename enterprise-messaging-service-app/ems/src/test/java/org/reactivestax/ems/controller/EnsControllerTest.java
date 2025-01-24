@@ -1,6 +1,5 @@
 package org.reactivestax.ems.controller;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -62,7 +61,6 @@ class EnsControllerTest {
         String uriTemplate = "/api/ens/" + deliveryOption;
         String expectedContent = "Message Sent Via " + messageExpected + ".";
 
-
         String customerJson = TestDataProvider.goodCustomerJsonWithPhoneNumber.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
@@ -74,104 +72,132 @@ class EnsControllerTest {
                 .andExpect(content().string(expectedContent));
     }
 
-    @Test
-    void testSendMessageWithSms_GoodCustomerWithEmail() throws  Exception {
+    @ParameterizedTest
+    @MethodSource("messageDeliveryOptions")
+    void testSendMessage_GoodCustomerWithEmail(String deliveryOption, String messageExpected) throws  Exception {
+        String uriTemplate = "/api/ens/" + deliveryOption;
+        String expectedContent = "Message Sent Via " + messageExpected + ".";
+
         String customerJson = TestDataProvider.goodCustomerJsonWithEmail.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
-        mockMvc.perform(post("/api/ens/sms")
+        mockMvc.perform(post(uriTemplate)
                 .content(customerJson)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Message Sent Via SMS."));
+                .andExpect(content().string(expectedContent));
     }
 
-    @Test
-    void testSendMessageWithSms_GoodCustomerWithPhNumAndEmail() throws  Exception {
+    @ParameterizedTest
+    @MethodSource("messageDeliveryOptions")
+    void testSendMessageWithSms_GoodCustomerWithPhNumAndEmail(String deliveryOption, String messageExpected) throws  Exception {
+        String uriTemplate = "/api/ens/" + deliveryOption;
+        String expectedContent = "Message Sent Via " + messageExpected + ".";
+
         String customerJson = TestDataProvider.goodCustomerJsonWithPhoneNumAndEmail.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
-        mockMvc.perform(post("/api/ens/sms")
+        mockMvc.perform(post(uriTemplate)
                 .content(customerJson)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Message Sent Via SMS."));
+                .andExpect(content().string(expectedContent));
     }
 
-    @Test
-    void testSendMessageWithSms_BadCustomerWithoutCustomerId() throws Exception{
+    @ParameterizedTest
+    @MethodSource("messageDeliveryOptions")
+    void testSendMessageWithSms_BadCustomerWithoutCustomerId(String deliveryOption) throws Exception{
+        String uriTemplate = "/api/ens/" + deliveryOption;
+
         String customerJson = TestDataProvider.badCustomerJsonWithNullCustomerId.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
-        mockMvc.perform(post("/api/ens/sms")
+        mockMvc.perform(post(uriTemplate)
                 .content(customerJson)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.customerId").value("Customer Id cannot be blank."));
     }
 
-    @Test
-    void testSendMessageWithSms_BadCustomerWithBlankCustomerId() throws Exception{
+    @ParameterizedTest
+    @MethodSource("messageDeliveryOptions")
+    void testSendMessageWithSms_BadCustomerWithBlankCustomerId(String deliveryOption) throws Exception{
+        String uriTemplate = "/api/ens/" + deliveryOption;
+
         String customerJson = TestDataProvider.badCustomerJsonWithBlankCustomerId.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
-        mockMvc.perform(post("/api/ens/sms")
+        mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.customerId").value("Customer Id cannot be blank."));
     }
 
-    @Test
-    void testSendMessageWithSms_NonExistingCustomer() throws Exception{
+    @ParameterizedTest
+    @MethodSource("messageDeliveryOptions")
+    void testSendMessageWithSms_NonExistingCustomer(String deliveryOption) throws Exception{
+        String uriTemplate = "/api/ens/" + deliveryOption;
+
         String customerJson = TestDataProvider.badCustomerJsonWithInvalidCustomerId.get();
 
         doThrow(CustomerNotFoundException.class).when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+        doThrow(CustomerNotFoundException.class).when(ensService).sendMessageViaCall(any(CustomerDTO.class));
+        doThrow(CustomerNotFoundException.class).when(ensService).sendMessageViaEmail(any(CustomerDTO.class));
 
-        mockMvc.perform(post("/api/ens/sms")
+        mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Customer Not Found"));
     }
 
-    @Test
-    void testSendMessageWithSms_BadCustomerWithWrongPhoneNumberLength() throws Exception{
+    @ParameterizedTest
+    @MethodSource("messageDeliveryOptions")
+    void testSendMessageWithSms_BadCustomerWithWrongPhoneNumberLength(String deliveryOption) throws Exception{
+        String uriTemplate = "/api/ens/" + deliveryOption;
+
         String customerJson = TestDataProvider.badCustomerJsonWithWrongPhoneNumLen.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
-        mockMvc.perform(post("/api/ens/sms")
+        mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.phoneNumber").value("Invalid length of Phone Number"));
     }
 
-    @Test
-    void testSendMessageWithSms_BadCustomerWithWrongPhoneNumberData() throws Exception{
+    @ParameterizedTest
+    @MethodSource("messageDeliveryOptions")
+    void testSendMessageWithSms_BadCustomerWithWrongPhoneNumberData(String deliveryOption) throws Exception{
+        String uriTemplate = "/api/ens/" + deliveryOption;
+
         String customerJson = TestDataProvider.badCustomerJsonWithWrongPhoneNumData.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
-        mockMvc.perform(post("/api/ens/sms")
+        mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.phoneNumber").value("Invalid digits in Phone Number"));
     }
 
-    @Test
-    void testSendMessageWithSms_BadCustomerWithWrongEmail() throws Exception{
+    @ParameterizedTest
+    @MethodSource("messageDeliveryOptions")
+    void testSendMessageWithSms_BadCustomerWithWrongEmail(String deliveryOption) throws Exception{
+        String uriTemplate = "/api/ens/" + deliveryOption;
+
         String customerJson = TestDataProvider.badCustomerJsonWithWrongEmail.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
-        mockMvc.perform(post("/api/ens/sms")
+        mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
