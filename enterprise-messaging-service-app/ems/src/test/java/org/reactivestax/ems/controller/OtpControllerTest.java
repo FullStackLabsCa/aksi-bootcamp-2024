@@ -54,16 +54,18 @@ class OtpControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(expectedContent));
     }
-/*
+
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
     void testSendMessage_GoodCustomerWithPhoneNumber(String deliveryOption, String messageExpected) throws  Exception {
         String uriTemplate = "/api/otp/" + deliveryOption;
         String expectedContent = "OTP Sent Via " + messageExpected + ".";
 
-        String customerJson = TestDataProvider.goodCustomerJsonWithPhoneNumber.get();
+        String customerJson = TestDataProvider.goodCustomerJsonWithPhoneNumberWithoutMessage.get();
 
-        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+        doReturn(true).when(otpService).sendOtpViaSms(any(CustomerDTO.class));
+        doReturn(true).when(otpService).sendOtpViaCall(any(CustomerDTO.class));
+        doReturn(true).when(otpService).sendOtpViaEmail(any(CustomerDTO.class));
 
         mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
@@ -78,9 +80,11 @@ class OtpControllerTest {
         String uriTemplate = "/api/otp/" + deliveryOption;
         String expectedContent = "OTP Sent Via " + messageExpected + ".";
 
-        String customerJson = TestDataProvider.goodCustomerJsonWithEmail.get();
+        String customerJson = TestDataProvider.goodCustomerJsonWithEmailWithoutMessage.get();
 
-        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+        doReturn(true).when(otpService).sendOtpViaSms(any(CustomerDTO.class));
+        doReturn(true).when(otpService).sendOtpViaCall(any(CustomerDTO.class));
+        doReturn(true).when(otpService).sendOtpViaEmail(any(CustomerDTO.class));
 
         mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
@@ -95,9 +99,11 @@ class OtpControllerTest {
         String uriTemplate = "/api/otp/" + deliveryOption;
         String expectedContent = "OTP Sent Via " + messageExpected + ".";
 
-        String customerJson = TestDataProvider.goodCustomerJsonWithPhoneNumAndEmail.get();
+        String customerJson = TestDataProvider.goodCustomerJsonWithPhoneNumAndEmailWithoutMessage.get();
 
-        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+        doReturn(true).when(otpService).sendOtpViaSms(any(CustomerDTO.class));
+        doReturn(true).when(otpService).sendOtpViaCall(any(CustomerDTO.class));
+        doReturn(true).when(otpService).sendOtpViaEmail(any(CustomerDTO.class));
 
         mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
@@ -105,7 +111,7 @@ class OtpControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(expectedContent));
     }
-
+/*
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
     void testSendMessageWithSms_BadCustomerWithoutCustomerId(String deliveryOption) throws Exception{
