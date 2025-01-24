@@ -40,25 +40,34 @@ public class OtpService {
     @Autowired
     private Environment environment;
 
+    private Customer checkCustomerValidity(String customerId) {;
+        Customer customer = customerRepository.findByCustomerId(customerId);
+        if(customer == null) throw new CustomerNotFoundException("Customer Not Found!");
+        return customer;
+    }
+
     public boolean sendOtpViaSms(CustomerDTO customerDTO) {
+        Customer customer = checkCustomerValidity(customerDTO.getCustomerId());
         if(!isOtpGenerationBlocked(customerDTO)) {
-            fetchCustomerAndSaveMessageAndSendMsgToJms(customerDTO, DeliveryMode.SMS);
+            fetchCustomerAndSaveMessageAndSendMsgToJms(customerDTO, customer, DeliveryMode.SMS);
             return true;
         }
         return false;
     }
 
     public boolean sendOtpViaCall(CustomerDTO customerDTO) {
+        Customer customer = checkCustomerValidity(customerDTO.getCustomerId());
         if(!isOtpGenerationBlocked(customerDTO)) {
-            fetchCustomerAndSaveMessageAndSendMsgToJms(customerDTO, DeliveryMode.CALL);
+            fetchCustomerAndSaveMessageAndSendMsgToJms(customerDTO, customer, DeliveryMode.CALL);
             return true;
         }
         return false;
     }
 
     public boolean sendOtpViaEmail(CustomerDTO customerDTO) {
+        Customer customer = checkCustomerValidity(customerDTO.getCustomerId());
         if(!isOtpGenerationBlocked(customerDTO)) {
-            fetchCustomerAndSaveMessageAndSendMsgToJms(customerDTO, DeliveryMode.EMAIL);
+            fetchCustomerAndSaveMessageAndSendMsgToJms(customerDTO, customer, DeliveryMode.EMAIL);
             return true;
         }
         return false;
@@ -88,10 +97,7 @@ public class OtpService {
         return false;
     }
 
-    private void fetchCustomerAndSaveMessageAndSendMsgToJms(CustomerDTO customerDTO, DeliveryMode deliveryMode) {
-        Customer customer = customerRepository.findByCustomerId(customerDTO.getCustomerId());
-        if(customer == null) throw new CustomerNotFoundException("Customer Not Found.");
-
+    private void fetchCustomerAndSaveMessageAndSendMsgToJms(CustomerDTO customerDTO, Customer customer, DeliveryMode deliveryMode) {
         Message message = Message.builder()
                 .deliveryMode(deliveryMode)
                 .phoneNumber(customerDTO.getPhoneNumber())
