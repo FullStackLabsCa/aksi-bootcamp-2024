@@ -40,7 +40,7 @@ class OtpControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessage_GoodCustomer(String deliveryOption, String messageExpected) throws  Exception {
+    void testSendOTP_GoodCustomer(String deliveryOption, String messageExpected) throws  Exception {
         String uriTemplate = "/api/otp/" + deliveryOption;
         String expectedContent = "OTP Sent Via " + messageExpected + ".";
 
@@ -59,7 +59,7 @@ class OtpControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessage_GoodCustomerWithPhoneNumber(String deliveryOption, String messageExpected) throws  Exception {
+    void testSendOTP_GoodCustomerWithPhoneNumber(String deliveryOption, String messageExpected) throws  Exception {
         String uriTemplate = "/api/otp/" + deliveryOption;
         String expectedContent = "OTP Sent Via " + messageExpected + ".";
 
@@ -78,7 +78,7 @@ class OtpControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessage_GoodCustomerWithEmail(String deliveryOption, String messageExpected) throws  Exception {
+    void testSendOTP_GoodCustomerWithEmail(String deliveryOption, String messageExpected) throws  Exception {
         String uriTemplate = "/api/otp/" + deliveryOption;
         String expectedContent = "OTP Sent Via " + messageExpected + ".";
 
@@ -97,7 +97,7 @@ class OtpControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_GoodCustomerWithPhNumAndEmail(String deliveryOption, String messageExpected) throws  Exception {
+    void testSendOTP_GoodCustomerWithPhNumAndEmail(String deliveryOption, String messageExpected) throws  Exception {
         String uriTemplate = "/api/otp/" + deliveryOption;
         String expectedContent = "OTP Sent Via " + messageExpected + ".";
 
@@ -116,7 +116,7 @@ class OtpControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_BadCustomerWithoutCustomerId(String deliveryOption) throws Exception{
+    void testSendOTP_BadCustomerWithoutCustomerId(String deliveryOption) throws Exception{
         String uriTemplate = "/api/otp/" + deliveryOption;
 
         String customerJson = TestDataProvider.badCustomerJsonWithNullCustomerId.get();
@@ -130,7 +130,7 @@ class OtpControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_BadCustomerWithBlankCustomerId(String deliveryOption) throws Exception{
+    void testSendOTP_BadCustomerWithBlankCustomerId(String deliveryOption) throws Exception{
         String uriTemplate = "/api/otp/" + deliveryOption;
 
         String customerJson = TestDataProvider.badCustomerJsonWithBlankCustomerId.get();
@@ -144,7 +144,7 @@ class OtpControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_NonExistingCustomer(String deliveryOption) throws Exception{
+    void testSendOTP_NonExistingCustomer(String deliveryOption) throws Exception{
         String uriTemplate = "/api/otp/" + deliveryOption;
 
         String customerJson = TestDataProvider.badCustomerJsonWithInvalidCustomerIdWithoutMessage.get();
@@ -159,15 +159,13 @@ class OtpControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Customer Not Found"));
     }
-/*
+
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_BadCustomerWithWrongPhoneNumberLength(String deliveryOption) throws Exception{
+    void testSendOTP_BadCustomerWithWrongPhoneNumberLength(String deliveryOption) throws Exception{
         String uriTemplate = "/api/otp/" + deliveryOption;
 
-        String customerJson = TestDataProvider.badCustomerJsonWithWrongPhoneNumLen.get();
-
-        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+        String customerJson = TestDataProvider.badCustomerJsonWithWrongPhoneNumLenWithoutMessage.get();
 
         mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
@@ -178,12 +176,10 @@ class OtpControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_BadCustomerWithWrongPhoneNumberData(String deliveryOption) throws Exception{
+    void testSendOTP_BadCustomerWithWrongPhoneNumberData(String deliveryOption) throws Exception{
         String uriTemplate = "/api/otp/" + deliveryOption;
 
-        String customerJson = TestDataProvider.badCustomerJsonWithWrongPhoneNumData.get();
-
-        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+        String customerJson = TestDataProvider.badCustomerJsonWithWrongPhoneNumDataWithoutMessage.get();
 
         mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
@@ -194,12 +190,10 @@ class OtpControllerTest {
 
     @ParameterizedTest
     @MethodSource("messageDeliveryOptions")
-    void testSendMessageWithSms_BadCustomerWithWrongEmail(String deliveryOption) throws Exception{
+    void testSendOTP_BadCustomerWithWrongEmail(String deliveryOption) throws Exception{
         String uriTemplate = "/api/otp/" + deliveryOption;
 
-        String customerJson = TestDataProvider.badCustomerJsonWithWrongEmail.get();
-
-        doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+        String customerJson = TestDataProvider.badCustomerJsonWithWrongEmailWithoutMessage.get();
 
         mockMvc.perform(post(uriTemplate)
                         .content(customerJson)
@@ -207,5 +201,5 @@ class OtpControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.emailAddress").value("Invalid Email Address"));
     }
-*/
+
 }
