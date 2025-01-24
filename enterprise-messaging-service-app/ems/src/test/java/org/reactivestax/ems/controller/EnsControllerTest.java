@@ -3,6 +3,7 @@ package org.reactivestax.ems.controller;
 import org.junit.jupiter.api.Test;
 import org.reactivestax.ems.TestDataProvider;
 import org.reactivestax.ems.dto.CustomerDTO;
+import org.reactivestax.ems.exception.CustomerNotFoundException;
 import org.reactivestax.ems.service.EnsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -12,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -100,6 +102,19 @@ public class EnsControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.customerId").value("Customer Id cannot be blank."));
+    }
+
+    @Test
+    void testSendMessageWithSms_NonExistingCustomer() throws Exception{
+        String customerJson = TestDataProvider.badCustomerJsonWithInvalidCustomerId.get();
+
+        doThrow(CustomerNotFoundException.class).when(ensService).sendMessageViaSms(any(CustomerDTO.class));
+
+        mockMvc.perform(post("/api/ens/sms")
+                        .content(customerJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Customer Not Found"));
     }
 
     @Test
