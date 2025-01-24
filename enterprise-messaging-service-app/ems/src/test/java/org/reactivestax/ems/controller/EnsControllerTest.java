@@ -56,17 +56,22 @@ class EnsControllerTest {
                 .andExpect(content().string(expectedContent));
     }
 
-    @Test
-    void testSendMessageWithSms_GoodCustomerWithPhoneNumber() throws  Exception {
+    @ParameterizedTest
+    @MethodSource("messageDeliveryOptions")
+    void testSendMessage_GoodCustomerWithPhoneNumber(String deliveryOption, String messageExpected) throws  Exception {
+        String uriTemplate = "/api/ens/" + deliveryOption;
+        String expectedContent = "Message Sent Via " + messageExpected + ".";
+
+
         String customerJson = TestDataProvider.goodCustomerJsonWithPhoneNumber.get();
 
         doNothing().when(ensService).sendMessageViaSms(any(CustomerDTO.class));
 
-        mockMvc.perform(post("/api/ens/sms")
+        mockMvc.perform(post(uriTemplate)
                 .content(customerJson)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Message Sent Via SMS."));
+                .andExpect(content().string(expectedContent));
     }
 
     @Test
