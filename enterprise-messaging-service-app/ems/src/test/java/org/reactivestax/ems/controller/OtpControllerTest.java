@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -332,6 +333,36 @@ class OtpControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isMethodNotAllowed())
                 .andExpect(jsonPath("$.error").value("OTP Generation Failed because Max OTP Generation Count Reached. Customer Blocked for 8 hours."));
+    }
+
+    @Test
+    void testCheckCustomerVerificationStatus_GoodCustomer() throws Exception{
+        doReturn(true).when(otpService).checkCustomerVerificationStatus(any(String.class));
+
+        mockMvc.perform(get("/api/otp/testCustomerId/status")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Customer Verified"));
+    }
+
+    @Test
+    void testCheckCustomerVerificationStatus_CustomerDoesNotExist() throws Exception{
+        doThrow(CustomerNotFoundException.class).when(otpService).checkCustomerVerificationStatus(any(String.class));
+
+        mockMvc.perform(get("/api/otp/dneCustomer/status")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Customer Not Found"));
+    }
+
+    @Test
+    void testCheckCustomerVerificationStatus_FailureResponseFromService() throws Exception{
+        doReturn(false).when(otpService).checkCustomerVerificationStatus(any(String.class));
+
+        mockMvc.perform(get("/api/otp/dneCustomer/status")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Customer NOT Verified!"));
     }
 
 }
