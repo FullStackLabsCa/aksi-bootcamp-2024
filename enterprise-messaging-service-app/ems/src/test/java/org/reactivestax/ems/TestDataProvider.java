@@ -79,4 +79,70 @@ public interface TestDataProvider {
           "emailAddress": "testData"
         }
         """;
+
+    Supplier<String> goodCustomerJsonWithoutMessage = () -> """
+        {
+          "customerId": "testData"
+        }
+        """;
+
+    Supplier<String> goodCustomerJsonWithPhoneNumberWithoutMessage = () -> """
+        {
+          "customerId": "testData",
+          "phoneNumber": "9055985456"
+        }
+        """;
+
+    Supplier<String> goodCustomerJsonWithEmailWithoutMessage = () -> """
+        {
+          "customerId": "testData",
+          "emailAddress": "Test@gmail.com"
+        }
+        """;
+
+    Supplier<String> goodCustomerJsonWithPhoneNumAndEmailWithoutMessage = () -> """
+        {
+          "customerId": "testData",
+          "phoneNumber": "9055985456",
+          "emailAddress": "Test@gmail.com"
+        }
+        """;
+
+    Supplier<String> badCustomerJsonWithNullCustomerIdWithoutMessage = () -> """
+        {
+        }
+        """;
+
+    Supplier<String> badCustomerJsonWithBlankCustomerIdWithoutMessage = () -> """
+        {
+            "customerId": "  "
+        }
+        """;
+
+    Supplier<String> badCustomerJsonWithInvalidCustomerIdWithoutMessage = () -> """
+        {
+          "customerId": "doesNotExist"
+        }
+        """;
+
+    Supplier<String> badCustomerJsonWithWrongPhoneNumLenWithoutMessage = () -> """
+        {
+          "customerId": "testData",
+          "phoneNumber": "90559854"
+        }
+        """;
+
+    Supplier<String> badCustomerJsonWithWrongPhoneNumDataWithoutMessage = () -> """
+        {
+          "customerId": "testData",
+          "phoneNumber": "90559854aa"
+        }
+        """;
+
+    Supplier<String> badCustomerJsonWithWrongEmailWithoutMessage = () -> """
+        {
+          "customerId": "testData",
+          "emailAddress": "testData"
+        }
+        """;
 }
