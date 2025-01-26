@@ -103,6 +103,25 @@ class OtpServiceTest {
     }
 
     @Test
+    void testSendOtpViaSms_ValidCustomer_OtpTooOld(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+        Message message = TestDataProvider.otpMessageOld.get();
+
+        ArrayList<Message> messages = new ArrayList<>();
+        messages.add(message);
+        Page<Message> mockPage = new PageImpl<>(messages, PageRequest.of(0, 1), 1);
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+        doReturn(mockPage).when(messageRepository).findByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfter(any(String.class), any(MessageType.class), any(LocalDateTime.class), any(PageRequest.class));
+
+        assertTrue(otpService.sendOtpViaSms(customerDTO));
+
+        verify(messageRepository, times(1)).save(any(Message.class));
+//        verify(jmsTemplate, times(0)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
+    }
+
+    @Test
     void testSendOtpViaSms_InvalidCustomer(){
         CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
         Customer customer = TestDataProvider.goodCustomer.get();
@@ -178,6 +197,25 @@ class OtpServiceTest {
     }
 
     @Test
+    void testSendOtpViaCall_ValidCustomer_OtpTooOld(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+        Message message = TestDataProvider.otpMessageOld.get();
+
+        ArrayList<Message> messages = new ArrayList<>();
+        messages.add(message);
+        Page<Message> mockPage = new PageImpl<>(messages, PageRequest.of(0, 1), 1);
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+        doReturn(mockPage).when(messageRepository).findByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfter(any(String.class), any(MessageType.class), any(LocalDateTime.class), any(PageRequest.class));
+
+        assertTrue(otpService.sendOtpViaCall(customerDTO));
+
+        verify(messageRepository, times(1)).save(any(Message.class));
+//        verify(jmsTemplate, times(0)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
+    }
+
+    @Test
     void testSendOtpViaCall_InvalidCustomer(){
         CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
         Customer customer = TestDataProvider.goodCustomer.get();
@@ -226,6 +264,25 @@ class OtpServiceTest {
         assertThrows(MaxOTPFailureCountReachedException.class, () -> otpService.sendOtpViaEmail(customerDTO));
 
         verify(messageRepository, times(0)).save(any(Message.class));
+//        verify(jmsTemplate, times(0)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
+    }
+
+    @Test
+    void testSendOtpViaEmail_ValidCustomer_OtpTooOld(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+        Message message = TestDataProvider.otpMessageOld.get();
+
+        ArrayList<Message> messages = new ArrayList<>();
+        messages.add(message);
+        Page<Message> mockPage = new PageImpl<>(messages, PageRequest.of(0, 1), 1);
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+        doReturn(mockPage).when(messageRepository).findByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfter(any(String.class), any(MessageType.class), any(LocalDateTime.class), any(PageRequest.class));
+
+        assertTrue(otpService.sendOtpViaEmail(customerDTO));
+
+        verify(messageRepository, times(1)).save(any(Message.class));
 //        verify(jmsTemplate, times(0)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
     }
 

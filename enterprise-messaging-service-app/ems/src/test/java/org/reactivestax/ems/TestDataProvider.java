@@ -242,11 +242,29 @@ public interface TestDataProvider {
             .otpFailureCount(0)
             .build();
 
+    Supplier<Message> otpMessageOld = () -> Message.builder()
+            .messageData("123456")
+            .messageType(MessageType.OTP)
+            .deliveryMode(DeliveryMode.SMS)
+            .creationTime(LocalDateTime.MIN)
+            .otpFailureCount(0)
+            .build();
+
     Supplier<Message> otpMessageWithFailureCountReached = () -> Message.builder()
             .messageData("123456")
             .messageType(MessageType.OTP)
             .deliveryMode(DeliveryMode.SMS)
             .creationTime(LocalDateTime.now())
             .otpFailureCount(3)
+            .build();
+
+    Supplier<Message> otpMessageVerified = () -> Message.builder()
+            .messageData("123456")
+            .messageType(MessageType.OTP)
+            .deliveryMode(DeliveryMode.SMS)
+            .creationTime(LocalDateTime.now())
+            .otpFailureCount(0)
+            .verificationStatus(true)
+            .verifiedTime(LocalDateTime.now())
             .build();
 }
