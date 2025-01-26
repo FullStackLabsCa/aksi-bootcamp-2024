@@ -267,4 +267,14 @@ public interface TestDataProvider {
             .verificationStatus(true)
             .verifiedTime(LocalDateTime.now())
             .build();
+
+    Supplier<Message> otpMessageVerifiedOld = () -> Message.builder()
+            .messageData("123456")
+            .messageType(MessageType.OTP)
+            .deliveryMode(DeliveryMode.SMS)
+            .creationTime(LocalDateTime.MIN)
+            .otpFailureCount(0)
+            .verificationStatus(true)
+            .verifiedTime(LocalDateTime.now())
+            .build();
 }

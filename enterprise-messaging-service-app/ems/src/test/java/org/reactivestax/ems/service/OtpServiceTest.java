@@ -21,6 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -323,4 +324,37 @@ class OtpServiceTest {
 //        verify(jmsTemplate, times(0)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
     }
 
+    @Test
+    void testCheckVerificationStatus_VerifiedCustomer(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+        Message message = TestDataProvider.otpMessageVerified.get();
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+        doReturn(Optional.of(message)).when(messageRepository).findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(any(String.class), any(MessageType.class), any(LocalDateTime.class));
+
+        assertEquals(Boolean.TRUE, otpService.checkCustomerVerificationStatus(customerDTO.getCustomerId()));
+    }
+
+    @Test
+    void testCheckVerificationStatus_NotVerifiedCustomer(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+        Message message = TestDataProvider.otpMessage.get();
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+        doReturn(Optional.of(message)).when(messageRepository).findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(any(String.class), any(MessageType.class), any(LocalDateTime.class));
+
+        assertEquals(Boolean.FALSE, otpService.checkCustomerVerificationStatus(customerDTO.getCustomerId()));
+    }
+
+    @Test
+    void testCheckVerificationStatus_CustomerDNE(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+
+        doReturn(null).when(customerRepository).findByCustomerId(any(String.class));
+
+        assertThrows(CustomerNotFoundException.class, () -> otpService.checkCustomerVerificationStatus(customerDTO.getCustomerId()));
+    }
 }
