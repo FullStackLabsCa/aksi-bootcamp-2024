@@ -116,4 +116,79 @@ class OtpServiceTest {
 //        verify(jmsTemplate, times(0)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
     }
 
+    @Test
+    void testSendOtpViaCall_ValidCustomer_ValidOtp(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+        Message message = TestDataProvider.otpMessage.get();
+
+        ArrayList<Message> messages = new ArrayList<>();
+        messages.add(message);
+        Page<Message> mockPage = new PageImpl<>(messages, PageRequest.of(0, 1), 1);
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+        doReturn(mockPage).when(messageRepository).findByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfter(any(String.class), any(MessageType.class), any(LocalDateTime.class), any(PageRequest.class));
+
+        assertTrue(otpService.sendOtpViaCall(customerDTO));
+
+        verify(messageRepository, times(1)).save(any(Message.class));
+//        verify(jmsTemplate, times(1)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
+    }
+
+    @Test
+    void testSendOtpViaCall_ValidCustomer_OtpWithFailureCountReached(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+        Message message = TestDataProvider.otpMessageWithFailureCountReached.get();
+
+        ArrayList<Message> messages = new ArrayList<>();
+        messages.add(message);
+        Page<Message> mockPage = new PageImpl<>(messages, PageRequest.of(0, 1), 1);
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+        doReturn(mockPage).when(messageRepository).findByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfter(any(String.class), any(MessageType.class), any(LocalDateTime.class), any(PageRequest.class));
+
+        assertThrows(MaxOTPFailureCountReachedException.class, () -> otpService.sendOtpViaCall(customerDTO));
+
+        verify(messageRepository, times(0)).save(any(Message.class));
+//        verify(jmsTemplate, times(0)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
+    }
+
+    @Test
+    void testSendOtpViaCall_ValidCustomer_OtpWithGenerationCountReached(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+        Message message = TestDataProvider.otpMessage.get();
+
+        ArrayList<Message> messages = new ArrayList<>();
+        messages.add(message);
+        messages.add(message);
+        messages.add(message);
+        messages.add(message);
+        messages.add(message);
+        Page<Message> mockPage = new PageImpl<>(messages, PageRequest.of(0, 1), 1);
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+        doReturn(mockPage).when(messageRepository).findByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfter(any(String.class), any(MessageType.class), any(LocalDateTime.class), any(PageRequest.class));
+
+        assertThrows(MaxOTPGenerationCountReachedException.class, () -> otpService.sendOtpViaCall(customerDTO));
+
+        verify(messageRepository, times(0)).save(any(Message.class));
+//        verify(jmsTemplate, times(0)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
+    }
+
+    @Test
+    void testSendOtpViaCall_InvalidCustomer(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+
+        doReturn(null).when(customerRepository).findByCustomerId(any(String.class));
+
+        assertThrows(CustomerNotFoundException.class, () -> otpService.sendOtpViaCall(customerDTO));
+
+        verify(messageRepository, times(0)).save(any(Message.class));
+        verify(messageRepository, times(0)).findByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfter(any(String.class), any(MessageType.class), any(LocalDateTime.class), any(PageRequest.class));
+//        verify(jmsTemplate, times(0)).convertAndSend("myDefaultQueue", Optional.ofNullable(any()));
+    }
+
 }
