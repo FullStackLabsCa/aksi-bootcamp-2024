@@ -1,8 +1,12 @@
 package org.reactivestax.ems;
 
 import org.reactivestax.ems.domain.Customer;
+import org.reactivestax.ems.domain.Message;
 import org.reactivestax.ems.dto.CustomerDTO;
+import org.reactivestax.ems.enums.DeliveryMode;
+import org.reactivestax.ems.enums.MessageType;
 
+import java.time.LocalDateTime;
 import java.util.function.Supplier;
 
 public interface TestDataProvider {
@@ -224,4 +228,25 @@ public interface TestDataProvider {
 
     Supplier<Customer> goodCustomer = Customer::new;
 
+    Supplier<CustomerDTO> goodCustomerDtoWithoutMessage = () -> {
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setCustomerId("testDto");
+        return customerDTO;
+    };
+
+    Supplier<Message> otpMessage = () -> Message.builder()
+            .messageData("123456")
+            .messageType(MessageType.OTP)
+            .deliveryMode(DeliveryMode.SMS)
+            .creationTime(LocalDateTime.now())
+            .otpFailureCount(0)
+            .build();
+
+    Supplier<Message> otpMessageWithFailureCountReached = () -> Message.builder()
+            .messageData("123456")
+            .messageType(MessageType.OTP)
+            .deliveryMode(DeliveryMode.SMS)
+            .creationTime(LocalDateTime.now())
+            .otpFailureCount(3)
+            .build();
 }
