@@ -125,7 +125,6 @@ class OtpServiceTest {
     @Test
     void testSendOtpViaSms_InvalidCustomer(){
         CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
-        Customer customer = TestDataProvider.goodCustomer.get();
 
         doReturn(null).when(customerRepository).findByCustomerId(any(String.class));
 
@@ -219,7 +218,6 @@ class OtpServiceTest {
     @Test
     void testSendOtpViaCall_InvalidCustomer(){
         CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
-        Customer customer = TestDataProvider.goodCustomer.get();
 
         doReturn(null).when(customerRepository).findByCustomerId(any(String.class));
 
@@ -313,7 +311,6 @@ class OtpServiceTest {
     @Test
     void testSendOtpViaEmail_InvalidCustomer(){
         CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
-        Customer customer = TestDataProvider.goodCustomer.get();
 
         doReturn(null).when(customerRepository).findByCustomerId(any(String.class));
 
@@ -351,7 +348,6 @@ class OtpServiceTest {
     @Test
     void testCheckVerificationStatus_CustomerDNE(){
         CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
-        Customer customer = TestDataProvider.goodCustomer.get();
 
         doReturn(null).when(customerRepository).findByCustomerId(any(String.class));
 
