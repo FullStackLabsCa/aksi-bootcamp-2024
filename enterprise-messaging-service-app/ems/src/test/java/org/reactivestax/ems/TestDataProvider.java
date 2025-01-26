@@ -234,8 +234,23 @@ public interface TestDataProvider {
         return customerDTO;
     };
 
+    Supplier<CustomerDTO> goodCustomerDtoWithOTPMessage = () -> {
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setCustomerId("testDto");
+        customerDTO.setMessage("123456");
+        return customerDTO;
+    };
+
     Supplier<Message> otpMessage = () -> Message.builder()
             .messageData("123456")
+            .messageType(MessageType.OTP)
+            .deliveryMode(DeliveryMode.SMS)
+            .creationTime(LocalDateTime.now())
+            .otpFailureCount(0)
+            .build();
+
+    Supplier<Message> wrongOtpMessage = () -> Message.builder()
+            .messageData("999999")
             .messageType(MessageType.OTP)
             .deliveryMode(DeliveryMode.SMS)
             .creationTime(LocalDateTime.now())

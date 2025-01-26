@@ -353,4 +353,49 @@ class OtpServiceTest {
 
         assertThrows(CustomerNotFoundException.class, () -> otpService.checkCustomerVerificationStatus(customerDTO.getCustomerId()));
     }
+
+    @Test
+    void testVerifyOTP_CustomerDNE(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithoutMessage.get();
+
+        doReturn(null).when(customerRepository).findByCustomerId(any(String.class));
+
+        assertThrows(CustomerNotFoundException.class, () -> otpService.verifyOtp(customerDTO));
+    }
+
+    @Test
+    void testVerifyOTP_GoodCustomerValidOTP(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithOTPMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+        Message message = TestDataProvider.otpMessage.get();
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+        doReturn(Optional.of(message)).when(messageRepository).findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountLessThanOrderByCreationTimeDesc(any(String.class), any(MessageType.class), any(LocalDateTime.class), any(Integer.class));
+
+        assertTrue(otpService.verifyOtp(customerDTO));
+    }
+
+    @Test
+    void testVerifyOTP_GoodCustomerInvalidOTP(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithOTPMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+        Message message = TestDataProvider.wrongOtpMessage.get();
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+        doReturn(Optional.of(message)).when(messageRepository).findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountLessThanOrderByCreationTimeDesc(any(String.class), any(MessageType.class), any(LocalDateTime.class), any(Integer.class));
+
+        assertFalse(otpService.verifyOtp(customerDTO));
+    }
+
+    @Test
+    void testVerifyOTP_GoodCustomerExpiredOTP(){
+        CustomerDTO customerDTO = TestDataProvider.goodCustomerDtoWithOTPMessage.get();
+        Customer customer = TestDataProvider.goodCustomer.get();
+
+        doReturn(customer).when(customerRepository).findByCustomerId(any(String.class));
+        doReturn(Optional.empty()).when(messageRepository).findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountLessThanOrderByCreationTimeDesc(any(String.class), any(MessageType.class), any(LocalDateTime.class), any(Integer.class));
+
+        assertFalse(otpService.verifyOtp(customerDTO));
+    }
+
 }
