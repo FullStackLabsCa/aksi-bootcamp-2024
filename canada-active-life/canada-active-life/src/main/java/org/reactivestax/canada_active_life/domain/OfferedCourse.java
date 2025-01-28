@@ -16,7 +16,7 @@ public class OfferedCourse {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int offeredCourseId;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String barCode;
 
     private LocalDate startDate;
@@ -32,8 +32,13 @@ public class OfferedCourse {
     private LocalDate registrationStartDate;
     private String availableForEnrollment;
 
-    private int courseId;
-    private int facilityId;
+    @ManyToOne
+    @JoinColumn(name = "courseId")
+    private Course courseId;
+
+    @ManyToOne
+    @JoinColumn(name = "facilityId")
+    private Facility facilityId;
 
     @CreationTimestamp
     private LocalDateTime createdTimeStamp;
