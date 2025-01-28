@@ -3,6 +3,8 @@ package org.reactivestax.canada_active_life.domain;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Entity
 @Data
 public class FamilyMember {
@@ -12,7 +14,7 @@ public class FamilyMember {
     private int familyMemberId;
 
     private String name;
-    private String dob;
+    private LocalDate dob;
     private String gender;
 
     private String emailAddress;
