@@ -16,6 +16,7 @@ public class OfferedCourse {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int offeredCourseId;
 
+    @Column(unique = true)
     private String barCode;
 
     private LocalDate startDate;
