@@ -41,7 +41,7 @@ public class FamilyManagementController {
                 .body("Family Member could not be updated.");
     }
 
-    @GetMapping
+    @DeleteMapping
     public ResponseEntity<String> deactivateFamilyMember(@RequestParam int familyMemberId, @RequestHeader("x-security-header") String actorId){
         boolean isDeactivated = familyManagementService.deactivateFamilyMember(familyMemberId, Integer.valueOf(actorId));
 
