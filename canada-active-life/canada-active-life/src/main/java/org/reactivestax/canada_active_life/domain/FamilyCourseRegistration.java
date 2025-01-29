@@ -38,6 +38,6 @@ public class FamilyCourseRegistration {
     @UpdateTimestamp
     private LocalDateTime updatedTimeStamp;
 
-    private String createdBy;
-    private String updatedBy;
+    private int createdBy;
+    private int updatedBy;
 }
