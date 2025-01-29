@@ -29,8 +29,7 @@ public class FamilyManagementController {
     @GetMapping
     public ResponseEntity<FamilyMemberDTO> getFamilyMemberDetails(@RequestParam int familyMemberId){
         Optional<FamilyMemberDTO> familyMemberDTO = familyManagementService.getFamilyMember(familyMemberId);
-        if(familyMemberDTO.isPresent()) return ResponseEntity.ok(familyMemberDTO.get());
-        else return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return familyMemberDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PatchMapping
