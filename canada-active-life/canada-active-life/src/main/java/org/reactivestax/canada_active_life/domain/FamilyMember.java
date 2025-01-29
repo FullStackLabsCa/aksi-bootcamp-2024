@@ -29,6 +29,8 @@ public class FamilyMember {
     private String preferredContactMethod;
 
     private String language;
+
+    @Column(unique = true)
     private String memberLoginId;
     private boolean isActive;
 
