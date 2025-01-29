@@ -43,10 +43,11 @@ public class FamilyManagementController {
 
     @GetMapping
     public ResponseEntity<String> deactivateFamilyMember(@RequestParam int familyMemberId, @RequestHeader("x-security-header") String actorId){
-        /**
-         *
-         */
-        return ResponseEntity.ok("Family Member Deactivated");
+        boolean isDeactivated = familyManagementService.deactivateFamilyMember(familyMemberId, Integer.valueOf(actorId));
+
+        if(isDeactivated) return ResponseEntity.ok("Family Member Deactivated");
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Family Member could not be deactivated.");
     }
 
 }
