@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/CanadaActiveLife/v1/members")
 public class FamilyManagementController {
@@ -26,11 +28,9 @@ public class FamilyManagementController {
 
     @GetMapping
     public ResponseEntity<FamilyMemberDTO> getFamilyMemberDetails(@RequestParam int familyMemberId){
-        /**
-         *
-         */
-        FamilyMemberDTO familyMemberDTO = null;
-        return ResponseEntity.ok(familyMemberDTO);
+        Optional<FamilyMemberDTO> familyMemberDTO = familyManagementService.getFamilyMember(familyMemberId);
+        if(familyMemberDTO.isPresent()) return ResponseEntity.ok(familyMemberDTO.get());
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @PatchMapping
