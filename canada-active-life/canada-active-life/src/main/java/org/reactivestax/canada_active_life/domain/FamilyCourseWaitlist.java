@@ -5,7 +5,6 @@ import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,11 +19,11 @@ public class FamilyCourseWaitlist {
 
     @ManyToOne
     @JoinColumn(name = "offeredCourseId")
-    private OfferedCourse offeredCourseId;
+    private OfferedCourse offeredCourse;
 
     @ManyToOne
     @JoinColumn(name = "familyMemberId")
-    private FamilyMember familyMemberId;
+    private FamilyMember familyMember;
 
     @CreationTimestamp
     private LocalDateTime createdTimeStamp;
