@@ -36,4 +36,6 @@ public class FamilyMemberDTO {
     private String language;
 
     private String memberLoginId;
+
+    private String familyPin;
 }
