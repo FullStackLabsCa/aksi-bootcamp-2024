@@ -14,7 +14,7 @@ public class FamilyManagementController {
     private FamilyManagementService familyManagementService;
 
     @PostMapping
-    public ResponseEntity<String> addFamilyMemberToExistingGroup(@RequestBody FamilyMemberDTO familyMemberDTO, @RequestHeader int actorId){
+    public ResponseEntity<String> addFamilyMemberToExistingGroup(@RequestBody FamilyMemberDTO familyMemberDTO, @RequestHeader("x-security-header") String actorId){
         /**
          *
          */
@@ -39,7 +39,7 @@ public class FamilyManagementController {
     }
 
     @GetMapping
-    public ResponseEntity<String> deactivateFamilyMember(@RequestParam int familyMemberId, @RequestHeader int actorId){
+    public ResponseEntity<String> deactivateFamilyMember(@RequestParam int familyMemberId, @RequestHeader("x-security-header") String actorId){
         /**
          *
          */
