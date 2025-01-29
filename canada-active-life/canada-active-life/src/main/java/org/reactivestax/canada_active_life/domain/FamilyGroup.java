@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -18,19 +19,15 @@ public class FamilyGroup {
     private int familyGroupId;
 
     private String familyPin;
-
     private double credits;
-
     private String status;
-
     private long failedLoginAttempts;
 
     @CreationTimestamp
     private LocalDateTime createdTimeStamp;
-
-    private String createdBy;
-
+    @UpdateTimestamp
     private LocalDateTime updatedTimeStamp;
 
-    private String updateBy;
+    private int createdBy;
+    private int updateBy;
 }

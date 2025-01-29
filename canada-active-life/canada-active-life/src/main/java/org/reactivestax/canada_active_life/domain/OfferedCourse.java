@@ -42,9 +42,9 @@ public class OfferedCourse {
 
     @CreationTimestamp
     private LocalDateTime createdTimeStamp;
-    private String createdBy;
-
     @UpdateTimestamp
     private LocalDateTime lastUpdatedTimeStamp;
-    private String updatedBy;
+
+    private int createdBy;
+    private int updatedBy;
 }

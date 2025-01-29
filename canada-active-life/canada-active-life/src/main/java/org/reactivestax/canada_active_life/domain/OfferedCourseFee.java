@@ -16,7 +16,6 @@ public class OfferedCourseFee {
     private int feeId;
 
     private String feeType;
-
     private double courseFee;
 
     @ManyToOne
@@ -28,6 +27,6 @@ public class OfferedCourseFee {
     @UpdateTimestamp
     private LocalDateTime updatedTimeStamp;
 
-    private String createdBy;
-    private String updatedBy;
+    private int createdBy;
+    private int updatedBy;
 }

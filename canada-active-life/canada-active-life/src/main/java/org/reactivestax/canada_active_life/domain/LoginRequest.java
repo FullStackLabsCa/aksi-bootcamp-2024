@@ -21,5 +21,5 @@ public class LoginRequest {
     @JoinColumn(name = "familyMemberId")
     private FamilyMember familyMember;
 
-    private String createdBy;
+    private int createdBy;
 }
