@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 @Data
 public class OfferedCourseDTO {
 
+    private int id;
+
     private LocalDate startDate;
 
     private LocalDate endDate;
