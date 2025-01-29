@@ -3,10 +3,12 @@ package org.reactivestax.canada_active_life.domain;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Data;
 
 import java.io.Serializable;
 
 @Embeddable
+@Data
 public class FinancialCapabilityId implements Serializable {
     @ManyToOne
     @JoinColumn(name = "facilityId")

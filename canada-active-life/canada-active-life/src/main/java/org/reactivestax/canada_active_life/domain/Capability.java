@@ -22,7 +22,6 @@ public class Capability {
 
     @CreationTimestamp
     private LocalDateTime createdTimeStamp;
-
     @UpdateTimestamp
     private LocalDateTime updatedTimeStamp;
 
