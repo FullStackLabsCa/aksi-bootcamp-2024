@@ -30,7 +30,7 @@ public class FamilyMember {
 
     private String language;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String memberLoginId;
     private boolean isActive;
 
