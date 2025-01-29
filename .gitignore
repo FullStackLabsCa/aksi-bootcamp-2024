@@ -4,3 +4,7 @@ target
 sql-files/
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/data/
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/trades_all_duplicates.csv
+canada-active-life/swagger-canada-active-life.yaml
+canada-active-life/swagger-contract.html
+canada-active-life/swagger-contract.json
+canada-active-life/swagger-contract_files/
