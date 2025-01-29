@@ -23,6 +23,8 @@ public class FamilyGroup {
     private String status;
     private long failedLoginAttempts;
 
+    private int groupOwnerId;
+
     @CreationTimestamp
     private LocalDateTime createdTimeStamp;
     @UpdateTimestamp
