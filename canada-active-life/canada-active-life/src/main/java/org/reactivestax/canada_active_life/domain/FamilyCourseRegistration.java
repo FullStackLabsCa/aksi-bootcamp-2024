@@ -27,11 +27,11 @@ public class FamilyCourseRegistration {
 
     @ManyToOne
     @JoinColumn(name = "offeredCourseId")
-    private OfferedCourse offeredCourseId;
+    private OfferedCourse offeredCourse;
 
     @ManyToOne
     @JoinColumn(name = "familyMemberId")
-    private FamilyMember familyMemberId;
+    private FamilyMember familyMember;
 
     @CreationTimestamp
     private LocalDateTime createdTimeStamp;
