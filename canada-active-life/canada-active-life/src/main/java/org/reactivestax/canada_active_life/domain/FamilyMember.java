@@ -26,6 +26,8 @@ public class FamilyMember {
     private String homePhoneNumber;
     private String businessPhoneNumber;
 
+    private String preferredContactMethod;
+
     private String language;
     private String memberLoginId;
     private boolean isActive;
