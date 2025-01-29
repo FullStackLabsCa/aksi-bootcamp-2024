@@ -23,6 +23,7 @@ public class OfferedCourse {
     private LocalDate endDate;
 
     private int numOfClassedOffered;
+    private int seatsAvailable;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
