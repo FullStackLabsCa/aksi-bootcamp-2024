@@ -31,7 +31,7 @@ public class FamilyGroup {
 
     @OneToOne
     @JoinColumn(name = "familyMemberId")
-    private FamilyMember groupOwnerId;
+    private FamilyMember groupOwner;
 
     @CreationTimestamp
     private LocalDateTime createdTimeStamp;
