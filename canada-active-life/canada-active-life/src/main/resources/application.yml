@@ -4,7 +4,7 @@ server:
 spring:
   application:
   datasource:
-    url: jdbc:postgresql://localhost:5432/ems_app
+    url: jdbc:postgresql://localhost:5432/canadaActiveLife
     username: postgres
     password: postgres
   jpa:
