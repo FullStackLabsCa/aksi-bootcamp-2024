@@ -3,6 +3,7 @@ package org.reactivestax.canada_active_life;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 
 import java.time.LocalDate;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public interface TestDataProvider {
@@ -21,7 +22,7 @@ public interface TestDataProvider {
                     .businessPhoneNumber("555-987-6543")
                     .preferredContactMethod("Email")
                     .language("English")
-                    .memberLoginId("janedoe99")
+                    .memberLoginId(UUID.randomUUID().toString())
                     .familyPin("FAM123456")
                     .build();
 }
