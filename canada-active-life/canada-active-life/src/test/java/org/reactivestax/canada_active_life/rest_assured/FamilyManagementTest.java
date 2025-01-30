@@ -4,9 +4,12 @@ import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
 import org.reactivestax.canada_active_life.TestDataProvider;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
+import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,19 +42,12 @@ class FamilyManagementTest {
         String verificationMessage = response.asString();
         assertFalse(verificationMessage.isEmpty());
         assertThat(verificationMessage).isEqualTo("Family Member created. Please click on the Activation Link in the email to activate the account.");
-
-        // Family Member Assertions
-
-        // Family Group Assertions
-
-        // UUID Token Assertions
     }
 
     @Test
     void addMemberToGroupTest() {
         FamilyMemberDTO familyMemberDTO = TestDataProvider.goodFamilyMemberDTO.get();
 
-        // Call SignUp
         Response response = given()
                 .log().all() // Log request details
                 .contentType("application/json")
@@ -130,7 +126,6 @@ class FamilyManagementTest {
     void updateFamilyMemberTest() {
         FamilyMemberDTO familyMemberDTO = TestDataProvider.goodFamilyMemberDTOForPatch.get();
 
-        // Call SignUp
         Response response = given()
                 .log().all() // Log request details
                 .contentType("application/json")
@@ -148,5 +143,24 @@ class FamilyManagementTest {
         assertEquals(familyMemberDTO.getCountry(), updatedFamilyMemberDTO.getCountry());
         assertEquals(familyMemberDTO.getProvince(), updatedFamilyMemberDTO.getProvince());
 
+    }
+
+    @Test
+    void loginTest() {
+        UserLoginDTO userLoginDTO = TestDataProvider.goodLoginDTO.get();
+
+        Response response = given()
+                .log().all() // Log request details
+                .contentType("application/json")
+                .body(userLoginDTO)
+                .when()
+                .post(BASE_URL + "/login")
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        UUID uuid = response.as(UUID.class);
+        assertThat(uuid).isNotNull();
     }
 }
