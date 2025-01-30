@@ -31,12 +31,11 @@ public class FamilyManagementController {
     }
 
     @PatchMapping
-    public ResponseEntity<String> updateFamilyMember(@RequestBody FamilyMemberDTO familyMemberDTO){
-        boolean isFamilyMemberUpdated = familyManagementService.updateFamilyMemberInfo(familyMemberDTO);
+    public ResponseEntity<FamilyMemberDTO> updateFamilyMember(@RequestBody FamilyMemberDTO familyMemberDTO, @RequestParam String memberLoginId){
+        FamilyMemberDTO updateFamilyMemberInfo = familyManagementService.updateFamilyMemberInfo(familyMemberDTO, memberLoginId);
 
-        if(isFamilyMemberUpdated) return ResponseEntity.ok("Family Member info updated.");
-        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Family Member could not be updated.");
+        if(updateFamilyMemberInfo != null) return ResponseEntity.ok(updateFamilyMemberInfo);
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @DeleteMapping

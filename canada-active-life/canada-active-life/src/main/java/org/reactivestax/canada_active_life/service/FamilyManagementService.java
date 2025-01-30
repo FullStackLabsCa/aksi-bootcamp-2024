@@ -144,13 +144,19 @@ public class FamilyManagementService {
         return familyMemberMapper.toDto(familyMember);
     }
 
-    public boolean updateFamilyMemberInfo(FamilyMemberDTO familyMemberDTO) {
+    public FamilyMemberDTO updateFamilyMemberInfo(FamilyMemberDTO familyMemberDTO, String memberLoginId) {
         /**
-         * checkActorValidity()
-         * checkIfFamilyMemberExist
-         * Update the changes in the familyMember extracted using JsonMerge and ObjectMapper
+         * checkActorValidity() - Optional
+         * checkIfFamilyMemberExist - Done
+         * Update the changes in the familyMember extracted - Done
          */
-        return false;
+        FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(memberLoginId)
+                .orElseThrow(() -> new FamilyMemberNotFoundException("Family Member Not Found."));
+
+        familyMemberMapper.updateFamilyMemberFromDto(familyMemberDTO, familyMember);
+
+        familyMemberRepository.save(familyMember);
+        return familyMemberMapper.toDto(familyMember);
     }
 
     public boolean deactivateFamilyMember(String memberLoginId, String actorMemberLoginId) {
