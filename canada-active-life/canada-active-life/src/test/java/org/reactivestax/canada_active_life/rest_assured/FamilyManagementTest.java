@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.reactivestax.canada_active_life.TestDataProvider;
+import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class FamilyManagementTest {
@@ -48,5 +49,28 @@ class FamilyManagementTest {
         // Family Group Assertions
 
         // UUID Token Assertions
+    }
+
+    @Test
+    void addMemberToGroupTest() {
+
+    }
+
+    @Test
+    void getMemberTest(){
+        Response response = given()
+                .log().all() // Log request details
+                .contentType("application/json")
+                .queryParam("memberLoginId", "12122")
+                .when()
+                .get(BASE_URL + "/members")
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        FamilyMemberDTO familyMemberDTO = response.as(FamilyMemberDTO.class);
+        assertThat(familyMemberDTO).isNotNull();
+        assertEquals("Akshat Doe", familyMemberDTO.getName());
     }
 }
