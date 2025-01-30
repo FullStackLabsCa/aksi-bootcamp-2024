@@ -7,13 +7,13 @@ import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.UUIDToken;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundException;
+import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
 import org.reactivestax.canada_active_life.repo.UUIDTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -28,6 +28,9 @@ public class FamilyManagementService {
 
     @Autowired
     private UUIDTokenRepository uuidTokenRepository;
+
+    @Autowired
+    private FamilyMemberMapper familyMemberMapper;
 
     @Transactional
     public boolean signUpNewFamilyMember(FamilyMemberDTO familyMemberDTO) {
@@ -108,10 +111,9 @@ public class FamilyManagementService {
          *
          * Activation Link Same as SignUp - TODO
          */
-        Optional<FamilyMember> actor = checkActorValidity(memberLoginId);
-        if(actor.isEmpty()) throw new FamilyMemberNotFoundException("Unable to find the actor of the request.");
+        FamilyMember actor = checkActorValidity(memberLoginId);
 
-        FamilyGroup familyGroupOfActor = actor.get().getFamilyGroup();
+        FamilyGroup familyGroupOfActor = actor.getFamilyGroup();
         FamilyMember createdFamilyMember = createFamilyMember(familyMemberDTO, familyGroupOfActor);
         familyMemberRepository.save(createdFamilyMember);
 
@@ -119,16 +121,20 @@ public class FamilyManagementService {
         return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken);
     }
 
-    private Optional<FamilyMember> checkActorValidity(String memberLoginId) {
-        return familyMemberRepository.findByMemberLoginId(memberLoginId);
+    private FamilyMember checkActorValidity(String memberLoginId) {
+        return familyMemberRepository.findByMemberLoginId(memberLoginId)
+                .orElseThrow(() -> new FamilyMemberNotFoundException("Unable to find the actor of the request."));
     }
 
-    public Optional<FamilyMemberDTO> getFamilyMember(int familyMemberId) {
+    public FamilyMemberDTO getFamilyMember(String memberLoginId) {
         /**
-         * checkActorValidity()
+         * checkActorValidity() - Optional
          * familyManagementRepo.findById(familyMemberId)
          */
-        return null;
+        FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(memberLoginId)
+                .orElseThrow(() -> new FamilyMemberNotFoundException("Family Member not found for the given Member Login Id."));
+
+        return familyMemberMapper.toDto(familyMember);
     }
 
     public boolean updateFamilyMemberInfo(FamilyMemberDTO familyMemberDTO) {
@@ -140,7 +146,7 @@ public class FamilyManagementService {
         return false;
     }
 
-    public boolean deactivateFamilyMember(int familyMemberId, String memberLoginId) {
+    public boolean deactivateFamilyMember(String memberLoginId, String actorMemberLoginId) {
         /**
          * checkActorValidity() - For Security - Optional
          * checkIfFamilyMemberExist()
