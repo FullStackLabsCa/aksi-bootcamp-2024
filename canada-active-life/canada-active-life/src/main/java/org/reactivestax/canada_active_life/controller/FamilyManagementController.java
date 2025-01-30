@@ -19,7 +19,7 @@ public class FamilyManagementController {
     @PostMapping
     public ResponseEntity<String> addFamilyMemberToExistingGroup(@RequestBody FamilyMemberDTO familyMemberDTO, @RequestHeader("x-security-header") String actorId){
 
-        boolean isFamilyMemberAdded = familyManagementService.addFamilyMember(familyMemberDTO, Integer.valueOf(actorId));
+        boolean isFamilyMemberAdded = familyManagementService.addFamilyMember(familyMemberDTO, actorId);
 
         if(isFamilyMemberAdded) return ResponseEntity.ok("Family Member added to group.");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -43,7 +43,7 @@ public class FamilyManagementController {
 
     @DeleteMapping
     public ResponseEntity<String> deactivateFamilyMember(@RequestParam int familyMemberId, @RequestHeader("x-security-header") String actorId){
-        boolean isDeactivated = familyManagementService.deactivateFamilyMember(familyMemberId, Integer.valueOf(actorId));
+        boolean isDeactivated = familyManagementService.deactivateFamilyMember(familyMemberId, actorId);
 
         if(isDeactivated) return ResponseEntity.ok("Family Member Deactivated");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)

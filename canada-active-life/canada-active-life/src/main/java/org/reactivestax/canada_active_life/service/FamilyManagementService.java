@@ -97,7 +97,7 @@ public class FamilyManagementService {
         return false;
     }
 
-    public boolean addFamilyMember(FamilyMemberDTO familyMemberDTO, Integer familyMemberId) {
+    public boolean addFamilyMember(FamilyMemberDTO familyMemberDTO, String memberLoginId) {
         /**
          * checkActorValidity()
          * Get the familyGroupId for the actor.
@@ -126,7 +126,7 @@ public class FamilyManagementService {
         return false;
     }
 
-    public boolean deactivateFamilyMember(int familyMemberId, Integer actorId) {
+    public boolean deactivateFamilyMember(int familyMemberId, String memberLoginId) {
         /**
          * checkActorValidity() - For Security - Optional
          * checkIfFamilyMemberExist()
