@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Long>, JpaSpecificationExecutor<FamilyMember> {
     Optional<FamilyMember> findByMemberLoginId(String memberLoginId);
+    Optional<FamilyMember> findByFamilyMemberId(int familyMemberId);
 }

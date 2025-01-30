@@ -6,6 +6,7 @@ import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.UUIDToken;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
+import org.reactivestax.canada_active_life.exception.ActorNotAuthorizedException;
 import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundException;
 import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
@@ -94,12 +95,18 @@ public class FamilyManagementService {
 
     public boolean activateNewSignUp(int familyMemberId, UUID uuid){
         /**
-         * map the familyMember and the UUID in the uuidTokenTable Table
-         * once the match is found - get familyMember and set isActive true
-         * check the group as well, if inactive, set to active
-         * save familyMember
+         * map the familyMember and the UUID in the uuidTokenTable Table - TODO
+         * once the match is found - get familyMember and set isActive true - Done
+         * check the group as well, if inactive, set to active - Done
+         * save familyMember - Done
          */
-        return false;
+        FamilyMember familyMember = familyMemberRepository.findByFamilyMemberId(familyMemberId)
+                .orElseThrow(() -> new FamilyMemberNotFoundException("Family member was not found!"));
+        familyMember.setActive(true);
+        if(familyMember.getFamilyGroup().getStatus().equals("inactive"))
+            familyMember.getFamilyGroup().setStatus("active");
+        familyMemberRepository.save(familyMember);
+        return true;
     }
 
     public boolean addFamilyMember(FamilyMemberDTO familyMemberDTO, String memberLoginId) {
@@ -148,11 +155,23 @@ public class FamilyManagementService {
 
     public boolean deactivateFamilyMember(String memberLoginId, String actorMemberLoginId) {
         /**
-         * checkActorValidity() - For Security - Optional
-         * checkIfFamilyMemberExist()
-         * update the isActive field to inactive
-         * save(FamilyMember)
+         * checkActorValidity() - Done
+         * checkIfFamilyMemberExist() - Done
+         * update the isActive field to inactive - Done
+         * save(FamilyMember) - Done
+         *
+         * If the memberBeingDeactivated is the last member in the group, then deactivate the group - Optional
          */
-        return false;
+        FamilyMember actor = checkActorValidity(actorMemberLoginId);
+        FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(memberLoginId)
+                .orElseThrow(() -> new FamilyMemberNotFoundException(""));
+
+        if(familyMember.getFamilyGroup().getGroupOwner().getFamilyMemberId() != actor.getFamilyMemberId())
+            throw new ActorNotAuthorizedException("Actor is not authorized to deactivate any account in the group");
+
+        familyMember.setActive(false);
+        familyMemberRepository.save(familyMember);
+
+        return true;
     }
 }
