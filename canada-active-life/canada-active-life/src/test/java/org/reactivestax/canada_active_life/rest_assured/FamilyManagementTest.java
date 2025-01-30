@@ -1,16 +1,12 @@
 package org.reactivestax.canada_active_life.rest_assured;
 
 import io.restassured.response.Response;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.reactivestax.canada_active_life.TestDataProvider;
-import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,5 +86,43 @@ class FamilyManagementTest {
         FamilyMemberDTO familyMemberDTO = response.as(FamilyMemberDTO.class);
         assertThat(familyMemberDTO).isNotNull();
         assertEquals("Akshat Doe", familyMemberDTO.getName());
+    }
+
+    @Test
+    void activateFamilyMemberTest() {
+        Response response = given()
+                .log().all() // Log request details
+                .contentType("application/json")
+                .queryParam("familyMemberId", "14")
+                .queryParam("uuid", "68ef02ef-80da-43bc-b4a4-d0625b5f5685")
+                .when()
+                .get(BASE_URL + "/activate-account")
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        String responseString = response.asString();
+        assertThat(responseString).isNotNull();
+        assertEquals("Family Member activated.", responseString);
+    }
+
+    @Test
+    void deactivateFamilyMemberTest(){
+        Response response = given()
+                .log().all() // Log request details
+                .contentType("application/json")
+                .queryParam("memberLoginId", "121222")
+                .header("x-security-header", "68ef02ef-80da-43bc-b4a4-d0625b5f5685")
+                .when()
+                .delete(BASE_URL + "/members")
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        String responseString = response.asString();
+        assertThat(responseString).isNotNull();
+        assertEquals("Family Member Deactivated", responseString);
     }
 }
