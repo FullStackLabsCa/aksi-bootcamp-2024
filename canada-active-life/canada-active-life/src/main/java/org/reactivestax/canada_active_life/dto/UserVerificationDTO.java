@@ -6,6 +6,5 @@ import java.util.UUID;
 
 @Data
 public class UserVerificationDTO {
-    private UUID uuidToken;
     private String otpEnteredByUser;
 }
