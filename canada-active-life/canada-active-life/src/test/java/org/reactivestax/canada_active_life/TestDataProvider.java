@@ -1,6 +1,7 @@
 package org.reactivestax.canada_active_life;
 
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
+import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -30,5 +31,11 @@ public interface TestDataProvider {
             FamilyMemberDTO.builder()
                     .province("Karnal")
                     .country("Uganda")
+                    .build();
+
+    Supplier<UserLoginDTO> goodLoginDTO = () ->
+            UserLoginDTO.builder()
+                    .memberLoginId("121222")
+                    .familyPin("FAM123456")
                     .build();
 }
