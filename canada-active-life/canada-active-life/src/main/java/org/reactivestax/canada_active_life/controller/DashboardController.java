@@ -1,6 +1,7 @@
 package org.reactivestax.canada_active_life.controller;
 
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
+import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 import org.reactivestax.canada_active_life.service.FamilyManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,20 @@ public class DashboardController {
         if(isMemberActivated) return ResponseEntity.ok("Family Member activated.");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Family Member could not be activated.");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UUID> loginMember(@RequestBody UserLoginDTO userLoginDTO){
+        UUID uuidToken = familyManagementService.loginMember(userLoginDTO);
+        return ResponseEntity.ok(uuidToken);
+    }
+
+    @PostMapping("/login/2fa")
+    public ResponseEntity<String> loginVerification(@RequestBody UserLoginDTO userLoginDTO){
+        boolean isVerified = familyManagementService.loginVerification(userLoginDTO);
+        if(isVerified) return ResponseEntity.ok("Member Verified :-)");
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Login Failed :-(");
     }
 
 }

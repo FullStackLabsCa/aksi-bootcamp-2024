@@ -6,6 +6,7 @@ import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.UUIDToken;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
+import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 import org.reactivestax.canada_active_life.exception.ActorNotAuthorizedException;
 import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundException;
 import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
@@ -179,5 +180,13 @@ public class FamilyManagementService {
         familyMemberRepository.save(familyMember);
 
         return true;
+    }
+
+    public UUID loginMember(UserLoginDTO userLoginDTO) {
+        return null;
+    }
+
+    public boolean loginVerification(UserLoginDTO userLoginDTO) {
+        return false;
     }
 }
