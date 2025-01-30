@@ -125,4 +125,28 @@ class FamilyManagementTest {
         assertThat(responseString).isNotNull();
         assertEquals("Family Member Deactivated", responseString);
     }
+
+    @Test
+    void updateFamilyMemberTest() {
+        FamilyMemberDTO familyMemberDTO = TestDataProvider.goodFamilyMemberDTOForPatch.get();
+
+        // Call SignUp
+        Response response = given()
+                .log().all() // Log request details
+                .contentType("application/json")
+                .body(familyMemberDTO)
+                .queryParam("memberLoginId", "12122")
+                .when()
+                .patch(BASE_URL + "/members")
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        FamilyMemberDTO updatedFamilyMemberDTO = response.as(FamilyMemberDTO.class);
+        assertThat(updatedFamilyMemberDTO).isNotNull();
+        assertEquals(familyMemberDTO.getCountry(), updatedFamilyMemberDTO.getCountry());
+        assertEquals(familyMemberDTO.getProvince(), updatedFamilyMemberDTO.getProvince());
+
+    }
 }

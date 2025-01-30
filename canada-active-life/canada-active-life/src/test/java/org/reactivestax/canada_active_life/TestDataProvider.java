@@ -25,4 +25,10 @@ public interface TestDataProvider {
                     .memberLoginId(UUID.randomUUID().toString())
                     .familyPin("FAM123456")
                     .build();
+
+    Supplier<FamilyMemberDTO> goodFamilyMemberDTOForPatch = () ->
+            FamilyMemberDTO.builder()
+                    .province("Karnal")
+                    .country("Uganda")
+                    .build();
 }
