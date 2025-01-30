@@ -11,6 +11,7 @@ import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
 import org.reactivestax.canada_active_life.exception.ActorNotAuthorizedException;
 import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundException;
+import org.reactivestax.canada_active_life.exception.MemberNotActivatedException;
 import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
@@ -198,7 +199,23 @@ public class FamilyManagementService {
          *      if match - generate and save UUID and familyMemberId in DB and request for an OTP to be sent
          * Log in the LoginRequest Table
          */
+        FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(userLoginDTO.getMemberLoginId())
+                .orElseThrow(() -> new FamilyMemberNotFoundException("Family Member not Found"));
+        if(!familyMember.isActive()){
+            UUID uuidTokenForSignUpActivation = createUUIDTokenForSignUpActivation(familyMember);
+            sendActivationLinkViaEms(familyMember.getFamilyMemberId(), uuidTokenForSignUpActivation);
+            throw new MemberNotActivatedException("Member has been sent an activation link. Please click on the link to activate the account.");
+        }
+        if(familyMember.getFamilyGroup().getFamilyPin().equals(userLoginDTO.getFamilyPin())){
+            UUID uuidTokenForLogin = createUUIDTokenForLogin(familyMember);
+            sendOTPViaEms(familyMember);
+            return uuidTokenForLogin;
+        }
         return null;
+    }
+
+    private void sendOTPViaEms(FamilyMember familyMember) {
+        log.info("Sending OTP via EMS on preferred contact method to the member.");
     }
 
     private UUID createUUIDTokenForLogin(FamilyMember createdFamilyMember) {

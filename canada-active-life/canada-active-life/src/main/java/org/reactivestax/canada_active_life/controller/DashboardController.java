@@ -41,7 +41,8 @@ public class DashboardController {
     @PostMapping("/login")
     public ResponseEntity<UUID> loginMember(@RequestBody UserLoginDTO userLoginDTO){
         UUID uuidToken = familyManagementService.loginMember(userLoginDTO);
-        return ResponseEntity.ok(uuidToken);
+        if(uuidToken != null) return ResponseEntity.ok(uuidToken);
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @PostMapping("/login/2fa")
