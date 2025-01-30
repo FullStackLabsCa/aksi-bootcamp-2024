@@ -1,14 +1,14 @@
 package org.reactivestax.canada_active_life.dto;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Data
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 public class FamilyMemberDTO {
 
     private int id;
