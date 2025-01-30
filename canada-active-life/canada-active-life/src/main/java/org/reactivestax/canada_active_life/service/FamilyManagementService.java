@@ -4,9 +4,11 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
-import org.reactivestax.canada_active_life.domain.UUIDTokenManagement;
+import org.reactivestax.canada_active_life.domain.UUIDToken;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
+import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
+import org.reactivestax.canada_active_life.repo.UUIDTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,12 @@ public class FamilyManagementService {
     @Autowired
     private FamilyMemberRepository familyMemberRepository;
 
+    @Autowired
+    private FamilyGroupRepository familyGroupRepository;
+
+    @Autowired
+    private UUIDTokenRepository uuidTokenRepository;
+
     @Transactional
     public boolean signUpNewFamilyMember(FamilyMemberDTO familyMemberDTO) {
         /**
@@ -29,17 +37,21 @@ public class FamilyManagementService {
          * sendActivationLink with the UUIDToken - TODO
          */
         FamilyGroup createdFamilyGroup = createNewFamilyGroup(familyMemberDTO.getFamilyPin());
+
         FamilyMember createdFamilyMember = createNewFamilyMember(familyMemberDTO, createdFamilyGroup);
-        UUID uuidToken = createUUIDTokenForActivation(createdFamilyMember);
+        createdFamilyGroup.setGroupOwner(createdFamilyMember);
         familyMemberRepository.save(createdFamilyMember);
+
+        UUID uuidToken = createUUIDTokenForActivation(createdFamilyMember);
         sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken);
         return false;
     }
 
     private FamilyGroup createNewFamilyGroup(String familyPin) {
-        return FamilyGroup.builder()
+        FamilyGroup familyGroup = FamilyGroup.builder()
                 .familyPin(familyPin)
                 .build();
+        return familyGroupRepository.save(familyGroup);
     }
 
     private FamilyMember createNewFamilyMember(FamilyMemberDTO familyMemberDTO, FamilyGroup createdFamilyGroup) {
@@ -68,10 +80,11 @@ public class FamilyManagementService {
 
     private UUID createUUIDTokenForActivation (FamilyMember createdFamilyMember) {
         UUID uuid  = UUID.randomUUID();
-        UUIDTokenManagement.builder()
+        UUIDToken uuidToken = UUIDToken.builder()
                 .uuid(uuid)
                 .familyMember(createdFamilyMember)
                 .build();
+        uuidTokenRepository.save(uuidToken);
         return uuid;
     }
 
