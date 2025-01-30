@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class FamilyGroup {
 
     @Id
@@ -40,4 +42,19 @@ public class FamilyGroup {
 
     private int createdBy;
     private int updateBy;
+
+    @Override
+    public String toString() {
+        return "FamilyGroup{" +
+                "familyGroupId=" + familyGroupId +
+                ", familyPin='" + familyPin + '\'' +
+                ", credits=" + credits +
+                ", status='" + status + '\'' +
+                ", createdTimeStamp=" + createdTimeStamp +
+                ", updatedTimeStamp=" + updatedTimeStamp +
+                ", createdBy=" + createdBy +
+                ", updateBy=" + updateBy +
+                ", failedLoginAttempts=" + failedLoginAttempts +
+                '}';
+    }
 }
