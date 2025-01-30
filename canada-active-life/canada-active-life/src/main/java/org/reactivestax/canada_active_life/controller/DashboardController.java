@@ -27,9 +27,9 @@ public class DashboardController {
     }
 
     @GetMapping("/activate-account")
-    public ResponseEntity<String> activateNewMember(@PathVariable String uuid, @PathVariable String memberLoginId){
+    public ResponseEntity<String> activateNewMember(@RequestParam String familyMemberId, @RequestParam String uuid){
 
-        boolean isMemberActivated = familyManagementService.activateNewSignUp(Integer.parseInt(memberLoginId), UUID.fromString(uuid));
+        boolean isMemberActivated = familyManagementService.activateNewSignUp(Integer.parseInt(familyMemberId), UUID.fromString(uuid));
 
         if(isMemberActivated) return ResponseEntity.ok("Family Member activated.");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
