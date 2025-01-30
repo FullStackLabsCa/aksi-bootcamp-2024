@@ -53,6 +53,24 @@ class FamilyManagementTest {
 
     @Test
     void addMemberToGroupTest() {
+        FamilyMemberDTO familyMemberDTO = TestDataProvider.goodFamilyMemberDTO.get();
+
+        // Call SignUp
+        Response response = given()
+                .log().all() // Log request details
+                .contentType("application/json")
+                .body(familyMemberDTO)
+                .header("x-security-header", "68ef02ef-80da-43bc-b4a4-d0625b5f5685")
+                .when()
+                .post(BASE_URL + "/members")
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        String verificationMessage = response.asString();
+        assertFalse(verificationMessage.isEmpty());
+        assertThat(verificationMessage).isEqualTo("Family Member added to group.");
 
     }
 
