@@ -4,7 +4,7 @@ server:
 spring:
   application:
   datasource:
-    url: jdbc:postgresql://localhost:5432/canadaActiveLife
+    url: jdbc:postgresql://localhost:5432/canadaactivelife
     username: postgres
     password: postgres
   jpa:
