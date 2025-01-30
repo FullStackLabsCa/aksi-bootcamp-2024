@@ -74,10 +74,6 @@ public class FamilyManagementService {
                 .build();
     }
 
-    private void sendActivationLinkViaEms(int familyMemberId, UUID uuidToken) {
-        log.info("Sending Activation Link Via Ems..." + familyMemberId + " " + uuidToken.toString());
-    }
-
     private UUID createUUIDTokenForActivation (FamilyMember createdFamilyMember) {
         UUID uuid  = UUID.randomUUID();
         UUIDToken uuidToken = UUIDToken.builder()
@@ -86,6 +82,10 @@ public class FamilyManagementService {
                 .build();
         uuidTokenRepository.save(uuidToken);
         return uuid;
+    }
+
+    private void sendActivationLinkViaEms(int familyMemberId, UUID uuidToken) {
+        log.info("Sending Activation Link Via Ems..." + familyMemberId + " " + uuidToken.toString());
     }
 
     public boolean activateNewSignUp(int familyMemberId, UUID uuid){
