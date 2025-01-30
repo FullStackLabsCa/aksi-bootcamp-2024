@@ -4,17 +4,18 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
-import org.reactivestax.canada_active_life.domain.LoginUUIDToken;
-import org.reactivestax.canada_active_life.domain.SignUpUUIDToken;
+import org.reactivestax.canada_active_life.domain.PendingLoginUUID;
+import org.reactivestax.canada_active_life.domain.PendingSignUpUUID;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.UserLoginDTO;
+import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
 import org.reactivestax.canada_active_life.exception.ActorNotAuthorizedException;
 import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundException;
 import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
-import org.reactivestax.canada_active_life.repo.LoginUUIDTokenRepository;
-import org.reactivestax.canada_active_life.repo.SignUpUUIDTokenRepository;
+import org.reactivestax.canada_active_life.repo.PendingLoginUUIDRepository;
+import org.reactivestax.canada_active_life.repo.PendingSignUpUUIDRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +32,10 @@ public class FamilyManagementService {
     private FamilyGroupRepository familyGroupRepository;
 
     @Autowired
-    private SignUpUUIDTokenRepository signUpUuidTokenRepository;
+    private PendingSignUpUUIDRepository pendingSignUpUUIDRepository;
 
     @Autowired
-    private LoginUUIDTokenRepository loginUUIDTokenRepository;
+    private PendingLoginUUIDRepository pendingLoginUUIDRepository;
 
     @Autowired
     private FamilyMemberMapper familyMemberMapper;
@@ -86,11 +87,11 @@ public class FamilyManagementService {
 
     private UUID createUUIDTokenForSignUpActivation(FamilyMember createdFamilyMember) {
         UUID uuid  = UUID.randomUUID();
-        SignUpUUIDToken uuidToken = SignUpUUIDToken.builder()
+        PendingSignUpUUID uuidToken = PendingSignUpUUID.builder()
                 .uuid(uuid)
                 .familyMember(createdFamilyMember)
                 .build();
-        signUpUuidTokenRepository.save(uuidToken);
+        pendingSignUpUUIDRepository.save(uuidToken);
         return uuid;
     }
 
@@ -195,23 +196,27 @@ public class FamilyManagementService {
          *      if not active - send activation link
          * Match the memberLoginId and FamilyPin
          *      if match - generate and save UUID and familyMemberId in DB and request for an OTP to be sent
+         * Log in the LoginRequest Table
          */
         return null;
     }
 
     private UUID createUUIDTokenForLogin(FamilyMember createdFamilyMember) {
         UUID uuid  = UUID.randomUUID();
-        LoginUUIDToken uuidToken = LoginUUIDToken.builder()
+        PendingLoginUUID uuidToken = PendingLoginUUID.builder()
                 .uuid(uuid)
                 .familyMember(createdFamilyMember)
                 .build();
-        loginUUIDTokenRepository.save(uuidToken);
+        pendingLoginUUIDRepository.save(uuidToken);
         return uuid;
     }
 
-    public boolean loginVerification(UserLoginDTO userLoginDTO) {
+    public boolean loginVerification(UserVerificationDTO userVerificationDTO) {
         /**
-         *
+         * Get the UUID from the header - Verify mapping for the UUID in loginTable and get FamilyMemberId for the UUID
+         *      If not found or UUID expired - Throw exception Session Expired Please try again
+         * Get the OTP entered by the user from the DTO and forward that along with the FamilyMemberId to the VerifyOTP EMS Service
+         * Wait for the response from EMS and return value based on the Verification
          */
         return false;
     }
