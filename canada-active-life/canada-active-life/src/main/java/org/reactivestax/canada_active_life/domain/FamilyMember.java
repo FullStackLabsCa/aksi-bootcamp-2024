@@ -1,12 +1,16 @@
 package org.reactivestax.canada_active_life.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
 
 @Entity
 @Data
+@Builder
+@AllArgsConstructor
 public class FamilyMember {
 
     @Id
@@ -32,7 +36,9 @@ public class FamilyMember {
 
     @Column(unique = true, nullable = false)
     private String memberLoginId;
-    private boolean isActive;
+
+    @Builder.Default
+    private boolean isActive = false;
 
     @ManyToOne
     @JoinColumn(name = "familyGroupId")

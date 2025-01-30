@@ -1,9 +1,8 @@
 package org.reactivestax.canada_active_life.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -12,6 +11,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Builder
+@AllArgsConstructor
 public class FamilyGroup {
 
     @Id
@@ -19,11 +20,18 @@ public class FamilyGroup {
     private int familyGroupId;
 
     private String familyPin;
-    private double credits;
-    private String status;
-    private long failedLoginAttempts;
 
-    private int groupOwnerId;
+    @Builder.Default
+    private double credits = 0.0;
+
+    @Builder.Default
+    private String status = "inactive";
+    @Builder.Default
+    private long failedLoginAttempts = 0;
+
+    @OneToOne
+    @JoinColumn(name = "familyMemberId")
+    private FamilyMember groupOwnerId;
 
     @CreationTimestamp
     private LocalDateTime createdTimeStamp;

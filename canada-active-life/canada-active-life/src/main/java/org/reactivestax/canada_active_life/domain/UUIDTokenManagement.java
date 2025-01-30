@@ -3,6 +3,8 @@ package org.reactivestax.canada_active_life.domain;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -11,6 +13,8 @@ import java.util.UUID;
 
 @Entity
 @Data
+@Builder
+@AllArgsConstructor
 public class UUIDTokenManagement {
 
     private UUID uuid;
