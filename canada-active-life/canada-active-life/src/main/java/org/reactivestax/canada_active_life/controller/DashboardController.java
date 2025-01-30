@@ -2,6 +2,7 @@ package org.reactivestax.canada_active_life.controller;
 
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.UserLoginDTO;
+import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
 import org.reactivestax.canada_active_life.service.FamilyManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,8 +45,8 @@ public class DashboardController {
     }
 
     @PostMapping("/login/2fa")
-    public ResponseEntity<String> loginVerification(@RequestBody UserLoginDTO userLoginDTO){
-        boolean isVerified = familyManagementService.loginVerification(userLoginDTO);
+    public ResponseEntity<String> loginVerification(@RequestBody UserVerificationDTO userVerificationDTO){
+        boolean isVerified = familyManagementService.loginVerification(userVerificationDTO);
         if(isVerified) return ResponseEntity.ok("Member Verified :-)");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Login Failed :-(");
