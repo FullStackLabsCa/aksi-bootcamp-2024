@@ -1,0 +1,13 @@
+server:
+  port: 8080
+
+spring:
+  application:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ems_app
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
