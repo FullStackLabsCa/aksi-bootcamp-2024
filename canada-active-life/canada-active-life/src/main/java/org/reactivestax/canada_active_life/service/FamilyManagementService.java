@@ -43,8 +43,7 @@ public class FamilyManagementService {
         familyMemberRepository.save(createdFamilyMember);
 
         UUID uuidToken = createUUIDTokenForActivation(createdFamilyMember);
-        sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken);
-        return false;
+        return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken);
     }
 
     private FamilyGroup createNewFamilyGroup(String familyPin) {
@@ -84,14 +83,15 @@ public class FamilyManagementService {
         return uuid;
     }
 
-    private void sendActivationLinkViaEms(int familyMemberId, UUID uuidToken) {
+    private boolean sendActivationLinkViaEms(int familyMemberId, UUID uuidToken) {
         log.info("Sending Activation Link Via Ems..." + familyMemberId + " " + uuidToken.toString());
+        return true;
     }
 
     public boolean activateNewSignUp(int familyMemberId, UUID uuid){
         /**
-         * map the familyMember and the UUID in the signUpActivation Table
-         * once the match is found - get familyMember and set isActive true
+         * map the familyMember and the UUID in the uuidTokenTable Table
+         * once the match is found - get familyMember and group and set isActive true
          * save familyMember
          */
         return false;
