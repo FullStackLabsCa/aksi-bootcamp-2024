@@ -27,9 +27,9 @@ public class FamilyManagementController {
     }
 
     @GetMapping
-    public ResponseEntity<FamilyMemberDTO> getFamilyMemberDetails(@RequestParam int familyMemberId){
-        Optional<FamilyMemberDTO> familyMemberDTO = familyManagementService.getFamilyMember(familyMemberId);
-        return familyMemberDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    public ResponseEntity<FamilyMemberDTO> getFamilyMemberDetails(@RequestParam String memberLoginId){
+        FamilyMemberDTO familyMemberDTO = familyManagementService.getFamilyMember(memberLoginId);
+        return ResponseEntity.ok(familyMemberDTO);
     }
 
     @PatchMapping
@@ -42,8 +42,8 @@ public class FamilyManagementController {
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deactivateFamilyMember(@RequestParam int familyMemberId, @RequestHeader("x-security-header") String actorId){
-        boolean isDeactivated = familyManagementService.deactivateFamilyMember(familyMemberId, actorId);
+    public ResponseEntity<String> deactivateFamilyMember(@RequestParam String memberLoginId, @RequestHeader("x-security-header") String actorId){
+        boolean isDeactivated = familyManagementService.deactivateFamilyMember(memberLoginId, actorId);
 
         if(isDeactivated) return ResponseEntity.ok("Family Member Deactivated");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
