@@ -6,6 +6,7 @@ import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.UUIDToken;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
+import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundException;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
 import org.reactivestax.canada_active_life.repo.UUIDTokenRepository;
@@ -36,9 +37,9 @@ public class FamilyManagementService {
          * create UUIDToken and save this in the uuidTokenManagement table - Done
          * sendActivationLink with the UUIDToken - TODO
          */
-        FamilyGroup createdFamilyGroup = createNewFamilyGroup(familyMemberDTO.getFamilyPin());
+        FamilyGroup createdFamilyGroup = createFamilyGroup(familyMemberDTO.getFamilyPin());
 
-        FamilyMember createdFamilyMember = createNewFamilyMember(familyMemberDTO, createdFamilyGroup);
+        FamilyMember createdFamilyMember = createFamilyMember(familyMemberDTO, createdFamilyGroup);
         createdFamilyGroup.setGroupOwner(createdFamilyMember);
         familyMemberRepository.save(createdFamilyMember);
 
@@ -46,14 +47,14 @@ public class FamilyManagementService {
         return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken);
     }
 
-    private FamilyGroup createNewFamilyGroup(String familyPin) {
+    private FamilyGroup createFamilyGroup(String familyPin) {
         FamilyGroup familyGroup = FamilyGroup.builder()
                 .familyPin(familyPin)
                 .build();
         return familyGroupRepository.save(familyGroup);
     }
 
-    private FamilyMember createNewFamilyMember(FamilyMemberDTO familyMemberDTO, FamilyGroup createdFamilyGroup) {
+    private FamilyMember createFamilyMember(FamilyMemberDTO familyMemberDTO, FamilyGroup createdFamilyGroup) {
         return FamilyMember.builder()
                 .name(familyMemberDTO.getName())
                 .dob(familyMemberDTO.getDob())
@@ -91,7 +92,8 @@ public class FamilyManagementService {
     public boolean activateNewSignUp(int familyMemberId, UUID uuid){
         /**
          * map the familyMember and the UUID in the uuidTokenTable Table
-         * once the match is found - get familyMember and group and set isActive true
+         * once the match is found - get familyMember and set isActive true
+         * check the group as well, if inactive, set to active
          * save familyMember
          */
         return false;
@@ -99,14 +101,26 @@ public class FamilyManagementService {
 
     public boolean addFamilyMember(FamilyMemberDTO familyMemberDTO, String memberLoginId) {
         /**
-         * checkActorValidity()
-         * Get the familyGroupId for the actor.
-         * Create a familyMember with the familyMemberDTO and set the FamilyGroupId as above.
-         * familyManagementRepository.save(familyMember)
+         * checkActorValidity() - Done
+         * Get the familyGroupId for the actor. - Done
+         * Create a familyMember with the familyMemberDTO and set the FamilyGroupId as above. - Done
+         * familyManagementRepository.save(familyMember) - Done
          *
-         * OTP PseudoCode (Pending)
+         * Activation Link Same as SignUp - TODO
          */
-        return false;
+        Optional<FamilyMember> actor = checkActorValidity(memberLoginId);
+        if(actor.isEmpty()) throw new FamilyMemberNotFoundException("Unable to find the actor of the request.");
+
+        FamilyGroup familyGroupOfActor = actor.get().getFamilyGroup();
+        FamilyMember createdFamilyMember = createFamilyMember(familyMemberDTO, familyGroupOfActor);
+        familyMemberRepository.save(createdFamilyMember);
+
+        UUID uuidToken = createUUIDTokenForActivation(createdFamilyMember);
+        return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken);
+    }
+
+    private Optional<FamilyMember> checkActorValidity(String memberLoginId) {
+        return familyMemberRepository.findByMemberLoginId(memberLoginId);
     }
 
     public Optional<FamilyMemberDTO> getFamilyMember(int familyMemberId) {
