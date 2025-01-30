@@ -4,7 +4,8 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
-import org.reactivestax.canada_active_life.domain.UUIDToken;
+import org.reactivestax.canada_active_life.domain.LoginUUIDToken;
+import org.reactivestax.canada_active_life.domain.SignUpUUIDToken;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 import org.reactivestax.canada_active_life.exception.ActorNotAuthorizedException;
@@ -12,7 +13,8 @@ import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundExcepti
 import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
-import org.reactivestax.canada_active_life.repo.UUIDTokenRepository;
+import org.reactivestax.canada_active_life.repo.LoginUUIDTokenRepository;
+import org.reactivestax.canada_active_life.repo.SignUpUUIDTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,10 @@ public class FamilyManagementService {
     private FamilyGroupRepository familyGroupRepository;
 
     @Autowired
-    private UUIDTokenRepository uuidTokenRepository;
+    private SignUpUUIDTokenRepository signUpUuidTokenRepository;
+
+    @Autowired
+    private LoginUUIDTokenRepository loginUUIDTokenRepository;
 
     @Autowired
     private FamilyMemberMapper familyMemberMapper;
@@ -48,7 +53,7 @@ public class FamilyManagementService {
         createdFamilyGroup.setGroupOwner(createdFamilyMember);
         familyMemberRepository.save(createdFamilyMember);
 
-        UUID uuidToken = createUUIDTokenForActivation(createdFamilyMember);
+        UUID uuidToken = createUUIDTokenForSignUpActivation(createdFamilyMember);
         return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken);
     }
 
@@ -79,13 +84,13 @@ public class FamilyManagementService {
                 .build();
     }
 
-    private UUID createUUIDTokenForActivation (FamilyMember createdFamilyMember) {
+    private UUID createUUIDTokenForSignUpActivation(FamilyMember createdFamilyMember) {
         UUID uuid  = UUID.randomUUID();
-        UUIDToken uuidToken = UUIDToken.builder()
+        SignUpUUIDToken uuidToken = SignUpUUIDToken.builder()
                 .uuid(uuid)
                 .familyMember(createdFamilyMember)
                 .build();
-        uuidTokenRepository.save(uuidToken);
+        signUpUuidTokenRepository.save(uuidToken);
         return uuid;
     }
 
@@ -125,7 +130,7 @@ public class FamilyManagementService {
         FamilyMember createdFamilyMember = createFamilyMember(familyMemberDTO, familyGroupOfActor);
         familyMemberRepository.save(createdFamilyMember);
 
-        UUID uuidToken = createUUIDTokenForActivation(createdFamilyMember);
+        UUID uuidToken = createUUIDTokenForSignUpActivation(createdFamilyMember);
         return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken);
     }
 
@@ -183,10 +188,31 @@ public class FamilyManagementService {
     }
 
     public UUID loginMember(UserLoginDTO userLoginDTO) {
+        /**
+         * Extract the memberLoginId and the FamilyPin from the UserLoginDTO
+         * Verify MemberLoginId exists
+         * Check verification status
+         *      if not active - send activation link
+         * Match the memberLoginId and FamilyPin
+         *      if match - generate and save UUID and familyMemberId in DB and request for an OTP to be sent
+         */
         return null;
     }
 
+    private UUID createUUIDTokenForLogin(FamilyMember createdFamilyMember) {
+        UUID uuid  = UUID.randomUUID();
+        LoginUUIDToken uuidToken = LoginUUIDToken.builder()
+                .uuid(uuid)
+                .familyMember(createdFamilyMember)
+                .build();
+        loginUUIDTokenRepository.save(uuidToken);
+        return uuid;
+    }
+
     public boolean loginVerification(UserLoginDTO userLoginDTO) {
+        /**
+         *
+         */
         return false;
     }
 }
