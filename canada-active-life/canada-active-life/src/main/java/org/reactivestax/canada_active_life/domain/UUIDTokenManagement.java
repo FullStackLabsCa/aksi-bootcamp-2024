@@ -1,8 +1,6 @@
 package org.reactivestax.canada_active_life.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +14,10 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 public class UUIDTokenManagement {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
     private UUID uuid;
 
