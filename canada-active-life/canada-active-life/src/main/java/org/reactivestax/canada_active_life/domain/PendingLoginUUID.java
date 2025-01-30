@@ -13,7 +13,7 @@ import java.util.UUID;
 @Data
 @Builder
 @AllArgsConstructor
-public class LoginUUIDToken {
+public class PendingLoginUUID {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
