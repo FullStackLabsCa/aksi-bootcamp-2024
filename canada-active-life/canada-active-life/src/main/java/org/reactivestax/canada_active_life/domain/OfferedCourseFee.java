@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.reactivestax.canada_active_life.enums.FeeType;
 
 import java.time.LocalDateTime;
 
@@ -15,12 +16,12 @@ public class OfferedCourseFee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int feeId;
 
-    private String feeType;
+    private FeeType feeType;
     private double courseFee;
 
     @ManyToOne
     @JoinColumn(name = "offeredCourseId")
-    private OfferedCourse offeredCourseId;
+    private OfferedCourse offeredCourse;
 
     @CreationTimestamp
     private LocalDateTime createdTimeStamp;
