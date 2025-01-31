@@ -31,8 +31,8 @@ public class OfferedCourseController {
     }
 
     @PatchMapping
-    public ResponseEntity<OfferedCourseDTO> updateOfferedCourse(@RequestBody OfferedCourseDTO offeredCourseDTO){
-        OfferedCourseDTO updatedOfferedCourseDTO = offeredCourseService.updateOfferedCourseInfo(offeredCourseDTO);
+    public ResponseEntity<OfferedCourseDTO> updateOfferedCourse(@RequestBody OfferedCourseDTO offeredCourseDTO, @RequestParam String offeredCourseId){
+        OfferedCourseDTO updatedOfferedCourseDTO = offeredCourseService.updateOfferedCourseInfo(offeredCourseDTO, Integer.parseInt(offeredCourseId));
 
         if(updatedOfferedCourseDTO != null) return ResponseEntity.ok(updatedOfferedCourseDTO);
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

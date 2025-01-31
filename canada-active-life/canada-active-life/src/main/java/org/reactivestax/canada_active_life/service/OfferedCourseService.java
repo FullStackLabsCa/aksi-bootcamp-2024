@@ -51,11 +51,11 @@ public class OfferedCourseService {
         return offeredCourseMapper.toDto(offeredCourse);
     }
 
-    public OfferedCourseDTO updateOfferedCourseInfo(OfferedCourseDTO offeredCourseDTO) {
-        /**
-         *
-         */
-        return null;
+    public OfferedCourseDTO updateOfferedCourseInfo(OfferedCourseDTO offeredCourseDTO, int offeredCourseId) {
+        OfferedCourse offeredCourse = offeredCourseRepository.findByOfferedCourseId(offeredCourseId)
+                .orElseThrow(() -> new OfferedCourseNotFoundException("OfferedCourse Not Found"));
+        offeredCourseMapper.updateOfferedCourseFromDto(offeredCourseDTO, offeredCourse);
+        return offeredCourseMapper.toDto(offeredCourseRepository.save(offeredCourse));
     }
 
     public boolean cancelOfferedCourse(int offeredCourseId) {
