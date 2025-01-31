@@ -40,7 +40,7 @@ public class OfferedCourseController {
 
     @DeleteMapping
     public ResponseEntity<String> cancelOfferedCourse(@RequestParam String offeredCourseId){
-        boolean isDeactivated = offeredCourseService.cancelOfferedCourse(offeredCourseId);
+        boolean isDeactivated = offeredCourseService.cancelOfferedCourse(Integer.parseInt(offeredCourseId));
 
         if(isDeactivated) return ResponseEntity.ok("OfferedCourse no more available!");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)

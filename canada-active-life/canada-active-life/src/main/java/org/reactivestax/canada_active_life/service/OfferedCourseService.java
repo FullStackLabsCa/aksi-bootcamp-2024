@@ -46,9 +46,6 @@ public class OfferedCourseService {
     }
 
     public OfferedCourseDTO getOfferedCourse(int offeredCourseId) {
-        /**
-         *
-         */
         OfferedCourse offeredCourse = offeredCourseRepository.findByOfferedCourseId(offeredCourseId)
                 .orElseThrow(() -> new OfferedCourseNotFoundException("OfferedCourse Not Found"));
         return offeredCourseMapper.toDto(offeredCourse);
@@ -61,10 +58,11 @@ public class OfferedCourseService {
         return null;
     }
 
-    public boolean cancelOfferedCourse(String offeredCourseId) {
-        /**
-         *
-         */
-        return false;
+    public boolean cancelOfferedCourse(int offeredCourseId) {
+        OfferedCourse offeredCourse = offeredCourseRepository.findByOfferedCourseId(offeredCourseId)
+                .orElseThrow(() -> new OfferedCourseNotFoundException("OfferedCourse Not Found"));
+        offeredCourse.setAvailableForEnrollment("Cancelled");
+        offeredCourseRepository.save(offeredCourse);
+        return true;
     }
 }
