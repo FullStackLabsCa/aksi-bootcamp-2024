@@ -3,12 +3,10 @@ package org.reactivestax.canada_active_life.rest_assured;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.reactivestax.canada_active_life.TestDataProvider;
+import org.reactivestax.canada_active_life.FamilyManagementTestDataProvider;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
-import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.UUID;
@@ -23,12 +21,9 @@ class FamilyManagementTest {
 
     private static final String BASE_URL = "http://localhost:8080/CanadaActiveLife/v1";
 
-    @Autowired
-    private FamilyGroupRepository familyGroupRepository;
-
     @Test
     void signUpTest(){
-        FamilyMemberDTO familyMemberDTO = TestDataProvider.goodFamilyMemberDTO.get();
+        FamilyMemberDTO familyMemberDTO = FamilyManagementTestDataProvider.goodFamilyMemberDTO.get();
 
         // Call SignUp
         Response response = given()
@@ -49,7 +44,7 @@ class FamilyManagementTest {
 
     @Test
     void addMemberToGroupTest() {
-        FamilyMemberDTO familyMemberDTO = TestDataProvider.goodFamilyMemberDTO.get();
+        FamilyMemberDTO familyMemberDTO = FamilyManagementTestDataProvider.goodFamilyMemberDTO.get();
 
         Response response = given()
                 .log().all() // Log request details
@@ -127,7 +122,7 @@ class FamilyManagementTest {
 
     @Test
     void updateFamilyMemberTest() {
-        FamilyMemberDTO familyMemberDTO = TestDataProvider.goodFamilyMemberDTOForPatch.get();
+        FamilyMemberDTO familyMemberDTO = FamilyManagementTestDataProvider.goodFamilyMemberDTOForPatch.get();
 
         Response response = given()
                 .log().all() // Log request details
@@ -150,7 +145,7 @@ class FamilyManagementTest {
 
     @Test
     void loginTest() {
-        UserLoginDTO userLoginDTO = TestDataProvider.goodLoginDTO.get();
+        UserLoginDTO userLoginDTO = FamilyManagementTestDataProvider.goodLoginDTO.get();
 
         Response response = given()
                 .log().all() // Log request details
@@ -171,7 +166,7 @@ class FamilyManagementTest {
     @Test
     void loginVerificationTest() {
 
-        UserLoginDTO userLoginDTO = TestDataProvider.goodLoginDTO.get();
+        UserLoginDTO userLoginDTO = FamilyManagementTestDataProvider.goodLoginDTO.get();
 
         Response loginResponse = given()
                 .log().all() // Log request details
@@ -186,7 +181,7 @@ class FamilyManagementTest {
 
         UUID uuid = loginResponse.as(UUID.class);
 
-        UserVerificationDTO userVerificationDTO = TestDataProvider.goodLoginVerificationDTO.get();
+        UserVerificationDTO userVerificationDTO = FamilyManagementTestDataProvider.goodLoginVerificationDTO.get();
 
         Response loginVerificationResponse = given()
                 .log().all() // Log request details

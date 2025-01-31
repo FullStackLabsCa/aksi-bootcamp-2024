@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-public interface TestDataProvider {
+public interface FamilyManagementTestDataProvider {
     Supplier<FamilyMemberDTO> goodFamilyMemberDTO = () ->
             FamilyMemberDTO.builder()
                     .name("Jane Doe")  // Setting string value for 'name'
