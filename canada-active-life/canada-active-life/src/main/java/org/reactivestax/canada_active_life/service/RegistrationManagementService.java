@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.*;
 import org.reactivestax.canada_active_life.dto.CourseMemberRegistrationDTO;
 import org.reactivestax.canada_active_life.enums.FeeType;
-import org.reactivestax.canada_active_life.exception.FamilyMemberNotActivatedException;
-import org.reactivestax.canada_active_life.exception.MemberAlreadyEnrolledInOfferedCourseException;
-import org.reactivestax.canada_active_life.exception.MemberAlreadyWaitlistedForOfferedCourseException;
-import org.reactivestax.canada_active_life.exception.OfferedCourseFeeNotFoundException;
+import org.reactivestax.canada_active_life.exception.*;
 import org.reactivestax.canada_active_life.repo.FamilyCourseRegistrationRepository;
 import org.reactivestax.canada_active_life.repo.FamilyCourseWaitlistRepository;
 import org.reactivestax.canada_active_life.repo.OfferedCourseFeeRepository;
@@ -79,8 +76,9 @@ public class RegistrationManagementService {
             return performEnrollment(actor, familyMember, offeredCourse);
         } else {
             familyCourseWaitlist.ifPresent(value -> {throw new MemberAlreadyWaitlistedForOfferedCourseException("Family Member is already wailisted in the offered course.");});
-            return waitlistFamilyMember(actor, familyMember, offeredCourse);
+            if(waitlistFamilyMember(actor, familyMember, offeredCourse)) throw new FamilyMemberWaitlistedForOfferedCourse("Course Full! Family Member has been waitlisted for the offered course. You will get notification as spot comes available.");
         }
+        return false;
     }
 
     private void checkIfFamilyMemberAlreadyEnrolledInOfferedCourse(List<FamilyCourseRegistration> enrollmentsForOfferedCourse, FamilyMember familyMember) {

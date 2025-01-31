@@ -141,7 +141,7 @@ public class FamilyManagementService {
 
     public FamilyMember checkFamilyMemberValidity(String memberLoginId) {
         return familyMemberRepository.findByMemberLoginId(memberLoginId)
-                .orElseThrow(() -> new FamilyMemberNotFoundException("Unable to find the actor of the request."));
+                .orElseThrow(() -> new FamilyMemberNotFoundException("Unable to find the familyMember"));
     }
 
     public FamilyMemberDTO getFamilyMember(String memberLoginId) {
