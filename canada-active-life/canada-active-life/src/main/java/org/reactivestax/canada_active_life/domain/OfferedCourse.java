@@ -35,11 +35,11 @@ public class OfferedCourse {
 
     @ManyToOne
     @JoinColumn(name = "courseId")
-    private Course courseId;
+    private Course course;
 
     @ManyToOne
     @JoinColumn(name = "facilityId")
-    private Facility facilityId;
+    private Facility facility;
 
     @CreationTimestamp
     private LocalDateTime createdTimeStamp;
