@@ -1,8 +1,6 @@
 package org.reactivestax.canada_active_life.dto;
 
 import lombok.Data;
-import org.reactivestax.canada_active_life.domain.FamilyMember;
-import org.reactivestax.canada_active_life.domain.OfferedCourse;
 
 import java.time.LocalDate;
 
@@ -23,7 +21,7 @@ public class CourseMemberRegistrationDTO {
 
     private int enrollmentActorId;
 
-    private OfferedCourse offeredCourseId;
+    private int offeredCourseId;
 
-    private FamilyMember familyMemberId;
+    private String familyMemberLoginId;
 }

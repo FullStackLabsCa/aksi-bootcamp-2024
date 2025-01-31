@@ -47,8 +47,7 @@ public class OfferedCourseService {
     }
 
     public OfferedCourseDTO getOfferedCourse(int offeredCourseId) {
-        OfferedCourse offeredCourse = offeredCourseRepository.findByOfferedCourseId(offeredCourseId)
-                .orElseThrow(() -> new OfferedCourseNotFoundException("OfferedCourse Not Found"));
+        OfferedCourse offeredCourse = getOfferedCourseById(offeredCourseId);
 
         OfferedCourseDTO offeredCourseDTO = offeredCourseMapper.toDto(offeredCourse);
         offeredCourseDTO.setCourseId(offeredCourse.getCourse().getCourseId());
@@ -59,16 +58,20 @@ public class OfferedCourseService {
         return offeredCourseDTO;
     }
 
-    public OfferedCourseDTO updateOfferedCourseInfo(OfferedCourseDTO offeredCourseDTO, int offeredCourseId) {
-        OfferedCourse offeredCourse = offeredCourseRepository.findByOfferedCourseId(offeredCourseId)
+    public OfferedCourse getOfferedCourseById(int offeredCourseId) {
+        return offeredCourseRepository.findByOfferedCourseId(offeredCourseId)
                 .orElseThrow(() -> new OfferedCourseNotFoundException("OfferedCourse Not Found"));
+    }
+
+
+    public OfferedCourseDTO updateOfferedCourseInfo(OfferedCourseDTO offeredCourseDTO, int offeredCourseId) {
+        OfferedCourse offeredCourse = getOfferedCourseById(offeredCourseId);
         offeredCourseMapper.updateOfferedCourseFromDto(offeredCourseDTO, offeredCourse);
         return offeredCourseMapper.toDto(offeredCourseRepository.save(offeredCourse));
     }
 
     public boolean cancelOfferedCourse(int offeredCourseId) {
-        OfferedCourse offeredCourse = offeredCourseRepository.findByOfferedCourseId(offeredCourseId)
-                .orElseThrow(() -> new OfferedCourseNotFoundException("OfferedCourse Not Found"));
+        OfferedCourse offeredCourse = getOfferedCourseById(offeredCourseId);
         offeredCourse.setAvailableForEnrollment("CLOSED");
         offeredCourseRepository.save(offeredCourse);
         return true;

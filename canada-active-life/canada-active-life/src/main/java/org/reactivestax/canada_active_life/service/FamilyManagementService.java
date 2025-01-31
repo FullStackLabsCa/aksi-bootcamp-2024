@@ -129,7 +129,7 @@ public class FamilyManagementService {
          *
          * Activation Link Same as SignUp - TODO
          */
-        FamilyMember actor = checkActorValidity(memberLoginId);
+        FamilyMember actor = checkFamilyMemberValidity(memberLoginId);
 
         FamilyGroup familyGroupOfActor = actor.getFamilyGroup();
         FamilyMember createdFamilyMember = createFamilyMember(familyMemberDTO, familyGroupOfActor);
@@ -139,7 +139,7 @@ public class FamilyManagementService {
         return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken);
     }
 
-    private FamilyMember checkActorValidity(String memberLoginId) {
+    public FamilyMember checkFamilyMemberValidity(String memberLoginId) {
         return familyMemberRepository.findByMemberLoginId(memberLoginId)
                 .orElseThrow(() -> new FamilyMemberNotFoundException("Unable to find the actor of the request."));
     }
@@ -179,7 +179,7 @@ public class FamilyManagementService {
          *
          * If the memberBeingDeactivated is the last member in the group, then deactivate the group - Optional
          */
-        FamilyMember actor = checkActorValidity(actorMemberLoginId);
+        FamilyMember actor = checkFamilyMemberValidity(actorMemberLoginId);
         FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(memberLoginId)
                 .orElseThrow(() -> new FamilyMemberNotFoundException(""));
 
