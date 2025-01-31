@@ -17,8 +17,8 @@ public class RegistrationController {
     private OfferedCourseRegistrationService offeredCourseRegistrationService;
 
     @PostMapping("/enrollment")
-    public ResponseEntity<String> enrollFamilyMemberInAnOfferedCourse(@RequestBody CourseMemberRegistrationDTO courseMemberRegistrationDTO){
-        boolean isEnrolled = offeredCourseRegistrationService.enrollFamilyMemberInOfferedCourse(courseMemberRegistrationDTO);
+    public ResponseEntity<String> enrollFamilyMemberInAnOfferedCourse(@RequestBody CourseMemberRegistrationDTO courseMemberRegistrationDTO, @RequestHeader("x-security-header") String memberLoginId){
+        boolean isEnrolled = offeredCourseRegistrationService.enrollFamilyMemberInOfferedCourse(courseMemberRegistrationDTO, memberLoginId);
         if(isEnrolled) return ResponseEntity.ok("Family Member Enrolled in the Offered Course.");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Failed to enroll the Family Member in the desired offered course...");
