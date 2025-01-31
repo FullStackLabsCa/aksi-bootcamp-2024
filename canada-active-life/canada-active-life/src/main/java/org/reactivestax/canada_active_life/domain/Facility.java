@@ -18,10 +18,12 @@ public class Facility {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int facilityId;
 
+    private String name;
     private String streetNumber;
     private String streetName;
     private String city;
     private String province;
+    private String postalCode;
     private String country;
 
     private String description;
