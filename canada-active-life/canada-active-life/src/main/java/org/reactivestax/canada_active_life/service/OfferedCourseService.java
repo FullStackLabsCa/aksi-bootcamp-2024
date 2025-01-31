@@ -6,6 +6,7 @@ import org.reactivestax.canada_active_life.domain.Facility;
 import org.reactivestax.canada_active_life.domain.OfferedCourse;
 import org.reactivestax.canada_active_life.dto.OfferedCourseDTO;
 import org.reactivestax.canada_active_life.exception.CourseNotFoundException;
+import org.reactivestax.canada_active_life.exception.OfferedCourseNotFoundException;
 import org.reactivestax.canada_active_life.mapper.OfferedCourseMapper;
 import org.reactivestax.canada_active_life.repo.CourseRepository;
 import org.reactivestax.canada_active_life.repo.FacilityRepository;
@@ -44,11 +45,13 @@ public class OfferedCourseService {
         return false;
     }
 
-    public OfferedCourseDTO getOfferedCourse(String offeredCourseId) {
+    public OfferedCourseDTO getOfferedCourse(int offeredCourseId) {
         /**
          *
          */
-        return null;
+        OfferedCourse offeredCourse = offeredCourseRepository.findByOfferedCourseId(offeredCourseId)
+                .orElseThrow(() -> new OfferedCourseNotFoundException("OfferedCourse Not Found"));
+        return offeredCourseMapper.toDto(offeredCourse);
     }
 
     public OfferedCourseDTO updateOfferedCourseInfo(OfferedCourseDTO offeredCourseDTO) {
