@@ -99,7 +99,7 @@ public class FamilyManagementService {
     }
 
     private boolean sendActivationLinkViaEms(int familyMemberId, UUID uuidToken) {
-        log.info("Sending Activation Link Via Ems..." + familyMemberId + " " + uuidToken.toString());
+        log.info("Sending Activation Link Via Ems... Family Member Id: {}, UUIDToken: {}", familyMemberId, uuidToken.toString());
         return true;
     }
 
@@ -217,7 +217,7 @@ public class FamilyManagementService {
     }
 
     private void sendOTPViaEms(FamilyMember familyMember) {
-        log.info("Sending OTP via EMS on preferred contact method to the member.");
+        log.info("Sending OTP via EMS on preferred contact method to the member {}.", familyMember.getName());
     }
 
     private UUID createUUIDTokenForLogin(FamilyMember createdFamilyMember) {
@@ -247,6 +247,6 @@ public class FamilyManagementService {
     }
 
     private void verifyOtpViaEms(String otpEnteredByUser, int familyMemberId) {
-        log.info("Sending OTP for Verification to EMS. OTP Entered: " + otpEnteredByUser + " by user: " + familyMemberId);
+        log.info("Sending OTP for Verification to EMS. OTP Entered: {} by user: {}", otpEnteredByUser, familyMemberId);
     }
 }
