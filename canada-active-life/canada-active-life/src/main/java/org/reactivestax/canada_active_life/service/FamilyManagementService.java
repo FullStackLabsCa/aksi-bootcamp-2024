@@ -12,6 +12,7 @@ import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
 import org.reactivestax.canada_active_life.exception.ActorNotAuthorizedException;
 import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundException;
 import org.reactivestax.canada_active_life.exception.MemberNotActivatedException;
+import org.reactivestax.canada_active_life.exception.UUIDTokenExpiredException;
 import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
@@ -20,6 +21,7 @@ import org.reactivestax.canada_active_life.repo.PendingSignUpUUIDRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -228,13 +230,23 @@ public class FamilyManagementService {
         return uuid;
     }
 
-    public boolean loginVerification(UserVerificationDTO userVerificationDTO) {
+    public boolean loginVerification(UserVerificationDTO userVerificationDTO, UUID uuid) {
         /**
-         * Get the UUID from the header - Verify mapping for the UUID in loginTable and get FamilyMemberId for the UUID
-         *      If not found or UUID expired - Throw exception Session Expired Please try again
-         * Get the OTP entered by the user from the DTO and forward that along with the FamilyMemberId to the VerifyOTP EMS Service
-         * Wait for the response from EMS and return value based on the Verification
+         * Get the UUID from the header - Verify mapping for the UUID in loginTable and get FamilyMemberId for the UUID - Done
+         *      If not found or UUID expired - Throw exception Session Expired Please try again - Done
+         * Get the OTP entered by the user from the DTO and forward that along with the FamilyMemberId to the VerifyOTP EMS Service - Done
+         * Wait for the response from EMS and return value based on the Verification - TODO
          */
-        return false;
+        PendingLoginUUID pendingLoginUUID =
+                pendingLoginUUIDRepository.findTopByUuidAndCreationTimeStampAfterOrderByCreationTimeStampDesc(uuid, LocalDateTime.now().minusHours(2))
+                    .orElseThrow(() -> new UUIDTokenExpiredException("Your Login UUID Token Expired. Please Generate a new one."));
+
+        verifyOtpViaEms(userVerificationDTO.getOtpEnteredByUser(), pendingLoginUUID.getFamilyMember().getFamilyMemberId());
+
+        return true;
+    }
+
+    private void verifyOtpViaEms(String otpEnteredByUser, int familyMemberId) {
+        log.info("Sending OTP for Verification to EMS. OTP Entered: " + otpEnteredByUser + " by user: " + familyMemberId);
     }
 }

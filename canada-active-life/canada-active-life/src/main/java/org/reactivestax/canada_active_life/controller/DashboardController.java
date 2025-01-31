@@ -46,8 +46,8 @@ public class DashboardController {
     }
 
     @PostMapping("/login/2fa")
-    public ResponseEntity<String> loginVerification(@RequestBody UserVerificationDTO userVerificationDTO){
-        boolean isVerified = familyManagementService.loginVerification(userVerificationDTO);
+    public ResponseEntity<String> loginVerification(@RequestBody UserVerificationDTO userVerificationDTO, @RequestHeader("x-security-header") String uuid){
+        boolean isVerified = familyManagementService.loginVerification(userVerificationDTO, UUID.fromString(uuid));
         if(isVerified) return ResponseEntity.ok("Member Verified :-)");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Login Failed :-(");
