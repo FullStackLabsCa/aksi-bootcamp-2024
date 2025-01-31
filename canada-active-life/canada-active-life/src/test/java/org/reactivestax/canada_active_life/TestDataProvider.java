@@ -2,6 +2,7 @@ package org.reactivestax.canada_active_life;
 
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.UserLoginDTO;
+import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -37,5 +38,10 @@ public interface TestDataProvider {
             UserLoginDTO.builder()
                     .memberLoginId("121222")
                     .familyPin("FAM123456")
+                    .build();
+
+    Supplier<UserVerificationDTO> goodLoginVerificationDTO = () ->
+            UserVerificationDTO.builder()
+                    .otpEnteredByUser("FAM123456")
                     .build();
 }

@@ -1,10 +1,14 @@
 package org.reactivestax.canada_active_life.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
-import java.util.UUID;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserVerificationDTO {
     private String otpEnteredByUser;
 }

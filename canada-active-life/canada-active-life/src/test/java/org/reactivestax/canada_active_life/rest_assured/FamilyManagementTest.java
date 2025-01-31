@@ -1,10 +1,12 @@
 package org.reactivestax.canada_active_life.rest_assured;
 
 import io.restassured.response.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.reactivestax.canada_active_life.TestDataProvider;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.UserLoginDTO;
+import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Slf4j
 class FamilyManagementTest {
 
     private static final String BASE_URL = "http://localhost:8080/CanadaActiveLife/v1";
@@ -161,6 +164,44 @@ class FamilyManagementTest {
                 .response();
 
         UUID uuid = response.as(UUID.class);
+
         assertThat(uuid).isNotNull();
+    }
+
+    @Test
+    void loginVerificationTest() {
+
+        UserLoginDTO userLoginDTO = TestDataProvider.goodLoginDTO.get();
+
+        Response loginResponse = given()
+                .log().all() // Log request details
+                .contentType("application/json")
+                .body(userLoginDTO)
+                .when()
+                .post(BASE_URL + "/login")
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        UUID uuid = loginResponse.as(UUID.class);
+
+        UserVerificationDTO userVerificationDTO = TestDataProvider.goodLoginVerificationDTO.get();
+
+        Response loginVerificationResponse = given()
+                .log().all() // Log request details
+                .contentType("application/json")
+                .body(userVerificationDTO)
+                .header("x-security-header", uuid.toString())
+                .when()
+                .post(BASE_URL + "/login/2fa")
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        String responseString = loginVerificationResponse.asString();
+        assertThat(responseString).isNotNull();
+        assertEquals("Member Verified :-)", responseString);
     }
 }
