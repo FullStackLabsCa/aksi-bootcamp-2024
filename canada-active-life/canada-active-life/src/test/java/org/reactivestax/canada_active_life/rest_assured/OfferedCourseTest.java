@@ -79,7 +79,7 @@ class OfferedCourseTest {
 
     @Test
     void updateOfferedCourseTest() {
-        /*
+        /* TODO
         FamilyMemberDTO familyMemberDTO = FamilyManagementTestDataProvider.goodFamilyMemberDTOForPatch.get();
 
         Response response = given()
