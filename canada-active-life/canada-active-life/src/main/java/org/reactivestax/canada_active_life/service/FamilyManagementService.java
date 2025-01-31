@@ -119,6 +119,7 @@ public class FamilyManagementService {
         return true;
     }
 
+    @Transactional
     public boolean addFamilyMember(FamilyMemberDTO familyMemberDTO, String memberLoginId) {
         /**
          * checkActorValidity() - Done
