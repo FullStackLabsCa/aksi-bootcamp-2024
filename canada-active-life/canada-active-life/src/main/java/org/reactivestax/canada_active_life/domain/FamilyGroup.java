@@ -1,10 +1,7 @@
 package org.reactivestax.canada_active_life.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -31,10 +28,6 @@ public class FamilyGroup {
     @Builder.Default
     private long failedLoginAttempts = 0;
 
-    @OneToOne
-    @JoinColumn(name = "familyMemberId")
-    private FamilyMember groupOwner;
-
     @CreationTimestamp
     private LocalDateTime createdTimeStamp;
     @UpdateTimestamp
@@ -42,19 +35,4 @@ public class FamilyGroup {
 
     private int createdBy;
     private int updateBy;
-
-    @Override
-    public String toString() {
-        return "FamilyGroup{" +
-                "familyGroupId=" + familyGroupId +
-                ", familyPin='" + familyPin + '\'' +
-                ", credits=" + credits +
-                ", status='" + status + '\'' +
-                ", createdTimeStamp=" + createdTimeStamp +
-                ", updatedTimeStamp=" + updatedTimeStamp +
-                ", createdBy=" + createdBy +
-                ", updateBy=" + updateBy +
-                ", failedLoginAttempts=" + failedLoginAttempts +
-                '}';
-    }
 }

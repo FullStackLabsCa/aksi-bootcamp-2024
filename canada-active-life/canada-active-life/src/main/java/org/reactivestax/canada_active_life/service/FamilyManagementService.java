@@ -52,18 +52,18 @@ public class FamilyManagementService {
         FamilyGroup createdFamilyGroup = createFamilyGroup(familyMemberDTO.getFamilyPin());
 
         FamilyMember createdFamilyMember = createFamilyMember(familyMemberDTO, createdFamilyGroup);
-        createdFamilyGroup.setGroupOwner(createdFamilyMember);
         familyMemberRepository.save(createdFamilyMember);
+        createdFamilyGroup.setCreatedBy(createdFamilyMember.getFamilyMemberId());
+        familyGroupRepository.save(createdFamilyGroup);
 
         UUID uuidToken = createUUIDTokenForSignUpActivation(createdFamilyMember);
         return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken);
     }
 
     private FamilyGroup createFamilyGroup(String familyPin) {
-        FamilyGroup familyGroup = FamilyGroup.builder()
+        return FamilyGroup.builder()
                 .familyPin(familyPin)
                 .build();
-        return familyGroupRepository.save(familyGroup);
     }
 
     private FamilyMember createFamilyMember(FamilyMemberDTO familyMemberDTO, FamilyGroup createdFamilyGroup) {
@@ -180,7 +180,7 @@ public class FamilyManagementService {
         FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(memberLoginId)
                 .orElseThrow(() -> new FamilyMemberNotFoundException(""));
 
-        if(familyMember.getFamilyGroup().getGroupOwner().getFamilyMemberId() != actor.getFamilyMemberId())
+        if(familyMember.getFamilyGroup().getCreatedBy() != actor.getFamilyMemberId())
             throw new ActorNotAuthorizedException("Actor is not authorized to deactivate any account in the group");
 
         familyMember.setActive(false);
