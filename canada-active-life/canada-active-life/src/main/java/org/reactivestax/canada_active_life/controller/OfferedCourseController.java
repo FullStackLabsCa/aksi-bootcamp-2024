@@ -26,7 +26,7 @@ public class OfferedCourseController {
 
     @GetMapping
     public ResponseEntity<OfferedCourseDTO> getOfferedCourseDetails(@RequestParam String offeredCourseId){
-        OfferedCourseDTO offeredCourseDTO = offeredCourseService.getOfferedCourse(offeredCourseId);
+        OfferedCourseDTO offeredCourseDTO = offeredCourseService.getOfferedCourse(Integer.parseInt(offeredCourseId));
         return ResponseEntity.ok(offeredCourseDTO);
     }
 
