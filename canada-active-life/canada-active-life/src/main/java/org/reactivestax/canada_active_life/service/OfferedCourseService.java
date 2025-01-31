@@ -40,6 +40,7 @@ public class OfferedCourseService {
 
         offeredCourse.setCourse(course);
         offeredCourse.setFacility(facility);
+        offeredCourse.setNumOfClassesOffered(offeredCourseDTO.getNumOfClassesOffered());
 
         offeredCourseRepository.save(offeredCourse);
         return false;
@@ -48,7 +49,14 @@ public class OfferedCourseService {
     public OfferedCourseDTO getOfferedCourse(int offeredCourseId) {
         OfferedCourse offeredCourse = offeredCourseRepository.findByOfferedCourseId(offeredCourseId)
                 .orElseThrow(() -> new OfferedCourseNotFoundException("OfferedCourse Not Found"));
-        return offeredCourseMapper.toDto(offeredCourse);
+
+        OfferedCourseDTO offeredCourseDTO = offeredCourseMapper.toDto(offeredCourse);
+        offeredCourseDTO.setCourseId(offeredCourse.getCourse().getCourseId());
+        offeredCourseDTO.setFacilityId(offeredCourse.getFacility().getFacilityId());
+        offeredCourseDTO.setNumOfClassesOffered(offeredCourse.getNumOfClassesOffered());
+        offeredCourseDTO.setAllDayCourse(offeredCourse.isAllDayCourse());
+
+        return offeredCourseDTO;
     }
 
     public OfferedCourseDTO updateOfferedCourseInfo(OfferedCourseDTO offeredCourseDTO, int offeredCourseId) {

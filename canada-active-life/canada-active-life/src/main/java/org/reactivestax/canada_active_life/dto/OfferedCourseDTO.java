@@ -16,8 +16,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class OfferedCourseDTO {
 
-    private int id;
-
     @NotNull(groups = CreateOfferedCourse.class)
     private LocalDate startDate;
 

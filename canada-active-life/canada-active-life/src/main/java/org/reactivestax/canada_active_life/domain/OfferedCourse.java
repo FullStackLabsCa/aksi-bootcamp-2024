@@ -1,12 +1,14 @@
 package org.reactivestax.canada_active_life.domain;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -16,13 +18,13 @@ public class OfferedCourse {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int offeredCourseId;
 
-    @Column(unique = true, nullable = false)
-    private String barCode;
+    @Column(unique = true)
+    private String barCode = UUID.randomUUID().toString();
 
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private int numOfClassedOffered;
+    private int numOfClassesOffered;
     private int seatsAvailable;
 
     private LocalDateTime startTime;
