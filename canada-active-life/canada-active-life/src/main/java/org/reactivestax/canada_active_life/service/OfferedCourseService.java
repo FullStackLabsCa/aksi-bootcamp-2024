@@ -43,7 +43,7 @@ public class OfferedCourseService {
         offeredCourse.setNumOfClassesOffered(offeredCourseDTO.getNumOfClassesOffered());
 
         offeredCourseRepository.save(offeredCourse);
-        return false;
+        return true;
     }
 
     public OfferedCourseDTO getOfferedCourse(int offeredCourseId) {
@@ -69,7 +69,7 @@ public class OfferedCourseService {
     public boolean cancelOfferedCourse(int offeredCourseId) {
         OfferedCourse offeredCourse = offeredCourseRepository.findByOfferedCourseId(offeredCourseId)
                 .orElseThrow(() -> new OfferedCourseNotFoundException("OfferedCourse Not Found"));
-        offeredCourse.setAvailableForEnrollment("Cancelled");
+        offeredCourse.setAvailableForEnrollment("CLOSED");
         offeredCourseRepository.save(offeredCourse);
         return true;
     }
