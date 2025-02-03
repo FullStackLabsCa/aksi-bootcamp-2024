@@ -42,7 +42,7 @@ public class OfferedCourseSpec {
         };
     }
 
-    public static Specification<OfferedCourse> inCategories(int categoryIds){
+    public static Specification<OfferedCourse> inCategories(List<Integer> categoryIds){
         return (root, query, criteriaBuilder) -> {
             Join<OfferedCourse, Course> courseCourseJoin = root.join("course", JoinType.INNER);
             Join<Course, SubCategory>  courseSubCategoryJoin = courseCourseJoin.join("subCategory", JoinType.INNER);
