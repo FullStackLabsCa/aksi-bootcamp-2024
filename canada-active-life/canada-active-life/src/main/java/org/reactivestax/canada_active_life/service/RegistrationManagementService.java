@@ -42,6 +42,7 @@ public class RegistrationManagementService {
          * Validate FamilyMemberId and the OfferedCourseId from the DTO and Existence of them in DB - Done
          *      if familyMember not activated throw exception - Done
          *          send a signUp activation link - TODO
+         * Check if course is available for Enrollment
          * Check Open Spots in the OfferedCourse - Done
          *      Query the enrollment table for the offeredCourseId and compare with the noOfSeatsOffered of offeredCourse - Done
          *      If member already enrolled notify - Done
@@ -61,6 +62,7 @@ public class RegistrationManagementService {
         if(!familyMember.isActive()) throw new FamilyMemberNotActivatedException("Please verify family member using the activation link sent via email...");
 
         OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(courseMemberRegistrationDTO.getOfferedCourseId());
+        if("CLOSED".equals(offeredCourse.getAvailableForEnrollment())) throw new OfferedCourseNotAvailableForEnrollmentException("Offered Course not available for enrollment.");
         int totalOfferedSeats = offeredCourse.getSeatsAvailable();
 
         List<FamilyCourseRegistration> enrollmentsForOfferedCourse = familyCourseRegistrationRepository.findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(offeredCourse.getOfferedCourseId(), false);
@@ -140,15 +142,38 @@ public class RegistrationManagementService {
 
     public boolean withdrawFamilyMemberFromOfferedCourse(int offeredCourseId, String memberLoginId, String actorMemberLoginId) {
         /**
-         * Validate actor by memberLoginId
-         * Validate FamilyMemberId and the OfferedCourseId from the DTO and Existence of them in DB
-         * Find the registration based on the familyMemberLoginId and the OfferedCourseId
+         * Validate actor by memberLoginId - Optional - Done
+         * Validate FamilyMemberId and the OfferedCourseId from the DTO and Existence of them in DB - Optional - Done
+         * Find the registration based on the familyMemberLoginId and the OfferedCourseId - Done
          *      is Withdraw allowed? - Pending Requirements
          *      update the creditsWithdrawn based on the business requirements - Pending Requirements
-         * isWithdrawn = true
-         * get the Waitlist for the offeredCourse
-         * Notify all the members in the waitlist for the OfferedCourse Availability
+         * isWithdrawn = true - Done
+         * get the Waitlist for the offeredCourse - Done
+         * Notify all the members in the waitlist for the OfferedCourse Availability - TODO
          */
+
+        // FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorMemberLoginId);
+         FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(memberLoginId);
+        // OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(offeredCourseId);
+
+        FamilyCourseRegistration registration = familyCourseRegistrationRepository.findByOfferedCourse_OfferedCourseIdAndFamilyMember_MemberLoginIdAndIsWithdrawn(offeredCourseId, memberLoginId, false)
+                .orElseThrow(() -> new RegistrationNotFoundException("No Registration found for the Offered Course and the Family Member."));
+
+        registration.setWithdrawn(true);
+        registration.setWithdrawnCredits(registration.getCost());
+        familyMember.getFamilyGroup().setCredits(familyMember.getFamilyGroup().getCredits() + registration.getCost());
+
+        familyCourseRegistrationRepository.save(registration);
+
+        List<FamilyCourseWaitlist> waitlists = familyCourseWaitlistRepository.findAllByOfferedCourse_OfferedCourseIdAndIsWaitlisted(offeredCourseId, true);
+        for (FamilyCourseWaitlist familyCourseWaitlist : waitlists){
+            sendCourseAvailabilityNotificationViaEms(familyCourseWaitlist.getFamilyMember().getFamilyMemberId());
+        }
+
         return false;
+    }
+
+    private void sendCourseAvailabilityNotificationViaEms(int familyMemberId) {
+        log.info("Sending notification to {}", familyMemberId);
     }
 }
