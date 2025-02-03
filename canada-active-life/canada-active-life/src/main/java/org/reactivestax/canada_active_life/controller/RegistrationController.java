@@ -31,4 +31,12 @@ public class RegistrationController {
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
+    @DeleteMapping
+    public ResponseEntity<String> withdrawFamilyMemberFromOfferedCourse(@RequestParam String offeredCourseId, @RequestParam String memberLoginId, @RequestHeader("x-security-header") String actorMemberLoginId){
+        boolean isWithdrawn = registrationManagementService.withdrawFamilyMemberFromOfferedCourse(Integer.parseInt(offeredCourseId), memberLoginId, actorMemberLoginId);
+        if(isWithdrawn) return ResponseEntity.ok("Family Member withdrawn from the Offered Course.");
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Failed to withdraw the Family Member from the offered course...");
+    }
+
 }
