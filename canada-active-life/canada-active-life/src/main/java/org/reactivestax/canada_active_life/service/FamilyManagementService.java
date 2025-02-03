@@ -108,7 +108,7 @@ public class FamilyManagementService {
 
         String url = "http://localhost:8082/api/ens/sms";
         CustomerDTO customerDTO = CustomerDTO.builder()
-                .customerId("akshat11")
+                .customerId("akshat11") // Admin User for ENS
                 .phoneNumber(phoneNumber)
                 .message(activationLink)
                 .build();
@@ -242,7 +242,26 @@ public class FamilyManagementService {
     }
 
     private void sendOTPViaEms(FamilyMember familyMember) {
-        log.info("Sending OTP via EMS on preferred contact method to the member {}.", familyMember.getName()); // TODO
+        log.info("Sending OTP via EMS on preferred contact method to the member {}.", familyMember.getName());
+
+        String url = "http://localhost:8082/api/otp/sms";
+        CustomerDTO customerDTO = CustomerDTO.builder()
+                .customerId("akshat11") // TODO replace with Customer Management API in EMS
+                .phoneNumber(familyMember.getHomePhoneNumber())
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<CustomerDTO> entity = new HttpEntity<>(customerDTO, headers);
+
+        ResponseEntity<String> response =  restTemplate.postForEntity(
+                url,
+                entity,
+                String.class
+        );
+
+        if(!Objects.equals(response.getBody(), "OTP Sent Via SMS."))
+            throw new FailedToSendOtpException("Login OTP failed to send....");
     }
 
     private UUID createUUIDTokenForLogin(FamilyMember createdFamilyMember) {
@@ -260,18 +279,34 @@ public class FamilyManagementService {
          * Get the UUID from the header - Verify mapping for the UUID in loginTable and get FamilyMemberId for the UUID - Done
          *      If not found or UUID expired - Throw exception Session Expired Please try again - Done
          * Get the OTP entered by the user from the DTO and forward that along with the FamilyMemberId to the VerifyOTP EMS Service - Done
-         * Wait for the response from EMS and return value based on the Verification - TODO
+         * Wait for the response from EMS and return value based on the Verification - Done
          */
         PendingLoginUUID pendingLoginUUID =
                 pendingLoginUUIDRepository.findTopByUuidAndCreationTimeStampAfterOrderByCreationTimeStampDesc(uuid, LocalDateTime.now().minusHours(2))
                     .orElseThrow(() -> new UUIDTokenExpiredException("Your Login UUID Token Expired. Please Generate a new one."));
 
-        verifyOtpViaEms(userVerificationDTO.getOtpEnteredByUser(), pendingLoginUUID.getFamilyMember().getFamilyMemberId());
-
-        return true;
+        return verifyOtpViaEms(userVerificationDTO.getOtpEnteredByUser(), pendingLoginUUID.getFamilyMember().getFamilyMemberId());
     }
 
-    private void verifyOtpViaEms(String otpEnteredByUser, int familyMemberId) {
+    private boolean verifyOtpViaEms(String otpEnteredByUser, int familyMemberId) {
         log.info("Sending OTP for Verification to EMS. OTP Entered: {} by user: {}", otpEnteredByUser, familyMemberId);
+
+        String url = "http://localhost:8082/api/otp/verify";
+        CustomerDTO customerDTO = CustomerDTO.builder()
+                .customerId("akshat11") // TODO replace with Customer Management API in EMS
+                .message(otpEnteredByUser)
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<CustomerDTO> entity = new HttpEntity<>(customerDTO, headers);
+
+        ResponseEntity<String> response =  restTemplate.postForEntity(
+                url,
+                entity,
+                String.class
+        );
+
+        return Objects.equals(response.getBody(), "Customer Verified");
     }
 }
