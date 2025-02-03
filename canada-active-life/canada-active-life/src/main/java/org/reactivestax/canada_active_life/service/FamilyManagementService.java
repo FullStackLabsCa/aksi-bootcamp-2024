@@ -109,7 +109,7 @@ public class FamilyManagementService {
         log.info("Sending Activation Link Via Ems... Family Member Id: {}, UUIDToken: {}", familyMemberId, uuidToken.toString());
         String activationLink = "http://localhost:8080/CanadaActiveLife/v1/activate-account?uuid="+uuidToken+"familyMemberId="+familyMemberId;
 
-        String url = "http://localhost:8080/api/ens/sms";
+        String url = "http://localhost:8082/api/ens/sms";
         CustomerDTO customerDTO = CustomerDTO.builder()
                 .customerId("akshat11")
                 .phoneNumber(phoneNumber)
