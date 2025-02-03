@@ -1,14 +1,14 @@
 package org.reactivestax.canada_active_life.controller;
 
-import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
-import org.reactivestax.canada_active_life.dto.UserLoginDTO;
-import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
+import org.reactivestax.canada_active_life.dto.*;
+import org.reactivestax.canada_active_life.service.DashboardService;
 import org.reactivestax.canada_active_life.service.FamilyManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -17,6 +17,9 @@ public class DashboardController {
 
     @Autowired
     private FamilyManagementService familyManagementService;
+
+    @Autowired
+    private DashboardService dashboardService;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUpNewMember(@RequestBody FamilyMemberDTO familyMemberDTO){
@@ -51,6 +54,14 @@ public class DashboardController {
         if(isVerified) return ResponseEntity.ok("Member Verified :-)");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Login Failed :-(");
+    }
+
+    @PostMapping("/browse_offered_courses")
+    public ResponseEntity<List<OfferedCourseDTO>> browseCourses(@RequestBody SearchCriteriaDTO searchCriteriaDTO){
+
+        List<OfferedCourseDTO> offeredCourseDTOS = dashboardService.browseCourses(searchCriteriaDTO);
+        if(!offeredCourseDTOS.isEmpty()) return ResponseEntity.ok(offeredCourseDTOS);
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
 }
