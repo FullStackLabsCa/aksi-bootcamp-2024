@@ -10,10 +10,7 @@ import org.reactivestax.canada_active_life.dto.CustomerDTO;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
-import org.reactivestax.canada_active_life.exception.ActorNotAuthorizedException;
-import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundException;
-import org.reactivestax.canada_active_life.exception.MemberNotActivatedException;
-import org.reactivestax.canada_active_life.exception.UUIDTokenExpiredException;
+import org.reactivestax.canada_active_life.exception.*;
 import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
@@ -56,7 +53,7 @@ public class FamilyManagementService {
          * createFamilyGroup - Done
          * createFamilyMember - with groupId created - isActive to false - Done
          * create UUIDToken and save this in the uuidTokenManagement table - Done
-         * sendActivationLink with the UUIDToken - TODO
+         * sendActivationLink with the UUIDToken - Done
          */
         FamilyGroup createdFamilyGroup = createFamilyGroup(familyMemberDTO.getFamilyPin());
 
@@ -107,7 +104,7 @@ public class FamilyManagementService {
 
     private boolean sendActivationLinkViaEms(int familyMemberId, UUID uuidToken, String phoneNumber) {
         log.info("Sending Activation Link Via Ems... Family Member Id: {}, UUIDToken: {}", familyMemberId, uuidToken.toString());
-        String activationLink = "http://localhost:8080/CanadaActiveLife/v1/activate-account?uuid="+uuidToken+"familyMemberId="+familyMemberId;
+        String activationLink = "http://localhost:8080/CanadaActiveLife/v1/activate-account?uuid="+uuidToken+"&familyMemberId="+familyMemberId;
 
         String url = "http://localhost:8082/api/ens/sms";
         CustomerDTO customerDTO = CustomerDTO.builder()
@@ -131,11 +128,13 @@ public class FamilyManagementService {
 
     public boolean activateNewSignUp(int familyMemberId, UUID uuid){
         /**
-         * map the familyMember and the UUID in the uuidTokenTable Table - TODO
+         * map the familyMember and the UUID in the uuidTokenTable Table - Done
          * once the match is found - get familyMember and set isActive true - Done
          * check the group as well, if inactive, set to active - Done
          * save familyMember - Done
          */
+        pendingSignUpUUIDRepository.findTopByUuidAndFamilyMember_FamilyMemberIdAndCreationTimeStampAfterOrderByCreationTimeStampDesc(uuid, familyMemberId, LocalDateTime.now().minusHours(48))
+                .orElseThrow(() -> new InvalidSignUpActivationLinkException("The Sign Up activation link is invalid. Please generate another one..."));
         FamilyMember familyMember = familyMemberRepository.findByFamilyMemberId(familyMemberId)
                 .orElseThrow(() -> new FamilyMemberNotFoundException("Family member was not found!"));
         familyMember.setActive(true);
@@ -152,8 +151,7 @@ public class FamilyManagementService {
          * Get the familyGroupId for the actor. - Done
          * Create a familyMember with the familyMemberDTO and set the FamilyGroupId as above. - Done
          * familyManagementRepository.save(familyMember) - Done
-         *
-         * Activation Link Same as SignUp - TODO
+         * Activation Link Same as SignUp - Done
          */
         FamilyMember actor = checkFamilyMemberValidity(memberLoginId);
 
@@ -244,7 +242,7 @@ public class FamilyManagementService {
     }
 
     private void sendOTPViaEms(FamilyMember familyMember) {
-        log.info("Sending OTP via EMS on preferred contact method to the member {}.", familyMember.getName());
+        log.info("Sending OTP via EMS on preferred contact method to the member {}.", familyMember.getName()); // TODO
     }
 
     private UUID createUUIDTokenForLogin(FamilyMember createdFamilyMember) {
