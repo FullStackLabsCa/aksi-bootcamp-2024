@@ -4,8 +4,11 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.*;
 import org.reactivestax.canada_active_life.dto.CourseMemberRegistrationDTO;
+import org.reactivestax.canada_active_life.dto.CourseMemberWaitlistDTO;
 import org.reactivestax.canada_active_life.enums.FeeType;
 import org.reactivestax.canada_active_life.exception.*;
+import org.reactivestax.canada_active_life.mapper.FamilyCourseRegistrationMapper;
+import org.reactivestax.canada_active_life.mapper.FamilyCourseWaitlistMapper;
 import org.reactivestax.canada_active_life.repo.FamilyCourseRegistrationRepository;
 import org.reactivestax.canada_active_life.repo.FamilyCourseWaitlistRepository;
 import org.reactivestax.canada_active_life.repo.OfferedCourseFeeRepository;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +39,12 @@ public class RegistrationManagementService {
     @Autowired
     private OfferedCourseFeeRepository offeredCourseFeeRepository;
 
-    @Transactional
+    @Autowired
+    private FamilyCourseRegistrationMapper familyCourseRegistrationMapper;
+
+    @Autowired
+    private FamilyCourseWaitlistMapper familyCourseWaitlistMapper;
+
     public boolean enrollFamilyMemberInOfferedCourse(CourseMemberRegistrationDTO courseMemberRegistrationDTO, String memberLoginId) {
         /**
          * Validate actor by memberLoginId - Done
@@ -133,11 +142,17 @@ public class RegistrationManagementService {
         return true;
     }
 
-    public List<CourseMemberRegistrationDTO> getEnrollmentsForMember(int familyMemberId) {
-        /**
-         *
-         */
-        return null;
+    public List<CourseMemberRegistrationDTO> getEnrollmentsForMember(String memberLoginId) {
+        FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(memberLoginId);
+        List<FamilyCourseRegistration> enrollmentsForFamilyMember = familyCourseRegistrationRepository.findAllByFamilyMember_FamilyMemberIdAndIsWithdrawn(familyMember.getFamilyMemberId(), false);
+        List<CourseMemberRegistrationDTO> enrollmentsForFamilyMemberDTO = new ArrayList<>();
+        for (FamilyCourseRegistration familyCourseRegistration : enrollmentsForFamilyMember){
+            CourseMemberRegistrationDTO dto = familyCourseRegistrationMapper.toDto(familyCourseRegistration);
+            dto.setOfferedCourseId(familyCourseRegistration.getOfferedCourse().getOfferedCourseId());
+            dto.setFamilyMemberLoginId(familyCourseRegistration.getFamilyMember().getMemberLoginId());
+            enrollmentsForFamilyMemberDTO.add(dto);
+        }
+        return enrollmentsForFamilyMemberDTO;
     }
 
     public boolean withdrawFamilyMemberFromOfferedCourse(int offeredCourseId, String memberLoginId, String actorMemberLoginId) {
@@ -152,7 +167,7 @@ public class RegistrationManagementService {
          * Notify all the members in the waitlist for the OfferedCourse Availability - TODO
          */
 
-        // FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorMemberLoginId);
+         familyManagementService.checkFamilyMemberValidity(actorMemberLoginId);
          FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(memberLoginId);
         // OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(offeredCourseId);
 
@@ -170,10 +185,20 @@ public class RegistrationManagementService {
             sendCourseAvailabilityNotificationViaEms(familyCourseWaitlist.getFamilyMember().getFamilyMemberId());
         }
 
-        return false;
+        return true;
     }
 
     private void sendCourseAvailabilityNotificationViaEms(int familyMemberId) {
         log.info("Sending notification to {}", familyMemberId);
+    }
+
+    public List<CourseMemberWaitlistDTO> getWaitlistForMember(String memberLoginId) {
+        FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(memberLoginId);
+        List<FamilyCourseWaitlist> waitlistedOfferedCoursesForFamilyMember = familyCourseWaitlistRepository.findAllByFamilyMember_FamilyMemberIdAndIsWaitlisted(familyMember.getFamilyMemberId(), true);
+        List<CourseMemberWaitlistDTO> waitlistedOfferedCoursesForFamilyMemberDTO = new ArrayList<>();
+        for (FamilyCourseWaitlist familyCourseWaitlist : waitlistedOfferedCoursesForFamilyMember){
+            waitlistedOfferedCoursesForFamilyMemberDTO.add(familyCourseWaitlistMapper.toDto(familyCourseWaitlist));
+        }
+        return waitlistedOfferedCoursesForFamilyMemberDTO;
     }
 }

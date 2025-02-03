@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface FamilyCourseWaitlistRepository extends JpaRepository<FamilyCourseWaitlist, Long>, JpaSpecificationExecutor<FamilyCourseWaitlist> {
     Optional<FamilyCourseWaitlist> findByOfferedCourse_OfferedCourseIdAndFamilyMember_FamilyMemberIdAndIsWaitlisted(int offeredCourseId, int familyMemberId, boolean isWaitlisted);
     List<FamilyCourseWaitlist> findAllByOfferedCourse_OfferedCourseIdAndIsWaitlisted(int offeredCourseId, boolean isWaitlisted);
+    List<FamilyCourseWaitlist> findAllByFamilyMember_FamilyMemberIdAndIsWaitlisted(int familyMemberId, boolean isWaitlisted);
 }
