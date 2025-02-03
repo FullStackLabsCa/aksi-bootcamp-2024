@@ -137,4 +137,18 @@ public class RegistrationManagementService {
          */
         return null;
     }
+
+    public boolean withdrawFamilyMemberFromOfferedCourse(int offeredCourseId, String memberLoginId, String actorMemberLoginId) {
+        /**
+         * Validate actor by memberLoginId
+         * Validate FamilyMemberId and the OfferedCourseId from the DTO and Existence of them in DB
+         * Find the registration based on the familyMemberLoginId and the OfferedCourseId
+         *      is Withdraw allowed? - Pending Requirements
+         *      update the creditsWithdrawn based on the business requirements - Pending Requirements
+         * isWithdrawn = true
+         * get the Waitlist for the offeredCourse
+         * Notify all the members in the waitlist for the OfferedCourse Availability
+         */
+        return false;
+    }
 }
