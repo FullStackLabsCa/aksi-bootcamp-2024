@@ -1,0 +1,154 @@
+package org.reactivestax.ems.service;
+
+import org.reactivestax.ems.domain.Customer;
+import org.reactivestax.ems.domain.Message;
+import org.reactivestax.ems.dto.CustomerDTO;
+import org.reactivestax.ems.enums.DeliveryMode;
+import org.reactivestax.ems.enums.MessageType;
+import org.reactivestax.ems.exception.CustomerNotFoundException;
+import org.reactivestax.ems.exception.MaxOTPFailureCountReachedException;
+import org.reactivestax.ems.exception.MaxOTPGenerationCountReachedException;
+import org.reactivestax.ems.repository.CustomerRepository;
+import org.reactivestax.ems.repository.MessageRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
+
+@Service
+public class OtpService {
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
+
+    @Autowired
+    private JmsTemplate jmsTemplate;
+
+    @Autowired
+    private Environment environment;
+
+    private Customer checkCustomerValidity(String customerId) {;
+        Customer customer = customerRepository.findByCustomerId(customerId);
+        if(customer == null) throw new CustomerNotFoundException("Customer Not Found!");
+        return customer;
+    }
+
+    public boolean sendOtpViaSms(CustomerDTO customerDTO) {
+        Customer customer = checkCustomerValidity(customerDTO.getCustomerId());
+        if(!isOtpGenerationBlocked(customerDTO)) {
+            fetchCustomerAndSaveMessageAndSendMsgToJms(customerDTO, customer, DeliveryMode.SMS);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean sendOtpViaCall(CustomerDTO customerDTO) {
+        Customer customer = checkCustomerValidity(customerDTO.getCustomerId());
+        if(!isOtpGenerationBlocked(customerDTO)) {
+            fetchCustomerAndSaveMessageAndSendMsgToJms(customerDTO, customer, DeliveryMode.CALL);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean sendOtpViaEmail(CustomerDTO customerDTO) {
+        Customer customer = checkCustomerValidity(customerDTO.getCustomerId());
+        if(!isOtpGenerationBlocked(customerDTO)) {
+            fetchCustomerAndSaveMessageAndSendMsgToJms(customerDTO, customer, DeliveryMode.EMAIL);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isOtpGenerationBlocked(CustomerDTO customerDTO){
+        int timeoutForFailure = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.failure.block-timeout-hr")));
+        int timeoutForGeneration = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.generation.block-timeout-hr")));
+        int maxFailureCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.failure.max-count")));
+        int maxGenerationCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.generation.max-count")));
+
+        int fetchTime = Math.max(timeoutForFailure, timeoutForGeneration);
+        LocalDateTime deadlineTimeForFailure = LocalDateTime.now().minusHours(fetchTime);
+
+        Page<Message> otpMessageForFailureCheckPage = messageRepository.findByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfter(customerDTO.getCustomerId(), MessageType.OTP, deadlineTimeForFailure, PageRequest.of(0,maxGenerationCount, Sort.by(Sort.Direction.DESC, "creationTime")));
+        List<Message> otpMessageForFailureCheck = otpMessageForFailureCheckPage.getContent();
+
+        if(otpMessageForFailureCheck.isEmpty()) return false;
+        Message mostRecentMessage = otpMessageForFailureCheck.get(0);
+
+        if(Duration.between(mostRecentMessage.getCreationTime(), LocalDateTime.now()).toHours() < timeoutForFailure && mostRecentMessage.getOtpFailureCount() >= maxFailureCount)
+            throw new MaxOTPFailureCountReachedException("Max Failure Count Reached.");
+
+        if (otpMessageForFailureCheck.size() >= maxGenerationCount)
+            throw new MaxOTPGenerationCountReachedException("Max OTP Generation Count Reached.");
+
+        return false;
+    }
+
+    private void fetchCustomerAndSaveMessageAndSendMsgToJms(CustomerDTO customerDTO, Customer customer, DeliveryMode deliveryMode) {
+        Message message = Message.builder()
+                .deliveryMode(deliveryMode)
+                .phoneNumber(customerDTO.getPhoneNumber())
+                .emailAddress(customerDTO.getEmailAddress())
+                .messageType(MessageType.OTP)
+                .messageData(generateRandomOTP())
+                .customer(customer)
+                .build();
+
+        messageRepository.save(message);
+        jmsTemplate.convertAndSend("myDefaultQueue", message.getId());
+    }
+
+    private String generateRandomOTP() {
+        Random random = new Random();
+        int randomSixDigitNumber = random.nextInt(900000) + 100000;
+        return String.valueOf(randomSixDigitNumber);
+    }
+
+    public boolean verifyOtp(CustomerDTO customerDTO) {
+        checkCustomerValidity(customerDTO.getCustomerId());
+        String userEnteredOtp = customerDTO.getMessage();
+        Optional<Message> otpGeneratedMessage = getGeneratedOTPMessage(customerDTO.getCustomerId());
+        if(otpGeneratedMessage.isPresent()) return validateOtp(otpGeneratedMessage.get(), userEnteredOtp);
+        else return false;
+    }
+
+    private Optional<Message> getGeneratedOTPMessage(String customerId) {
+        LocalDateTime deadlineTime = LocalDateTime.now().minusMinutes(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.timeout-min"))));
+        int maxFailureCount = Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.failure.max-count")));
+        return messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterAndOtpFailureCountLessThanOrderByCreationTimeDesc(customerId, MessageType.OTP, deadlineTime, maxFailureCount);
+    }
+
+    private boolean validateOtp(Message otpGeneratedMessage, String userEnteredOtp) {
+        String otpGenerated = otpGeneratedMessage.getMessageData();
+        if (userEnteredOtp.equals(otpGenerated)) {
+            otpGeneratedMessage.setVerificationStatus(true);
+            otpGeneratedMessage.setVerifiedTime(LocalDateTime.now());
+            messageRepository.save(otpGeneratedMessage);
+            return true;
+        } else {
+            otpGeneratedMessage.setOtpFailureCount(otpGeneratedMessage.getOtpFailureCount() + 1);
+            messageRepository.save(otpGeneratedMessage);
+            return false;
+        }
+    }
+
+    public Boolean checkCustomerVerificationStatus(String customerId) {
+        checkCustomerValidity(customerId);
+        LocalDateTime verificationValidTime = LocalDateTime.now().minusMinutes(Integer.parseInt(Objects.requireNonNull(environment.getProperty("spring.application.otp.verification-timeout-min"))));
+        Optional<Message> otpMessage = messageRepository.findFirstByCustomer_CustomerIdAndMessageTypeAndCreationTimeAfterOrderByCreationTimeDesc(customerId, MessageType.OTP, verificationValidTime);
+        return otpMessage.map(Message::isVerificationStatus).orElse(false);
+    }
+}

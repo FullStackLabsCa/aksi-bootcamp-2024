@@ -1,0 +1,27 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: ems-processor-app
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ems_app
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  activemq:
+    broker-url: tcp://localhost:61616
+  jms:
+    template:
+      default-destination: myDefaultQueue
+
+twilio:
+  account:
+    sid: ACa3d8cdff74f4a66fb011dbca6369a629
+  auth:
+    token: 93e1b74881158db84bd1e55028828327
+  phone:
+    number: +16813666513

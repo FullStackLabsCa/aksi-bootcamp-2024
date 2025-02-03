@@ -1,0 +1,87 @@
+package io.reactivestax;
+
+import io.reactivestax.model.Trade;
+
+import java.util.Date;
+import java.util.function.Supplier;
+
+public interface TestDataProvider {
+
+    //Trade Supplier
+    Supplier<Trade> goodTradeSupplier = () -> Trade.builder()
+            .tradeID("TD123")
+            .accountNumber("123")
+            .activity("BUY")
+            .price(0.0)
+            .transactionTime(new java.sql.Date(2024))
+            .cusip("TSLA")
+            .quantity(10)
+            .build();
+
+    Supplier<Trade> badTradeSupplier = () -> Trade.builder()
+            .tradeID("TD123")
+            .accountNumber("123")
+            .activity("BUY")
+            .price(0.0)
+            .transactionTime(new Date())
+            .cusip("TSLA")
+            .quantity(10)
+            .build();
+
+    Supplier<Trade> goodBuyTradeSupplier = () -> Trade.builder()
+            .tradeID("TD123")
+            .accountNumber("123")
+            .activity("BUY")
+            .price(0.0)
+            .transactionTime(new java.sql.Date(2024))
+            .cusip("TSLA")
+            .quantity(10)
+            .build();
+
+    Supplier<Trade> invalidCusipTradeSupplier = () -> Trade.builder()
+            .tradeID("TD123")
+            .accountNumber("123")
+            .activity("BUY")
+            .price(0.0)
+            .transactionTime(new java.sql.Date(2024))
+            .cusip("Invalid")
+            .quantity(10)
+            .build();
+
+    Supplier<Trade> goodSellTradeSupplier = () -> Trade.builder()
+            .tradeID("TD123")
+            .accountNumber("123")
+            .activity("SELL")
+            .price(0.0)
+            .transactionTime(new java.sql.Date(2024))
+            .cusip("TSLA")
+            .quantity(10)
+            .build();
+
+    Supplier<Trade> invalidActivityTradeSupplier = () -> Trade.builder()
+            .tradeID("TD123")
+            .accountNumber("123")
+            .activity("Invalid")
+            .price(0.0)
+            .transactionTime(new java.sql.Date(2024))
+            .cusip("TSLA")
+            .quantity(10)
+            .build();
+
+    Supplier<Trade> validTradeForPayloadSupplier = () -> Trade.builder()
+            .tradeID("TDB_00000001")
+            .accountNumber("TDB_CUST_2517563")
+            .activity("SELL")
+            .price(1480.82)
+            .transactionTime(new java.sql.Date(2024, 9, 25))
+            .cusip("TSLA")
+            .quantity(45)
+            .build();
+
+    //Payload Supplier
+    Supplier<String> validTradePayloadSupplier = () -> "TDB_00000001,2024-09-25 06:58:37,TDB_CUST_2517563,TSLA,SELL,45,1480.82";
+    Supplier<String> invalidTradePayloadSupplier = () -> "TDB_00000001,TDB_CUST_2517563,TSLA,SELL,45,1480.82";
+
+    //TradeID Supplier
+    Supplier<String> tradeIdSupplier = () -> "TDB_00000001";
+}
