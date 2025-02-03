@@ -5,6 +5,7 @@ import jakarta.persistence.criteria.JoinType;
 import org.reactivestax.canada_active_life.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class OfferedCourseSpec {
@@ -72,5 +73,22 @@ public class OfferedCourseSpec {
         };
     }
 
+    public static Specification<OfferedCourse> withinDates(LocalDate startDate, LocalDate endDate){
+        return (root, query, criteriaBuilder) -> {
+            if (startDate != null && endDate != null) {
+                return criteriaBuilder.and(
+                        criteriaBuilder.greaterThanOrEqualTo(root.get("startDate"), startDate),
+                        criteriaBuilder.lessThanOrEqualTo(root.get("endDate"), endDate)
+                );
+            }
+            else if (startDate != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get("startDate"), startDate);
+            }
+            else if (endDate != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get("endDate"), endDate);
+            }
+            return criteriaBuilder.conjunction();
+        };
+    }
 
 }
