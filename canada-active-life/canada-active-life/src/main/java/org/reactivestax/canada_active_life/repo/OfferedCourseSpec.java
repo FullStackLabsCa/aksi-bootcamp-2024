@@ -5,47 +5,49 @@ import jakarta.persistence.criteria.JoinType;
 import org.reactivestax.canada_active_life.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
+
 public class OfferedCourseSpec {
     public static Specification<OfferedCourse> isAvailableForEnrollment(){
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("availableForEnrollment"), "OPEN");
     }
 
-    public static Specification<OfferedCourse> inCity(String city){
+    public static Specification<OfferedCourse> inCities(List<String> cities){
         return (root, query, criteriaBuilder) -> {
             Join<OfferedCourse, Facility> facilityJoin = root.join("facility", JoinType.INNER);
-            return criteriaBuilder.equal(facilityJoin.get("city"), city);
+            return facilityJoin.get("city").in(cities);
         };
     }
 
-    public static Specification<OfferedCourse> inFacility(int facilityId){
+    public static Specification<OfferedCourse> inFacilities(List<Integer> facilityIds){
         return (root, query, criteriaBuilder) -> {
             Join<OfferedCourse, Facility> facilityJoin = root.join("facility", JoinType.INNER);
-            return criteriaBuilder.equal(facilityJoin.get("facilityId"), facilityId);
+            return facilityJoin.get("facilityId").in(facilityIds);
         };
     }
 
-    public static Specification<OfferedCourse> forAgeGroup(int ageGroupId){
+    public static Specification<OfferedCourse> forAgeGroups(List<Integer> ageGroupIds){
         return (root, query, criteriaBuilder) -> {
             Join<OfferedCourse, Course> courseCourseJoin = root.join("course", JoinType.INNER);
             Join<Course, AgeGroup>  courseAgeGroupJoin = courseCourseJoin.join("ageGroup", JoinType.INNER);
-            return criteriaBuilder.equal(courseAgeGroupJoin.get("ageGroupId"), ageGroupId);
+            return courseAgeGroupJoin.get("ageGroupId").in(ageGroupIds);
         };
     }
 
-    public static Specification<OfferedCourse> inSubCategory(int subCategoryId){
+    public static Specification<OfferedCourse> inSubCategories(List<Integer> subCategoryIds){
         return (root, query, criteriaBuilder) -> {
             Join<OfferedCourse, Course> courseCourseJoin = root.join("course", JoinType.INNER);
             Join<Course, SubCategory>  courseSubCategoryJoin = courseCourseJoin.join("subCategory", JoinType.INNER);
-            return criteriaBuilder.equal(courseSubCategoryJoin.get("subCategoryId"), subCategoryId);
+            return courseSubCategoryJoin.get("subCategoryId").in(subCategoryIds);
         };
     }
 
-    public static Specification<OfferedCourse> inCategory(int categoryId){
+    public static Specification<OfferedCourse> inCategories(int categoryIds){
         return (root, query, criteriaBuilder) -> {
             Join<OfferedCourse, Course> courseCourseJoin = root.join("course", JoinType.INNER);
             Join<Course, SubCategory>  courseSubCategoryJoin = courseCourseJoin.join("subCategory", JoinType.INNER);
             Join<SubCategory, Category>  subCategoryCategoryJoin = courseSubCategoryJoin.join("category", JoinType.INNER);
-            return criteriaBuilder.equal(subCategoryCategoryJoin.get("categoryId"), categoryId);
+            return subCategoryCategoryJoin.get("categoryId").in(categoryIds);
         };
     }
 
