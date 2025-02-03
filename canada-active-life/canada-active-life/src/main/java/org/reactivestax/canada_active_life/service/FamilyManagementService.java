@@ -286,7 +286,7 @@ public class FamilyManagementService {
          */
         PendingLoginUUID pendingLoginUUID =
                 pendingLoginUUIDRepository.findTopByUuidAndCreationTimeStampAfterOrderByCreationTimeStampDesc(uuid, LocalDateTime.now().minusHours(2))
-                    .orElseThrow(() -> new UUIDTokenExpiredException("Your Login UUID Token Expired. Please Generate a new one."));
+                    .orElseThrow(() -> new UUIDTokenInvalidException("Your Login UUID Token is Invalid or Expired. Please Generate a new one."));
 
         return verifyOtpViaEms(userVerificationDTO.getOtpEnteredByUser(), pendingLoginUUID.getFamilyMember().getFamilyMemberId());
     }
