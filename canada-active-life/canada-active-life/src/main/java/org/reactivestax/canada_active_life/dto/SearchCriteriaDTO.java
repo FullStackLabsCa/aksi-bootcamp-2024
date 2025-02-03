@@ -10,6 +10,7 @@ import org.reactivestax.canada_active_life.domain.Facility;
 import org.reactivestax.canada_active_life.domain.SubCategory;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -20,12 +21,12 @@ public class SearchCriteriaDTO {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private String city;
-    private int facilityId;
+    private List<String> cities;
+    private List<Integer> facilityIds;
 
     private String availableForEnrollment;
 
-    private int ageGroupId;
-    private int categoryId;
-    private int subCategoryId;
+    private List<Integer> ageGroupIds;
+    private List<Integer> categoryIds;
+    private List<Integer> subCategoryIds;
 }

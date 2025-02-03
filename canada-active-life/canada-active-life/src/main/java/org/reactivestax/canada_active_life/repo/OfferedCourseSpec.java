@@ -8,12 +8,21 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.List;
 
 public class OfferedCourseSpec {
-    public static Specification<OfferedCourse> isAvailableForEnrollment(){
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("availableForEnrollment"), "OPEN");
+
+    public static Specification<OfferedCourse> isAvailableForEnrollment(String open) {
+        return (root, query, criteriaBuilder) -> {
+            if (open == null || open.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get("availableForEnrollment"), open);
+        };
     }
 
     public static Specification<OfferedCourse> inCities(List<String> cities){
         return (root, query, criteriaBuilder) -> {
+            if (cities == null || cities.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
             Join<OfferedCourse, Facility> facilityJoin = root.join("facility", JoinType.INNER);
             return facilityJoin.get("city").in(cities);
         };
@@ -21,6 +30,9 @@ public class OfferedCourseSpec {
 
     public static Specification<OfferedCourse> inFacilities(List<Integer> facilityIds){
         return (root, query, criteriaBuilder) -> {
+            if (facilityIds == null || facilityIds.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
             Join<OfferedCourse, Facility> facilityJoin = root.join("facility", JoinType.INNER);
             return facilityJoin.get("facilityId").in(facilityIds);
         };
@@ -28,6 +40,9 @@ public class OfferedCourseSpec {
 
     public static Specification<OfferedCourse> forAgeGroups(List<Integer> ageGroupIds){
         return (root, query, criteriaBuilder) -> {
+            if (ageGroupIds == null || ageGroupIds.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
             Join<OfferedCourse, Course> courseCourseJoin = root.join("course", JoinType.INNER);
             Join<Course, AgeGroup>  courseAgeGroupJoin = courseCourseJoin.join("ageGroup", JoinType.INNER);
             return courseAgeGroupJoin.get("ageGroupId").in(ageGroupIds);
@@ -36,6 +51,9 @@ public class OfferedCourseSpec {
 
     public static Specification<OfferedCourse> inSubCategories(List<Integer> subCategoryIds){
         return (root, query, criteriaBuilder) -> {
+            if (subCategoryIds == null || subCategoryIds.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
             Join<OfferedCourse, Course> courseCourseJoin = root.join("course", JoinType.INNER);
             Join<Course, SubCategory>  courseSubCategoryJoin = courseCourseJoin.join("subCategory", JoinType.INNER);
             return courseSubCategoryJoin.get("subCategoryId").in(subCategoryIds);
@@ -44,6 +62,9 @@ public class OfferedCourseSpec {
 
     public static Specification<OfferedCourse> inCategories(List<Integer> categoryIds){
         return (root, query, criteriaBuilder) -> {
+            if (categoryIds == null || categoryIds.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
             Join<OfferedCourse, Course> courseCourseJoin = root.join("course", JoinType.INNER);
             Join<Course, SubCategory>  courseSubCategoryJoin = courseCourseJoin.join("subCategory", JoinType.INNER);
             Join<SubCategory, Category>  subCategoryCategoryJoin = courseSubCategoryJoin.join("category", JoinType.INNER);
