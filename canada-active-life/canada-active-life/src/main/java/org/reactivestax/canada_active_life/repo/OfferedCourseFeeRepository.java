@@ -1,6 +1,5 @@
 package org.reactivestax.canada_active_life.repo;
 
-import org.reactivestax.canada_active_life.domain.Course;
 import org.reactivestax.canada_active_life.domain.OfferedCourseFee;
 import org.reactivestax.canada_active_life.enums.FeeType;
 import org.springframework.data.jpa.repository.JpaRepository;
