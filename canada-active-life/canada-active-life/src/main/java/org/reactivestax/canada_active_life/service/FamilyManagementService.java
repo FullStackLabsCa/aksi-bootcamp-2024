@@ -62,6 +62,10 @@ public class FamilyManagementService {
         createdFamilyGroup.setCreatedBy(createdFamilyMember.getFamilyMemberId());
         familyGroupRepository.save(createdFamilyGroup);
 
+        return sendActivationLink(createdFamilyMember);
+    }
+
+    public boolean sendActivationLink(FamilyMember createdFamilyMember) {
         UUID uuidToken = createUUIDTokenForSignUpActivation(createdFamilyMember);
         return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken, createdFamilyMember.getHomePhoneNumber());
     }
@@ -159,8 +163,7 @@ public class FamilyManagementService {
         FamilyMember createdFamilyMember = createFamilyMember(familyMemberDTO, familyGroupOfActor);
         familyMemberRepository.save(createdFamilyMember);
 
-        UUID uuidToken = createUUIDTokenForSignUpActivation(createdFamilyMember);
-        return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken, createdFamilyMember.getHomePhoneNumber());
+        return sendActivationLink(createdFamilyMember);
     }
 
     public FamilyMember checkFamilyMemberValidity(String memberLoginId) {

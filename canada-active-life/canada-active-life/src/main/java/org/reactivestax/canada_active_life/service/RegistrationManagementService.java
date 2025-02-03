@@ -2,6 +2,7 @@ package org.reactivestax.canada_active_life.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.*;
+import org.reactivestax.canada_active_life.dto.CustomerDTO;
 import org.reactivestax.canada_active_life.dto.FamilyMemberCourseRegistrationDTO;
 import org.reactivestax.canada_active_life.dto.FamilyMemberCourseWaitlistDTO;
 import org.reactivestax.canada_active_life.enums.FeeType;
@@ -12,12 +13,15 @@ import org.reactivestax.canada_active_life.repo.FamilyCourseRegistrationReposito
 import org.reactivestax.canada_active_life.repo.FamilyCourseWaitlistRepository;
 import org.reactivestax.canada_active_life.repo.OfferedCourseFeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -44,12 +48,15 @@ public class RegistrationManagementService {
     @Autowired
     private FamilyCourseWaitlistMapper familyCourseWaitlistMapper;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     public boolean enrollFamilyMemberInOfferedCourse(FamilyMemberCourseRegistrationDTO familyMemberCourseRegistrationDTO, String memberLoginId) {
         /**
          * Validate actor by memberLoginId - Done
          * Validate FamilyMemberId and the OfferedCourseId from the DTO and Existence of them in DB - Done
          *      if familyMember not activated throw exception - Done
-         *          send a signUp activation link - TODO
+         *          send a signUp activation link - Done
          * Check if course is available for Enrollment
          * Check Open Spots in the OfferedCourse - Done
          *      Query the enrollment table for the offeredCourseId and compare with the noOfSeatsOffered of offeredCourse - Done
@@ -67,7 +74,11 @@ public class RegistrationManagementService {
          */
         FamilyMember actor = familyManagementService.checkFamilyMemberValidity(memberLoginId);
         FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(familyMemberCourseRegistrationDTO.getFamilyMemberLoginId());
-        if(!familyMember.isActive()) throw new FamilyMemberNotActivatedException("Please verify family member using the activation link sent via email...");
+        if(!familyMember.isActive())
+        {
+            familyManagementService.sendActivationLink(familyMember);
+            throw new FamilyMemberNotActivatedException("Please verify family member using the activation link sent via sms...");
+        }
 
         OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(familyMemberCourseRegistrationDTO.getOfferedCourseId());
         if("CLOSED".equals(offeredCourse.getAvailableForEnrollment())) throw new OfferedCourseNotAvailableForEnrollmentException("Offered Course not available for enrollment.");
@@ -117,7 +128,8 @@ public class RegistrationManagementService {
                 .familyMember(familyMember)
                 .build();
 
-        // withdraw from FamilyCredits - TODO
+        // withdraw from FamilyCredits
+        familyMember.getFamilyGroup().setCredits(familyMember.getFamilyGroup().getCredits() - costOfOfferedCourse);
 
         familyCourseRegistrationRepository.save(enrollment);
         return true;
@@ -163,7 +175,7 @@ public class RegistrationManagementService {
          *      update the creditsWithdrawn based on the business requirements - Pending Requirements
          * isWithdrawn = true - Done
          * get the Waitlist for the offeredCourse - Done
-         * Notify all the members in the waitlist for the OfferedCourse Availability - TODO
+         * Notify all the members in the waitlist for the OfferedCourse Availability - Done
          */
 
          familyManagementService.checkFamilyMemberValidity(actorMemberLoginId);
@@ -181,14 +193,37 @@ public class RegistrationManagementService {
 
         List<FamilyCourseWaitlist> waitlists = familyCourseWaitlistRepository.findAllByOfferedCourse_OfferedCourseIdAndIsWaitlisted(offeredCourseId, true);
         for (FamilyCourseWaitlist familyCourseWaitlist : waitlists){
-            sendCourseAvailabilityNotificationViaEms(familyCourseWaitlist.getFamilyMember().getFamilyMemberId());
+            sendCourseAvailabilityNotificationViaEms(familyCourseWaitlist.getFamilyMember(), familyCourseWaitlist.getOfferedCourse());
         }
 
         return true;
     }
 
-    private void sendCourseAvailabilityNotificationViaEms(int familyMemberId) {
-        log.info("Sending notification to {}", familyMemberId);
+    private void sendCourseAvailabilityNotificationViaEms(FamilyMember familyMember, OfferedCourse offeredCourse) {
+        log.info("Sending notification to {}", familyMember.getName());
+        String offeredCourseEnrollmentLink = "http://localhost:8080/CanadaActiveLife/v1/courseRegistrations/enrollment";
+        String message = "The OfferedCourse with ID: "+offeredCourse.getOfferedCourseId()+" is now available. To enroll in this course click on this link: "+offeredCourseEnrollmentLink;
+
+        String url = "http://localhost:8082/api/ens/sms";
+        CustomerDTO customerDTO = CustomerDTO.builder()
+                .customerId("akshat11") // Admin User for ENS
+                .phoneNumber(familyMember.getHomePhoneNumber())
+                .message(message)
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<CustomerDTO> entity = new HttpEntity<>(customerDTO, headers);
+
+        ResponseEntity<String> response =  restTemplate.postForEntity(
+                url,
+                entity,
+                String.class
+        );
+
+        if(!Objects.equals(response.getBody(), "Message Sent Via SMS."))
+            throw new FailedToSendNotificationException("Failed to send Offered Course Availability Notification.");
+
     }
 
     public List<FamilyMemberCourseWaitlistDTO> getWaitlistForMember(String memberLoginId) {
