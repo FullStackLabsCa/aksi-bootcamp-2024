@@ -1,10 +1,9 @@
 package org.reactivestax.canada_active_life.service;
 
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.*;
-import org.reactivestax.canada_active_life.dto.CourseMemberRegistrationDTO;
-import org.reactivestax.canada_active_life.dto.CourseMemberWaitlistDTO;
+import org.reactivestax.canada_active_life.dto.FamilyMemberCourseRegistrationDTO;
+import org.reactivestax.canada_active_life.dto.FamilyMemberCourseWaitlistDTO;
 import org.reactivestax.canada_active_life.enums.FeeType;
 import org.reactivestax.canada_active_life.exception.*;
 import org.reactivestax.canada_active_life.mapper.FamilyCourseRegistrationMapper;
@@ -45,7 +44,7 @@ public class RegistrationManagementService {
     @Autowired
     private FamilyCourseWaitlistMapper familyCourseWaitlistMapper;
 
-    public boolean enrollFamilyMemberInOfferedCourse(CourseMemberRegistrationDTO courseMemberRegistrationDTO, String memberLoginId) {
+    public boolean enrollFamilyMemberInOfferedCourse(FamilyMemberCourseRegistrationDTO familyMemberCourseRegistrationDTO, String memberLoginId) {
         /**
          * Validate actor by memberLoginId - Done
          * Validate FamilyMemberId and the OfferedCourseId from the DTO and Existence of them in DB - Done
@@ -67,10 +66,10 @@ public class RegistrationManagementService {
          *              if not - add the familyMember to the waitlist table for the offeredCourseId - Done
          */
         FamilyMember actor = familyManagementService.checkFamilyMemberValidity(memberLoginId);
-        FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(courseMemberRegistrationDTO.getFamilyMemberLoginId());
+        FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(familyMemberCourseRegistrationDTO.getFamilyMemberLoginId());
         if(!familyMember.isActive()) throw new FamilyMemberNotActivatedException("Please verify family member using the activation link sent via email...");
 
-        OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(courseMemberRegistrationDTO.getOfferedCourseId());
+        OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(familyMemberCourseRegistrationDTO.getOfferedCourseId());
         if("CLOSED".equals(offeredCourse.getAvailableForEnrollment())) throw new OfferedCourseNotAvailableForEnrollmentException("Offered Course not available for enrollment.");
         int totalOfferedSeats = offeredCourse.getSeatsAvailable();
 
@@ -142,12 +141,12 @@ public class RegistrationManagementService {
         return true;
     }
 
-    public List<CourseMemberRegistrationDTO> getEnrollmentsForMember(String memberLoginId) {
+    public List<FamilyMemberCourseRegistrationDTO> getEnrollmentsForMember(String memberLoginId) {
         FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(memberLoginId);
         List<FamilyCourseRegistration> enrollmentsForFamilyMember = familyCourseRegistrationRepository.findAllByFamilyMember_FamilyMemberIdAndIsWithdrawn(familyMember.getFamilyMemberId(), false);
-        List<CourseMemberRegistrationDTO> enrollmentsForFamilyMemberDTO = new ArrayList<>();
+        List<FamilyMemberCourseRegistrationDTO> enrollmentsForFamilyMemberDTO = new ArrayList<>();
         for (FamilyCourseRegistration familyCourseRegistration : enrollmentsForFamilyMember){
-            CourseMemberRegistrationDTO dto = familyCourseRegistrationMapper.toDto(familyCourseRegistration);
+            FamilyMemberCourseRegistrationDTO dto = familyCourseRegistrationMapper.toDto(familyCourseRegistration);
             dto.setOfferedCourseId(familyCourseRegistration.getOfferedCourse().getOfferedCourseId());
             dto.setFamilyMemberLoginId(familyCourseRegistration.getFamilyMember().getMemberLoginId());
             enrollmentsForFamilyMemberDTO.add(dto);
@@ -192,10 +191,10 @@ public class RegistrationManagementService {
         log.info("Sending notification to {}", familyMemberId);
     }
 
-    public List<CourseMemberWaitlistDTO> getWaitlistForMember(String memberLoginId) {
+    public List<FamilyMemberCourseWaitlistDTO> getWaitlistForMember(String memberLoginId) {
         FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(memberLoginId);
         List<FamilyCourseWaitlist> waitlistedOfferedCoursesForFamilyMember = familyCourseWaitlistRepository.findAllByFamilyMember_FamilyMemberIdAndIsWaitlisted(familyMember.getFamilyMemberId(), true);
-        List<CourseMemberWaitlistDTO> waitlistedOfferedCoursesForFamilyMemberDTO = new ArrayList<>();
+        List<FamilyMemberCourseWaitlistDTO> waitlistedOfferedCoursesForFamilyMemberDTO = new ArrayList<>();
         for (FamilyCourseWaitlist familyCourseWaitlist : waitlistedOfferedCoursesForFamilyMember){
             waitlistedOfferedCoursesForFamilyMemberDTO.add(familyCourseWaitlistMapper.toDto(familyCourseWaitlist));
         }

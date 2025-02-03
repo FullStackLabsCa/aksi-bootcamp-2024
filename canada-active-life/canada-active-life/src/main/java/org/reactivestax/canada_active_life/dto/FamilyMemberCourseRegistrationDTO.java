@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class CourseMemberRegistrationDTO {
+public class FamilyMemberCourseRegistrationDTO {
 
     private int id;
 

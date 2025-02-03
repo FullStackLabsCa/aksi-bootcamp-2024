@@ -5,7 +5,7 @@ import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.OfferedCourse;
 
 @Data
-public class CourseMemberWaitlistDTO {
+public class FamilyMemberCourseWaitlistDTO {
     private int id;
 
     private String enrollmentActor;
