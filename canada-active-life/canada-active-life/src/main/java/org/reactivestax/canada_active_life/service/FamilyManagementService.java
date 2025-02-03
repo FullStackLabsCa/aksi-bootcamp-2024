@@ -6,6 +6,7 @@ import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.PendingLoginUUID;
 import org.reactivestax.canada_active_life.domain.PendingSignUpUUID;
+import org.reactivestax.canada_active_life.dto.CustomerDTO;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
@@ -19,9 +20,12 @@ import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
 import org.reactivestax.canada_active_life.repo.PendingLoginUUIDRepository;
 import org.reactivestax.canada_active_life.repo.PendingSignUpUUIDRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -43,6 +47,9 @@ public class FamilyManagementService {
     @Autowired
     private FamilyMemberMapper familyMemberMapper;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     @Transactional
     public boolean signUpNewFamilyMember(FamilyMemberDTO familyMemberDTO) {
         /**
@@ -59,7 +66,7 @@ public class FamilyManagementService {
         familyGroupRepository.save(createdFamilyGroup);
 
         UUID uuidToken = createUUIDTokenForSignUpActivation(createdFamilyMember);
-        return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken);
+        return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken, createdFamilyMember.getHomePhoneNumber());
     }
 
     private FamilyGroup createFamilyGroup(String familyPin) {
@@ -98,9 +105,28 @@ public class FamilyManagementService {
         return uuid;
     }
 
-    private boolean sendActivationLinkViaEms(int familyMemberId, UUID uuidToken) {
+    private boolean sendActivationLinkViaEms(int familyMemberId, UUID uuidToken, String phoneNumber) {
         log.info("Sending Activation Link Via Ems... Family Member Id: {}, UUIDToken: {}", familyMemberId, uuidToken.toString());
-        return true;
+        String activationLink = "http://localhost:8080/CanadaActiveLife/v1/activate-account?uuid="+uuidToken+"familyMemberId="+familyMemberId;
+
+        String url = "http://localhost:8080/api/ens/sms";
+        CustomerDTO customerDTO = CustomerDTO.builder()
+                .customerId("akshat11")
+                .phoneNumber(phoneNumber)
+                .message(activationLink)
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<CustomerDTO> entity = new HttpEntity<>(customerDTO, headers);
+
+        ResponseEntity<String> response =  restTemplate.postForEntity(
+                url,
+                entity,
+                String.class
+        );
+
+        return Objects.equals(response.getBody(), "Message Sent Via SMS.");
     }
 
     public boolean activateNewSignUp(int familyMemberId, UUID uuid){
@@ -136,7 +162,7 @@ public class FamilyManagementService {
         familyMemberRepository.save(createdFamilyMember);
 
         UUID uuidToken = createUUIDTokenForSignUpActivation(createdFamilyMember);
-        return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken);
+        return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken, createdFamilyMember.getHomePhoneNumber());
     }
 
     public FamilyMember checkFamilyMemberValidity(String memberLoginId) {
@@ -206,7 +232,7 @@ public class FamilyManagementService {
                 .orElseThrow(() -> new FamilyMemberNotFoundException("Family Member not Found"));
         if(!familyMember.isActive()){
             UUID uuidTokenForSignUpActivation = createUUIDTokenForSignUpActivation(familyMember);
-            sendActivationLinkViaEms(familyMember.getFamilyMemberId(), uuidTokenForSignUpActivation);
+            sendActivationLinkViaEms(familyMember.getFamilyMemberId(), uuidTokenForSignUpActivation, familyMember.getHomePhoneNumber());
             throw new MemberNotActivatedException("Member has been sent an activation link. Please click on the link to activate the account.");
         }
         if(familyMember.getFamilyGroup().getFamilyPin().equals(userLoginDTO.getFamilyPin())){
