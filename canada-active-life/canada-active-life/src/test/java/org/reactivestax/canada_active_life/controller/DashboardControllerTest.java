@@ -7,7 +7,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(DashboardController.class)
-public class DashboardControllerTest {
+class DashboardControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
