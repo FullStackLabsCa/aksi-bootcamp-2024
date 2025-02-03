@@ -10,6 +10,9 @@ import java.util.List;
 
 public class OfferedCourseSpec {
 
+    private OfferedCourseSpec() {
+    }
+
     public static Specification<OfferedCourse> isAvailableForEnrollment(String open) {
         return (root, query, criteriaBuilder) -> {
             if (open == null || open.isEmpty()) {

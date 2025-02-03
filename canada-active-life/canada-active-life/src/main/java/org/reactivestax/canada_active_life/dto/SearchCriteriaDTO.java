@@ -4,10 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.reactivestax.canada_active_life.domain.AgeGroup;
-import org.reactivestax.canada_active_life.domain.Category;
-import org.reactivestax.canada_active_life.domain.Facility;
-import org.reactivestax.canada_active_life.domain.SubCategory;
 
 import java.time.LocalDate;
 import java.util.List;
