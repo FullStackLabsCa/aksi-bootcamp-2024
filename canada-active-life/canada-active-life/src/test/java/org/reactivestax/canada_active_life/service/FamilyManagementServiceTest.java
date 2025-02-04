@@ -194,12 +194,22 @@ class FamilyManagementServiceTest {
 
     @Test
     void testCheckFamilyMemberValidity_ValidMemberLoginId(){
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodActiveFamilyMember.get()));
 
+        FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity("anyFamilyMember");
+        assertNotNull(familyMember);
     }
 
     @Test
     void testCheckFamilyMemberValidity_InvalidMemberLoginId(){
+        // Setup
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.empty());
 
+        // Action and Assert
+        assertThrows(FamilyMemberNotFoundException.class, () -> familyManagementService.checkFamilyMemberValidity("anyFamilyMember"));
+        verify(familyMemberRepository, times(1)).findByMemberLoginId(any(String.class));
     }
 
     @Test
