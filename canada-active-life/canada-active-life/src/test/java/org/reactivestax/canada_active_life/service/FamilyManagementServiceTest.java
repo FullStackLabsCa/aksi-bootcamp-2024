@@ -6,6 +6,7 @@ import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.PendingSignUpUUID;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
+import org.reactivestax.canada_active_life.exception.ActorNotAuthorizedException;
 import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundException;
 import org.reactivestax.canada_active_life.exception.InvalidSignUpActivationLinkException;
 import org.reactivestax.canada_active_life.exception.MemberNotActivatedException;
@@ -240,17 +241,36 @@ class FamilyManagementServiceTest {
 
     @Test
     void testDeactivateFamilyMember_InvalidActor(){
+        when(familyMemberRepository.findByMemberLoginId("anyActor"))
+                .thenReturn(Optional.empty());
 
+        assertThrows(FamilyMemberNotFoundException.class, () -> familyManagementService.deactivateFamilyMember("anyMember", "anyActor"));
+        verify(familyMemberRepository, times(1)).findByMemberLoginId(any(String.class));
+        verify(familyMemberRepository, times(0)).save(any(FamilyMember.class));
     }
 
     @Test
     void testDeactivateFamilyMember_UnauthorizedActor(){
+        when(familyMemberRepository.findByMemberLoginId("anyActor"))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodFamilyMemberAsGroupOwner.get()));
+        when(familyMemberRepository.findByMemberLoginId("anyMember"))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodFamilyMemberAsGroupOwner2.get()));
 
+        assertThrows(ActorNotAuthorizedException.class, () -> familyManagementService.deactivateFamilyMember("anyMember", "anyActor"));
+        verify(familyMemberRepository, times(2)).findByMemberLoginId(any(String.class));
+        verify(familyMemberRepository, times(0)).save(any(FamilyMember.class));
     }
 
     @Test
     void testDeactivateFamilyMember_InvalidMember(){
+        when(familyMemberRepository.findByMemberLoginId("anyActor"))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodFamilyMemberAsGroupOwner.get()));
+        when(familyMemberRepository.findByMemberLoginId("anyMember"))
+                .thenReturn(Optional.empty());
 
+        assertThrows(FamilyMemberNotFoundException.class, () -> familyManagementService.deactivateFamilyMember("anyMember", "anyActor"));
+        verify(familyMemberRepository, times(2)).findByMemberLoginId(any(String.class));
+        verify(familyMemberRepository, times(0)).save(any(FamilyMember.class));
     }
 
     @Test
@@ -260,6 +280,12 @@ class FamilyManagementServiceTest {
          * 1 Call - familyMemberRepository.save
          * assert True;
          */
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodFamilyMemberAsGroupOwner.get()));
+
+        assertTrue(familyManagementService.deactivateFamilyMember("anyMember", "anyActor"));
+        verify(familyMemberRepository, times(2)).findByMemberLoginId(any(String.class));
+        verify(familyMemberRepository, times(1)).save(any(FamilyMember.class));
     }
 
     @Test

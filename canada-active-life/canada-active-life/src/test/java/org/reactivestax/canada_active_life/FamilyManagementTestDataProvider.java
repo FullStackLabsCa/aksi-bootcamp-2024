@@ -50,6 +50,52 @@ public interface FamilyManagementTestDataProvider {
                     .familyGroup(null)  // Placeholder for family group, or you can set it later
                     .build();
 
+    Supplier<FamilyMember> goodFamilyMemberAsGroupOwner = () ->
+            FamilyMember.builder()
+                    .familyMemberId(1)
+                    .name("John Doe")  // Setting string value for 'name'
+                    .dob(LocalDate.parse("1985-04-12"))  // Parsing string to LocalDate for 'dob'
+                    .gender("Male")
+                    .emailAddress("john.doe@example.com")
+                    .streetNumber("123")
+                    .streetName("Main Street")
+                    .city("Toronto")
+                    .province("Ontario")
+                    .country("Canada")
+                    .homePhoneNumber("416-555-1234")
+                    .businessPhoneNumber("416-555-5678")
+                    .preferredContactMethod("Phone")
+                    .language("English")
+                    .memberLoginId(UUID.randomUUID().toString())  // Generate a unique login ID
+                    .isActive(true)
+                    .familyGroup(FamilyGroup.builder()
+                            .createdBy(1)
+                            .build())  // Placeholder for family group, or you can set it later
+                    .build();
+
+    Supplier<FamilyMember> goodFamilyMemberAsGroupOwner2 = () ->
+            FamilyMember.builder()
+                    .familyMemberId(2)
+                    .name("John Doe")  // Setting string value for 'name'
+                    .dob(LocalDate.parse("1985-04-12"))  // Parsing string to LocalDate for 'dob'
+                    .gender("Male")
+                    .emailAddress("john.doe@example.com")
+                    .streetNumber("123")
+                    .streetName("Main Street")
+                    .city("Toronto")
+                    .province("Ontario")
+                    .country("Canada")
+                    .homePhoneNumber("416-555-1234")
+                    .businessPhoneNumber("416-555-5678")
+                    .preferredContactMethod("Phone")
+                    .language("English")
+                    .memberLoginId(UUID.randomUUID().toString())  // Generate a unique login ID
+                    .isActive(true)
+                    .familyGroup(FamilyGroup.builder()
+                            .createdBy(2)
+                            .build())  // Placeholder for family group, or you can set it later
+                    .build();
+
     Supplier<FamilyMember> goodInactiveFamilyMember = () ->
         FamilyMember.builder()
                 .familyGroup(FamilyGroup.builder()
