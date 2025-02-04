@@ -4,12 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.reactivestax.canada_active_life.FamilyManagementTestDataProvider;
 import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
+import org.reactivestax.canada_active_life.domain.PendingLoginUUID;
 import org.reactivestax.canada_active_life.domain.PendingSignUpUUID;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
-import org.reactivestax.canada_active_life.exception.ActorNotAuthorizedException;
-import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundException;
-import org.reactivestax.canada_active_life.exception.InvalidSignUpActivationLinkException;
-import org.reactivestax.canada_active_life.exception.MemberNotActivatedException;
+import org.reactivestax.canada_active_life.exception.*;
 import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
@@ -23,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Member;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -290,17 +289,50 @@ class FamilyManagementServiceTest {
 
     @Test
     void testLoginMember_InvalidMemberLoginId(){
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.empty());
 
+        assertThrows(FamilyMemberNotFoundException.class, () -> familyManagementService.loginMember(FamilyManagementTestDataProvider.userLoginDTO.get()));
+        verify(familyMemberRepository, times(1)).findByMemberLoginId(any(String.class));
+        verify(pendingSignUpUUIDRepository, times(0)).save(any(PendingSignUpUUID.class));
+        verify(pendingLoginUUIDRepository, times(0)).save(any(PendingLoginUUID.class));
     }
 
     @Test
     void testLoginMember_InvalidFamilyPin(){
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodFamilyMemberAsGroupOwner.get()));
 
+        UUID uuid = familyManagementService.loginMember(FamilyManagementTestDataProvider.userLoginDTO.get());
+        assertNull(uuid);
+        verify(familyMemberRepository, times(1)).findByMemberLoginId(any(String.class));
+        verify(pendingSignUpUUIDRepository, times(0)).save(any(PendingSignUpUUID.class));
+        verify(pendingLoginUUIDRepository, times(0)).save(any(PendingLoginUUID.class));
     }
 
     @Test
     void testLoginMember_InactiveMember(){
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodInactiveFamilyMember.get()));
+        ResponseEntity<String> mockResponse = new ResponseEntity<>("Message Sent Via SMS.", HttpStatus.OK);
+        when(restTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(String.class))).thenReturn(mockResponse);
 
+        assertThrows(MemberNotActivatedException.class, () -> familyManagementService.loginMember(FamilyManagementTestDataProvider.userLoginDTO.get()));
+        verify(familyMemberRepository, times(1)).findByMemberLoginId(any(String.class));
+        verify(pendingSignUpUUIDRepository, times(1)).save(any(PendingSignUpUUID.class));
+        verify(pendingLoginUUIDRepository, times(0)).save(any(PendingLoginUUID.class));
+    }
+
+    @Test
+    void testLoginMember_SendOtpViaEmsFailed(){
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodActiveFamilyMember.get()));
+        ResponseEntity<String> mockResponse = new ResponseEntity<>("No OTP Sent.", HttpStatus.OK);
+        when(restTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(String.class))).thenReturn(mockResponse);
+
+        assertThrows(FailedToSendOtpException.class, () -> familyManagementService.loginMember(FamilyManagementTestDataProvider.userLoginDTO.get()));
+        verify(familyMemberRepository, times(1)).findByMemberLoginId(any(String.class));
+        verify(pendingLoginUUIDRepository, times(1)).save(any(PendingLoginUUID.class));
     }
 
     @Test
@@ -310,6 +342,16 @@ class FamilyManagementServiceTest {
          * 1 Call - UUIDLogin.save
          * assertNotNull(UUIDTokenForLogin)
          */
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodActiveFamilyMember.get()));
+        ResponseEntity<String> mockResponse = new ResponseEntity<>("OTP Sent Via SMS.", HttpStatus.OK);
+        when(restTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(String.class))).thenReturn(mockResponse);
+
+
+        UUID uuid = familyManagementService.loginMember(FamilyManagementTestDataProvider.userLoginDTO.get());
+        assertNotNull(uuid);
+        verify(familyMemberRepository, times(1)).findByMemberLoginId(any(String.class));
+        verify(pendingLoginUUIDRepository, times(1)).save(any(PendingLoginUUID.class));
     }
 
     @Test

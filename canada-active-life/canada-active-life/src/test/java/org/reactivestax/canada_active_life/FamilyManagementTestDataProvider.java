@@ -69,6 +69,7 @@ public interface FamilyManagementTestDataProvider {
                     .memberLoginId(UUID.randomUUID().toString())  // Generate a unique login ID
                     .isActive(true)
                     .familyGroup(FamilyGroup.builder()
+                            .familyPin("111111")
                             .createdBy(1)
                             .build())  // Placeholder for family group, or you can set it later
                     .build();
@@ -108,6 +109,7 @@ public interface FamilyManagementTestDataProvider {
             FamilyMember.builder()
                     .familyGroup(FamilyGroup.builder()
                             .status("inactive")
+                            .familyPin("123456")
                             .build())
                     .isActive(true)
                     .build();
@@ -136,5 +138,11 @@ public interface FamilyManagementTestDataProvider {
     Supplier<UserVerificationDTO> goodLoginVerificationDTO = () ->
             UserVerificationDTO.builder()
                     .otpEnteredByUser("FAM123456")
+                    .build();
+
+    Supplier<UserLoginDTO> userLoginDTO = () ->
+            UserLoginDTO.builder()
+                    .memberLoginId("anyMember")
+                    .familyPin("123456")
                     .build();
 }
