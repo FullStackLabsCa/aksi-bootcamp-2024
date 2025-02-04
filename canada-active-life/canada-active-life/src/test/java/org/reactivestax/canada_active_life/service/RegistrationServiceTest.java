@@ -5,6 +5,7 @@ import org.reactivestax.canada_active_life.TestDataProvider.FamilyManagementTest
 import org.reactivestax.canada_active_life.TestDataProvider.FamilyMemberCourseRegistrationTestDataProvider;
 import org.reactivestax.canada_active_life.TestDataProvider.OfferedCourseTestDataProvider;
 import org.reactivestax.canada_active_life.domain.*;
+import org.reactivestax.canada_active_life.dto.FamilyMemberCourseRegistrationDTO;
 import org.reactivestax.canada_active_life.enums.FeeType;
 import org.reactivestax.canada_active_life.mapper.FamilyCourseRegistrationMapper;
 import org.reactivestax.canada_active_life.mapper.FamilyCourseWaitlistMapper;
@@ -17,9 +18,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -78,9 +80,6 @@ class RegistrationServiceTest {
     void testEnrollFamilyMemberInOfferedCourse_SeatsNotAvailableAndWaitlistFamilyMember(){}
 
     @Test
-    void testEnrollFamilyMemberInOfferedCourse_SeatsAvailableAndFamilyMemberInWaitlist(){}
-
-    @Test
     void testEnrollFamilyMemberInOfferedCourse_SeatsAvailableAndFamilyMemberNotInWaitlist(){
         // Mocks
         when(familyManagementService.checkFamilyMemberValidity(any(String.class)))
@@ -112,7 +111,24 @@ class RegistrationServiceTest {
     void testGetEnrollmentsForMember_InvalidFamilyMember(){}
 
     @Test
-    void testGetEnrollmentsForMember_ValidFamilyMember(){}
+    void testGetEnrollmentsForMember_ValidFamilyMember(){
+        when(familyManagementService.checkFamilyMemberValidity(any(String.class)))
+                .thenReturn(FamilyManagementTestDataProvider.goodActiveFamilyMember.get());
+        List<FamilyCourseRegistration> listOfRegistrations = new ArrayList<>();
+        listOfRegistrations.add(FamilyCourseRegistration.builder()
+                        .familyMember(FamilyMember.builder().memberLoginId("anyMember").build())
+                        .offeredCourse(OfferedCourse.builder().offeredCourseId(1).build())
+                .build());
+        when(familyCourseRegistrationRepository.findAllByFamilyMember_FamilyMemberIdAndIsWithdrawn(any(Integer.class), any(Boolean.class)))
+                .thenReturn(listOfRegistrations);
+        when(familyCourseRegistrationMapper.toDto(any(FamilyCourseRegistration.class)))
+                .thenReturn(FamilyMemberCourseRegistrationDTO.builder().build());
+
+        List<FamilyMemberCourseRegistrationDTO> registrations = registrationManagementService.getEnrollmentsForMember("anyMember");
+
+        assertNotNull(registrations);
+        assertFalse(registrations.isEmpty());
+    }
 
     @Test
     void testWithdrawFamilyMemberFromOfferedCourse_InvalidActor(){}
