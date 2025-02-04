@@ -181,7 +181,7 @@ class FamilyManagementServiceTest {
          */
         // Setup
         when(familyMemberRepository.findByMemberLoginId(any(String.class)))
-                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodInactiveFamilyMember.get()));
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodActiveFamilyMember.get()));
         ResponseEntity<String> mockResponse = new ResponseEntity<>("Message Sent Via SMS.", HttpStatus.OK);
         when(restTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(String.class))).thenReturn(mockResponse);
 

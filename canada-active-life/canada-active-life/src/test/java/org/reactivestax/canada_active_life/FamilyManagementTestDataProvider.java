@@ -38,6 +38,14 @@ public interface FamilyManagementTestDataProvider {
                 .isActive(false)
                 .build();
 
+    Supplier<FamilyMember> goodActiveFamilyMember = () ->
+            FamilyMember.builder()
+                    .familyGroup(FamilyGroup.builder()
+                            .status("inactive")
+                            .build())
+                    .isActive(true)
+                    .build();
+
     Supplier<FamilyGroup> goodFamilyGroup = () ->
             FamilyGroup.builder()
                     .status("inactive")
