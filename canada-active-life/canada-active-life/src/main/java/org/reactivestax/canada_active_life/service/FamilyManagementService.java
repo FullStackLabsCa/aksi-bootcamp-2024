@@ -55,6 +55,7 @@ public class FamilyManagementService {
          * create UUIDToken and save this in the uuidTokenManagement table - Done
          * sendActivationLink with the UUIDToken - Done
          */
+        if(familyMemberDTO == null) return false;
         FamilyGroup createdFamilyGroup = createFamilyGroup(familyMemberDTO.getFamilyPin());
 
         FamilyMember createdFamilyMember = createFamilyMember(familyMemberDTO, createdFamilyGroup);
@@ -127,7 +128,7 @@ public class FamilyManagementService {
                 String.class
         );
 
-        return Objects.equals(response.getBody(), "Message Sent Via SMS.");
+        return (response != null) && Objects.equals(response.getBody(), "Message Sent Via SMS.");
     }
 
     public boolean activateNewSignUp(int familyMemberId, UUID uuid){

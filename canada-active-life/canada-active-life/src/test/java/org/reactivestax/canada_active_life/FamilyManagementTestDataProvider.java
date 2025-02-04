@@ -1,11 +1,16 @@
 package org.reactivestax.canada_active_life;
 
+import org.reactivestax.canada_active_life.dto.CustomerDTO;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface FamilyManagementTestDataProvider {
@@ -26,6 +31,10 @@ public interface FamilyManagementTestDataProvider {
                     .language("English")
                     .memberLoginId(UUID.randomUUID().toString())
                     .familyPin("FAM123456")
+                    .build();
+
+    Supplier<FamilyMemberDTO> invalidFamilyMemberDTO = () ->
+            FamilyMemberDTO.builder()
                     .build();
 
     Supplier<FamilyMemberDTO> goodFamilyMemberDTOForPatch = () ->
