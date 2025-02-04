@@ -60,16 +60,7 @@ class RegistrationServiceTest {
     private RestTemplate restTemplate;
 
     @Test
-    void testEnrollFamilyMemberInOfferedCourse_InvalidActor(){}
-
-    @Test
-    void testEnrollFamilyMemberInOfferedCourse_InvalidFamilyMember(){}
-
-    @Test
     void testEnrollFamilyMemberInOfferedCourse_InactiveFamilyMember(){}
-
-    @Test
-    void testEnrollFamilyMemberInOfferedCourse_InvalidOfferedCourseId(){}
 
     @Test
     void testEnrollFamilyMemberInOfferedCourse_OfferedCourseClosedForEnrollment(){}
@@ -112,9 +103,6 @@ class RegistrationServiceTest {
     }
 
     @Test
-    void testGetEnrollmentsForMember_InvalidFamilyMember(){}
-
-    @Test
     void testGetEnrollmentsForMember_ValidFamilyMember(){
         when(familyManagementService.checkFamilyMemberValidity(any(String.class)))
                 .thenReturn(FamilyManagementTestDataProvider.goodActiveFamilyMember.get());
@@ -133,12 +121,6 @@ class RegistrationServiceTest {
         assertNotNull(registrations);
         assertFalse(registrations.isEmpty());
     }
-
-    @Test
-    void testWithdrawFamilyMemberFromOfferedCourse_InvalidActor(){}
-
-    @Test
-    void testWithdrawFamilyMemberFromOfferedCourse_InvalidFamilyMember(){}
 
     @Test
     void testWithdrawFamilyMemberFromOfferedCourse_NoRegistrationFound(){}
@@ -175,10 +157,7 @@ class RegistrationServiceTest {
     }
 
     @Test
-    void testGetWaitlistForMember_ValidFamilyMember(){}
-
-    @Test
-    void testGetWaitlistForMember_InvalidFamilyMember(){
+    void testGetWaitlistForMember_ValidFamilyMember(){
         when(familyManagementService.checkFamilyMemberValidity(any(String.class)))
                 .thenReturn(FamilyManagementTestDataProvider.goodFamilyMemberAsGroupOwner.get());
         List<FamilyCourseWaitlist> waitlists = new ArrayList<>();
