@@ -66,11 +66,6 @@ public class FamilyManagementService {
         return sendActivationLink(createdFamilyMember);
     }
 
-    public boolean sendActivationLink(FamilyMember createdFamilyMember) {
-        UUID uuidToken = createUUIDTokenForSignUpActivation(createdFamilyMember);
-        return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken, createdFamilyMember.getHomePhoneNumber());
-    }
-
     private FamilyGroup createFamilyGroup(String familyPin) {
         return FamilyGroup.builder()
                 .familyPin(familyPin)
@@ -95,6 +90,11 @@ public class FamilyManagementService {
                 .memberLoginId(familyMemberDTO.getMemberLoginId())
                 .familyGroup(createdFamilyGroup)
                 .build();
+    }
+
+    public boolean sendActivationLink(FamilyMember createdFamilyMember) {
+        UUID uuidToken = createUUIDTokenForSignUpActivation(createdFamilyMember);
+        return sendActivationLinkViaEms(createdFamilyMember.getFamilyMemberId(), uuidToken, createdFamilyMember.getHomePhoneNumber());
     }
 
     private UUID createUUIDTokenForSignUpActivation(FamilyMember createdFamilyMember) {
@@ -159,7 +159,10 @@ public class FamilyManagementService {
          * Activation Link Same as SignUp - Done
          */
         FamilyMember actor = checkFamilyMemberValidity(memberLoginId);
-
+        if(!actor.isActive()) {
+            sendActivationLink(actor);
+            throw new MemberNotActivatedException("Member has been sent an activation link. Please click on the link to activate the account.");
+        }
         FamilyGroup familyGroupOfActor = actor.getFamilyGroup();
         FamilyMember createdFamilyMember = createFamilyMember(familyMemberDTO, familyGroupOfActor);
         familyMemberRepository.save(createdFamilyMember);
@@ -233,8 +236,7 @@ public class FamilyManagementService {
         FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(userLoginDTO.getMemberLoginId())
                 .orElseThrow(() -> new FamilyMemberNotFoundException("Family Member not Found"));
         if(!familyMember.isActive()){
-            UUID uuidTokenForSignUpActivation = createUUIDTokenForSignUpActivation(familyMember);
-            sendActivationLinkViaEms(familyMember.getFamilyMemberId(), uuidTokenForSignUpActivation, familyMember.getHomePhoneNumber());
+            sendActivationLink(familyMember);
             throw new MemberNotActivatedException("Member has been sent an activation link. Please click on the link to activate the account.");
         }
         if(familyMember.getFamilyGroup().getFamilyPin().equals(userLoginDTO.getFamilyPin())){

@@ -1,9 +1,6 @@
 package org.reactivestax.canada_active_life.service;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.reactivestax.canada_active_life.FamilyManagementTestDataProvider;
 import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
@@ -11,6 +8,7 @@ import org.reactivestax.canada_active_life.domain.PendingSignUpUUID;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundException;
 import org.reactivestax.canada_active_life.exception.InvalidSignUpActivationLinkException;
+import org.reactivestax.canada_active_life.exception.MemberNotActivatedException;
 import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
@@ -139,7 +137,7 @@ class FamilyManagementServiceTest {
         when(pendingSignUpUUIDRepository.findTopByUuidAndFamilyMember_FamilyMemberIdAndCreationTimeStampAfterOrderByCreationTimeStampDesc(any(UUID.class), any(Integer.class), any(LocalDateTime.class)))
                 .thenReturn(Optional.of(PendingSignUpUUID.builder().build()));
         when(familyMemberRepository.findByFamilyMemberId(any(Integer.class)))
-                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodFamilyMember.get()));
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodInactiveFamilyMember.get()));
 
         // Action and Assert
         assertTrue(familyManagementService.activateNewSignUp(1, UUID.randomUUID()));
@@ -150,12 +148,28 @@ class FamilyManagementServiceTest {
 
     @Test
     void testAddFamilyMember_InvalidActor(){
+        // Setup
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.empty());
 
+        // Action and Assert
+        assertThrows(FamilyMemberNotFoundException.class, () -> familyManagementService.addFamilyMember(FamilyManagementTestDataProvider.goodFamilyMemberDTO.get(), "anyActor"));
+        verify(familyMemberRepository, times(1)).findByMemberLoginId(any(String.class));
+        verify(pendingSignUpUUIDRepository, times(0)).save(any(PendingSignUpUUID.class));
+        verify(familyMemberRepository, times(0)).save(any(FamilyMember.class));
     }
 
     @Test
     void testAddFamilyMember_InactiveActor(){
+        // Setup
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodInactiveFamilyMember.get()));
 
+        // Action and Assert
+        assertThrows(MemberNotActivatedException.class, () -> familyManagementService.addFamilyMember(FamilyManagementTestDataProvider.goodFamilyMemberDTO.get(), "anyActor"));
+        verify(familyMemberRepository, times(1)).findByMemberLoginId(any(String.class));
+        verify(pendingSignUpUUIDRepository, times(1)).save(any(PendingSignUpUUID.class));
+        verify(familyMemberRepository, times(0)).save(any(FamilyMember.class));
     }
 
     @Test
@@ -165,6 +179,17 @@ class FamilyManagementServiceTest {
          * 1 Call - familyMemberRepository.save
          * activation Link - assert True
          */
+        // Setup
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodInactiveFamilyMember.get()));
+        ResponseEntity<String> mockResponse = new ResponseEntity<>("Message Sent Via SMS.", HttpStatus.OK);
+        when(restTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(String.class))).thenReturn(mockResponse);
+
+        // Action and Assert
+        assertTrue(familyManagementService.addFamilyMember(FamilyManagementTestDataProvider.goodFamilyMemberDTO.get(), "anyActor"));
+        verify(familyMemberRepository, times(1)).findByMemberLoginId(any(String.class));
+        verify(familyMemberRepository, times(1)).save(any(FamilyMember.class));
+        verify(pendingSignUpUUIDRepository, times(1)).save(any(PendingSignUpUUID.class));
     }
 
     @Test

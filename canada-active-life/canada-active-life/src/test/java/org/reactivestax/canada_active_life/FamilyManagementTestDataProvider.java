@@ -2,17 +2,12 @@ package org.reactivestax.canada_active_life;
 
 import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
-import org.reactivestax.canada_active_life.dto.CustomerDTO;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface FamilyManagementTestDataProvider {
@@ -35,11 +30,12 @@ public interface FamilyManagementTestDataProvider {
                     .familyPin("FAM123456")
                     .build();
 
-    Supplier<FamilyMember> goodFamilyMember = () ->
+    Supplier<FamilyMember> goodInactiveFamilyMember = () ->
         FamilyMember.builder()
                 .familyGroup(FamilyGroup.builder()
                         .status("inactive")
                         .build())
+                .isActive(false)
                 .build();
 
     Supplier<FamilyGroup> goodFamilyGroup = () ->
