@@ -6,6 +6,7 @@ import org.reactivestax.canada_active_life.TestDataProvider.FamilyMemberCourseRe
 import org.reactivestax.canada_active_life.TestDataProvider.OfferedCourseTestDataProvider;
 import org.reactivestax.canada_active_life.domain.*;
 import org.reactivestax.canada_active_life.dto.FamilyMemberCourseRegistrationDTO;
+import org.reactivestax.canada_active_life.dto.FamilyMemberCourseWaitlistDTO;
 import org.reactivestax.canada_active_life.enums.FeeType;
 import org.reactivestax.canada_active_life.mapper.FamilyCourseRegistrationMapper;
 import org.reactivestax.canada_active_life.mapper.FamilyCourseWaitlistMapper;
@@ -177,6 +178,22 @@ class RegistrationServiceTest {
     void testGetWaitlistForMember_ValidFamilyMember(){}
 
     @Test
-    void testGetWaitlistForMember_InvalidFamilyMember(){}
+    void testGetWaitlistForMember_InvalidFamilyMember(){
+        when(familyManagementService.checkFamilyMemberValidity(any(String.class)))
+                .thenReturn(FamilyManagementTestDataProvider.goodFamilyMemberAsGroupOwner.get());
+        List<FamilyCourseWaitlist> waitlists = new ArrayList<>();
+        waitlists.add(FamilyCourseWaitlist.builder()
+                .familyMember(FamilyMember.builder().name("test").homePhoneNumber("123").build())
+                .offeredCourse(OfferedCourse.builder().offeredCourseId(1).build())
+                .build());
+        when(familyCourseWaitlistRepository.findAllByFamilyMember_FamilyMemberIdAndIsWaitlisted(any(Integer.class), any(Boolean.class)))
+                .thenReturn(waitlists);
+        when(familyCourseWaitlistMapper.toDto(any(FamilyCourseWaitlist.class)))
+                .thenReturn(FamilyMemberCourseWaitlistDTO.builder().build());
+
+        List<FamilyMemberCourseWaitlistDTO> waitlist = registrationManagementService.getWaitlistForMember("anyMember");
+        assertNotNull(waitlist);
+        assertFalse(waitlist.isEmpty());
+    }
 
 }
