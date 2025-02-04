@@ -74,8 +74,7 @@ public class RegistrationManagementService {
          */
         FamilyMember actor = familyManagementService.checkFamilyMemberValidity(memberLoginId);
         FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(familyMemberCourseRegistrationDTO.getFamilyMemberLoginId());
-        if(!familyMember.isActive())
-        {
+        if(!familyMember.isActive()) {
             familyManagementService.sendActivationLink(familyMember);
             throw new FamilyMemberNotActivatedException("Please verify family member using the activation link sent via sms...");
         }
@@ -136,9 +135,9 @@ public class RegistrationManagementService {
     }
 
     private double getCostOfOfferedCourse(int offeredCourseId, FeeType feeType) {
-        Optional<OfferedCourseFee> offeredCourseFee = offeredCourseFeeRepository.findByOfferedCourse_OfferedCourseIdAndFeeType(offeredCourseId, feeType);
-        if(offeredCourseFee.isPresent()) return offeredCourseFee.get().getCourseFee();
-        else throw new OfferedCourseFeeNotFoundException("Offered Course Fee could not be found right now.");
+        OfferedCourseFee offeredCourseFee = offeredCourseFeeRepository.findByOfferedCourse_OfferedCourseIdAndFeeType(offeredCourseId, feeType)
+                .orElseThrow(() -> new OfferedCourseFeeNotFoundException("Offered Course Fee could not be found right now."));
+        return offeredCourseFee.getCourseFee();
     }
 
     private boolean waitlistFamilyMember(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse) {
