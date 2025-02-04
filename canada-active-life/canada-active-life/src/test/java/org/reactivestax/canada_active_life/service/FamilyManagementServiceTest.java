@@ -73,12 +73,6 @@ class FamilyManagementServiceTest {
 
     @Test
     void testSignUpNewFamilyMember_ValidFamilyMemberDTO(){
-        /**
-         * FamilyMemberRepo.save() - 1
-         * FamilyGroupRepo.save() - 1
-         * UUID Creation Verification - pendingSignUpUUIDRepository.save() - 1
-         * sendActivationLinkVerification - return true assertion
-         */
         // Setup
         FamilyMemberDTO familyMemberDTO = FamilyManagementTestDataProvider.goodFamilyMemberDTO.get();
         ResponseEntity<String> mockResponse = new ResponseEntity<>("Message Sent Via SMS.", HttpStatus.OK);
@@ -121,12 +115,6 @@ class FamilyManagementServiceTest {
 
     @Test
     void testActivateNewSignUpLink_ValidCombination(){
-        /**
-         * 1 call to pendingSignUpUUIDRepository.findTopByUuidAndFamilyMember_FamilyMemberIdAndCreationTimeStampAfterOrderByCreationTimeStampDesc
-         * 1 call to familyMemberRepository.findByFamilyMemberId
-         * 1 call to familyMemberRepository.save
-         * assertTrue;
-         */
         // Setup
         when(pendingSignUpUUIDRepository.findTopByUuidAndFamilyMember_FamilyMemberIdAndCreationTimeStampAfterOrderByCreationTimeStampDesc(any(UUID.class), any(Integer.class), any(LocalDateTime.class)))
                 .thenReturn(Optional.of(PendingSignUpUUID.builder().build()));
@@ -168,11 +156,6 @@ class FamilyManagementServiceTest {
 
     @Test
     void testAddFamilyMember_ValidActor(){
-        /**
-         * 1 Call - familyMemberRepository.findByMemberLoginId(
-         * 1 Call - familyMemberRepository.save
-         * activation Link - assert True
-         */
         // Setup
         when(familyMemberRepository.findByMemberLoginId(any(String.class)))
                 .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodActiveFamilyMember.get()));
@@ -289,11 +272,6 @@ class FamilyManagementServiceTest {
 
     @Test
     void testDeactivateFamilyMember_ValidActorAndValidMember(){
-        /**
-         * 2 Call - familyMemberRepository.findByMemberLoginId
-         * 1 Call - familyMemberRepository.save
-         * assert True;
-         */
         when(familyMemberRepository.findByMemberLoginId(any(String.class)))
                 .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodFamilyMemberAsGroupOwner.get()));
 
@@ -352,11 +330,6 @@ class FamilyManagementServiceTest {
 
     @Test
     void testMemberLogin_ValidCredentials(){
-        /**
-         * 1 Call - familyMemberRepository.findByMemberLoginId
-         * 1 Call - UUIDLogin.save
-         * assertNotNull(UUIDTokenForLogin)
-         */
         when(familyMemberRepository.findByMemberLoginId(any(String.class)))
                 .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodActiveFamilyMember.get()));
         ResponseEntity<String> mockResponse = new ResponseEntity<>("OTP Sent Via SMS.", HttpStatus.OK);
