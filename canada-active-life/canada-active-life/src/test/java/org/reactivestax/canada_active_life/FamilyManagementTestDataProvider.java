@@ -1,5 +1,7 @@
 package org.reactivestax.canada_active_life;
 
+import org.reactivestax.canada_active_life.domain.FamilyGroup;
+import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.dto.CustomerDTO;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.UserLoginDTO;
@@ -31,6 +33,18 @@ public interface FamilyManagementTestDataProvider {
                     .language("English")
                     .memberLoginId(UUID.randomUUID().toString())
                     .familyPin("FAM123456")
+                    .build();
+
+    Supplier<FamilyMember> goodFamilyMember = () ->
+        FamilyMember.builder()
+                .familyGroup(FamilyGroup.builder()
+                        .status("inactive")
+                        .build())
+                .build();
+
+    Supplier<FamilyGroup> goodFamilyGroup = () ->
+            FamilyGroup.builder()
+                    .status("inactive")
                     .build();
 
     Supplier<FamilyMemberDTO> invalidFamilyMemberDTO = () ->

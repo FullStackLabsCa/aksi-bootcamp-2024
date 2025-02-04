@@ -9,6 +9,8 @@ import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.PendingSignUpUUID;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
+import org.reactivestax.canada_active_life.exception.FamilyMemberNotFoundException;
+import org.reactivestax.canada_active_life.exception.InvalidSignUpActivationLinkException;
 import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
@@ -22,8 +24,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.RestTemplate;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -96,12 +101,30 @@ class FamilyManagementServiceTest {
 
     @Test
     void testActivateNewSignUpLink_InvalidFamilyMemberId(){
+        // Setup
+        when(pendingSignUpUUIDRepository.findTopByUuidAndFamilyMember_FamilyMemberIdAndCreationTimeStampAfterOrderByCreationTimeStampDesc(any(UUID.class), any(Integer.class), any(LocalDateTime.class)))
+                .thenReturn(Optional.of(PendingSignUpUUID.builder().build()));
+        when(familyMemberRepository.findByFamilyMemberId(any(Integer.class)))
+                .thenReturn(Optional.empty());
 
+        // Action and Assert
+        assertThrows(FamilyMemberNotFoundException.class, () -> familyManagementService.activateNewSignUp(1, UUID.randomUUID()));
+        verify(pendingSignUpUUIDRepository, times(1)).findTopByUuidAndFamilyMember_FamilyMemberIdAndCreationTimeStampAfterOrderByCreationTimeStampDesc(any(UUID.class), any(Integer.class), any(LocalDateTime.class));
+        verify(familyMemberRepository, times(1)).findByFamilyMemberId(any(Integer.class));
+        verify(familyMemberRepository, times(0)).save(any(FamilyMember.class));
     }
 
     @Test
     void testActivateNewSignUpLink_InvalidUUIDTokenCombination(){
+        // Setup
+        when(pendingSignUpUUIDRepository.findTopByUuidAndFamilyMember_FamilyMemberIdAndCreationTimeStampAfterOrderByCreationTimeStampDesc(any(UUID.class), any(Integer.class), any(LocalDateTime.class)))
+                .thenReturn(Optional.empty());
 
+        // Action and Assert
+        assertThrows(InvalidSignUpActivationLinkException.class, () -> familyManagementService.activateNewSignUp(1, UUID.randomUUID()));
+        verify(pendingSignUpUUIDRepository, times(1)).findTopByUuidAndFamilyMember_FamilyMemberIdAndCreationTimeStampAfterOrderByCreationTimeStampDesc(any(UUID.class), any(Integer.class), any(LocalDateTime.class));
+        verify(familyMemberRepository, times(0)).findByFamilyMemberId(any(Integer.class));
+        verify(familyMemberRepository, times(0)).save(any(FamilyMember.class));
     }
 
     @Test
@@ -112,6 +135,17 @@ class FamilyManagementServiceTest {
          * 1 call to familyMemberRepository.save
          * assertTrue;
          */
+        // Setup
+        when(pendingSignUpUUIDRepository.findTopByUuidAndFamilyMember_FamilyMemberIdAndCreationTimeStampAfterOrderByCreationTimeStampDesc(any(UUID.class), any(Integer.class), any(LocalDateTime.class)))
+                .thenReturn(Optional.of(PendingSignUpUUID.builder().build()));
+        when(familyMemberRepository.findByFamilyMemberId(any(Integer.class)))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodFamilyMember.get()));
+
+        // Action and Assert
+        assertTrue(familyManagementService.activateNewSignUp(1, UUID.randomUUID()));
+        verify(pendingSignUpUUIDRepository, times(1)).findTopByUuidAndFamilyMember_FamilyMemberIdAndCreationTimeStampAfterOrderByCreationTimeStampDesc(any(UUID.class), any(Integer.class), any(LocalDateTime.class));
+        verify(familyMemberRepository, times(1)).findByFamilyMemberId(any(Integer.class));
+        verify(familyMemberRepository, times(1)).save(any(FamilyMember.class));
     }
 
     @Test
