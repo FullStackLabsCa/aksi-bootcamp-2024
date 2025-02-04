@@ -356,16 +356,33 @@ class FamilyManagementServiceTest {
 
     @Test
     void testMemberLoginVerification_InvalidUUIDIdentifier(){
+        when(pendingLoginUUIDRepository.findTopByUuidAndCreationTimeStampAfterOrderByCreationTimeStampDesc(any(UUID.class), any(LocalDateTime.class)))
+                .thenReturn(Optional.empty());
 
+        assertThrows(UUIDTokenInvalidException.class, () -> familyManagementService.loginVerification(FamilyManagementTestDataProvider.loginVerificationDTO.get(), UUID.randomUUID()));
     }
 
     @Test
     void testMemberLoginVerification_InvalidOTP(){
+        when(pendingLoginUUIDRepository.findTopByUuidAndCreationTimeStampAfterOrderByCreationTimeStampDesc(any(UUID.class), any(LocalDateTime.class)))
+                .thenReturn(Optional.of(PendingLoginUUID.builder()
+                        .familyMember(FamilyMember.builder().familyMemberId(1).build())
+                        .build()));
+        ResponseEntity<String> mockResponse = new ResponseEntity<>("Customer Not Verified", HttpStatus.OK);
+        when(restTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(String.class))).thenReturn(mockResponse);
 
+        assertFalse(familyManagementService.loginVerification(FamilyManagementTestDataProvider.loginVerificationDTO.get(), UUID.randomUUID()));
     }
 
     @Test
     void testMemberLoginVerification_ValidOTP(){
+        when(pendingLoginUUIDRepository.findTopByUuidAndCreationTimeStampAfterOrderByCreationTimeStampDesc(any(UUID.class), any(LocalDateTime.class)))
+                .thenReturn(Optional.of(PendingLoginUUID.builder()
+                                .familyMember(FamilyMember.builder().familyMemberId(1).build())
+                        .build()));
+        ResponseEntity<String> mockResponse = new ResponseEntity<>("Customer Verified", HttpStatus.OK);
+        when(restTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(String.class))).thenReturn(mockResponse);
 
+        assertTrue(familyManagementService.loginVerification(FamilyManagementTestDataProvider.loginVerificationDTO.get(), UUID.randomUUID()));
     }
 }

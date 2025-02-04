@@ -145,4 +145,9 @@ public interface FamilyManagementTestDataProvider {
                     .memberLoginId("anyMember")
                     .familyPin("123456")
                     .build();
+
+    Supplier<UserVerificationDTO> loginVerificationDTO = () ->
+            UserVerificationDTO.builder()
+                    .otpEnteredByUser("123456")
+                    .build();
 }
