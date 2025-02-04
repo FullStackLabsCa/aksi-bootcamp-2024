@@ -1,4 +1,4 @@
-package org.reactivestax.canada_active_life;
+package org.reactivestax.canada_active_life.TestDataProvider;
 
 import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
@@ -107,6 +107,7 @@ public interface FamilyManagementTestDataProvider {
 
     Supplier<FamilyMember> goodActiveFamilyMember = () ->
             FamilyMember.builder()
+                    .city("Illinois")
                     .familyGroup(FamilyGroup.builder()
                             .status("inactive")
                             .familyPin("123456")

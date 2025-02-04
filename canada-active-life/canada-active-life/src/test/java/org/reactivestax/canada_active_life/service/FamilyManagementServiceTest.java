@@ -1,7 +1,7 @@
 package org.reactivestax.canada_active_life.service;
 
 import org.junit.jupiter.api.Test;
-import org.reactivestax.canada_active_life.FamilyManagementTestDataProvider;
+import org.reactivestax.canada_active_life.TestDataProvider.FamilyManagementTestDataProvider;
 import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.PendingLoginUUID;

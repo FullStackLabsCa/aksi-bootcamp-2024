@@ -3,7 +3,7 @@ package org.reactivestax.canada_active_life.rest_assured;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.reactivestax.canada_active_life.FamilyManagementTestDataProvider;
+import org.reactivestax.canada_active_life.TestDataProvider.FamilyManagementTestDataProvider;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 import org.reactivestax.canada_active_life.dto.UserVerificationDTO;

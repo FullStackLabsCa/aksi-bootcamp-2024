@@ -3,7 +3,7 @@ package org.reactivestax.canada_active_life.rest_assured;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.reactivestax.canada_active_life.OfferedCourseTestDataProvider;
+import org.reactivestax.canada_active_life.TestDataProvider.OfferedCourseTestDataProvider;
 import org.reactivestax.canada_active_life.dto.OfferedCourseDTO;
 import org.springframework.boot.test.context.SpringBootTest;
 

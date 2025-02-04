@@ -1,13 +1,11 @@
-package org.reactivestax.canada_active_life;
+package org.reactivestax.canada_active_life.TestDataProvider;
 
-import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
+import org.reactivestax.canada_active_life.domain.Facility;
+import org.reactivestax.canada_active_life.domain.OfferedCourse;
 import org.reactivestax.canada_active_life.dto.OfferedCourseDTO;
-import org.reactivestax.canada_active_life.dto.UserLoginDTO;
-import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 public interface OfferedCourseTestDataProvider {
@@ -32,4 +30,11 @@ public interface OfferedCourseTestDataProvider {
                     .isAllDayCourse(false)
                     .build();
 
+    Supplier<OfferedCourse> goodOfferedCourse = () ->
+            OfferedCourse.builder()
+                    .offeredCourseId(1)
+                    .seatsAvailable(10)
+                    .availableForEnrollment("OPEN")
+                    .facility(Facility.builder().city("Illinois").build())
+                    .build();
 }
