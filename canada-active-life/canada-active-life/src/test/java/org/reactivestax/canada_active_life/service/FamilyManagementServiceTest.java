@@ -21,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Member;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -90,11 +89,6 @@ class FamilyManagementServiceTest {
         verify(familyMemberRepository, times(1)).save(any(FamilyMember.class));
         verify(familyGroupRepository, times(1)).save(any(FamilyGroup.class));
         verify(pendingSignUpUUIDRepository, times(1)).save(any(PendingSignUpUUID.class));
-    }
-
-    @Test
-    void testActivationLink_WrongPhoneNumberForEms(){
-
     }
 
     @Test
@@ -236,7 +230,28 @@ class FamilyManagementServiceTest {
     }
 
     @Test
-    void testUpdateFamilyMember_(){}
+    void testUpdateFamilyMember_ValidFamilyMember(){
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.of(FamilyManagementTestDataProvider.goodFamilyMember.get()));
+        when(familyMemberMapper.toDto(any(FamilyMember.class))).thenReturn(FamilyMemberDTO.builder().build());
+
+        FamilyMemberDTO familyMemberDTO = familyManagementService.updateFamilyMemberInfo(FamilyMemberDTO.builder().build(), "anyMember");
+        assertNotNull(familyMemberDTO);
+        verify(familyMemberRepository, times(1)).save(any(FamilyMember.class));
+        verify(familyMemberMapper, times(1)).toDto(any(FamilyMember.class));
+        verify(familyMemberMapper, times(1)).updateFamilyMemberFromDto(any(FamilyMemberDTO.class), any(FamilyMember.class));
+
+    }
+
+    @Test
+    void testUpdateFamilyMember_InvalidFamilyMember(){
+        // Setup
+        when(familyMemberRepository.findByMemberLoginId(any(String.class)))
+                .thenReturn(Optional.empty());
+
+        // Action and Assert
+        assertThrows(FamilyMemberNotFoundException.class, () -> familyManagementService.updateFamilyMemberInfo(FamilyMemberDTO.builder().build(), "anyFamilyMember"));
+    }
 
     @Test
     void testDeactivateFamilyMember_InvalidActor(){
