@@ -54,6 +54,7 @@ class FamilyManagementTest {
 
     private String actorMemberLoginId;
     private String addedMemberLoginId;
+    private UUID loginUUIDToken;
 
     @BeforeEach
     void setUp(){
@@ -192,8 +193,8 @@ class FamilyManagementTest {
         assertEquals("Jane Doe", familyMemberDTO.getName());
     }
 
-//    @Test
-//    @Order(6)
+    @Test
+    @Order(6)
     void updateFamilyMemberTest() {
         FamilyMemberDTO familyMemberDTO = FamilyManagementTestDataProvider.goodFamilyMemberDTOForPatch.get();
 
@@ -201,7 +202,7 @@ class FamilyManagementTest {
                 .log().all() // Log request details
                 .contentType("application/json")
                 .body(familyMemberDTO)
-                .queryParam("memberLoginId", "12122")
+                .queryParam("memberLoginId", addedMemberLoginId)
                 .when()
                 .patch(baseUrl + "/members")
                 .then()
@@ -216,10 +217,14 @@ class FamilyManagementTest {
 
     }
 
-//    @Test
-//    @Order(7)
+    @Test
+    @Order(7)
     void loginTest() {
+        ResponseEntity<String> mockResponse = new ResponseEntity<>("OTP Sent Via SMS.", HttpStatus.OK);
+        when(restTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(String.class))).thenReturn(mockResponse);
+
         UserLoginDTO userLoginDTO = FamilyManagementTestDataProvider.goodLoginDTO.get();
+        userLoginDTO.setMemberLoginId(addedMemberLoginId);
 
         Response response = given()
                 .log().all() // Log request details
@@ -233,28 +238,16 @@ class FamilyManagementTest {
                 .response();
 
         UUID uuid = response.as(UUID.class);
+        loginUUIDToken = uuid;
 
         assertThat(uuid).isNotNull();
     }
 
-//    @Test
-//    @Order(8)
+    @Test
+    @Order(8)
     void loginVerificationTest() {
-
-        UserLoginDTO userLoginDTO = FamilyManagementTestDataProvider.goodLoginDTO.get();
-
-        Response loginResponse = given()
-                .log().all() // Log request details
-                .contentType("application/json")
-                .body(userLoginDTO)
-                .when()
-                .post(baseUrl + "/login")
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
-
-        UUID uuid = loginResponse.as(UUID.class);
+        ResponseEntity<String> mockResponse = new ResponseEntity<>("Customer Verified", HttpStatus.OK);
+        when(restTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(String.class))).thenReturn(mockResponse);
 
         UserVerificationDTO userVerificationDTO = FamilyManagementTestDataProvider.goodLoginVerificationDTO.get();
 
@@ -262,7 +255,7 @@ class FamilyManagementTest {
                 .log().all() // Log request details
                 .contentType("application/json")
                 .body(userVerificationDTO)
-                .header("x-security-header", uuid.toString())
+                .header("x-security-header", loginUUIDToken.toString())
                 .when()
                 .post(baseUrl + "/login/2fa")
                 .then()
@@ -275,14 +268,14 @@ class FamilyManagementTest {
         assertEquals("Member Verified :-)", responseString);
     }
 
-//    @Test
-//    @Order(9)
+    @Test
+    @Order(9)
     void deactivateFamilyMemberTest(){
         Response response = given()
                 .log().all() // Log request details
                 .contentType("application/json")
-                .queryParam("memberLoginId", "121222")
-                .header("x-security-header", "68ef02ef-80da-43bc-b4a4-d0625b5f5685")
+                .queryParam("memberLoginId", addedMemberLoginId)
+                .header("x-security-header", actorMemberLoginId)
                 .when()
                 .delete(baseUrl + "/members")
                 .then()
