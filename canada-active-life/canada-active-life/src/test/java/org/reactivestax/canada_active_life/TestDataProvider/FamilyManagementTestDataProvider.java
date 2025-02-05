@@ -1,5 +1,6 @@
 package org.reactivestax.canada_active_life.TestDataProvider;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
@@ -29,6 +30,27 @@ public interface FamilyManagementTestDataProvider {
                     .memberLoginId(UUID.randomUUID().toString())
                     .familyPin("FAM123456")
                     .build();
+
+    Supplier<String> goodFamilyMemberDTOJson = () -> {
+        return "{"
+                + "\"name\": \"Jane Doe\","
+                + "\"dob\": \"1992-08-15\","
+                + "\"gender\": \"Female\","
+                + "\"emailAddress\": \"jane.doe@example.com\","
+                + "\"streetNumber\": \"456\","
+                + "\"streetName\": \"Elm Street\","
+                + "\"city\": \"Springfield\","
+                + "\"province\": \"Illinois\","
+                + "\"country\": \"USA\","
+                + "\"homePhoneNumber\": \"555-123-4567\","
+                + "\"businessPhoneNumber\": \"555-987-6543\","
+                + "\"preferredContactMethod\": \"Email\","
+                + "\"language\": \"English\","
+                + "\"memberLoginId\": \"" + UUID.randomUUID().toString() + "\","
+                + "\"familyPin\": \"FAM123456\""
+                + "}";
+    };
+
 
     Supplier<FamilyMember> goodFamilyMember = () ->
             FamilyMember.builder()
