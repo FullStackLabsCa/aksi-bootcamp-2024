@@ -1,10 +1,8 @@
 package org.reactivestax.canada_active_life.controller;
 
 import org.junit.jupiter.api.Test;
-import org.reactivestax.canada_active_life.TestDataProvider.FamilyManagementTestDataProvider;
 import org.reactivestax.canada_active_life.TestDataProvider.FamilyMemberCourseRegistrationTestDataProvider;
 import org.reactivestax.canada_active_life.dto.FamilyMemberCourseRegistrationDTO;
-import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.service.RegistrationManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -12,10 +10,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,10 +64,30 @@ class RegistrationControllerTest {
     }
 
     @Test
-    void testGetAllCourseEnrollmentsForMember_Successful(){}
+    void testGetAllCourseEnrollmentsForMember_Successful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/courseRegistrations/enrollment";
+
+        ArrayList<FamilyMemberCourseRegistrationDTO> registrationDTOS = new ArrayList<>();
+        registrationDTOS.add(FamilyMemberCourseRegistrationDTO.builder().build());
+        when(registrationManagementService.getEnrollmentsForMember(any(String.class)))
+                .thenReturn(registrationDTOS);
+
+        mockMvc.perform(get(uriTemplate)
+                        .param("memberLoginId", UUID.randomUUID().toString()))
+                .andExpect(status().isOk());
+    }
 
     @Test
-    void testGetAllCourseEnrollmentsForMember_Unsuccessful(){}
+    void testGetAllCourseEnrollmentsForMember_Unsuccessful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/courseRegistrations/enrollment";
+
+        when(registrationManagementService.getEnrollmentsForMember(any(String.class)))
+                .thenReturn(new ArrayList<>());
+
+        mockMvc.perform(get(uriTemplate)
+                        .param("memberLoginId", UUID.randomUUID().toString()))
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     void testWithdrawFamilyMemberFromOfferedCourse_Successful(){}
