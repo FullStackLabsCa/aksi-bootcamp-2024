@@ -3,6 +3,7 @@ package org.reactivestax.canada_active_life.controller;
 import org.junit.jupiter.api.Test;
 import org.reactivestax.canada_active_life.TestDataProvider.FamilyManagementTestDataProvider;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
+import org.reactivestax.canada_active_life.dto.UserLoginDTO;
 import org.reactivestax.canada_active_life.service.DashboardService;
 import org.reactivestax.canada_active_life.service.FamilyManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(DashboardController.class)
 class DashboardControllerTest {
@@ -94,7 +96,32 @@ class DashboardControllerTest {
     }
 
     @Test
-    void testLoginMember_(){}
+    void testLoginMember_Successful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/login";
+        String familyMemberDTOJson = FamilyManagementTestDataProvider.goodFamilyMemberDTOJson.get();
+
+        when(familyManagementService.loginMember(any(UserLoginDTO.class)))
+                .thenReturn(UUID.randomUUID());
+
+        mockMvc.perform(post(uriTemplate)
+                        .content(familyMemberDTOJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testLoginMember_Unsuccessful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/login";
+        String familyMemberDTOJson = FamilyManagementTestDataProvider.goodFamilyMemberDTOJson.get();
+
+        when(familyManagementService.loginMember(any(UserLoginDTO.class)))
+                .thenReturn(null);
+
+        mockMvc.perform(post(uriTemplate)
+                        .content(familyMemberDTOJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     void testLoginVerification_(){}
