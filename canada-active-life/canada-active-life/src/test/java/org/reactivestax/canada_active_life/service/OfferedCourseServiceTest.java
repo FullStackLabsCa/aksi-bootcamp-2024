@@ -1,6 +1,10 @@
 package org.reactivestax.canada_active_life.service;
 
 import org.junit.jupiter.api.Test;
+import org.reactivestax.canada_active_life.domain.Course;
+import org.reactivestax.canada_active_life.domain.Facility;
+import org.reactivestax.canada_active_life.domain.OfferedCourse;
+import org.reactivestax.canada_active_life.dto.OfferedCourseDTO;
 import org.reactivestax.canada_active_life.mapper.OfferedCourseMapper;
 import org.reactivestax.canada_active_life.repo.CourseRepository;
 import org.reactivestax.canada_active_life.repo.FacilityRepository;
@@ -8,6 +12,12 @@ import org.reactivestax.canada_active_life.repo.OfferedCourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class OfferedCourseServiceTest {
@@ -34,7 +44,21 @@ class OfferedCourseServiceTest {
     void testCreateNewOfferedCourse_InvalidFacility(){}
 
     @Test
-    void testCreateNewOfferedCourse_ValidCourseAndFacility(){}
+    void testCreateNewOfferedCourse_ValidCourseAndFacility(){
+        when(courseRepository.findByCourseId(any(Integer.class)))
+                .thenReturn(Optional.of(Course.builder().build()));
+        when(facilityRepository.findByFacilityId(any(Integer.class)))
+                .thenReturn(Optional.of(Facility.builder().build()));
+        when(offeredCourseMapper.toEntity(any(OfferedCourseDTO.class)))
+                .thenReturn(OfferedCourse.builder().build());
+
+        assertTrue(offeredCourseService.createNewOfferedCourse(OfferedCourseDTO.builder().courseId(1).facilityId(1).numOfClassesOffered(2).build()));
+
+        verify(courseRepository, times(1)).findByCourseId(any(Integer.class));
+        verify(facilityRepository, times(1)).findByFacilityId(any(Integer.class));
+        verify(offeredCourseMapper, times(1)).toEntity(any(OfferedCourseDTO.class));
+        verify(offeredCourseRepository, times(1)).save(any(OfferedCourse.class));
+    }
 
     @Test
     void testGetOfferedCourse_InvalidOfferedCourse(){}
