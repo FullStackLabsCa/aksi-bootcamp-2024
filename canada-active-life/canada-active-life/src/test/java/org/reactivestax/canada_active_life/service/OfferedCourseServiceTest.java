@@ -15,6 +15,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -64,7 +65,23 @@ class OfferedCourseServiceTest {
     void testGetOfferedCourse_InvalidOfferedCourse(){}
 
     @Test
-    void testGetOfferedCourse_ValidOfferedCourse(){}
+    void testGetOfferedCourse_ValidOfferedCourse(){
+        when(offeredCourseRepository.findByOfferedCourseId(any(Integer.class)))
+                .thenReturn(Optional.of(OfferedCourse.builder()
+                                .course(Course.builder().courseId(1).build())
+                                .facility(Facility.builder().facilityId(1).build())
+                                .numOfClassesOffered(2)
+                                .isAllDayCourse(true)
+                        .build()));
+        when(offeredCourseMapper.toDto(any(OfferedCourse.class)))
+                .thenReturn(OfferedCourseDTO.builder().build());
+
+        OfferedCourseDTO offeredCourse = offeredCourseService.getOfferedCourse(1);
+
+        assertNotNull(offeredCourse);
+        verify(offeredCourseRepository, times(1)).findByOfferedCourseId(any(Integer.class));
+        verify(offeredCourseMapper, times(1)).toDto(any(OfferedCourse.class));
+    }
 
     @Test
     void testUpdateOfferedCourse_InvalidOfferedCourse(){}
