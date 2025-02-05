@@ -11,8 +11,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -61,7 +64,34 @@ class DashboardControllerTest {
     }
 
     @Test
-    void testActivateNewMember_(){}
+    void testActivateNewMember_Successful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/activate-account";
+        String expectedOutcome = "Family Member activated.";
+
+        when(familyManagementService.activateNewSignUp(any(Integer.class), any(UUID.class)))
+                .thenReturn(true);
+
+        mockMvc.perform(get(uriTemplate)
+                        .param("familyMemberId", "1")
+                        .param("uuid", UUID.randomUUID().toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedOutcome));
+    }
+
+    @Test
+    void testActivateNewMember_Unsuccessful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/activate-account";
+        String expectedOutcome = "Family Member could not be activated.";
+
+        when(familyManagementService.activateNewSignUp(any(Integer.class), any(UUID.class)))
+                .thenReturn(false);
+
+        mockMvc.perform(get(uriTemplate)
+                    .param("familyMemberId", "1")
+                    .param("uuid", UUID.randomUUID().toString()))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(expectedOutcome));
+    }
 
     @Test
     void testLoginMember_(){}
