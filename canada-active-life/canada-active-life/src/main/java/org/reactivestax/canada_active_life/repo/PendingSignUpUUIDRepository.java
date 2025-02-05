@@ -10,4 +10,5 @@ import java.util.UUID;
 
 public interface PendingSignUpUUIDRepository extends JpaRepository<PendingSignUpUUID, Long>, JpaSpecificationExecutor<PendingSignUpUUID> {
     Optional<PendingSignUpUUID> findTopByUuidAndFamilyMember_FamilyMemberIdAndCreationTimeStampAfterOrderByCreationTimeStampDesc(UUID uuid, int familyMemberId, LocalDateTime expirationThreshold);
+    Optional<PendingSignUpUUID> findTopByFamilyMember_FamilyMemberIdOrderByCreationTimeStampDesc(int familyMemberId);
 }
