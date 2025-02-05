@@ -15,8 +15,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -90,10 +89,36 @@ class RegistrationControllerTest {
     }
 
     @Test
-    void testWithdrawFamilyMemberFromOfferedCourse_Successful(){}
+    void testWithdrawFamilyMemberFromOfferedCourse_Successful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/courseRegistrations";
+        String expectedOutcome = "Family Member withdrawn from the Offered Course.";
+
+        when(registrationManagementService.withdrawFamilyMemberFromOfferedCourse(any(Integer.class), any(String.class), any(String.class)))
+                .thenReturn(true);
+
+        mockMvc.perform(delete(uriTemplate)
+                        .param("offeredCourseId", "1")
+                        .param("memberLoginId", UUID.randomUUID().toString())
+                        .header("x-security-header", UUID.randomUUID().toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedOutcome));
+    }
 
     @Test
-    void testWithdrawFamilyMemberFromOfferedCourse_Unsuccessful(){}
+    void testWithdrawFamilyMemberFromOfferedCourse_Unsuccessful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/courseRegistrations";
+        String expectedOutcome = "Failed to withdraw the Family Member from the offered course...";
+
+        when(registrationManagementService.withdrawFamilyMemberFromOfferedCourse(any(Integer.class), any(String.class), any(String.class)))
+                .thenReturn(false);
+
+        mockMvc.perform(delete(uriTemplate)
+                        .param("offeredCourseId", "1")
+                        .param("memberLoginId", UUID.randomUUID().toString())
+                        .header("x-security-header", UUID.randomUUID().toString()))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(expectedOutcome));
+    }
 
     @Test
     void testGetAllCourseWaitlistForMember_Successful(){}
