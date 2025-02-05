@@ -11,4 +11,10 @@ public interface FamilyMemberCourseRegistrationTestDataProvider {
                     .familyMemberLoginId("anyMember")
                     .offeredCourseId(1)
                     .build();
+
+    Supplier<String> validRegistrationDTOJson = () ->
+            "{"
+            + "\"familyMemberLoginId\": \"anyMember\","
+            + "\"offeredCourseId\": 1"
+            + "}";
 }
