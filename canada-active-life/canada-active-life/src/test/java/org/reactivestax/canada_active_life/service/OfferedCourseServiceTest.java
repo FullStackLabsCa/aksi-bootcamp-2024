@@ -84,9 +84,6 @@ class OfferedCourseServiceTest {
     }
 
     @Test
-    void testUpdateOfferedCourse_InvalidOfferedCourse(){}
-
-    @Test
     void testUpdateOfferedCourse_ValidOfferedCourse(){
         when(offeredCourseRepository.findByOfferedCourseId(any(Integer.class)))
                 .thenReturn(Optional.of(OfferedCourse.builder()
@@ -109,9 +106,6 @@ class OfferedCourseServiceTest {
         verify(offeredCourseMapper, times(1)).toDto(any(OfferedCourse.class));
         verify(offeredCourseRepository, times(1)).save(any(OfferedCourse.class));
     }
-
-    @Test
-    void testCancelOfferedCourse_InvalidOfferedCourse(){}
 
     @Test
     void testCancelOfferedCourse_ValidOfferedCourse(){
