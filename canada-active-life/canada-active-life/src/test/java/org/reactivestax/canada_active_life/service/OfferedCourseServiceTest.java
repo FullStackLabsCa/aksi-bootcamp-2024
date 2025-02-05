@@ -87,7 +87,28 @@ class OfferedCourseServiceTest {
     void testUpdateOfferedCourse_InvalidOfferedCourse(){}
 
     @Test
-    void testUpdateOfferedCourse_ValidOfferedCourse(){}
+    void testUpdateOfferedCourse_ValidOfferedCourse(){
+        when(offeredCourseRepository.findByOfferedCourseId(any(Integer.class)))
+                .thenReturn(Optional.of(OfferedCourse.builder()
+                        .course(Course.builder().courseId(1).build())
+                        .facility(Facility.builder().facilityId(1).build())
+                        .numOfClassesOffered(2)
+                        .isAllDayCourse(true)
+                        .build()));
+        doNothing().when(offeredCourseMapper).updateOfferedCourseFromDto(any(OfferedCourseDTO.class), any(OfferedCourse.class));
+        when(offeredCourseRepository.save(any(OfferedCourse.class)))
+                .thenReturn(OfferedCourse.builder().build());
+        when(offeredCourseMapper.toDto(any(OfferedCourse.class)))
+                .thenReturn(OfferedCourseDTO.builder().build());
+
+        OfferedCourseDTO offeredCourse = offeredCourseService.updateOfferedCourseInfo(OfferedCourseDTO.builder().build(), 1);
+
+        assertNotNull(offeredCourse);
+        verify(offeredCourseRepository, times(1)).findByOfferedCourseId(any(Integer.class));
+        verify(offeredCourseMapper, times(1)).updateOfferedCourseFromDto(any(OfferedCourseDTO.class), any(OfferedCourse.class));
+        verify(offeredCourseMapper, times(1)).toDto(any(OfferedCourse.class));
+        verify(offeredCourseRepository, times(1)).save(any(OfferedCourse.class));
+    }
 
     @Test
     void testCancelOfferedCourse_InvalidOfferedCourse(){}
