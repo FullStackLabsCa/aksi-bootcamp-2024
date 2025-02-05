@@ -8,6 +8,7 @@ import org.reactivestax.canada_active_life.domain.*;
 import org.reactivestax.canada_active_life.dto.FamilyMemberCourseRegistrationDTO;
 import org.reactivestax.canada_active_life.dto.FamilyMemberCourseWaitlistDTO;
 import org.reactivestax.canada_active_life.enums.FeeType;
+import org.reactivestax.canada_active_life.exception.*;
 import org.reactivestax.canada_active_life.mapper.FamilyCourseRegistrationMapper;
 import org.reactivestax.canada_active_life.mapper.FamilyCourseWaitlistMapper;
 import org.reactivestax.canada_active_life.repo.FamilyCourseRegistrationRepository;
@@ -60,19 +61,126 @@ class RegistrationServiceTest {
     private RestTemplate restTemplate;
 
     @Test
-    void testEnrollFamilyMemberInOfferedCourse_InactiveFamilyMember(){}
+    void testEnrollFamilyMemberInOfferedCourse_InactiveFamilyMember(){
+        // Mocks
+        when(familyManagementService.checkFamilyMemberValidity(any(String.class)))
+                .thenReturn(FamilyManagementTestDataProvider.goodInactiveFamilyMember.get());
+
+        // Actions
+        assertThrows(FamilyMemberNotActivatedException.class, () -> registrationManagementService.enrollFamilyMemberInOfferedCourse(FamilyMemberCourseRegistrationTestDataProvider.validRegistrationDTO.get(), "anyActor"));
+
+        // Assert
+        verify(familyManagementService, times(2)).checkFamilyMemberValidity(any(String.class));
+        verify(familyManagementService, times(1)).sendActivationLink(any(FamilyMember.class));
+        verify(offeredCourseService, times(0)).getOfferedCourseById(any(Integer.class));
+        verify(familyCourseRegistrationRepository, times(0)).findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(any(Integer.class), any(Boolean.class));
+        verify(familyCourseWaitlistRepository, times(0)).findByOfferedCourse_OfferedCourseIdAndFamilyMember_FamilyMemberIdAndIsWaitlisted(any(Integer.class), any(Integer.class), any(Boolean.class));
+        verify(offeredCourseFeeRepository, times(0)).findByOfferedCourse_OfferedCourseIdAndFeeType(any(Integer.class), any(FeeType.class));
+        verify(familyCourseRegistrationRepository, times(0)).save(any(FamilyCourseRegistration.class));
+        verify(familyCourseWaitlistRepository, times(0)).save(any(FamilyCourseWaitlist.class));
+    }
 
     @Test
-    void testEnrollFamilyMemberInOfferedCourse_OfferedCourseClosedForEnrollment(){}
+    void testEnrollFamilyMemberInOfferedCourse_OfferedCourseClosedForEnrollment(){
+        // Mocks
+        when(familyManagementService.checkFamilyMemberValidity(any(String.class)))
+                .thenReturn(FamilyManagementTestDataProvider.goodActiveFamilyMember.get());
+        when(offeredCourseService.getOfferedCourseById(any(Integer.class)))
+                .thenReturn(OfferedCourseTestDataProvider.closedOfferedCourse.get());
+
+        // Actions
+        assertThrows(OfferedCourseNotAvailableForEnrollmentException.class, () -> registrationManagementService.enrollFamilyMemberInOfferedCourse(FamilyMemberCourseRegistrationTestDataProvider.validRegistrationDTO.get(), "anyActor"));
+
+        // Assert
+        verify(familyManagementService, times(2)).checkFamilyMemberValidity(any(String.class));
+        verify(familyManagementService, times(0)).sendActivationLink(any(FamilyMember.class));
+        verify(offeredCourseService, times(1)).getOfferedCourseById(any(Integer.class));
+        verify(familyCourseRegistrationRepository, times(0)).findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(any(Integer.class), any(Boolean.class));
+        verify(familyCourseWaitlistRepository, times(0)).findByOfferedCourse_OfferedCourseIdAndFamilyMember_FamilyMemberIdAndIsWaitlisted(any(Integer.class), any(Integer.class), any(Boolean.class));
+        verify(offeredCourseFeeRepository, times(0)).findByOfferedCourse_OfferedCourseIdAndFeeType(any(Integer.class), any(FeeType.class));
+        verify(familyCourseRegistrationRepository, times(0)).save(any(FamilyCourseRegistration.class));
+        verify(familyCourseWaitlistRepository, times(0)).save(any(FamilyCourseWaitlist.class));
+    }
 
     @Test
-    void testEnrollFamilyMemberInOfferedCourse_FamilyMemberAlreadyEnrolledInOfferedCourse(){}
+    void testEnrollFamilyMemberInOfferedCourse_FamilyMemberAlreadyEnrolledInOfferedCourse(){
+        // Mocks
+        when(familyManagementService.checkFamilyMemberValidity(any(String.class)))
+                .thenReturn(FamilyManagementTestDataProvider.goodActiveFamilyMember.get());
+        when(offeredCourseService.getOfferedCourseById(any(Integer.class)))
+                .thenReturn(OfferedCourseTestDataProvider.offeredCourseWith0Seats.get());
+        List<FamilyCourseRegistration> enrollments = new ArrayList<>();
+        enrollments.add(FamilyCourseRegistration.builder()
+                        .familyMember(FamilyManagementTestDataProvider.goodActiveFamilyMember.get())
+                .build());
+        when(familyCourseRegistrationRepository.findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(any(Integer.class), any(Boolean.class)))
+                .thenReturn(enrollments);
+
+        // Actions
+        assertThrows(MemberAlreadyEnrolledInOfferedCourseException.class, () -> registrationManagementService.enrollFamilyMemberInOfferedCourse(FamilyMemberCourseRegistrationTestDataProvider.validRegistrationDTO.get(), "anyActor"));
+
+        // Assert
+        verify(familyManagementService, times(2)).checkFamilyMemberValidity(any(String.class));
+        verify(familyManagementService, times(0)).sendActivationLink(any(FamilyMember.class));
+        verify(offeredCourseService, times(1)).getOfferedCourseById(any(Integer.class));
+        verify(familyCourseRegistrationRepository, times(1)).findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(any(Integer.class), any(Boolean.class));
+        verify(familyCourseWaitlistRepository, times(0)).findByOfferedCourse_OfferedCourseIdAndFamilyMember_FamilyMemberIdAndIsWaitlisted(any(Integer.class), any(Integer.class), any(Boolean.class));
+        verify(offeredCourseFeeRepository, times(0)).findByOfferedCourse_OfferedCourseIdAndFeeType(any(Integer.class), any(FeeType.class));
+        verify(familyCourseRegistrationRepository, times(0)).save(any(FamilyCourseRegistration.class));
+        verify(familyCourseWaitlistRepository, times(0)).save(any(FamilyCourseWaitlist.class));
+    }
 
     @Test
-    void testEnrollFamilyMemberInOfferedCourse_SeatsNotAvaliableAndFamilyMemberAlreadyInWaitlist(){}
+    void testEnrollFamilyMemberInOfferedCourse_SeatsNotAvailableAndFamilyMemberAlreadyInWaitlist(){
+        // Mocks
+        when(familyManagementService.checkFamilyMemberValidity(any(String.class)))
+                .thenReturn(FamilyManagementTestDataProvider.goodActiveFamilyMember.get());
+        when(offeredCourseService.getOfferedCourseById(any(Integer.class)))
+                .thenReturn(OfferedCourseTestDataProvider.offeredCourseWith0Seats.get());
+        when(familyCourseRegistrationRepository.findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(any(Integer.class), any(Boolean.class)))
+                .thenReturn(new ArrayList<>());
+        when(familyCourseWaitlistRepository.findByOfferedCourse_OfferedCourseIdAndFamilyMember_FamilyMemberIdAndIsWaitlisted(any(Integer.class), any(Integer.class), any(Boolean.class)))
+                .thenReturn(Optional.of(FamilyCourseWaitlist.builder().build()));
+
+        // Actions
+        assertThrows(MemberAlreadyWaitlistedForOfferedCourseException.class, () -> registrationManagementService.enrollFamilyMemberInOfferedCourse(FamilyMemberCourseRegistrationTestDataProvider.validRegistrationDTO.get(), "anyActor"));
+
+        // Assert
+        verify(familyManagementService, times(2)).checkFamilyMemberValidity(any(String.class));
+        verify(familyManagementService, times(0)).sendActivationLink(any(FamilyMember.class));
+        verify(offeredCourseService, times(1)).getOfferedCourseById(any(Integer.class));
+        verify(familyCourseRegistrationRepository, times(1)).findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(any(Integer.class), any(Boolean.class));
+        verify(familyCourseWaitlistRepository, times(1)).findByOfferedCourse_OfferedCourseIdAndFamilyMember_FamilyMemberIdAndIsWaitlisted(any(Integer.class), any(Integer.class), any(Boolean.class));
+        verify(offeredCourseFeeRepository, times(0)).findByOfferedCourse_OfferedCourseIdAndFeeType(any(Integer.class), any(FeeType.class));
+        verify(familyCourseRegistrationRepository, times(0)).save(any(FamilyCourseRegistration.class));
+        verify(familyCourseWaitlistRepository, times(0)).save(any(FamilyCourseWaitlist.class));
+    }
 
     @Test
-    void testEnrollFamilyMemberInOfferedCourse_SeatsNotAvailableAndWaitlistFamilyMember(){}
+    void testEnrollFamilyMemberInOfferedCourse_SeatsNotAvailableAndWaitlistFamilyMember(){
+        // Mocks
+        when(familyManagementService.checkFamilyMemberValidity(any(String.class)))
+                .thenReturn(FamilyManagementTestDataProvider.goodActiveFamilyMember.get());
+        when(offeredCourseService.getOfferedCourseById(any(Integer.class)))
+                .thenReturn(OfferedCourseTestDataProvider.offeredCourseWith0Seats.get());
+        when(familyCourseRegistrationRepository.findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(any(Integer.class), any(Boolean.class)))
+                .thenReturn(new ArrayList<>());
+        when(familyCourseWaitlistRepository.findByOfferedCourse_OfferedCourseIdAndFamilyMember_FamilyMemberIdAndIsWaitlisted(any(Integer.class), any(Integer.class), any(Boolean.class)))
+                .thenReturn(Optional.empty());
+
+        // Actions
+        assertThrows(FamilyMemberWaitlistedForOfferedCourse.class, () -> registrationManagementService.enrollFamilyMemberInOfferedCourse(FamilyMemberCourseRegistrationTestDataProvider.validRegistrationDTO.get(), "anyActor"));
+
+        // Assert
+        verify(familyManagementService, times(2)).checkFamilyMemberValidity(any(String.class));
+        verify(familyManagementService, times(0)).sendActivationLink(any(FamilyMember.class));
+        verify(offeredCourseService, times(1)).getOfferedCourseById(any(Integer.class));
+        verify(familyCourseRegistrationRepository, times(1)).findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(any(Integer.class), any(Boolean.class));
+        verify(familyCourseWaitlistRepository, times(1)).findByOfferedCourse_OfferedCourseIdAndFamilyMember_FamilyMemberIdAndIsWaitlisted(any(Integer.class), any(Integer.class), any(Boolean.class));
+        verify(offeredCourseFeeRepository, times(0)).findByOfferedCourse_OfferedCourseIdAndFeeType(any(Integer.class), any(FeeType.class));
+        verify(familyCourseRegistrationRepository, times(0)).save(any(FamilyCourseRegistration.class));
+        verify(familyCourseWaitlistRepository, times(1)).save(any(FamilyCourseWaitlist.class));
+    }
 
     @Test
     void testEnrollFamilyMemberInOfferedCourse_SeatsAvailableAndFamilyMemberNotInWaitlist(){

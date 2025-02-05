@@ -37,4 +37,21 @@ public interface OfferedCourseTestDataProvider {
                     .availableForEnrollment("OPEN")
                     .facility(Facility.builder().city("Illinois").build())
                     .build();
+
+    Supplier<OfferedCourse> offeredCourseWith0Seats = () ->
+            OfferedCourse.builder()
+                    .offeredCourseId(1)
+                    .seatsAvailable(0)
+                    .availableForEnrollment("OPEN")
+                    .facility(Facility.builder().city("Illinois").build())
+                    .build();
+
+    Supplier<OfferedCourse> closedOfferedCourse = () ->
+            OfferedCourse.builder()
+                    .offeredCourseId(1)
+                    .seatsAvailable(0)
+                    .availableForEnrollment("CLOSED")
+                    .facility(Facility.builder().city("Illinois").build())
+                    .build();
+
 }
