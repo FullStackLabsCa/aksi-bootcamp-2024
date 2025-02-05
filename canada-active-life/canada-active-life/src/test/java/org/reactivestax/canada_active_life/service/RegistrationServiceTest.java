@@ -234,7 +234,32 @@ class RegistrationServiceTest {
     void testWithdrawFamilyMemberFromOfferedCourse_NoRegistrationFound(){}
 
     @Test
-    void testWithdrawFamilyMemberFromOfferedCourse_RegistrationFoundAndNotifyFailed(){}
+    void testWithdrawFamilyMemberFromOfferedCourse_RegistrationFoundAndNotifyFailed(){
+        // Setup
+        when(familyManagementService.checkFamilyMemberValidity(any(String.class)))
+                .thenReturn(FamilyManagementTestDataProvider.goodFamilyMemberAsGroupOwner.get());
+        when(familyCourseRegistrationRepository.findByOfferedCourse_OfferedCourseIdAndFamilyMember_MemberLoginIdAndIsWithdrawn(any(Integer.class), any(String.class), any(Boolean.class)))
+                .thenReturn(Optional.of(FamilyCourseRegistration.builder().cost(10).build()));
+        List<FamilyCourseWaitlist> waitlists = new ArrayList<>();
+        waitlists.add(FamilyCourseWaitlist.builder()
+                .familyMember(FamilyMember.builder().name("test").homePhoneNumber("123").build())
+                .offeredCourse(OfferedCourse.builder().offeredCourseId(1).build())
+                .build());
+        when(familyCourseWaitlistRepository.findAllByOfferedCourse_OfferedCourseIdAndIsWaitlisted(any(Integer.class), any(Boolean.class)))
+                .thenReturn(waitlists);
+        ResponseEntity<String> mockResponse = new ResponseEntity<>("Message Failed SMS.", HttpStatus.OK);
+        when(restTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(String.class))).thenReturn(mockResponse);
+
+        // Action
+        assertThrows(FailedToSendNotificationException.class, () -> registrationManagementService.withdrawFamilyMemberFromOfferedCourse(1, "anyMember", "anyActor"));
+
+        // Assert
+        verify(familyManagementService, times(2)).checkFamilyMemberValidity(any(String.class));
+        verify(familyCourseRegistrationRepository, times(1)).findByOfferedCourse_OfferedCourseIdAndFamilyMember_MemberLoginIdAndIsWithdrawn(any(Integer.class), any(String.class) , any(Boolean.class));
+        verify(familyCourseRegistrationRepository, times(1)).save(any(FamilyCourseRegistration.class));
+        verify(familyCourseWaitlistRepository, times(1)).findAllByOfferedCourse_OfferedCourseIdAndIsWaitlisted(any(Integer.class), any(Boolean.class));
+        verify(restTemplate, times(1)).postForEntity(any(String.class), any(HttpEntity.class), eq(String.class));
+    }
 
     @Test
     void testWithdrawFamilyMemberFromOfferedCourse_RegistrationFoundAndNotifyWaitlist(){
