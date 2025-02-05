@@ -3,6 +3,7 @@ package org.reactivestax.canada_active_life.controller;
 import org.junit.jupiter.api.Test;
 import org.reactivestax.canada_active_life.TestDataProvider.FamilyMemberCourseRegistrationTestDataProvider;
 import org.reactivestax.canada_active_life.dto.FamilyMemberCourseRegistrationDTO;
+import org.reactivestax.canada_active_life.dto.FamilyMemberCourseWaitlistDTO;
 import org.reactivestax.canada_active_life.service.RegistrationManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -121,8 +122,28 @@ class RegistrationControllerTest {
     }
 
     @Test
-    void testGetAllCourseWaitlistForMember_Successful(){}
+    void testGetAllCourseWaitlistForMember_Successful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/courseRegistrations/waitlist";
+
+        ArrayList<FamilyMemberCourseWaitlistDTO> waitlistDTOS = new ArrayList<>();
+        waitlistDTOS.add(FamilyMemberCourseWaitlistDTO.builder().build());
+        when(registrationManagementService.getWaitlistForMember(any(String.class)))
+                .thenReturn(waitlistDTOS);
+
+        mockMvc.perform(get(uriTemplate)
+                        .param("memberLoginId", UUID.randomUUID().toString()))
+                .andExpect(status().isOk());
+    }
 
     @Test
-    void testGetAllCourseWaitlistForMember_Unsuccessful(){}
+    void testGetAllCourseWaitlistForMember_Unsuccessful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/courseRegistrations/waitlist";
+
+        when(registrationManagementService.getWaitlistForMember(any(String.class)))
+                .thenReturn(new ArrayList<>());
+
+        mockMvc.perform(get(uriTemplate)
+                        .param("memberLoginId", UUID.randomUUID().toString()))
+                .andExpect(status().isBadRequest());
+    }
 }
