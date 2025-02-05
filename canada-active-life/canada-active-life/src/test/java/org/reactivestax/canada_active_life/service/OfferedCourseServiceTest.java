@@ -5,6 +5,9 @@ import org.reactivestax.canada_active_life.domain.Course;
 import org.reactivestax.canada_active_life.domain.Facility;
 import org.reactivestax.canada_active_life.domain.OfferedCourse;
 import org.reactivestax.canada_active_life.dto.OfferedCourseDTO;
+import org.reactivestax.canada_active_life.exception.CourseNotFoundException;
+import org.reactivestax.canada_active_life.exception.FacilityNotFoundException;
+import org.reactivestax.canada_active_life.exception.OfferedCourseNotFoundException;
 import org.reactivestax.canada_active_life.mapper.OfferedCourseMapper;
 import org.reactivestax.canada_active_life.repo.CourseRepository;
 import org.reactivestax.canada_active_life.repo.FacilityRepository;
@@ -15,8 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -39,10 +41,32 @@ class OfferedCourseServiceTest {
     private FacilityRepository facilityRepository;
 
     @Test
-    void testCreateNewOfferedCourse_InvalidCourse(){}
+    void testCreateNewOfferedCourse_InvalidCourse(){
+        when(courseRepository.findByCourseId(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        assertThrows(CourseNotFoundException.class, () -> offeredCourseService.createNewOfferedCourse(OfferedCourseDTO.builder().courseId(1).facilityId(1).numOfClassesOffered(2).build()));
+
+        verify(courseRepository, times(1)).findByCourseId(any(Integer.class));
+        verify(facilityRepository, times(0)).findByFacilityId(any(Integer.class));
+        verify(offeredCourseMapper, times(0)).toEntity(any(OfferedCourseDTO.class));
+        verify(offeredCourseRepository, times(0)).save(any(OfferedCourse.class));
+    }
 
     @Test
-    void testCreateNewOfferedCourse_InvalidFacility(){}
+    void testCreateNewOfferedCourse_InvalidFacility(){
+        when(courseRepository.findByCourseId(any(Integer.class)))
+                .thenReturn(Optional.of(Course.builder().build()));
+        when(facilityRepository.findByFacilityId(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        assertThrows(FacilityNotFoundException.class, () -> offeredCourseService.createNewOfferedCourse(OfferedCourseDTO.builder().courseId(1).facilityId(1).numOfClassesOffered(2).build()));
+
+        verify(courseRepository, times(1)).findByCourseId(any(Integer.class));
+        verify(facilityRepository, times(1)).findByFacilityId(any(Integer.class));
+        verify(offeredCourseMapper, times(0)).toEntity(any(OfferedCourseDTO.class));
+        verify(offeredCourseRepository, times(0)).save(any(OfferedCourse.class));
+    }
 
     @Test
     void testCreateNewOfferedCourse_ValidCourseAndFacility(){
@@ -62,7 +86,15 @@ class OfferedCourseServiceTest {
     }
 
     @Test
-    void testGetOfferedCourse_InvalidOfferedCourse(){}
+    void testGetOfferedCourse_InvalidOfferedCourse(){
+        when(offeredCourseRepository.findByOfferedCourseId(any(Integer.class)))
+                .thenReturn(Optional.empty());
+
+        assertThrows(OfferedCourseNotFoundException.class, () -> offeredCourseService.getOfferedCourse(1));
+
+        verify(offeredCourseRepository, times(1)).findByOfferedCourseId(any(Integer.class));
+        verify(offeredCourseMapper, times(0)).toDto(any(OfferedCourse.class));
+    }
 
     @Test
     void testGetOfferedCourse_ValidOfferedCourse(){
