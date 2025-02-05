@@ -2,8 +2,7 @@ package org.reactivestax.canada_active_life.controller;
 
 import org.junit.jupiter.api.Test;
 import org.reactivestax.canada_active_life.TestDataProvider.FamilyManagementTestDataProvider;
-import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
-import org.reactivestax.canada_active_life.dto.UserLoginDTO;
+import org.reactivestax.canada_active_life.dto.*;
 import org.reactivestax.canada_active_life.service.DashboardService;
 import org.reactivestax.canada_active_life.service.FamilyManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -124,9 +124,65 @@ class DashboardControllerTest {
     }
 
     @Test
-    void testLoginVerification_(){}
+    void testLoginVerification_Successful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/login/2fa";
+        String expectedOutcome = "Member Verified :-)";
+        String loginVerificationDTOJson = FamilyManagementTestDataProvider.loginVerificationDTOJson.get();
+
+        when(familyManagementService.loginVerification(any(UserVerificationDTO.class), any(UUID.class)))
+                .thenReturn(true);
+
+        mockMvc.perform(post(uriTemplate)
+                        .content(loginVerificationDTOJson)
+                        .header("x-security-header", UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedOutcome));
+    }
 
     @Test
-    void testBrowseCourses_(){}
+    void testLoginVerification_Unsuccessful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/login/2fa";
+        String expectedOutcome = "Login Failed :-(";
+        String loginVerificationDTOJson = FamilyManagementTestDataProvider.loginVerificationDTOJson.get();
+
+        when(familyManagementService.loginVerification(any(UserVerificationDTO.class), any(UUID.class)))
+                .thenReturn(false);
+
+        mockMvc.perform(post(uriTemplate)
+                        .content(loginVerificationDTOJson)
+                        .header("x-security-header", UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(expectedOutcome));
+    }
+
+    @Test
+    void testBrowseCourses_Successful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/browse_offered_courses";
+        String familyMemberDTOJson = FamilyManagementTestDataProvider.goodFamilyMemberDTOJson.get();
+        ArrayList<OfferedCourseDTO> objects = new ArrayList<>();
+        objects.add(OfferedCourseDTO.builder().build());
+        when(dashboardService.browseCourses(any(SearchCriteriaDTO.class)))
+                .thenReturn(objects);
+
+        mockMvc.perform(post(uriTemplate)
+                        .content(familyMemberDTOJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testBrowseCourses_Unsuccessful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/browse_offered_courses";
+        String familyMemberDTOJson = FamilyManagementTestDataProvider.goodFamilyMemberDTOJson.get();
+        when(dashboardService.browseCourses(any(SearchCriteriaDTO.class)))
+                .thenReturn(new ArrayList<>());
+
+        mockMvc.perform(post(uriTemplate)
+                        .content(familyMemberDTOJson)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 
 }

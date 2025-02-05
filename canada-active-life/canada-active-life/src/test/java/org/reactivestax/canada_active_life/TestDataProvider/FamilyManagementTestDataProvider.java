@@ -172,4 +172,11 @@ public interface FamilyManagementTestDataProvider {
                 + "\"familyPin\": \"FAM123456\""
                 + "}";
     };
+
+    Supplier<String> loginVerificationDTOJson = () -> {
+        // Manually create the JSON string representation
+        return "{"
+                + "\"otpEnteredByUser\": \"123456\""
+                + "}";
+    };
 }
