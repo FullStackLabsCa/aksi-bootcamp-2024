@@ -93,6 +93,18 @@ class OfferedCourseServiceTest {
     void testCancelOfferedCourse_InvalidOfferedCourse(){}
 
     @Test
-    void testCancelOfferedCourse_ValidOfferedCourse(){}
+    void testCancelOfferedCourse_ValidOfferedCourse(){
+        when(offeredCourseRepository.findByOfferedCourseId(any(Integer.class)))
+                .thenReturn(Optional.of(OfferedCourse.builder()
+                        .course(Course.builder().courseId(1).build())
+                        .facility(Facility.builder().facilityId(1).build())
+                        .numOfClassesOffered(2)
+                        .isAllDayCourse(true)
+                        .build()));
+
+        assertTrue(offeredCourseService.cancelOfferedCourse(1));
+        verify(offeredCourseRepository, times(1)).findByOfferedCourseId(any(Integer.class));
+        verify(offeredCourseRepository, times(1)).save(any(OfferedCourse.class));
+    }
 
 }
