@@ -6,6 +6,7 @@ import org.reactivestax.canada_active_life.domain.Facility;
 import org.reactivestax.canada_active_life.domain.OfferedCourse;
 import org.reactivestax.canada_active_life.dto.OfferedCourseDTO;
 import org.reactivestax.canada_active_life.exception.CourseNotFoundException;
+import org.reactivestax.canada_active_life.exception.FacilityNotFoundException;
 import org.reactivestax.canada_active_life.exception.OfferedCourseNotFoundException;
 import org.reactivestax.canada_active_life.mapper.OfferedCourseMapper;
 import org.reactivestax.canada_active_life.repo.CourseRepository;
@@ -34,7 +35,7 @@ public class OfferedCourseService {
         Course course = courseRepository.findByCourseId(offeredCourseDTO.getCourseId())
                 .orElseThrow(() -> new CourseNotFoundException("No Course found for the given courseId"));
         Facility facility = facilityRepository.findByFacilityId(offeredCourseDTO.getFacilityId())
-                .orElseThrow(() -> new CourseNotFoundException("No Facility found for the given facilityId"));
+                .orElseThrow(() -> new FacilityNotFoundException("No Facility found for the given facilityId"));
 
         OfferedCourse offeredCourse = offeredCourseMapper.toEntity(offeredCourseDTO);
 
@@ -62,7 +63,6 @@ public class OfferedCourseService {
         return offeredCourseRepository.findByOfferedCourseId(offeredCourseId)
                 .orElseThrow(() -> new OfferedCourseNotFoundException("OfferedCourse Not Found"));
     }
-
 
     public OfferedCourseDTO updateOfferedCourseInfo(OfferedCourseDTO offeredCourseDTO, int offeredCourseId) {
         OfferedCourse offeredCourse = getOfferedCourseById(offeredCourseId);
