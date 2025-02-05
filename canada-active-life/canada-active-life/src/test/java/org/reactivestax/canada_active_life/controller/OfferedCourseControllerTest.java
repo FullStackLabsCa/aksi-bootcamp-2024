@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -56,6 +57,34 @@ class OfferedCourseControllerTest {
         mockMvc.perform(post(uriTemplate)
                         .content(familyMemberCourseRegistrationDTO)
                         .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(expectedOutcome));
+    }
+
+    @Test
+    void testCancelOfferedCourse_Successful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/offeredCourses";
+        String expectedOutcome = "OfferedCourse no more available!";
+
+        when(offeredCourseService.cancelOfferedCourse(any(Integer.class)))
+                .thenReturn(true);
+
+        mockMvc.perform(delete(uriTemplate)
+                        .param("offeredCourseId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedOutcome));
+    }
+
+    @Test
+    void testCancelOfferedCourse_Unsuccessful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/offeredCourses";
+        String expectedOutcome = "OfferedCourse could not be cancelled.";
+
+        when(offeredCourseService.cancelOfferedCourse(any(Integer.class)))
+                .thenReturn(false);
+
+        mockMvc.perform(delete(uriTemplate)
+                        .param("offeredCourseId", "1"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(expectedOutcome));
     }
