@@ -15,6 +15,8 @@ import org.reactivestax.canada_active_life.repo.OfferedCourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @Slf4j
 public class OfferedCourseService {
@@ -38,6 +40,7 @@ public class OfferedCourseService {
                 .orElseThrow(() -> new FacilityNotFoundException("No Facility found for the given facilityId"));
 
         OfferedCourse offeredCourse = offeredCourseMapper.toEntity(offeredCourseDTO);
+        offeredCourse.setBarCode(UUID.randomUUID().toString());
 
         offeredCourse.setCourse(course);
         offeredCourse.setFacility(facility);
