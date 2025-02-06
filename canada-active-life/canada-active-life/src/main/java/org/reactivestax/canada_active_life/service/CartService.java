@@ -94,8 +94,7 @@ public class CartService {
 
     private List<Cart> getCartForActor(String actorMemberLoginId){
         FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorMemberLoginId);
-        List<Cart> allCart = cartRepository.findAllByFamilyMember_FamilyMemberId(actor.getFamilyMemberId());
-        return allCart;
+        return cartRepository.findAllByFamilyMember_FamilyMemberId(actor.getFamilyMemberId());
     }
 
     public boolean removeItemFromCart(Integer cartId, String actorLoginId) {

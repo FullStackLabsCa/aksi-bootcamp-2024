@@ -49,12 +49,6 @@ public class FamilyManagementService {
 
     @Transactional
     public boolean signUpNewFamilyMember(FamilyMemberDTO familyMemberDTO) {
-        /**
-         * createFamilyGroup - Done
-         * createFamilyMember - with groupId created - isActive to false - Done
-         * create UUIDToken and save this in the uuidTokenManagement table - Done
-         * sendActivationLink with the UUIDToken - Done
-         */
         if(familyMemberDTO == null) return false;
         FamilyGroup createdFamilyGroup = createFamilyGroup(familyMemberDTO.getFamilyPin());
 
@@ -132,12 +126,6 @@ public class FamilyManagementService {
     }
 
     public boolean activateNewSignUp(int familyMemberId, UUID uuid){
-        /**
-         * map the familyMember and the UUID in the uuidTokenTable Table - Done
-         * once the match is found - get familyMember and set isActive true - Done
-         * check the group as well, if inactive, set to active - Done
-         * save familyMember - Done
-         */
         pendingSignUpUUIDRepository.findTopByUuidAndFamilyMember_FamilyMemberIdAndCreationTimeStampAfterOrderByCreationTimeStampDesc(uuid, familyMemberId, LocalDateTime.now().minusHours(48))
                 .orElseThrow(() -> new InvalidSignUpActivationLinkException("The Sign Up activation link is invalid. Please generate another one..."));
         FamilyMember familyMember = familyMemberRepository.findByFamilyMemberId(familyMemberId)
@@ -151,13 +139,6 @@ public class FamilyManagementService {
 
     @Transactional
     public boolean addFamilyMember(FamilyMemberDTO familyMemberDTO, String memberLoginId) {
-        /**
-         * checkActorValidity() - Done
-         * Get the familyGroupId for the actor. - Done
-         * Create a familyMember with the familyMemberDTO and set the FamilyGroupId as above. - Done
-         * familyManagementRepository.save(familyMember) - Done
-         * Activation Link Same as SignUp - Done
-         */
         FamilyMember actor = checkFamilyMemberValidity(memberLoginId);
         if(!actor.isActive()) {
             sendActivationLink(actor);
@@ -176,10 +157,6 @@ public class FamilyManagementService {
     }
 
     public FamilyMemberDTO getFamilyMember(String memberLoginId) {
-        /**
-         * checkActorValidity() - Optional
-         * familyManagementRepo.findById(familyMemberId)
-         */
         FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(memberLoginId)
                 .orElseThrow(() -> new FamilyMemberNotFoundException("Family Member not found for the given Member Login Id."));
 
@@ -187,11 +164,6 @@ public class FamilyManagementService {
     }
 
     public FamilyMemberDTO updateFamilyMemberInfo(FamilyMemberDTO familyMemberDTO, String memberLoginId) {
-        /**
-         * checkActorValidity() - Optional
-         * checkIfFamilyMemberExist - Done
-         * Update the changes in the familyMember extracted - Done
-         */
         FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(memberLoginId)
                 .orElseThrow(() -> new FamilyMemberNotFoundException("Family Member Not Found."));
 
@@ -203,11 +175,6 @@ public class FamilyManagementService {
 
     public boolean deactivateFamilyMember(String memberLoginId, String actorMemberLoginId) {
         /**
-         * checkActorValidity() - Done
-         * checkIfFamilyMemberExist() - Done
-         * update the isActive field to inactive - Done
-         * save(FamilyMember) - Done
-         *
          * If the memberBeingDeactivated is the last member in the group, then deactivate the group - Optional
          */
         FamilyMember actor = checkFamilyMemberValidity(actorMemberLoginId);
@@ -225,12 +192,6 @@ public class FamilyManagementService {
 
     public UUID loginMember(UserLoginDTO userLoginDTO) {
         /**
-         * Extract the memberLoginId and the FamilyPin from the UserLoginDTO
-         * Verify MemberLoginId exists
-         * Check verification status
-         *      if not active - send activation link
-         * Match the memberLoginId and FamilyPin
-         *      if match - generate and save UUID and familyMemberId in DB and request for an OTP to be sent
          * Log in the LoginRequest Table
          */
         FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(userLoginDTO.getMemberLoginId())
@@ -281,12 +242,6 @@ public class FamilyManagementService {
     }
 
     public boolean loginVerification(UserVerificationDTO userVerificationDTO, UUID uuid) {
-        /**
-         * Get the UUID from the header - Verify mapping for the UUID in loginTable and get FamilyMemberId for the UUID - Done
-         *      If not found or UUID expired - Throw exception Session Expired Please try again - Done
-         * Get the OTP entered by the user from the DTO and forward that along with the FamilyMemberId to the VerifyOTP EMS Service - Done
-         * Wait for the response from EMS and return value based on the Verification - Done
-         */
         PendingLoginUUID pendingLoginUUID =
                 pendingLoginUUIDRepository.findTopByUuidAndCreationTimeStampAfterOrderByCreationTimeStampDesc(uuid, LocalDateTime.now().minusHours(2))
                     .orElseThrow(() -> new UUIDTokenInvalidException("Your Login UUID Token is Invalid or Expired. Please Generate a new one."));
