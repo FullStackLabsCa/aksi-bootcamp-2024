@@ -11,12 +11,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.UUID;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -87,6 +84,36 @@ class OfferedCourseControllerTest {
                         .param("offeredCourseId", "1"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(expectedOutcome));
+    }
+
+    @Test
+    void testUpdateOfferedCourse_Successful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/offeredCourses";
+        String familyMemberCourseRegistrationDTO = FamilyMemberCourseRegistrationTestDataProvider.validRegistrationDTOJson.get();
+
+        when(offeredCourseService.updateOfferedCourseInfo(any(OfferedCourseDTO.class), any(Integer.class)))
+                .thenReturn(OfferedCourseDTO.builder().build());
+
+        mockMvc.perform(patch(uriTemplate)
+                        .content(familyMemberCourseRegistrationDTO)
+                        .param("offeredCourseId", "1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testUpdateOfferedCourse_Unsuccessful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/offeredCourses";
+        String familyMemberCourseRegistrationDTO = FamilyMemberCourseRegistrationTestDataProvider.validRegistrationDTOJson.get();
+
+        when(offeredCourseService.updateOfferedCourseInfo(any(OfferedCourseDTO.class), any(Integer.class)))
+                .thenReturn(null);
+
+        mockMvc.perform(patch(uriTemplate)
+                        .content(familyMemberCourseRegistrationDTO)
+                        .param("offeredCourseId", "1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
 }
