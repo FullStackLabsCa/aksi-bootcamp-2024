@@ -42,12 +42,7 @@ public class CartService {
 
     public CartDTO addOfferedCourseToCart(CartDTO cartDTO, String actorLoginId) {
         /**
-         * Check actor validity - Done
-         * check if offeredCourse is "open" - Done
-         * Check if there is seat available in the offered Course - Done
-         *      Yes - add to cart - Done
-         *      No - Notify user to add to waitlist - TODO
- a        *
+         * Notify user to add to waitlist (Add a waitlist End Point) - TODO
          */
         FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorLoginId);
         FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(cartDTO.getFamilyMemberLoginId());
@@ -67,7 +62,7 @@ public class CartService {
             cartDto.setOfferedCourseId(cart.getOfferedCourse().getOfferedCourseId());
             cartDto.setFamilyMemberLoginId(cart.getFamilyMember().getMemberLoginId());
             return cartDto;
-        } else throw new OfferedCourseNotAvailableForEnrollmentException("No Seats available right now in the offered course");
+        } else throw new OfferedCourseNotAvailableForEnrollmentException("No Seats available right now in the offered course. Would you like to Waitlist?");
     }
 
     private Cart addToCart(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse) {
@@ -81,9 +76,6 @@ public class CartService {
     }
 
     public List<CartDTO> getCartDTOForActor(String actorMemberLoginId) {
-        /**
-         * query the table to get all the cart for the actor ID
-         */
         List<Cart> allCart = getCartForActor(actorMemberLoginId);
         List<CartDTO> cartDTOList = new ArrayList<>();
 
@@ -115,43 +107,32 @@ public class CartService {
     }
 
     public Double checkoutCart(String actorLoginId){
-        /**
-         * get cart for actor
-         * for each item in cart
-         *      call first half of the enroll in registration service
-         *          make the change to add in the table for unconfirmedPaymentRegistrations
-         */
         double totalCost = 0.0;
         List<Cart> cartForActor = getCartForActor(actorLoginId);
+
+        // Hold the offeredCourses Available and Waitlist the courses that are full.
         for(Cart cart : cartForActor){
             if(registrationManagementService.holdPositionForFamilyMemberInOfferedCourse(cart.getEnrollmentActorId(), cart.getFamilyMember(), cart.getOfferedCourse(), cart.getCost()))
                 totalCost = totalCost + cart.getCost();
         }
+
         return totalCost;
     }
 
     @Transactional
     public boolean payForCart(PaymentDTO paymentDTO, String actorMemberLoginId){
-        /**
-         * validate actor
-         * validate there are existing items in the unconfirmedPaymentRegistrations - because of expiration time
-         *      if no - throw exception paymentSessionExpired - try again
-         * for the totalAmount in the cart - prepare and send stripe a payment confirmedIntent
-         * if stripe success
-         *      add to enrollments - second half of the enroll member
-         *      remove from the unconfirmedPaymentRegistrations
-         * if stripe fails
-         *      keep in unconfirmedPaymentRegistrations
-         *      exit with exception saying payment failed
-         */
         FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorMemberLoginId);
+
         List<UnconfirmedPaymentRegistration> unconfirmedRegistrations = unconfirmedPaymentRegistrationRepository.findAllByFamilyMember_MemberLoginIdAndCreationTimeStampAfter(actorMemberLoginId, LocalDateTime.now().minusMinutes(3));
         if(unconfirmedRegistrations.isEmpty()) throw new PaymentSessionExpiredException("Payment Session Expired, please try again...");
+
         double totalCost = 0.0;
         for(UnconfirmedPaymentRegistration unconfirmedPaymentRegistration : unconfirmedRegistrations){
             totalCost = totalCost + unconfirmedPaymentRegistration.getCost();
         }
+
         // Call Stripe for Payment TODO
+
         boolean stripePaymentSuccess = true;
         if(stripePaymentSuccess) {
             for(UnconfirmedPaymentRegistration unconfirmedPaymentRegistration : unconfirmedRegistrations) {
