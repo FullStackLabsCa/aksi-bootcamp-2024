@@ -38,11 +38,13 @@ public class CartService {
         /**
          * Check actor validity - Done
          * check if offeredCourse is "open" - Done
-         * Check if there is seat available in the offered Course
-         *      Yes - add to cart
-         *      No - throw Exception
+         * Check if there is seat available in the offered Course - Done
+         *      Yes - add to cart - Done
+         *      No - Notify user to add to waitlist - TODO
+ a        *
          */
         FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorLoginId);
+        FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(cartDTO.getFamilyMemberLoginId());
         OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(cartDTO.getOfferedCourseId());
 
         if(offeredCourse.getAvailableForEnrollment().equals("CLOSED"))
@@ -53,7 +55,7 @@ public class CartService {
         if(!enrollmentsForOfferedCourse.isEmpty()) seatsTaken = enrollmentsForOfferedCourse.size();
 
         if(seatsTaken < offeredCourse.getSeatsAvailable()) {
-            Cart cart = addToCart(actor, offeredCourse);
+            Cart cart = addToCart(actor, familyMember, offeredCourse);
             CartDTO cartDto = cartMapper.toDto(cart);
             cartDto.setId(cart.getCartId());
             cartDto.setOfferedCourseId(cart.getOfferedCourse().getOfferedCourseId());
@@ -62,22 +64,21 @@ public class CartService {
         } else throw new OfferedCourseNotAvailableForEnrollmentException("No Seats available right now in the offered course");
     }
 
-    private Cart addToCart(FamilyMember actor, OfferedCourse offeredCourse) {
+    private Cart addToCart(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse) {
         Cart cart = Cart.builder()
                 .enrollmentActorId(actor.getFamilyMemberId())
-                .familyMember(actor)
+                .familyMember(familyMember)
                 .offeredCourse(offeredCourse)
                 .cost(registrationManagementService.getCostOfOfferedCourse(offeredCourse, actor))
                 .build();
         return cartRepository.save(cart);
     }
 
-    public List<CartDTO> getCartForActor(String actorMemberLoginId) {
+    public List<CartDTO> getCartDTOForActor(String actorMemberLoginId) {
         /**
          * query the table to get all the cart for the actor ID
          */
-        FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorMemberLoginId);
-        List<Cart> allCart = cartRepository.findAllByFamilyMember_FamilyMemberId(actor.getFamilyMemberId());
+        List<Cart> allCart = getCartForActor(actorMemberLoginId);
         List<CartDTO> cartDTOList = new ArrayList<>();
 
         for(Cart cart : allCart){
@@ -93,6 +94,12 @@ public class CartService {
         return cartDTOList;
     }
 
+    private List<Cart> getCartForActor(String actorMemberLoginId){
+        FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorMemberLoginId);
+        List<Cart> allCart = cartRepository.findAllByFamilyMember_FamilyMemberId(actor.getFamilyMemberId());
+        return allCart;
+    }
+
     public boolean removeItemFromCart(Integer cartId, String actorLoginId) {
         /**
          * check actor validity
@@ -101,14 +108,20 @@ public class CartService {
         return false;
     }
 
-    public boolean checkoutCart(String actorLoginId){
+    public Double checkoutCart(String actorLoginId){
         /**
          * get cart for actor
          * for each item in cart
          *      call first half of the enroll in registration service
          *          make the change to add in the table for unconfirmedPaymentRegistrations
          */
-        return false;
+        double totalCost = 0.0;
+        List<Cart> cartForActor = getCartForActor(actorLoginId);
+        for(Cart cart : cartForActor){
+            if(registrationManagementService.holdPositionForFamilyMemberInOfferedCourse(cart.getEnrollmentActorId(), cart.getFamilyMember(), cart.getOfferedCourse(), cart.getCost()))
+                totalCost = totalCost + cart.getCost();
+        }
+        return totalCost;
     }
 
     public boolean payForCart(PaymentDTO paymentDTO, String actorMemberLoginId){

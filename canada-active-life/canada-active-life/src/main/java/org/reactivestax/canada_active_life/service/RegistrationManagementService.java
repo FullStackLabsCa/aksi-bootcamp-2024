@@ -12,6 +12,7 @@ import org.reactivestax.canada_active_life.mapper.FamilyCourseWaitlistMapper;
 import org.reactivestax.canada_active_life.repo.FamilyCourseRegistrationRepository;
 import org.reactivestax.canada_active_life.repo.FamilyCourseWaitlistRepository;
 import org.reactivestax.canada_active_life.repo.OfferedCourseFeeRepository;
+import org.reactivestax.canada_active_life.repo.UnconfirmedPaymentRegistrationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -47,6 +49,9 @@ public class RegistrationManagementService {
 
     @Autowired
     private FamilyCourseWaitlistMapper familyCourseWaitlistMapper;
+
+    @Autowired
+    private UnconfirmedPaymentRegistrationRepository unconfirmedPaymentRegistrationRepository;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -88,17 +93,61 @@ public class RegistrationManagementService {
         Optional<FamilyCourseWaitlist> familyCourseWaitlist = checkIfFamilyMemberInWaitlist(offeredCourse, familyMember);
 
 
-        int seatsTaken = 0;
-        if(!enrollmentsForOfferedCourse.isEmpty()) seatsTaken = enrollmentsForOfferedCourse.size();
+        int seatsTaken = enrollmentsForOfferedCourse.size();
 
         if(seatsTaken < totalOfferedSeats){
             familyCourseWaitlist.ifPresent(courseWaitlist -> courseWaitlist.setWaitlisted(false));
             return performEnrollment(actor, familyMember, offeredCourse);
         } else {
             familyCourseWaitlist.ifPresent(value -> {throw new MemberAlreadyWaitlistedForOfferedCourseException("Family Member is already wailisted in the offered course.");});
-            if(waitlistFamilyMember(actor, familyMember, offeredCourse)) throw new FamilyMemberWaitlistedForOfferedCourse("Course Full! Family Member has been waitlisted for the offered course. You will get notification as spot comes available.");
+            if(waitlistFamilyMember(actor.getFamilyMemberId(), familyMember, offeredCourse)) throw new FamilyMemberWaitlistedForOfferedCourse("Course Full! Family Member has been waitlisted for the offered course. You will get notification as spot comes available.");
         }
         return false;
+    }
+
+    public boolean holdPositionForFamilyMemberInOfferedCourse(int actorFamilyMemberId, FamilyMember familyMember, OfferedCourse offeredCourse, double cost){
+        if(!familyMember.isActive()) {
+            familyManagementService.sendActivationLink(familyMember);
+            log.info("Please verify family member using the activation link sent via sms...");
+            return false;
+        }
+
+        if("CLOSED".equals(offeredCourse.getAvailableForEnrollment())) return false;
+        int totalOfferedSeats = offeredCourse.getSeatsAvailable();
+
+        List<FamilyCourseRegistration> enrollmentsForOfferedCourse = getEnrollmentsForOfferedCourse(offeredCourse);
+        List<UnconfirmedPaymentRegistration> seatsHeldBecauseOfPendingPayment = getNumSeatsOfPendingPayment(offeredCourse);
+        checkIfFamilyMemberAlreadyEnrolledInOfferedCourse(enrollmentsForOfferedCourse, familyMember);
+        Optional<FamilyCourseWaitlist> familyCourseWaitlist = checkIfFamilyMemberInWaitlist(offeredCourse, familyMember);
+
+        int seatsTaken = enrollmentsForOfferedCourse.size();
+        int seatsOnHold = seatsHeldBecauseOfPendingPayment.size();
+
+        if(seatsTaken + seatsOnHold < totalOfferedSeats){
+            familyCourseWaitlist.ifPresent(courseWaitlist -> courseWaitlist.setWaitlisted(false));
+            return addToUnconfirmedPaymentRegistration(actorFamilyMemberId, familyMember, offeredCourse, cost);
+        } else {
+            if(familyCourseWaitlist.isPresent()){
+                log.info("Family Member is already waitlisted in the offered course.");
+                return false;}
+            if(waitlistFamilyMember(actorFamilyMemberId, familyMember, offeredCourse)) return  false;
+        }
+        return false;
+    }
+
+    private List<UnconfirmedPaymentRegistration> getNumSeatsOfPendingPayment(OfferedCourse offeredCourse) {
+        return unconfirmedPaymentRegistrationRepository.findAllByOfferedCourse_OfferedCourseIdAndCreationTimeStampAfter(offeredCourse.getOfferedCourseId(), LocalDateTime.now().minusMinutes(1));
+    }
+
+    private boolean addToUnconfirmedPaymentRegistration(int actorFamilyMemberId, FamilyMember familyMember, OfferedCourse offeredCourse, double cost) {
+        UnconfirmedPaymentRegistration tempRegistration = UnconfirmedPaymentRegistration.builder()
+                .enrollmentActorId(actorFamilyMemberId)
+                .offeredCourse(offeredCourse)
+                .familyMember(familyMember)
+                .cost(cost)
+                .build();
+        unconfirmedPaymentRegistrationRepository.save(tempRegistration);
+        return true;
     }
 
     public List<FamilyCourseRegistration> getEnrollmentsForOfferedCourse(OfferedCourse offeredCourse) {
@@ -144,10 +193,9 @@ public class RegistrationManagementService {
         return offeredCourseFee.getCourseFee();
     }
 
-    private boolean waitlistFamilyMember(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse) {
+    private boolean waitlistFamilyMember(int actorFamilyMemberId, FamilyMember familyMember, OfferedCourse offeredCourse) {
         FamilyCourseWaitlist waitlist = FamilyCourseWaitlist.builder()
-                .enrollmentActor(actor.getName())
-                .enrollmentActorId(actor.getFamilyMemberId())
+                .enrollmentActorId(actorFamilyMemberId)
                 .offeredCourse(offeredCourse)
                 .familyMember(familyMember)
                 .build();
