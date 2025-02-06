@@ -10,5 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentDTO {
-    private int id;
+    private double cost;
+    private String cardholderName;
+    private String cardNumber;
+    private String cardExpirationDate;
+    private String cardCvv;
 }
