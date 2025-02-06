@@ -43,4 +43,13 @@ public class CartController {
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Could not remove item from Cart.");
     }
+
+    @PostMapping
+    public ResponseEntity<String> checkoutCart(@RequestHeader("x-security-header") String actorLoginId){
+        boolean isCheckoutSuccessful = cartService.checkoutCart(actorLoginId);
+
+        if(isCheckoutSuccessful) return ResponseEntity.ok("Checkout Successful. Enrolled in OfferedCourses");
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Checkout Failed, please try again.");
+    }
 }

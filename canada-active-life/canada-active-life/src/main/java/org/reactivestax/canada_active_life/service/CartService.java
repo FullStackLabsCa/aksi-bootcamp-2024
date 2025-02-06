@@ -9,14 +9,34 @@ import java.util.List;
 public class CartService {
 
     public boolean addOfferedCourseToCart(CartDTO cartDTO, String actorLoginId) {
+        /**
+         * Check actor validity
+         * Check if there is seat available in the offered Course
+         *      Yes - add to cart
+         *      No - throw Exception
+         * add to cart in the db
+         */
         return false;
     }
 
     public List<CartDTO> getCartForActor(String actorMemberLoginId) {
+        /**
+         * check actor validity
+         * query the table to get all the cart for the actor ID
+         *
+         */
         return null;
     }
 
-    public boolean removeItemFromCart(Integer integer, String actorLoginId) {
+    public boolean removeItemFromCart(Integer cartId, String actorLoginId) {
+        /**
+         * check actor validity
+         * remove the cartId for the given actorLoginId
+         */
+        return false;
+    }
+
+    public boolean checkoutCart(String actorLoginId){
         return false;
     }
 }
