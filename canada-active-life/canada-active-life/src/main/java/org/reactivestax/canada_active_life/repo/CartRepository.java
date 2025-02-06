@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface CartRepository extends JpaRepository<Cart, Long>, JpaSpecificationExecutor<Cart> {
     List<Cart> findAllByFamilyMember_FamilyMemberId(int familyMemberId);
+    void deleteAllByFamilyMember_FamilyMemberIdAndOfferedCourse_OfferedCourseIdAndEnrollmentActorId(int enrollmentActorId, int familyMemberId, int offeredCourseId);
 }

@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface UnconfirmedPaymentRegistrationRepository extends JpaRepository<UnconfirmedPaymentRegistration, Long>, JpaSpecificationExecutor<UnconfirmedPaymentRegistration> {
     List<UnconfirmedPaymentRegistration> findAllByOfferedCourse_OfferedCourseIdAndCreationTimeStampAfter(int offeredCourseId, LocalDateTime expirationTime);
+    List<UnconfirmedPaymentRegistration> findAllByFamilyMember_MemberLoginIdAndCreationTimeStampAfter(String memberLoginId, LocalDateTime expirationTime);
+    void deleteAllByEnrollmentActorIdAndFamilyMember_FamilyMemberIdAndOfferedCourse_OfferedCourseId(int enrollmentActorId, int familyMemberId, int offeredCourseId);
 }
