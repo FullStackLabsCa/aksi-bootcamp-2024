@@ -12,6 +12,7 @@ import org.reactivestax.canada_active_life.repo.CartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -73,10 +74,23 @@ public class CartService {
 
     public List<CartDTO> getCartForActor(String actorMemberLoginId) {
         /**
-         * check actor validity
          * query the table to get all the cart for the actor ID
          */
-        return null;
+        FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorMemberLoginId);
+        List<Cart> allCart = cartRepository.findAllByFamilyMember_FamilyMemberId(actor.getFamilyMemberId());
+        List<CartDTO> cartDTOList = new ArrayList<>();
+
+        for(Cart cart : allCart){
+            CartDTO cartDto = CartDTO.builder()
+                    .id(cart.getCartId())
+                    .familyMemberLoginId(cart.getFamilyMember().getMemberLoginId())
+                    .offeredCourseId(cart.getOfferedCourse().getOfferedCourseId())
+                    .cost(cart.getCost())
+                    .build();
+            cartDTOList.add(cartDto);
+        }
+
+        return cartDTOList;
     }
 
     public boolean removeItemFromCart(Integer cartId, String actorLoginId) {
