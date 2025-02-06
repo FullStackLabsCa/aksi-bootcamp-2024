@@ -1,6 +1,7 @@
 package org.reactivestax.canada_active_life.controller;
 
 import org.reactivestax.canada_active_life.dto.CartDTO;
+import org.reactivestax.canada_active_life.dto.PaymentDTO;
 import org.reactivestax.canada_active_life.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,8 +49,17 @@ public class CartController {
     public ResponseEntity<String> checkoutCart(@RequestHeader("x-security-header") String actorLoginId){
         boolean isCheckoutSuccessful = cartService.checkoutCart(actorLoginId);
 
-        if(isCheckoutSuccessful) return ResponseEntity.ok("Checkout Successful. Enrolled in OfferedCourses");
+        if(isCheckoutSuccessful) return ResponseEntity.ok("Checkout Successful. Please proceed to payment");
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Checkout Failed, please try again.");
+    }
+
+    @PostMapping
+    public ResponseEntity<String> payForCart(@RequestBody PaymentDTO paymentDTO, @RequestHeader("x-security-header") String actorLoginId){
+        boolean isPaymentSuccessful = cartService.payForCart(paymentDTO, actorLoginId);
+
+        if(isPaymentSuccessful) return ResponseEntity.ok("Payment Successful. Enrollments successful");
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Payment Failed, please try again.");
     }
 }
