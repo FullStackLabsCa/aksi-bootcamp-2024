@@ -166,7 +166,7 @@ public class RegistrationManagementService {
         familyMember.getFamilyGroup().setCredits(familyMember.getFamilyGroup().getCredits() - costOfOfferedCourse);
 
         familyCourseRegistrationRepository.save(enrollment);
-        return true;
+        return enrollment.getFamilyCourseRegistrationId() != 0;
     }
 
     private boolean removeFromUnconfirmedPaymentRegistration(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse) {
@@ -191,7 +191,7 @@ public class RegistrationManagementService {
                 .build();
 
         familyCourseWaitlistRepository.save(waitlist);
-        return true;
+        return waitlist.getFamilyCourseWaitlistId() != 0;
     }
 
     public List<FamilyMemberCourseRegistrationDTO> getEnrollmentsForMember(String memberLoginId) {
