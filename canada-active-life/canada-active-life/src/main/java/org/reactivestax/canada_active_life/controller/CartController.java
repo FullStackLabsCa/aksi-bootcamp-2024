@@ -18,7 +18,7 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<CartDTO> addOfferedCourseToCart(@RequestBody CartDTO cartDTO, @RequestHeader("x-security-header") String actorLoginId){
 
         CartDTO cart = cartService.addOfferedCourseToCart(cartDTO, actorLoginId);
@@ -44,7 +44,7 @@ public class CartController {
                 .body("Could not remove item from Cart.");
     }
 
-    @PostMapping
+    @PostMapping("/checkout")
     public ResponseEntity<String> checkoutCart(@RequestHeader("x-security-header") String actorLoginId){
         boolean isCheckoutSuccessful = cartService.checkoutCart(actorLoginId);
 
@@ -53,7 +53,7 @@ public class CartController {
                 .body("Checkout Failed, please try again.");
     }
 
-    @PostMapping
+    @PostMapping("/checkout/pay")
     public ResponseEntity<String> payForCart(@RequestBody PaymentDTO paymentDTO, @RequestHeader("x-security-header") String actorLoginId){
         boolean isPaymentSuccessful = cartService.payForCart(paymentDTO, actorLoginId);
 

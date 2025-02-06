@@ -1,7 +1,15 @@
 package org.reactivestax.canada_active_life.service;
 
+import org.reactivestax.canada_active_life.domain.Cart;
+import org.reactivestax.canada_active_life.domain.FamilyCourseRegistration;
+import org.reactivestax.canada_active_life.domain.FamilyMember;
+import org.reactivestax.canada_active_life.domain.OfferedCourse;
 import org.reactivestax.canada_active_life.dto.CartDTO;
 import org.reactivestax.canada_active_life.dto.PaymentDTO;
+import org.reactivestax.canada_active_life.exception.OfferedCourseNotAvailableForEnrollmentException;
+import org.reactivestax.canada_active_life.mapper.CartMapper;
+import org.reactivestax.canada_active_life.repo.CartRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,15 +17,58 @@ import java.util.List;
 @Service
 public class CartService {
 
-    public boolean addOfferedCourseToCart(CartDTO cartDTO, String actorLoginId) {
+    @Autowired
+    private FamilyManagementService familyManagementService;
+
+    @Autowired
+    private OfferedCourseService offeredCourseService;
+
+    @Autowired
+    private RegistrationManagementService registrationManagementService;
+
+    @Autowired
+    private CartRepository cartRepository;
+
+
+    @Autowired
+    private CartMapper cartMapper;
+
+    public CartDTO addOfferedCourseToCart(CartDTO cartDTO, String actorLoginId) {
         /**
-         * Check actor validity
-         * check if offeredCourse is "open"
+         * Check actor validity - Done
+         * check if offeredCourse is "open" - Done
          * Check if there is seat available in the offered Course
          *      Yes - add to cart
          *      No - throw Exception
          */
-        return false;
+        FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorLoginId);
+        OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(cartDTO.getOfferedCourseId());
+
+        if(offeredCourse.getAvailableForEnrollment().equals("CLOSED"))
+            throw new OfferedCourseNotAvailableForEnrollmentException("Offered Course is not available for enrollment.");
+
+        int seatsTaken = 0;
+        List<FamilyCourseRegistration> enrollmentsForOfferedCourse = registrationManagementService.getEnrollmentsForOfferedCourse(offeredCourse);
+        if(!enrollmentsForOfferedCourse.isEmpty()) seatsTaken = enrollmentsForOfferedCourse.size();
+
+        if(seatsTaken < offeredCourse.getSeatsAvailable()) {
+            Cart cart = addToCart(actor, offeredCourse);
+            CartDTO cartDto = cartMapper.toDto(cart);
+            cartDto.setId(cart.getCartId());
+            cartDto.setOfferedCourseId(cart.getOfferedCourse().getOfferedCourseId());
+            cartDto.setFamilyMemberLoginId(cart.getFamilyMember().getMemberLoginId());
+            return cartDto;
+        } else throw new OfferedCourseNotAvailableForEnrollmentException("No Seats available right now in the offered course");
+    }
+
+    private Cart addToCart(FamilyMember actor, OfferedCourse offeredCourse) {
+        Cart cart = Cart.builder()
+                .enrollmentActorId(actor.getFamilyMemberId())
+                .familyMember(actor)
+                .offeredCourse(offeredCourse)
+                .cost(registrationManagementService.getCostOfOfferedCourse(offeredCourse, actor))
+                .build();
+        return cartRepository.save(cart);
     }
 
     public List<CartDTO> getCartForActor(String actorMemberLoginId) {
