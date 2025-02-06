@@ -136,7 +136,7 @@ public class RegistrationManagementService {
     }
 
     private List<UnconfirmedPaymentRegistration> getNumSeatsOfPendingPayment(OfferedCourse offeredCourse) {
-        return unconfirmedPaymentRegistrationRepository.findAllByOfferedCourse_OfferedCourseIdAndCreationTimeStampAfter(offeredCourse.getOfferedCourseId(), LocalDateTime.now().minusMinutes(1));
+        return unconfirmedPaymentRegistrationRepository.findAllByOfferedCourse_OfferedCourseIdAndCreationTimeStampAfter(offeredCourse.getOfferedCourseId(), LocalDateTime.now().minusMinutes(3));
     }
 
     private boolean addToUnconfirmedPaymentRegistration(int actorFamilyMemberId, FamilyMember familyMember, OfferedCourse offeredCourse, double cost) {
@@ -148,6 +148,11 @@ public class RegistrationManagementService {
                 .build();
         unconfirmedPaymentRegistrationRepository.save(tempRegistration);
         return true;
+    }
+
+    public boolean confirmRegistrationAfterPayment(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse){
+        return performEnrollment(actor, familyMember, offeredCourse) &&
+        removeFromUnconfirmedPaymentRegistration(actor, familyMember, offeredCourse);
     }
 
     public List<FamilyCourseRegistration> getEnrollmentsForOfferedCourse(OfferedCourse offeredCourse) {
@@ -181,6 +186,11 @@ public class RegistrationManagementService {
         familyMember.getFamilyGroup().setCredits(familyMember.getFamilyGroup().getCredits() - costOfOfferedCourse);
 
         familyCourseRegistrationRepository.save(enrollment);
+        return true;
+    }
+
+    private boolean removeFromUnconfirmedPaymentRegistration(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse) {
+        unconfirmedPaymentRegistrationRepository.deleteAllByEnrollmentActorIdAndFamilyMember_FamilyMemberIdAndOfferedCourse_OfferedCourseId(actor.getFamilyMemberId(), familyMember.getFamilyMemberId(), offeredCourse.getOfferedCourseId());
         return true;
     }
 
