@@ -19,13 +19,12 @@ public class CartController {
     private CartService cartService;
 
     @PostMapping()
-    public ResponseEntity<String> addOfferedCourseToCart(@RequestBody CartDTO cartDTO, @RequestHeader("x-security-header") String actorLoginId){
+    public ResponseEntity<CartDTO> addOfferedCourseToCart(@RequestBody CartDTO cartDTO, @RequestHeader("x-security-header") String actorLoginId){
 
-        boolean isAddedToCart = cartService.addOfferedCourseToCart(cartDTO, actorLoginId);
+        CartDTO cart = cartService.addOfferedCourseToCart(cartDTO, actorLoginId);
 
-        if(isAddedToCart) return ResponseEntity.ok("OfferedCourse Added to Cart.");
-        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Could not add the selected offered course to the cart.");
+        if(cart != null) return ResponseEntity.ok(cart);
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @GetMapping
