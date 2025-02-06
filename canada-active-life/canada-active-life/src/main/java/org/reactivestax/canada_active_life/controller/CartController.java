@@ -29,7 +29,7 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<List<CartDTO>> getCartForActor(@RequestHeader("x-security-header") String actorMemberLoginId){
-        List<CartDTO> cartDTOList = cartService.getCartForActor(actorMemberLoginId);
+        List<CartDTO> cartDTOList = cartService.getCartDTOForActor(actorMemberLoginId);
 
         if(!cartDTOList.isEmpty()) return ResponseEntity.ok(cartDTOList);
         else return ResponseEntity.ok(new ArrayList<CartDTO>());
@@ -45,12 +45,9 @@ public class CartController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<String> checkoutCart(@RequestHeader("x-security-header") String actorLoginId){
-        boolean isCheckoutSuccessful = cartService.checkoutCart(actorLoginId);
-
-        if(isCheckoutSuccessful) return ResponseEntity.ok("Checkout Successful. Please proceed to payment");
-        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Checkout Failed, please try again.");
+    public ResponseEntity<Double> checkoutCart(@RequestHeader("x-security-header") String actorLoginId){
+        Double totalPayableAmount = cartService.checkoutCart(actorLoginId);
+        return ResponseEntity.ok(totalPayableAmount);
     }
 
     @PostMapping("/checkout/pay")
