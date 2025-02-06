@@ -83,7 +83,7 @@ public class RegistrationManagementService {
         if("CLOSED".equals(offeredCourse.getAvailableForEnrollment())) throw new OfferedCourseNotAvailableForEnrollmentException("Offered Course not available for enrollment.");
         int totalOfferedSeats = offeredCourse.getSeatsAvailable();
 
-        List<FamilyCourseRegistration> enrollmentsForOfferedCourse = familyCourseRegistrationRepository.findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(offeredCourse.getOfferedCourseId(), false);
+        List<FamilyCourseRegistration> enrollmentsForOfferedCourse = getEnrollmentsForOfferedCourse(offeredCourse);
         checkIfFamilyMemberAlreadyEnrolledInOfferedCourse(enrollmentsForOfferedCourse, familyMember);
         Optional<FamilyCourseWaitlist> familyCourseWaitlist = checkIfFamilyMemberInWaitlist(offeredCourse, familyMember);
 
@@ -101,6 +101,10 @@ public class RegistrationManagementService {
         return false;
     }
 
+    public List<FamilyCourseRegistration> getEnrollmentsForOfferedCourse(OfferedCourse offeredCourse) {
+        return familyCourseRegistrationRepository.findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(offeredCourse.getOfferedCourseId(), false);
+    }
+
     private void checkIfFamilyMemberAlreadyEnrolledInOfferedCourse(List<FamilyCourseRegistration> enrollmentsForOfferedCourse, FamilyMember familyMember) {
         for(FamilyCourseRegistration familyCourseRegistration : enrollmentsForOfferedCourse){
             if(familyCourseRegistration.getFamilyMember().getFamilyMemberId() == familyMember.getFamilyMemberId())
@@ -113,10 +117,7 @@ public class RegistrationManagementService {
     }
 
     private boolean performEnrollment(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse) {
-        FeeType feeType = FeeType.NON_RESIDENT;
-        if(familyMember.getCity().equals(offeredCourse.getFacility().getCity())) feeType = FeeType.RESIDENT;
-
-        double costOfOfferedCourse = getCostOfOfferedCourse(offeredCourse.getOfferedCourseId(), feeType);
+        double costOfOfferedCourse = getCostOfOfferedCourse(offeredCourse, familyMember);
 
         FamilyCourseRegistration enrollment = FamilyCourseRegistration.builder()
                 .cost(costOfOfferedCourse)
@@ -134,8 +135,11 @@ public class RegistrationManagementService {
         return true;
     }
 
-    private double getCostOfOfferedCourse(int offeredCourseId, FeeType feeType) {
-        OfferedCourseFee offeredCourseFee = offeredCourseFeeRepository.findByOfferedCourse_OfferedCourseIdAndFeeType(offeredCourseId, feeType)
+    public double getCostOfOfferedCourse(OfferedCourse offeredCourse, FamilyMember familyMember) {
+        FeeType feeType = FeeType.NON_RESIDENT;
+        if(familyMember.getCity().equals(offeredCourse.getFacility().getCity())) feeType = FeeType.RESIDENT;
+
+        OfferedCourseFee offeredCourseFee = offeredCourseFeeRepository.findByOfferedCourse_OfferedCourseIdAndFeeType(offeredCourse.getOfferedCourseId(), feeType)
                 .orElseThrow(() -> new OfferedCourseFeeNotFoundException("Offered Course Fee could not be found right now."));
         return offeredCourseFee.getCourseFee();
     }
