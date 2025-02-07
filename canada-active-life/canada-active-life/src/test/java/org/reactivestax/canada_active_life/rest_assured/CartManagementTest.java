@@ -46,25 +46,7 @@ class CartManagementTest {
     }
 
     @Test
-    void testAddToCart_ActorDNE(){}
-
-    @Test
-    void testAddToCart_FamilyMemberDNE(){}
-
-    @Test
-    void testAddToCart_InactiveFamilyMember(){}
-
-    @Test
-    void testAddToCart_OfferedCourseClosed(){}
-
-    @Test
-    void testAddToCart_FamilyMemberAlreadyEnrolledInOfferedCourse(){}
-
-    @Test
-    void testAddToCart_NoSeatsAvailableInOfferedCourse(){}
-
-    @Test
-    void testAddToCart_SeatsAvailable(){
+    void testAddToCart(){
         CartDTO cartDTORequest = CartManagementTestDataProvider.goodCartDTO.get();
 
         Response response = given()
@@ -87,49 +69,13 @@ class CartManagementTest {
     }
 
     @Test
-    void testGetCart_ActorDNE(){}
+    void testGetCart(){}
 
     @Test
-    void testGetCart_EmptyCart(){}
-
-    @Test
-    void testGetCart_MultipleItemsInCart(){}
-
-    @Test
-    void testRemoveFromCart_ActorDNE(){}
-
-    @Test
-    void testRemoveFromCart_ItemDNE(){}
-
-    @Test
-    void testRemoveFromCart_GoodCase(){}
-
-    @Test
-    void testCheckoutCart_EmptyCart(){}
-
-    @Test
-    void testCheckoutCart_InvalidEnrollments_FamilyMemberNotActivatedException(){}
-
-    @Test
-    void testCheckoutCart_InvalidEnrollments_OfferedCourseNotAvailableForEnrollmentException(){}
-
-    @Test
-    void testCheckoutCart_InvalidEnrollments_MemberAlreadyEnrolledInOfferedCourseException(){}
-
-    @Test
-    void testCheckoutCart_PartialValidEnrollments(){}
+    void testRemoveFromCart(){}
 
     @Test
     void testCheckoutCart_AllValidEnrollments(){}
-
-    @Test
-    void testPayCart_ActorDNE(){}
-
-    @Test
-    void testPayCart_EmptyCart(){}
-
-    @Test
-    void testPayCart_PaymentFailed(){}
 
     @Test
     void testPayCart_PaymentSucces(){}
