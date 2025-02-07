@@ -92,6 +92,10 @@ public class RegistrationManagementService {
         }
     }
 
+    private Optional<FamilyCourseWaitlist> checkIfFamilyMemberInWaitlist(OfferedCourse offeredCourse, FamilyMember familyMember) {
+        return familyCourseWaitlistRepository.findByOfferedCourse_OfferedCourseIdAndFamilyMember_FamilyMemberIdAndIsWaitlisted(offeredCourse.getOfferedCourseId(), familyMember.getFamilyMemberId(), true);
+    }
+
     public boolean checkFamilyMemberAndOfferedCourseValidity(FamilyMember familyMember, OfferedCourse offeredCourse){
         if(!familyMember.isActive()) {
             familyManagementService.sendActivationLink(familyMember);
@@ -123,10 +127,6 @@ public class RegistrationManagementService {
         }
     }
 
-    private Optional<FamilyCourseWaitlist> checkIfFamilyMemberInWaitlist(OfferedCourse offeredCourse, FamilyMember familyMember) {
-        return familyCourseWaitlistRepository.findByOfferedCourse_OfferedCourseIdAndFamilyMember_FamilyMemberIdAndIsWaitlisted(offeredCourse.getOfferedCourseId(), familyMember.getFamilyMemberId(), true);
-    }
-
     private boolean performEnrollment(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse) {
         double costOfOfferedCourse = getCostOfOfferedCourse(offeredCourse, familyMember);
 
@@ -153,17 +153,6 @@ public class RegistrationManagementService {
         OfferedCourseFee offeredCourseFee = offeredCourseFeeRepository.findByOfferedCourse_OfferedCourseIdAndFeeType(offeredCourse.getOfferedCourseId(), feeType)
                 .orElseThrow(() -> new OfferedCourseFeeNotFoundException("Offered Course Fee could not be found right now."));
         return offeredCourseFee.getCourseFee();
-    }
-
-    private boolean waitlistFamilyMember(int actorFamilyMemberId, FamilyMember familyMember, OfferedCourse offeredCourse) {
-        FamilyCourseWaitlist waitlist = FamilyCourseWaitlist.builder()
-                .enrollmentActorId(actorFamilyMemberId)
-                .offeredCourse(offeredCourse)
-                .familyMember(familyMember)
-                .build();
-
-        familyCourseWaitlistRepository.save(waitlist);
-        return waitlist.getFamilyCourseWaitlistId() != 0;
     }
 
     public List<FamilyMemberCourseRegistrationDTO> getEnrollmentsForMember(String memberLoginId) {
@@ -225,6 +214,17 @@ public class RegistrationManagementService {
         if(!Objects.equals(response.getBody(), "Message Sent Via SMS."))
             throw new FailedToSendNotificationException("Failed to send Offered Course Availability Notification.");
 
+    }
+
+    public boolean waitlistFamilyMember(int actorFamilyMemberId, FamilyMember familyMember, OfferedCourse offeredCourse) {
+        FamilyCourseWaitlist waitlist = FamilyCourseWaitlist.builder()
+                .enrollmentActorId(actorFamilyMemberId)
+                .offeredCourse(offeredCourse)
+                .familyMember(familyMember)
+                .build();
+
+        familyCourseWaitlistRepository.save(waitlist);
+        return waitlist.getFamilyCourseWaitlistId() != 0;
     }
 
     public List<FamilyMemberCourseWaitlistDTO> getWaitlistForMember(String memberLoginId) {
