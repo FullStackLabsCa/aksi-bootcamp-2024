@@ -38,9 +38,6 @@ public class CartService {
     private CartMapper cartMapper;
 
     public CartDTO addOfferedCourseToCart(CartDTO cartDTO, String actorLoginId) {
-        /**
-         * Notify user to add to waitlist (Add a waitlist End Point) - TODO
-         */
         FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorLoginId);
         FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(cartDTO.getFamilyMemberLoginId());
         OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(cartDTO.getOfferedCourseId());
@@ -95,11 +92,9 @@ public class CartService {
     }
 
     public boolean removeItemFromCart(Integer cartId, String actorLoginId) {
-        /** TODO
-         * check actor validity
-         * remove the cartId for the given actorLoginId
-         */
-        return false;
+        familyManagementService.checkFamilyMemberValidity(actorLoginId);
+        cartRepository.deleteByCartId(cartId);
+        return true;
     }
 
     public CheckoutDTO checkoutCart(String actorLoginId){
