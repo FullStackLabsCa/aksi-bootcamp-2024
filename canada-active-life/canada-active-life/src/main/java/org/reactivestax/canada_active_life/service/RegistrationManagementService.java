@@ -99,13 +99,11 @@ public class RegistrationManagementService {
     public boolean checkFamilyMemberAndOfferedCourseValidity(FamilyMember familyMember, OfferedCourse offeredCourse){
         if(!familyMember.isActive()) {
             familyManagementService.sendActivationLink(familyMember);
-            log.info("Please verify family member using the activation link sent via sms...");
-            return false;
+            throw new FamilyMemberNotActivatedException("Family Member Not Activated. Please verify family member using the activation link sent via sms...");
         }
 
         if("CLOSED".equals(offeredCourse.getAvailableForEnrollment())) {
-            log.info("Offered Course is now closed for Enrollment.");
-            return false;
+            throw new OfferedCourseNotAvailableForEnrollmentException("Offered Course is now closed for Enrollment.");
         }
         int totalOfferedSeats = offeredCourse.getSeatsAvailable();
 

@@ -6,9 +6,7 @@ import org.reactivestax.canada_active_life.domain.*;
 import org.reactivestax.canada_active_life.dto.CartDTO;
 import org.reactivestax.canada_active_life.dto.CheckoutDTO;
 import org.reactivestax.canada_active_life.dto.PaymentDTO;
-import org.reactivestax.canada_active_life.exception.EmptyCartException;
-import org.reactivestax.canada_active_life.exception.OfferedCourseNotAvailableForEnrollmentException;
-import org.reactivestax.canada_active_life.exception.PaymentUnsuccessfulException;
+import org.reactivestax.canada_active_life.exception.*;
 import org.reactivestax.canada_active_life.mapper.CartMapper;
 import org.reactivestax.canada_active_life.repo.CartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,21 +40,14 @@ public class CartManagementService {
         FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(cartDTO.getFamilyMemberLoginId());
         OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(cartDTO.getOfferedCourseId());
 
-        if(offeredCourse.getAvailableForEnrollment().equals("CLOSED"))
-            throw new OfferedCourseNotAvailableForEnrollmentException("Offered Course is not available for enrollment.");
-
-        int seatsTaken = 0;
-        List<FamilyCourseRegistration> enrollmentsForOfferedCourse = registrationManagementService.getEnrollmentsForOfferedCourse(offeredCourse);
-        if(!enrollmentsForOfferedCourse.isEmpty()) seatsTaken = enrollmentsForOfferedCourse.size();
-
-        if(seatsTaken < offeredCourse.getSeatsAvailable()) {
+        if(registrationManagementService.checkFamilyMemberAndOfferedCourseValidity(familyMember, offeredCourse)) {
             Cart cart = addToCart(actor, familyMember, offeredCourse);
             CartDTO cartDto = cartMapper.toDto(cart);
             cartDto.setId(cart.getCartId());
             cartDto.setOfferedCourseId(cart.getOfferedCourse().getOfferedCourseId());
             cartDto.setFamilyMemberLoginId(cart.getFamilyMember().getMemberLoginId());
             return cartDto;
-        } else throw new OfferedCourseNotAvailableForEnrollmentException("No Seats available right now in the offered course. Would you like to Waitlist?");
+        } else throw new OfferedCourseNotAvailableForEnrollmentException("No Seats Available in the Offered Course. Would you like to Waitlist?");
     }
 
     private Cart addToCart(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse) {
@@ -133,7 +124,14 @@ public class CartManagementService {
 
         if(stripePaymentSuccess) {
             for(Cart cart : cartForActor) {
-                if(registrationManagementService.enrollFamilyMemberInOfferedCourse(actor, cart.getFamilyMember(), cart.getOfferedCourse()))
+                boolean isEnrollmentSuccessful = false;
+                try{
+                    isEnrollmentSuccessful = registrationManagementService.enrollFamilyMemberInOfferedCourse(actor, cart.getFamilyMember(), cart.getOfferedCourse());
+                } catch (FamilyMemberNotActivatedException | OfferedCourseNotAvailableForEnrollmentException | MemberAlreadyEnrolledInOfferedCourseException e){
+                    log.info(e.getMessage());
+                }
+
+                if(isEnrollmentSuccessful)
                     deleteItemFromCart(actor.getFamilyMemberId(), cart.getFamilyMember().getFamilyMemberId(), cart.getOfferedCourse().getOfferedCourseId());
             }
         } else throw new PaymentUnsuccessfulException("Payment was unsuccessful. Please Try again..");
