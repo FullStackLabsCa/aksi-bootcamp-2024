@@ -40,6 +40,15 @@ public class RegistrationController {
                 .body("Failed to withdraw the Family Member from the offered course...");
     }
 
+    @PostMapping("/waitlist")
+    public ResponseEntity<String> waitlistFamilyMemberInOfferedCourse(@RequestBody FamilyMemberCourseWaitlistDTO familyMemberCourseWaitlistDTO, @RequestHeader("x-security-header") String actorMemberLoginId){
+        boolean isWaitlisted = registrationManagementService.waitlistFamilyMember(actorMemberLoginId, familyMemberCourseWaitlistDTO.getFamilyMember().getMemberLoginId(), familyMemberCourseWaitlistDTO.getOfferedCourse().getOfferedCourseId());
+
+        if(isWaitlisted) return ResponseEntity.ok("Family Member waitlisted to the Offered Course.");
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Failed to Waitlist the Family Member to the offered course...");
+    }
+
     @GetMapping("/waitlist")
     public ResponseEntity<List<FamilyMemberCourseWaitlistDTO>> getAllCourseWaitlistForMember(@RequestParam String memberLoginId){
         List<FamilyMemberCourseWaitlistDTO> waitlist = registrationManagementService.getWaitlistForMember(memberLoginId);

@@ -216,9 +216,13 @@ public class RegistrationManagementService {
 
     }
 
-    public boolean waitlistFamilyMember(int actorFamilyMemberId, FamilyMember familyMember, OfferedCourse offeredCourse) {
+    public boolean waitlistFamilyMember(String actorMemberLoginId, String familyMemberLoginId, int offeredCourseId) {
+        FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorMemberLoginId);
+        FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(familyMemberLoginId);
+        OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(offeredCourseId);
+
         FamilyCourseWaitlist waitlist = FamilyCourseWaitlist.builder()
-                .enrollmentActorId(actorFamilyMemberId)
+                .enrollmentActorId(actor.getFamilyMemberId())
                 .offeredCourse(offeredCourse)
                 .familyMember(familyMember)
                 .build();
