@@ -12,7 +12,6 @@ import org.reactivestax.canada_active_life.mapper.FamilyCourseWaitlistMapper;
 import org.reactivestax.canada_active_life.repo.FamilyCourseRegistrationRepository;
 import org.reactivestax.canada_active_life.repo.FamilyCourseWaitlistRepository;
 import org.reactivestax.canada_active_life.repo.OfferedCourseFeeRepository;
-import org.reactivestax.canada_active_life.repo.UnconfirmedPaymentRegistrationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -49,9 +47,6 @@ public class RegistrationManagementService {
 
     @Autowired
     private FamilyCourseWaitlistMapper familyCourseWaitlistMapper;
-
-    @Autowired
-    private UnconfirmedPaymentRegistrationRepository unconfirmedPaymentRegistrationRepository;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -85,12 +80,12 @@ public class RegistrationManagementService {
 //        return false;
 //    }
 
-    public boolean holdPositionForFamilyMemberInOfferedCourse(int actorFamilyMemberId, FamilyMember familyMember, OfferedCourse offeredCourse, double cost){
+    public boolean enrollFamilyMemberInOfferedCourse(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse){
         Optional<FamilyCourseWaitlist> familyCourseWaitlist = checkIfFamilyMemberInWaitlist(offeredCourse, familyMember);
 
         if(checkFamilyMemberAndOfferedCourseValidity(familyMember, offeredCourse)){
             familyCourseWaitlist.ifPresent(courseWaitlist -> courseWaitlist.setWaitlisted(false));
-            return addToUnconfirmedPaymentRegistration(actorFamilyMemberId, familyMember, offeredCourse, cost);
+            return performEnrollment(actor, familyMember, offeredCourse);
         } else {
             familyCourseWaitlist.ifPresent(waitlist -> log.info("Family Member is already waitlisted in the offered course."));
             return  false;
@@ -104,37 +99,17 @@ public class RegistrationManagementService {
             return false;
         }
 
-        if("CLOSED".equals(offeredCourse.getAvailableForEnrollment())) return false;
+        if("CLOSED".equals(offeredCourse.getAvailableForEnrollment())) {
+            log.info("Offered Course is now closed for Enrollment.");
+            return false;
+        }
         int totalOfferedSeats = offeredCourse.getSeatsAvailable();
 
         List<FamilyCourseRegistration> enrollmentsForOfferedCourse = getEnrollmentsForOfferedCourse(offeredCourse);
-        List<UnconfirmedPaymentRegistration> seatsHeldBecauseOfPendingPayment = getNumSeatsOfPendingPayment(offeredCourse);
         checkIfFamilyMemberAlreadyEnrolledInOfferedCourse(enrollmentsForOfferedCourse, familyMember);
 
         int seatsTaken = enrollmentsForOfferedCourse.size();
-        int seatsOnHold = seatsHeldBecauseOfPendingPayment.size();
-
-        return seatsTaken + seatsOnHold < totalOfferedSeats;
-    }
-
-    private List<UnconfirmedPaymentRegistration> getNumSeatsOfPendingPayment(OfferedCourse offeredCourse) {
-        return unconfirmedPaymentRegistrationRepository.findAllByOfferedCourse_OfferedCourseIdAndCreationTimeStampAfter(offeredCourse.getOfferedCourseId(), LocalDateTime.now().minusMinutes(3));
-    }
-
-    private boolean addToUnconfirmedPaymentRegistration(int actorFamilyMemberId, FamilyMember familyMember, OfferedCourse offeredCourse, double cost) {
-        UnconfirmedPaymentRegistration tempRegistration = UnconfirmedPaymentRegistration.builder()
-                .enrollmentActorId(actorFamilyMemberId)
-                .offeredCourse(offeredCourse)
-                .familyMember(familyMember)
-                .cost(cost)
-                .build();
-        unconfirmedPaymentRegistrationRepository.save(tempRegistration);
-        return true;
-    }
-
-    public boolean confirmRegistrationAfterPayment(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse){
-        return performEnrollment(actor, familyMember, offeredCourse) &&
-        removeFromUnconfirmedPaymentRegistration(actor, familyMember, offeredCourse);
+        return seatsTaken < totalOfferedSeats;
     }
 
     public List<FamilyCourseRegistration> getEnrollmentsForOfferedCourse(OfferedCourse offeredCourse) {
@@ -169,11 +144,6 @@ public class RegistrationManagementService {
 
         familyCourseRegistrationRepository.save(enrollment);
         return enrollment.getFamilyCourseRegistrationId() != 0;
-    }
-
-    private boolean removeFromUnconfirmedPaymentRegistration(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse) {
-        unconfirmedPaymentRegistrationRepository.deleteAllByEnrollmentActorIdAndFamilyMember_FamilyMemberIdAndOfferedCourse_OfferedCourseId(actor.getFamilyMemberId(), familyMember.getFamilyMemberId(), offeredCourse.getOfferedCourseId());
-        return true;
     }
 
     public double getCostOfOfferedCourse(OfferedCourse offeredCourse, FamilyMember familyMember) {

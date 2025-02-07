@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
@@ -13,5 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class CheckoutDTO {
     private double totalCost;
-    private Map<Integer, Boolean> cartItemValidity;
+
+    @Builder.Default
+    private Map<Integer, Boolean> cartItemValidity = new HashMap<>();
 }

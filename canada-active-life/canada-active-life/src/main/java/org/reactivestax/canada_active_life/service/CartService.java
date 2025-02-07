@@ -6,16 +6,14 @@ import org.reactivestax.canada_active_life.domain.*;
 import org.reactivestax.canada_active_life.dto.CartDTO;
 import org.reactivestax.canada_active_life.dto.CheckoutDTO;
 import org.reactivestax.canada_active_life.dto.PaymentDTO;
+import org.reactivestax.canada_active_life.exception.EmptyCartException;
 import org.reactivestax.canada_active_life.exception.OfferedCourseNotAvailableForEnrollmentException;
-import org.reactivestax.canada_active_life.exception.PaymentSessionExpiredException;
 import org.reactivestax.canada_active_life.exception.PaymentUnsuccessfulException;
 import org.reactivestax.canada_active_life.mapper.CartMapper;
 import org.reactivestax.canada_active_life.repo.CartRepository;
-import org.reactivestax.canada_active_life.repo.UnconfirmedPaymentRegistrationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +33,6 @@ public class CartService {
 
     @Autowired
     private CartRepository cartRepository;
-
-    @Autowired
-    private UnconfirmedPaymentRegistrationRepository unconfirmedPaymentRegistrationRepository;
 
     @Autowired
     private CartMapper cartMapper;
@@ -109,14 +104,13 @@ public class CartService {
 
     public CheckoutDTO checkoutCart(String actorLoginId){
         CheckoutDTO checkoutDTO = CheckoutDTO.builder().build();
+        Map<Integer, Boolean> cartItemValidity = checkoutDTO.getCartItemValidity();
         double totalCost = 0.0;
 
         List<Cart> cartForActor = getCartForActor(actorLoginId);
-
         for(Cart cart : cartForActor){
             boolean isValidEnrollment = registrationManagementService.checkFamilyMemberAndOfferedCourseValidity(cart.getFamilyMember(), cart.getOfferedCourse());
 
-            Map<Integer, Boolean> cartItemValidity = checkoutDTO.getCartItemValidity();
             cartItemValidity.put(cart.getCartId(), isValidEnrollment);
             checkoutDTO.setCartItemValidity(cartItemValidity);
 
@@ -131,21 +125,21 @@ public class CartService {
     public boolean payForCart(PaymentDTO paymentDTO, String actorMemberLoginId){
         FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorMemberLoginId);
 
-        List<UnconfirmedPaymentRegistration> unconfirmedRegistrations = unconfirmedPaymentRegistrationRepository.findAllByFamilyMember_MemberLoginIdAndCreationTimeStampAfter(actorMemberLoginId, LocalDateTime.now().minusMinutes(3));
-        if(unconfirmedRegistrations.isEmpty()) throw new PaymentSessionExpiredException("Payment Session Expired, please try again...");
+        List<Cart> cartForActor = getCartForActor(actorMemberLoginId);
+        if(cartForActor.isEmpty()) throw new EmptyCartException("Trying to checkout an empty cart...");
 
         double totalCost = 0.0;
-        for(UnconfirmedPaymentRegistration unconfirmedPaymentRegistration : unconfirmedRegistrations){
-            totalCost = totalCost + unconfirmedPaymentRegistration.getCost();
+        for(Cart cart : cartForActor){
+            totalCost = totalCost + cart.getCost();
         }
 
-        // Call Stripe for Payment TODO
+        paymentDTO.setCost(totalCost);
+        boolean stripePaymentSuccess = payUsingStripe(paymentDTO);
 
-        boolean stripePaymentSuccess = true;
         if(stripePaymentSuccess) {
-            for(UnconfirmedPaymentRegistration unconfirmedPaymentRegistration : unconfirmedRegistrations) {
-                if(registrationManagementService.confirmRegistrationAfterPayment(actor, unconfirmedPaymentRegistration.getFamilyMember(), unconfirmedPaymentRegistration.getOfferedCourse()))
-                    deleteItemFromCart(actor.getFamilyMemberId(), unconfirmedPaymentRegistration.getFamilyMember().getFamilyMemberId(), unconfirmedPaymentRegistration.getOfferedCourse().getOfferedCourseId());
+            for(Cart cart : cartForActor) {
+                if(registrationManagementService.enrollFamilyMemberInOfferedCourse(actor, cart.getFamilyMember(), cart.getOfferedCourse()))
+                    deleteItemFromCart(actor.getFamilyMemberId(), cart.getFamilyMember().getFamilyMemberId(), cart.getOfferedCourse().getOfferedCourseId());
             }
         } else throw new PaymentUnsuccessfulException("Payment was unsuccessful. Please Try again..");
 
@@ -154,5 +148,10 @@ public class CartService {
 
     private void deleteItemFromCart(int enrollmentActorId, int familyMemberId, int offeredCourseId) {
         cartRepository.deleteAllByFamilyMember_FamilyMemberIdAndOfferedCourse_OfferedCourseIdAndEnrollmentActorId(familyMemberId, offeredCourseId, enrollmentActorId);
+    }
+
+    private boolean payUsingStripe(PaymentDTO paymentDTO) {
+        // TODO
+        return true;
     }
 }
