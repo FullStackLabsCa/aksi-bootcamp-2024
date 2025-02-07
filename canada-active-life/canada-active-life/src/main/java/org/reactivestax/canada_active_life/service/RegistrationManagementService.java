@@ -87,8 +87,8 @@ public class RegistrationManagementService {
             familyCourseWaitlist.ifPresent(courseWaitlist -> courseWaitlist.setWaitlisted(false));
             return performEnrollment(actor, familyMember, offeredCourse);
         } else {
-            familyCourseWaitlist.ifPresent(waitlist -> log.info("Family Member is already waitlisted in the offered course."));
-            return  false;
+            if (familyCourseWaitlist.isPresent()) {throw new FamilyMemberWaitlistedForOfferedCourse("Family Member is already waitlisted in the offered course.");}
+            throw new OfferedCourseNotAvailableForEnrollmentException("No Seats available in the offered course. Would you like to waitlist?");
         }
     }
 

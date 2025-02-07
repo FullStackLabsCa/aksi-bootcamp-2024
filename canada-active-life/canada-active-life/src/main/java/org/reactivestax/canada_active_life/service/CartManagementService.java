@@ -95,7 +95,12 @@ public class CartManagementService {
 
         List<Cart> cartForActor = getCartForActor(actorLoginId);
         for(Cart cart : cartForActor){
-            boolean isValidEnrollment = registrationManagementService.checkFamilyMemberAndOfferedCourseValidity(cart.getFamilyMember(), cart.getOfferedCourse());
+            boolean isValidEnrollment = false;
+            try{
+                isValidEnrollment = registrationManagementService.checkFamilyMemberAndOfferedCourseValidity(cart.getFamilyMember(), cart.getOfferedCourse());
+            } catch (FamilyMemberNotActivatedException | OfferedCourseNotAvailableForEnrollmentException | MemberAlreadyEnrolledInOfferedCourseException e){
+                log.info(e.getMessage());
+            }
 
             cartItemValidity.put(cart.getCartId(), isValidEnrollment);
             checkoutDTO.setCartItemValidity(cartItemValidity);
@@ -127,7 +132,7 @@ public class CartManagementService {
                 boolean isEnrollmentSuccessful = false;
                 try{
                     isEnrollmentSuccessful = registrationManagementService.enrollFamilyMemberInOfferedCourse(actor, cart.getFamilyMember(), cart.getOfferedCourse());
-                } catch (FamilyMemberNotActivatedException | OfferedCourseNotAvailableForEnrollmentException | MemberAlreadyEnrolledInOfferedCourseException e){
+                } catch (FamilyMemberWaitlistedForOfferedCourse | OfferedCourseNotAvailableForEnrollmentException e){
                     log.info(e.getMessage());
                 }
 
