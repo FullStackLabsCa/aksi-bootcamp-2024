@@ -86,6 +86,18 @@ public class RegistrationManagementService {
     }
 
     public boolean holdPositionForFamilyMemberInOfferedCourse(int actorFamilyMemberId, FamilyMember familyMember, OfferedCourse offeredCourse, double cost){
+        Optional<FamilyCourseWaitlist> familyCourseWaitlist = checkIfFamilyMemberInWaitlist(offeredCourse, familyMember);
+
+        if(checkFamilyMemberAndOfferedCourseValidity(familyMember, offeredCourse)){
+            familyCourseWaitlist.ifPresent(courseWaitlist -> courseWaitlist.setWaitlisted(false));
+            return addToUnconfirmedPaymentRegistration(actorFamilyMemberId, familyMember, offeredCourse, cost);
+        } else {
+            familyCourseWaitlist.ifPresent(waitlist -> log.info("Family Member is already waitlisted in the offered course."));
+            return  false;
+        }
+    }
+
+    public boolean checkFamilyMemberAndOfferedCourseValidity(FamilyMember familyMember, OfferedCourse offeredCourse){
         if(!familyMember.isActive()) {
             familyManagementService.sendActivationLink(familyMember);
             log.info("Please verify family member using the activation link sent via sms...");
@@ -98,21 +110,11 @@ public class RegistrationManagementService {
         List<FamilyCourseRegistration> enrollmentsForOfferedCourse = getEnrollmentsForOfferedCourse(offeredCourse);
         List<UnconfirmedPaymentRegistration> seatsHeldBecauseOfPendingPayment = getNumSeatsOfPendingPayment(offeredCourse);
         checkIfFamilyMemberAlreadyEnrolledInOfferedCourse(enrollmentsForOfferedCourse, familyMember);
-        Optional<FamilyCourseWaitlist> familyCourseWaitlist = checkIfFamilyMemberInWaitlist(offeredCourse, familyMember);
 
         int seatsTaken = enrollmentsForOfferedCourse.size();
         int seatsOnHold = seatsHeldBecauseOfPendingPayment.size();
 
-        if(seatsTaken + seatsOnHold < totalOfferedSeats){
-            familyCourseWaitlist.ifPresent(courseWaitlist -> courseWaitlist.setWaitlisted(false));
-            return addToUnconfirmedPaymentRegistration(actorFamilyMemberId, familyMember, offeredCourse, cost);
-        } else {
-            if(familyCourseWaitlist.isPresent()){
-                log.info("Family Member is already waitlisted in the offered course.");
-                return false;}
-            if(waitlistFamilyMember(actorFamilyMemberId, familyMember, offeredCourse)) return  false;
-        }
-        return false;
+        return seatsTaken + seatsOnHold < totalOfferedSeats;
     }
 
     private List<UnconfirmedPaymentRegistration> getNumSeatsOfPendingPayment(OfferedCourse offeredCourse) {

@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.*;
 import org.reactivestax.canada_active_life.dto.CartDTO;
+import org.reactivestax.canada_active_life.dto.CheckoutDTO;
 import org.reactivestax.canada_active_life.dto.PaymentDTO;
 import org.reactivestax.canada_active_life.exception.OfferedCourseNotAvailableForEnrollmentException;
 import org.reactivestax.canada_active_life.exception.PaymentSessionExpiredException;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -98,24 +100,31 @@ public class CartService {
     }
 
     public boolean removeItemFromCart(Integer cartId, String actorLoginId) {
-        /**
+        /** TODO
          * check actor validity
          * remove the cartId for the given actorLoginId
          */
         return false;
     }
 
-    public Double checkoutCart(String actorLoginId){
+    public CheckoutDTO checkoutCart(String actorLoginId){
+        CheckoutDTO checkoutDTO = CheckoutDTO.builder().build();
         double totalCost = 0.0;
+
         List<Cart> cartForActor = getCartForActor(actorLoginId);
 
-        // Hold the offeredCourses Available and Waitlist the courses that are full.
         for(Cart cart : cartForActor){
-            if(registrationManagementService.holdPositionForFamilyMemberInOfferedCourse(cart.getEnrollmentActorId(), cart.getFamilyMember(), cart.getOfferedCourse(), cart.getCost()))
-                totalCost = totalCost + cart.getCost();
+            boolean isValidEnrollment = registrationManagementService.checkFamilyMemberAndOfferedCourseValidity(cart.getFamilyMember(), cart.getOfferedCourse());
+
+            Map<Integer, Boolean> cartItemValidity = checkoutDTO.getCartItemValidity();
+            cartItemValidity.put(cart.getCartId(), isValidEnrollment);
+            checkoutDTO.setCartItemValidity(cartItemValidity);
+
+            if(isValidEnrollment) totalCost = totalCost + cart.getCost();
         }
 
-        return totalCost;
+        checkoutDTO.setTotalCost(totalCost);
+        return checkoutDTO;
     }
 
     @Transactional

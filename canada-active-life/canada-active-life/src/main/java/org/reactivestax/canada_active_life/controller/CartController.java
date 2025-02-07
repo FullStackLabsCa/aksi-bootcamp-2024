@@ -1,6 +1,7 @@
 package org.reactivestax.canada_active_life.controller;
 
 import org.reactivestax.canada_active_life.dto.CartDTO;
+import org.reactivestax.canada_active_life.dto.CheckoutDTO;
 import org.reactivestax.canada_active_life.dto.PaymentDTO;
 import org.reactivestax.canada_active_life.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +46,9 @@ public class CartController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<Double> checkoutCart(@RequestHeader("x-security-header") String actorLoginId){
-        Double totalPayableAmount = cartService.checkoutCart(actorLoginId);
-        return ResponseEntity.ok(totalPayableAmount);
+    public ResponseEntity<CheckoutDTO> checkoutCart(@RequestHeader("x-security-header") String actorLoginId){
+        CheckoutDTO checkoutDTO = cartService.checkoutCart(actorLoginId);
+        return ResponseEntity.ok(checkoutDTO);
     }
 
     @PostMapping("/checkout/pay")
