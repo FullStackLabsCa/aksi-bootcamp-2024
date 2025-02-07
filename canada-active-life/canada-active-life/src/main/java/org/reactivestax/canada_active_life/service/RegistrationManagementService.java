@@ -56,34 +56,34 @@ public class RegistrationManagementService {
     @Autowired
     private RestTemplate restTemplate;
 
-    public boolean enrollFamilyMemberInOfferedCourse(FamilyMemberCourseRegistrationDTO familyMemberCourseRegistrationDTO, String memberLoginId) {
-        FamilyMember actor = familyManagementService.checkFamilyMemberValidity(memberLoginId);
-        FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(familyMemberCourseRegistrationDTO.getFamilyMemberLoginId());
-        if(!familyMember.isActive()) {
-            familyManagementService.sendActivationLink(familyMember);
-            throw new FamilyMemberNotActivatedException("Please verify family member using the activation link sent via sms...");
-        }
-
-        OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(familyMemberCourseRegistrationDTO.getOfferedCourseId());
-        if("CLOSED".equals(offeredCourse.getAvailableForEnrollment())) throw new OfferedCourseNotAvailableForEnrollmentException("Offered Course not available for enrollment.");
-        int totalOfferedSeats = offeredCourse.getSeatsAvailable();
-
-        List<FamilyCourseRegistration> enrollmentsForOfferedCourse = getEnrollmentsForOfferedCourse(offeredCourse);
-        checkIfFamilyMemberAlreadyEnrolledInOfferedCourse(enrollmentsForOfferedCourse, familyMember);
-        Optional<FamilyCourseWaitlist> familyCourseWaitlist = checkIfFamilyMemberInWaitlist(offeredCourse, familyMember);
-
-
-        int seatsTaken = enrollmentsForOfferedCourse.size();
-
-        if(seatsTaken < totalOfferedSeats){
-            familyCourseWaitlist.ifPresent(courseWaitlist -> courseWaitlist.setWaitlisted(false));
-            return performEnrollment(actor, familyMember, offeredCourse);
-        } else {
-            familyCourseWaitlist.ifPresent(value -> {throw new MemberAlreadyWaitlistedForOfferedCourseException("Family Member is already wailisted in the offered course.");});
-            if(waitlistFamilyMember(actor.getFamilyMemberId(), familyMember, offeredCourse)) throw new FamilyMemberWaitlistedForOfferedCourse("Course Full! Family Member has been waitlisted for the offered course. You will get notification as spot comes available.");
-        }
-        return false;
-    }
+//    public boolean enrollFamilyMemberInOfferedCourse(FamilyMemberCourseRegistrationDTO familyMemberCourseRegistrationDTO, String memberLoginId) {
+//        FamilyMember actor = familyManagementService.checkFamilyMemberValidity(memberLoginId);
+//        FamilyMember familyMember = familyManagementService.checkFamilyMemberValidity(familyMemberCourseRegistrationDTO.getFamilyMemberLoginId());
+//        if(!familyMember.isActive()) {
+//            familyManagementService.sendActivationLink(familyMember);
+//            throw new FamilyMemberNotActivatedException("Please verify family member using the activation link sent via sms...");
+//        }
+//
+//        OfferedCourse offeredCourse = offeredCourseService.getOfferedCourseById(familyMemberCourseRegistrationDTO.getOfferedCourseId());
+//        if("CLOSED".equals(offeredCourse.getAvailableForEnrollment())) throw new OfferedCourseNotAvailableForEnrollmentException("Offered Course not available for enrollment.");
+//        int totalOfferedSeats = offeredCourse.getSeatsAvailable();
+//
+//        List<FamilyCourseRegistration> enrollmentsForOfferedCourse = getEnrollmentsForOfferedCourse(offeredCourse);
+//        checkIfFamilyMemberAlreadyEnrolledInOfferedCourse(enrollmentsForOfferedCourse, familyMember);
+//        Optional<FamilyCourseWaitlist> familyCourseWaitlist = checkIfFamilyMemberInWaitlist(offeredCourse, familyMember);
+//
+//
+//        int seatsTaken = enrollmentsForOfferedCourse.size();
+//
+//        if(seatsTaken < totalOfferedSeats){
+//            familyCourseWaitlist.ifPresent(courseWaitlist -> courseWaitlist.setWaitlisted(false));
+//            return performEnrollment(actor, familyMember, offeredCourse);
+//        } else {
+//            familyCourseWaitlist.ifPresent(value -> {throw new MemberAlreadyWaitlistedForOfferedCourseException("Family Member is already wailisted in the offered course.");});
+//            if(waitlistFamilyMember(actor.getFamilyMemberId(), familyMember, offeredCourse)) throw new FamilyMemberWaitlistedForOfferedCourse("Course Full! Family Member has been waitlisted for the offered course. You will get notification as spot comes available.");
+//        }
+//        return false;
+//    }
 
     public boolean holdPositionForFamilyMemberInOfferedCourse(int actorFamilyMemberId, FamilyMember familyMember, OfferedCourse offeredCourse, double cost){
         Optional<FamilyCourseWaitlist> familyCourseWaitlist = checkIfFamilyMemberInWaitlist(offeredCourse, familyMember);

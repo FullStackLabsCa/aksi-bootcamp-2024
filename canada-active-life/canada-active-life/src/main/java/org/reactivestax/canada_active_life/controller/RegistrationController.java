@@ -17,13 +17,13 @@ public class RegistrationController {
     @Autowired
     private RegistrationManagementService registrationManagementService;
 
-    @PostMapping("/enrollment")
-    public ResponseEntity<String> enrollFamilyMemberInAnOfferedCourse(@RequestBody FamilyMemberCourseRegistrationDTO familyMemberCourseRegistrationDTO, @RequestHeader("x-security-header") String memberLoginId){
-        boolean isEnrolled = registrationManagementService.enrollFamilyMemberInOfferedCourse(familyMemberCourseRegistrationDTO, memberLoginId);
-        if(isEnrolled) return ResponseEntity.ok("Family Member Enrolled in the Offered Course.");
-        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Failed to enroll the Family Member in the desired offered course...");
-    }
+//    @PostMapping("/enrollment")
+//    public ResponseEntity<String> enrollFamilyMemberInAnOfferedCourse(@RequestBody FamilyMemberCourseRegistrationDTO familyMemberCourseRegistrationDTO, @RequestHeader("x-security-header") String memberLoginId){
+//        boolean isEnrolled = registrationManagementService.enrollFamilyMemberInOfferedCourse(familyMemberCourseRegistrationDTO, memberLoginId);
+//        if(isEnrolled) return ResponseEntity.ok("Family Member Enrolled in the Offered Course.");
+//        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                .body("Failed to enroll the Family Member in the desired offered course...");
+//    }
 
     @GetMapping("/enrollment")
     public ResponseEntity<List<FamilyMemberCourseRegistrationDTO>> getAllCourseEnrollmentsForMember(@RequestParam String memberLoginId){
