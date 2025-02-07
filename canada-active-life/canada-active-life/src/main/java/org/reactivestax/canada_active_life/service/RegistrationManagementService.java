@@ -126,7 +126,7 @@ public class RegistrationManagementService {
     }
 
     private boolean performEnrollment(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse) {
-        double costOfOfferedCourse = getCostOfOfferedCourse(offeredCourse, familyMember);
+        double costOfOfferedCourse = getCostOfOfferedCourseForFamilyMember(offeredCourse, familyMember);
 
         FamilyCourseRegistration enrollment = FamilyCourseRegistration.builder()
                 .cost(costOfOfferedCourse)
@@ -144,7 +144,7 @@ public class RegistrationManagementService {
         return enrollment.getFamilyCourseRegistrationId() != 0;
     }
 
-    public double getCostOfOfferedCourse(OfferedCourse offeredCourse, FamilyMember familyMember) {
+    public double getCostOfOfferedCourseForFamilyMember(OfferedCourse offeredCourse, FamilyMember familyMember) {
         FeeType feeType = FeeType.NON_RESIDENT;
         if(familyMember.getCity().equals(offeredCourse.getFacility().getCity())) feeType = FeeType.RESIDENT;
 

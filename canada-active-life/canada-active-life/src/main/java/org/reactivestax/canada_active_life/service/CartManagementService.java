@@ -55,7 +55,7 @@ public class CartManagementService {
                 .enrollmentActorId(actor.getFamilyMemberId())
                 .familyMember(familyMember)
                 .offeredCourse(offeredCourse)
-                .cost(registrationManagementService.getCostOfOfferedCourse(offeredCourse, actor))
+                .cost(registrationManagementService.getCostOfOfferedCourseForFamilyMember(offeredCourse, actor))
                 .build();
         return cartRepository.save(cart);
     }

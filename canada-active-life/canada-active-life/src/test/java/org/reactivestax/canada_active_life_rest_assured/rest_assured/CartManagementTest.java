@@ -1,4 +1,4 @@
-package org.reactivestax.canada_active_life.rest_assured;
+package org.reactivestax.canada_active_life_rest_assured.rest_assured;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
