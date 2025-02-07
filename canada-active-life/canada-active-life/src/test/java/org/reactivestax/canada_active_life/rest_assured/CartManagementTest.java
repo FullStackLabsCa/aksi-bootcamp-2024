@@ -1,8 +1,11 @@
 package org.reactivestax.canada_active_life.rest_assured;
 
 import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
+import org.reactivestax.canada_active_life.TestDataProvider.CartManagementTestDataProvider;
+import org.reactivestax.canada_active_life.dto.CartDTO;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
@@ -11,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.RestTemplate;
 
+import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -58,7 +64,27 @@ class CartManagementTest {
     void testAddToCart_NoSeatsAvailableInOfferedCourse(){}
 
     @Test
-    void testAddToCart_SeatsAvailable(){}
+    void testAddToCart_SeatsAvailable(){
+        CartDTO cartDTORequest = CartManagementTestDataProvider.goodCartDTO.get();
+
+        Response response = given()
+                .log().all() // Log request details
+                .contentType("application/json")
+                .body(cartDTORequest)
+                .header("x-security-header", "c355754d-0835-4579-aa17-4f87c3d844b8")
+                .when()
+                .post(baseUrl)
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        CartDTO cartDTOResponse = response.as(CartDTO.class);
+        assertNotNull(cartDTOResponse);
+        assertEquals(cartDTOResponse.getCost(), cartDTORequest.getCost());
+        assertEquals(cartDTOResponse.getOfferedCourseId(), cartDTORequest.getOfferedCourseId());
+        assertEquals(cartDTOResponse.getFamilyMemberLoginId(), cartDTORequest.getFamilyMemberLoginId());
+    }
 
     @Test
     void testGetCart_ActorDNE(){}
