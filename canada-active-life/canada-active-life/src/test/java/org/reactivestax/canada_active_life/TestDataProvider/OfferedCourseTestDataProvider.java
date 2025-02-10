@@ -54,4 +54,17 @@ public interface OfferedCourseTestDataProvider {
                     .facility(Facility.builder().city("Illinois").build())
                     .build();
 
+    Supplier<String> familyMemberCourseWaitlistJsonSupplier = () ->
+            "{\n" +
+                    "  \"id\": 1,\n" +
+                    "  \"enrollmentActor\": \"ActorName\",\n" +
+                    "  \"enrollmentActorId\": 123,\n" +
+                    "  \"offeredCourse\": {\n" +
+                    "    \"offeredCourseId\": 456\n" +
+                    "  },\n" +
+                    "  \"familyMember\": {\n" +
+                    "    \"memberLoginId\": \"abcd-1234\"\n" +
+                    "  }\n" +
+                    "}";
+
 }

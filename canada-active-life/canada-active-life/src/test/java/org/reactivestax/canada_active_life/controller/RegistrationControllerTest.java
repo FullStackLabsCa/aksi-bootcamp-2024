@@ -146,4 +146,34 @@ class RegistrationControllerTest {
                         .param("memberLoginId", UUID.randomUUID().toString()))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void testWaitlistFamilyMemberInOfferedCourse_Successful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/courseRegistrations/waitlist";
+
+        when(registrationManagementService.waitlistFamilyMember(any(String.class), any(String.class), any(Integer.class)))
+                .thenReturn(true);
+
+        mockMvc.perform(post(uriTemplate)
+                        .content(OfferedCourseTestDataProvider.familyMemberCourseWaitlistJsonSupplier.get())
+                        .header("x-security-header", UUID.randomUUID().toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Family Member waitlisted to the Offered Course."));
+    }
+
+    @Test
+    void testWaitlistFamilyMemberInOfferedCourse_Unsuccessful() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/courseRegistrations/waitlist";
+
+        when(registrationManagementService.waitlistFamilyMember(any(String.class), any(String.class), any(Integer.class)))
+                .thenReturn(false);
+
+        mockMvc.perform(post(uriTemplate)
+                        .content(OfferedCourseTestDataProvider.familyMemberCourseWaitlistJsonSupplier.get())
+                        .header("x-security-header", UUID.randomUUID().toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Failed to Waitlist the Family Member to the offered course..."));
+    }
 }
