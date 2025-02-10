@@ -3,6 +3,7 @@ package org.reactivestax.canada_active_life.controller;
 import org.junit.jupiter.api.Test;
 import org.reactivestax.canada_active_life.TestDataProvider.FamilyMemberCourseRegistrationTestDataProvider;
 import org.reactivestax.canada_active_life.dto.FamilyMemberCourseRegistrationDTO;
+import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.OfferedCourseDTO;
 import org.reactivestax.canada_active_life.service.OfferedCourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,6 +115,18 @@ class OfferedCourseControllerTest {
                         .param("offeredCourseId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testGetOfferedCourseDetails() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/offeredCourses";
+
+        when(offeredCourseService.getOfferedCourse(any(Integer.class)))
+                .thenReturn(OfferedCourseDTO.builder().build());
+
+        mockMvc.perform(get(uriTemplate)
+                        .param("offeredCourseId", "1"))
+                .andExpect(status().isOk());
     }
 
 }
