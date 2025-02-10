@@ -114,7 +114,7 @@ public class RegistrationManagementService {
         return seatsTaken < totalOfferedSeats;
     }
 
-    public List<FamilyCourseRegistration> getEnrollmentsForOfferedCourse(OfferedCourse offeredCourse) {
+    private List<FamilyCourseRegistration> getEnrollmentsForOfferedCourse(OfferedCourse offeredCourse) {
         return familyCourseRegistrationRepository.findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(offeredCourse.getOfferedCourseId(), false);
     }
 
