@@ -3,6 +3,7 @@ package org.reactivestax.canada_active_life.controller;
 import org.junit.jupiter.api.Test;
 import org.reactivestax.canada_active_life.TestDataProvider.FamilyManagementTestDataProvider;
 import org.reactivestax.canada_active_life.TestDataProvider.FamilyMemberCourseRegistrationTestDataProvider;
+import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
 import org.reactivestax.canada_active_life.dto.OfferedCourseDTO;
 import org.reactivestax.canada_active_life.service.FamilyManagementService;
@@ -106,6 +107,18 @@ class FamilyManagementControllerTest {
                         .header("x-security-header", UUID.randomUUID()))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(expectedOutcome));
+    }
+
+    @Test
+    void getFamilyMemberDetailsTest() throws Exception {
+        String uriTemplate = "/CanadaActiveLife/v1/members";
+
+        when(familyManagementService.getFamilyMember(any(String.class)))
+                .thenReturn(FamilyMemberDTO.builder().build());
+
+        mockMvc.perform(get(uriTemplate)
+                        .param("memberLoginId", "1"))
+                .andExpect(status().isOk());
     }
 
 }
