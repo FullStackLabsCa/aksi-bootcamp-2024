@@ -326,7 +326,20 @@ class RegistrationServiceTest {
     void testWaitlistFamilyMember_OfferedCourseDNE(){}
 
     @Test
-    void testWaitlistFamilyMember_ValidCase(){}
+    void testWaitlistFamilyMember_ValidCase(){
+        when(familyManagementService.checkFamilyMemberValidity(any(String.class)))
+                .thenReturn(FamilyMember.builder().familyMemberId(1).build());
+        when(offeredCourseService.getOfferedCourseById(any(Integer.class)))
+                .thenReturn(OfferedCourse.builder().build());
+        when(familyCourseWaitlistRepository.save(any(FamilyCourseWaitlist.class)))
+                .thenReturn(FamilyCourseWaitlist.builder().familyCourseWaitlistId(1).build());
+
+        assertTrue(registrationManagementService.waitlistFamilyMember("anyActor", "anyFamilyMember", 1));
+
+        verify(familyManagementService, times(2)).checkFamilyMemberValidity(any(String.class));
+        verify(offeredCourseService, times(1)).getOfferedCourseById(any(Integer.class));
+        verify(familyCourseWaitlistRepository, times(1)).save(any(FamilyCourseWaitlist.class));
+    }
 
     @Test
     void testGetWaitlistForMember_ValidFamilyMember(){

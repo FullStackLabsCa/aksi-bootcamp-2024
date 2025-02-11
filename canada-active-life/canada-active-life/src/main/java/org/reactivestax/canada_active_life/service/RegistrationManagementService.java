@@ -225,7 +225,7 @@ public class RegistrationManagementService {
                 .familyMember(familyMember)
                 .build();
 
-        familyCourseWaitlistRepository.save(waitlist);
+        waitlist = familyCourseWaitlistRepository.save(waitlist);
         return waitlist.getFamilyCourseWaitlistId() != 0;
     }
 
