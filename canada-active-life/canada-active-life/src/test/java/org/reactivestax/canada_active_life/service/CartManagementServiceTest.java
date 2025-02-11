@@ -5,6 +5,7 @@ import org.reactivestax.canada_active_life.domain.Cart;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.OfferedCourse;
 import org.reactivestax.canada_active_life.dto.CartDTO;
+import org.reactivestax.canada_active_life.dto.CheckoutDTO;
 import org.reactivestax.canada_active_life.mapper.CartMapper;
 import org.reactivestax.canada_active_life.repo.CartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -144,7 +146,35 @@ class CartManagementServiceTest {
     void testCheckoutCart_PartialValidEnrollments(){}
 
     @Test
-    void testCheckoutCart_AllValidEnrollments(){}
+    void testCheckoutCart_AllValidEnrollments(){
+        FamilyMember familyMember = FamilyMember.builder().build();
+        ArrayList<Cart> carts = new ArrayList<>();
+        carts.add(Cart.builder()
+                .cartId(1)
+                .familyMember(FamilyMember.builder().memberLoginId("anyFamilyMember").build())
+                .offeredCourse(OfferedCourse.builder().offeredCourseId(1).build())
+                .cost(100)
+                .build());
+        carts.add(Cart.builder()
+                .cartId(2)
+                .familyMember(FamilyMember.builder().memberLoginId("anyFamilyMember2").build())
+                .offeredCourse(OfferedCourse.builder().offeredCourseId(1).build())
+                .cost(100)
+                .build());
+        when(familyManagementService.checkFamilyMemberValidity(anyString()))
+                .thenReturn(familyMember);
+        when(cartRepository.findAllByFamilyMember_FamilyMemberId(anyInt()))
+                .thenReturn(carts);
+        when(registrationManagementService.checkFamilyMemberAndOfferedCourseValidity(any(FamilyMember.class), any(OfferedCourse.class)))
+                .thenReturn(true);
+
+        CheckoutDTO checkoutDTO = cartManagementService.checkoutCart("anyFamilyMember");
+
+        assertNotNull(checkoutDTO);
+        assertEquals(200, checkoutDTO.getTotalCost());
+        Map<Integer, Boolean> cartItemValidity = checkoutDTO.getCartItemValidity();
+        assertEquals(2, cartItemValidity.size());
+    }
 
     @Test
     void testPayCart_ActorDNE(){}
