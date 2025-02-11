@@ -140,7 +140,7 @@ public class RegistrationManagementService {
         // withdraw from FamilyCredits
         familyMember.getFamilyGroup().setCredits(familyMember.getFamilyGroup().getCredits() - costOfOfferedCourse);
 
-        familyCourseRegistrationRepository.save(enrollment);
+        enrollment = familyCourseRegistrationRepository.save(enrollment);
         return enrollment.getFamilyCourseRegistrationId() != 0;
     }
 

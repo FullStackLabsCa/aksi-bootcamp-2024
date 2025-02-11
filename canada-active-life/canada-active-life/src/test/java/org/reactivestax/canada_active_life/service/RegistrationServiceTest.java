@@ -215,7 +215,42 @@ class RegistrationServiceTest {
     void testEnrollFamilyMemberInOfferedCourseTest_NoSeatsFamilyMemberAlreadyWaitlisted(){}
 
     @Test
-    void testEnrollFamilyMemberInOfferedCourseTest_SeatsAvailableAndPerformEnrollment(){}
+    void testEnrollFamilyMemberInOfferedCourseTest_SeatsAvailableAndPerformEnrollment(){
+        when(familyCourseWaitlistRepository.findByOfferedCourse_OfferedCourseIdAndFamilyMember_FamilyMemberIdAndIsWaitlisted(any(Integer.class), any(Integer.class), any(Boolean.class)))
+                .thenReturn(Optional.empty());
+        when(familyCourseRegistrationRepository.findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(any(Integer.class), any(Boolean.class)))
+                .thenReturn(new ArrayList<>());
+        Optional<OfferedCourseFee> offeredCourseFee = Optional.of(OfferedCourseFee.builder().courseFee(100).feeType(FeeType.RESIDENT).build());
+        when(offeredCourseFeeRepository.findByOfferedCourse_OfferedCourseIdAndFeeType(any(Integer.class), any(FeeType.class)))
+                .thenReturn(offeredCourseFee);
+        when(familyCourseRegistrationRepository.save(any(FamilyCourseRegistration.class)))
+                .thenReturn(FamilyCourseRegistration.builder().familyCourseRegistrationId(1).build());
+
+        FamilyMember actor = FamilyMember.builder().build();
+        FamilyMember familyMember = FamilyMember.builder()
+                .familyMemberId(1)
+                .isActive(true)
+                .city("Toronto")
+                .familyGroup(FamilyGroup.builder().build())
+                .build();
+
+        OfferedCourse offeredCourse = OfferedCourse.builder()
+                .offeredCourseId(1)
+                .availableForEnrollment("OPEN")
+                .seatsAvailable(10)
+                .facility(Facility.builder()
+                        .city("Toronto")
+                        .build())
+                .build();
+
+        assertTrue(registrationManagementService.enrollFamilyMemberInOfferedCourse(actor, familyMember, offeredCourse));
+
+        verify(familyCourseWaitlistRepository, times(1)).findByOfferedCourse_OfferedCourseIdAndFamilyMember_FamilyMemberIdAndIsWaitlisted(any(Integer.class), any(Integer.class), any(Boolean.class));
+        verify(familyManagementService, times(0)).sendActivationLink(any(FamilyMember.class));
+        verify(familyCourseRegistrationRepository, times(1)).findAllByOfferedCourse_OfferedCourseIdAndIsWithdrawn(any(Integer.class), any(Boolean.class));
+        verify(offeredCourseFeeRepository, times(1)).findByOfferedCourse_OfferedCourseIdAndFeeType(any(Integer.class), any(FeeType.class));
+        verify(familyCourseRegistrationRepository, times(1)).save(any(FamilyCourseRegistration.class));
+    }
 
     @Test
     void testCheckFamilyMemberAndOfferedCourseValidity_InactiveFamilyMember(){}
