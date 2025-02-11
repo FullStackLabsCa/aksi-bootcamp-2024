@@ -6,6 +6,7 @@ import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.OfferedCourse;
 import org.reactivestax.canada_active_life.dto.CartDTO;
 import org.reactivestax.canada_active_life.dto.CheckoutDTO;
+import org.reactivestax.canada_active_life.dto.PaymentDTO;
 import org.reactivestax.canada_active_life.mapper.CartMapper;
 import org.reactivestax.canada_active_life.repo.CartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -186,5 +186,34 @@ class CartManagementServiceTest {
     void testPayCart_PaymentFailed(){}
 
     @Test
-    void testPayCart_PaymentSucces(){}
+    void testPayCart_PaymentSuccess(){
+        FamilyMember familyMember = FamilyMember.builder().build();
+        ArrayList<Cart> carts = new ArrayList<>();
+        carts.add(Cart.builder()
+                .cartId(1)
+                .familyMember(FamilyMember.builder().memberLoginId("anyFamilyMember").build())
+                .offeredCourse(OfferedCourse.builder().offeredCourseId(1).build())
+                .cost(100)
+                .build());
+        carts.add(Cart.builder()
+                .cartId(2)
+                .familyMember(FamilyMember.builder().memberLoginId("anyFamilyMember2").build())
+                .offeredCourse(OfferedCourse.builder().offeredCourseId(1).build())
+                .cost(100)
+                .build());
+        when(familyManagementService.checkFamilyMemberValidity(anyString()))
+                .thenReturn(familyMember);
+        when(cartRepository.findAllByFamilyMember_FamilyMemberId(anyInt()))
+                .thenReturn(carts);
+        when(registrationManagementService.enrollFamilyMemberInOfferedCourse(any(FamilyMember.class), any(FamilyMember.class), any(OfferedCourse.class)))
+                .thenReturn(true);
+
+        PaymentDTO paymentDTO = PaymentDTO.builder().build();
+        assertTrue(cartManagementService.payForCart(paymentDTO, "anyFamilyMember"));
+
+        verify(familyManagementService, times(2)).checkFamilyMemberValidity(anyString());
+        verify(cartRepository, times(1)).findAllByFamilyMember_FamilyMemberId(anyInt());
+        verify(registrationManagementService, times(2)).enrollFamilyMemberInOfferedCourse(any(FamilyMember.class), any(FamilyMember.class), any(OfferedCourse.class));
+        verify(cartRepository, times(2)).deleteAllByFamilyMember_FamilyMemberIdAndOfferedCourse_OfferedCourseIdAndEnrollmentActorId(anyInt(), anyInt(), anyInt());
+    }
 }
