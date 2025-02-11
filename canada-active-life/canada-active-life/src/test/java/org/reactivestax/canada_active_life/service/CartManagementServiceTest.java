@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -96,7 +100,24 @@ class CartManagementServiceTest {
     void testGetCart_EmptyCart(){}
 
     @Test
-    void testGetCart_MultipleItemsInCart(){}
+    void testGetCart_MultipleItemsInCart(){
+        FamilyMember familyMember = FamilyMember.builder().build();
+        ArrayList<Cart> carts = new ArrayList<>();
+        carts.add(Cart.builder()
+                .cartId(1)
+                .familyMember(FamilyMember.builder().memberLoginId("anyFamilyMember").build())
+                .offeredCourse(OfferedCourse.builder().offeredCourseId(1).build())
+                .build());
+        when(familyManagementService.checkFamilyMemberValidity(anyString()))
+                .thenReturn(familyMember);
+        when(cartRepository.findAllByFamilyMember_FamilyMemberId(anyInt()))
+                .thenReturn(carts);
+
+        List<CartDTO> cartDTOs = cartManagementService.getCartDTOForActor("anyFamilyMember");
+
+        assertNotNull(cartDTOs);
+        assertEquals(1, cartDTOs.size());
+    }
 
     @Test
     void testRemoveFromCart_ActorDNE(){}
