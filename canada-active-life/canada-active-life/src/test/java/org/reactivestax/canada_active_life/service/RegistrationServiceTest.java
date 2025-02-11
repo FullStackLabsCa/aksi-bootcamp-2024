@@ -5,6 +5,7 @@ import org.reactivestax.canada_active_life.TestDataProvider.FamilyManagementTest
 import org.reactivestax.canada_active_life.domain.*;
 import org.reactivestax.canada_active_life.dto.FamilyMemberCourseRegistrationDTO;
 import org.reactivestax.canada_active_life.dto.FamilyMemberCourseWaitlistDTO;
+import org.reactivestax.canada_active_life.enums.FeeType;
 import org.reactivestax.canada_active_life.exception.*;
 import org.reactivestax.canada_active_life.mapper.FamilyCourseRegistrationMapper;
 import org.reactivestax.canada_active_life.mapper.FamilyCourseWaitlistMapper;
@@ -232,10 +233,32 @@ class RegistrationServiceTest {
     void testCheckFamilyMemberAndOfferedCourseValidity_SeatsAvailable(){}
 
     @Test
-    void testGetCostOfOfferedCourseForFamilyMember_ResidentFamilyMember(){}
+    void testGetCostOfOfferedCourseForFamilyMember_OfferedCourseFeeNotFound(){}
 
     @Test
     void testGetCostOfOfferedCourseForFamilyMember_NonResidentFamilyMember(){}
+
+    @Test
+    void testGetCostOfOfferedCourseForFamilyMember_ResidentFamilyMember(){
+
+        Optional<OfferedCourseFee> offeredCourseFee = Optional.of(OfferedCourseFee.builder().courseFee(100).feeType(FeeType.RESIDENT).build());
+        when(offeredCourseFeeRepository.findByOfferedCourse_OfferedCourseIdAndFeeType(any(Integer.class), any(FeeType.class)))
+                .thenReturn(offeredCourseFee);
+
+        OfferedCourse offeredCourse = OfferedCourse
+                .builder()
+                .facility(Facility.builder().city("Toronto").build())
+                .build();
+        FamilyMember familyMember = FamilyMember
+                .builder()
+                .city("Toronto")
+                .build();
+
+        double courseFee = registrationManagementService.getCostOfOfferedCourseForFamilyMember(offeredCourse, familyMember);
+
+        assertEquals(100, courseFee);
+        verify(offeredCourseFeeRepository, times(1)).findByOfferedCourse_OfferedCourseIdAndFeeType(any(Integer.class), any(FeeType.class));
+    }
 
     @Test
     void testGetEnrollmentsForMember_ValidFamilyMember(){
