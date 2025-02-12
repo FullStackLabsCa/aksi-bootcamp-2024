@@ -1,4 +1,4 @@
-package org.reactivestax.canada_active_life_rest_assured.rest_assured;
+package org.reactivestax.canada_active_life.rest_assured;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -35,6 +35,8 @@ class CartManagementTest {
     @MockitoBean
     private RestTemplate restTemplate;
 
+    private int cartId;
+
     @BeforeEach
     void setUp(){
         RestAssured.baseURI = "http://localhost:";
@@ -63,6 +65,7 @@ class CartManagementTest {
 
         CartDTO cartDTOResponse = response.as(CartDTO.class);
         assertNotNull(cartDTOResponse);
+        cartId = cartDTOResponse.getId();
         assertEquals(cartDTOResponse.getCost(), cartDTORequest.getCost());
         assertEquals(cartDTOResponse.getOfferedCourseId(), cartDTORequest.getOfferedCourseId());
         assertEquals(cartDTOResponse.getFamilyMemberLoginId(), cartDTORequest.getFamilyMemberLoginId());
