@@ -1,5 +1,6 @@
 package org.reactivestax.canada_active_life.service;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.*;
 import org.reactivestax.canada_active_life.dto.CustomerDTO;
@@ -80,6 +81,7 @@ public class RegistrationManagementService {
 //        return false;
 //    }
 
+    @Transactional
     public boolean enrollFamilyMemberInOfferedCourse(FamilyMember actor, FamilyMember familyMember, OfferedCourse offeredCourse){
         Optional<FamilyCourseWaitlist> familyCourseWaitlist = checkIfFamilyMemberInWaitlist(offeredCourse, familyMember);
 
