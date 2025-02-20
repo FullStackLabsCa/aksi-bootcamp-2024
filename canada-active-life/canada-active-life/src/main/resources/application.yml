@@ -1,6 +1,12 @@
 server:
-  port: 8080
-
+  port: 40002
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: changeit
+    key-password: changeit
+    client-auth: need
+    trust-store: classpath:truststore.p12
+    trust-store-password: changeit
 spring:
   application:
   datasource:
@@ -11,3 +17,8 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  security:
+    user:
+      name: admin
+      password: admin
+      roles: USER, ADMIN
