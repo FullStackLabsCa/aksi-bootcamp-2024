@@ -7,6 +7,7 @@ import org.reactivestax.canada_active_life.service.CartManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class CartController {
     private CartManagementService cartManagementService;
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_FAMILY_MEMBER', 'ROLE_FAMILY_GROUP_OWNER')")
     public ResponseEntity<CartDTO> addOfferedCourseToCart(@RequestBody CartDTO cartDTO, @RequestHeader("x-security-header") String actorLoginId){
 
         CartDTO cart = cartManagementService.addOfferedCourseToCart(cartDTO, actorLoginId);
@@ -29,6 +31,7 @@ public class CartController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_FAMILY_MEMBER', 'ROLE_FAMILY_GROUP_OWNER')")
     public ResponseEntity<List<CartDTO>> getCartForActor(@RequestHeader("x-security-header") String actorMemberLoginId){
         List<CartDTO> cartDTOList = cartManagementService.getCartDTOForActor(actorMemberLoginId);
 
@@ -37,6 +40,7 @@ public class CartController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_FAMILY_MEMBER', 'ROLE_FAMILY_GROUP_OWNER')")
     public ResponseEntity<String> removeInterestedCourseFromCart(@RequestParam String cartId, @RequestHeader("x-security-header") String actorLoginId){
         boolean isRemoved = cartManagementService.removeItemFromCart(Integer.valueOf(cartId), actorLoginId);
 
@@ -46,12 +50,14 @@ public class CartController {
     }
 
     @PostMapping("/checkout")
+    @PreAuthorize("hasAnyAuthority('ROLE_FAMILY_MEMBER', 'ROLE_FAMILY_GROUP_OWNER')")
     public ResponseEntity<CheckoutDTO> checkoutCart(@RequestHeader("x-security-header") String actorLoginId){
         CheckoutDTO checkoutDTO = cartManagementService.checkoutCart(actorLoginId);
         return ResponseEntity.ok(checkoutDTO);
     }
 
     @PostMapping("/checkout/pay")
+    @PreAuthorize("hasAnyAuthority('ROLE_FAMILY_MEMBER', 'ROLE_FAMILY_GROUP_OWNER')")
     public ResponseEntity<String> payForCart(@RequestBody PaymentDTO paymentDTO, @RequestHeader("x-security-header") String actorLoginId){
         boolean isPaymentSuccessful = cartManagementService.payForCart(paymentDTO, actorLoginId);
 

@@ -13,3 +13,16 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect  # Change dialect for MySQL or PostgreSQL
         format_sql: true   # Pretty print the SQL in the logs
         hbm2ddl.auto: create-drop  # Automatic schema update behavior
+
+springdoc:
+  show-actuator: true
+management:
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+logging:
+  level:
+    root: error
+    org.springframework: info
+    org.springframework.security: trace

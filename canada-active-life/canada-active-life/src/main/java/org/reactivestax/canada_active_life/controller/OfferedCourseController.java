@@ -5,6 +5,7 @@ import org.reactivestax.canada_active_life.service.OfferedCourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,6 +16,7 @@ public class OfferedCourseController {
     private OfferedCourseService offeredCourseService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> createNewOfferedCourse(@RequestBody OfferedCourseDTO offeredCourseDTO){
 
         boolean isOfferedCourseCreated = offeredCourseService.createNewOfferedCourse(offeredCourseDTO);
@@ -31,6 +33,7 @@ public class OfferedCourseController {
     }
 
     @PatchMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<OfferedCourseDTO> updateOfferedCourse(@RequestBody OfferedCourseDTO offeredCourseDTO, @RequestParam String offeredCourseId){
         OfferedCourseDTO updatedOfferedCourseDTO = offeredCourseService.updateOfferedCourseInfo(offeredCourseDTO, Integer.parseInt(offeredCourseId));
 
@@ -39,6 +42,7 @@ public class OfferedCourseController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> cancelOfferedCourse(@RequestParam String offeredCourseId){
         boolean isDeactivated = offeredCourseService.cancelOfferedCourse(Integer.parseInt(offeredCourseId));
 

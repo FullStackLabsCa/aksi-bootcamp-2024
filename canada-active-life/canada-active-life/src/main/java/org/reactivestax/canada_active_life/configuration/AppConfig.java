@@ -1,4 +1,4 @@
-package org.reactivestax.canada_active_life;
+package org.reactivestax.canada_active_life.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

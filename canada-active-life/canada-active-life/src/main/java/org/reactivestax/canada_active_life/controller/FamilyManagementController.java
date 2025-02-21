@@ -5,6 +5,7 @@ import org.reactivestax.canada_active_life.service.FamilyManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,6 +16,7 @@ public class FamilyManagementController {
     private FamilyManagementService familyManagementService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_FAMILY_GROUP_OWNER')")
     public ResponseEntity<String> addFamilyMemberToExistingGroup(@RequestBody FamilyMemberDTO familyMemberDTO, @RequestHeader("x-security-header") String actorId){
 
         boolean isFamilyMemberAdded = familyManagementService.addFamilyMember(familyMemberDTO, actorId);
@@ -25,12 +27,14 @@ public class FamilyManagementController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_FAMILY_MEMBER', 'ROLE_FAMILY_GROUP_OWNER', 'ROLE_ADMIN')")
     public ResponseEntity<FamilyMemberDTO> getFamilyMemberDetails(@RequestParam String memberLoginId){
         FamilyMemberDTO familyMemberDTO = familyManagementService.getFamilyMember(memberLoginId);
         return ResponseEntity.ok(familyMemberDTO);
     }
 
     @PatchMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_FAMILY_MEMBER', 'ROLE_FAMILY_GROUP_OWNER')")
     public ResponseEntity<FamilyMemberDTO> updateFamilyMember(@RequestBody FamilyMemberDTO familyMemberDTO, @RequestParam String memberLoginId){
         FamilyMemberDTO updateFamilyMemberInfo = familyManagementService.updateFamilyMemberInfo(familyMemberDTO, memberLoginId);
 
@@ -39,6 +43,7 @@ public class FamilyManagementController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAuthority('ROLE_FAMILY_GROUP_OWNER')")
     public ResponseEntity<String> deactivateFamilyMember(@RequestParam String memberLoginId, @RequestHeader("x-security-header") String actorId){
         boolean isDeactivated = familyManagementService.deactivateFamilyMember(memberLoginId, actorId);
 

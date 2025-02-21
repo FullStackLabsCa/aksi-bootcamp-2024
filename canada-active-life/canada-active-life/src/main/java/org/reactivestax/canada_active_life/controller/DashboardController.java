@@ -6,6 +6,7 @@ import org.reactivestax.canada_active_life.service.FamilyManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,6 +50,7 @@ public class DashboardController {
     }
 
     @PostMapping("/login/2fa")
+    @PreAuthorize("hasAuthority('ROLE_UNVERIFIED')")
     public ResponseEntity<String> loginVerification(@RequestBody UserVerificationDTO userVerificationDTO, @RequestHeader("x-security-header") String uuid){
         boolean isVerified = familyManagementService.loginVerification(userVerificationDTO, UUID.fromString(uuid));
         if(isVerified) return ResponseEntity.ok("Member Verified :-)");

@@ -6,6 +6,7 @@ import org.reactivestax.canada_active_life.service.RegistrationManagementService
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class RegistrationController {
 //    }
 
     @GetMapping("/enrollment")
+    @PreAuthorize("hasAnyAuthority('ROLE_FAMILY_MEMBER', 'ROLE_FAMILY_GROUP_OWNER')")
     public ResponseEntity<List<FamilyMemberCourseRegistrationDTO>> getAllCourseEnrollmentsForMember(@RequestParam String memberLoginId){
         List<FamilyMemberCourseRegistrationDTO> enrollments = registrationManagementService.getEnrollmentsForMember(memberLoginId);
         if(!enrollments.isEmpty()) return ResponseEntity.ok(enrollments);
@@ -33,6 +35,7 @@ public class RegistrationController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_FAMILY_MEMBER', 'ROLE_FAMILY_GROUP_OWNER')")
     public ResponseEntity<String> withdrawFamilyMemberFromOfferedCourse(@RequestParam String offeredCourseId, @RequestParam String memberLoginId, @RequestHeader("x-security-header") String actorMemberLoginId){
         boolean isWithdrawn = registrationManagementService.withdrawFamilyMemberFromOfferedCourse(Integer.parseInt(offeredCourseId), memberLoginId, actorMemberLoginId);
         if(isWithdrawn) return ResponseEntity.ok("Family Member withdrawn from the Offered Course.");
@@ -41,6 +44,7 @@ public class RegistrationController {
     }
 
     @PostMapping("/waitlist")
+    @PreAuthorize("hasAnyAuthority('ROLE_FAMILY_MEMBER', 'ROLE_FAMILY_GROUP_OWNER', 'ROLE_ADMIN')")
     public ResponseEntity<String> waitlistFamilyMemberInOfferedCourse(@RequestBody FamilyMemberCourseWaitlistDTO familyMemberCourseWaitlistDTO, @RequestHeader("x-security-header") String actorMemberLoginId){
         boolean isWaitlisted = registrationManagementService.waitlistFamilyMember(actorMemberLoginId, familyMemberCourseWaitlistDTO.getFamilyMember().getMemberLoginId(), familyMemberCourseWaitlistDTO.getOfferedCourse().getOfferedCourseId());
 
@@ -50,6 +54,7 @@ public class RegistrationController {
     }
 
     @GetMapping("/waitlist")
+    @PreAuthorize("hasAnyAuthority('ROLE_FAMILY_MEMBER', 'ROLE_FAMILY_GROUP_OWNER')")
     public ResponseEntity<List<FamilyMemberCourseWaitlistDTO>> getAllCourseWaitlistForMember(@RequestParam String memberLoginId){
         List<FamilyMemberCourseWaitlistDTO> waitlist = registrationManagementService.getWaitlistForMember(memberLoginId);
         if(!waitlist.isEmpty()) return ResponseEntity.ok(waitlist);
