@@ -4,7 +4,7 @@ server:
     key-store: classpath:keystore.p12
     key-store-password: changeit
     key-password: changeit
-    client-auth: need
+#    client-auth: need
     trust-store: classpath:truststore.p12
     trust-store-password: changeit
 spring:
