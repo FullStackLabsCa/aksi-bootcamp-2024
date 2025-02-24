@@ -214,7 +214,7 @@ public class FamilyManagementService {
         return null;
     }
 
-    private void sendOTPViaEms(FamilyMember familyMember) {
+    public void sendOTPViaEms(FamilyMember familyMember) {
         log.info("Sending OTP via EMS on preferred contact method to the member {}.", familyMember.getName());
 
         String url = "http://localhost:8082/api/otp/sms";
@@ -248,8 +248,8 @@ public class FamilyManagementService {
     }
 
     public LoginVerificationResponseDTO loginVerification(UserVerificationDTO userVerificationDTO) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        FamilyMember familyMember = checkFamilyMemberValidity(user.getUsername());
+        String username = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        FamilyMember familyMember = checkFamilyMemberValidity(username);
         boolean isOtpVerified = verifyOtpViaEms(userVerificationDTO.getOtpEnteredByUser(), familyMember.getFamilyMemberId());
 
         String token = generateJWTForSuccessfulVerification(familyMember);

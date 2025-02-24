@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.enums.SecurityConstants;
+import org.reactivestax.canada_active_life.service.FamilyManagementService;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,10 +32,12 @@ public class JwtAuthenticationFilter  extends UsernamePasswordAuthenticationFilt
     private final AuthenticationManager authenticationManager;
     private static final Function<GrantedAuthority,String> authToRoleFn = authority -> authority.getAuthority().replace("ROLE_","").toLowerCase();
     private final ObjectMapper mapper;
+    private final FamilyManagementService familyManagementService;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, ObjectMapper mapper) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, ObjectMapper mapper, FamilyManagementService familyManagementService) {
         this.authenticationManager = authenticationManager;
         this.mapper = mapper;
+        this.familyManagementService = familyManagementService;
         setFilterProcessesUrl(SecurityConstants.LOGIN_URL);
         log.info("Calling Authentication Filter");
     }
@@ -71,6 +74,8 @@ public class JwtAuthenticationFilter  extends UsernamePasswordAuthenticationFilt
 
         User principal = (User) auth.getPrincipal(); // logged in user
         List<String> claims = principal.getAuthorities().stream().map(authToRoleFn).collect(Collectors.toList());
+
+        familyManagementService.sendOTPViaEms(familyManagementService.checkFamilyMemberValidity(principal.getUsername()));
 
         String token = JWT.create()
                 .withSubject(principal.getUsername())

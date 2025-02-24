@@ -1,6 +1,7 @@
 package org.reactivestax.canada_active_life.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.reactivestax.canada_active_life.service.FamilyManagementService;
 import org.reactivestax.canada_active_life.web.security.JwtAuthenticationFilter;
 import org.reactivestax.canada_active_life.web.security.JwtAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class ApplicationSecurityConfig {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private FamilyManagementService familyManagementService;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
         http
@@ -37,7 +41,7 @@ public class ApplicationSecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/CanadaActiveLife/v1/activate-account").permitAll()
                     .requestMatchers(HttpMethod.POST, "/CanadaActiveLife/v1/browse_offered_courses").permitAll())
                 .authorizeHttpRequests(request -> request.anyRequest().authenticated())// Require authentication for other endpoints
-                .addFilterBefore(new JwtAuthenticationFilter(authenticationManager, objectMapper), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(authenticationManager, objectMapper, familyManagementService), UsernamePasswordAuthenticationFilter.class)
                 .addFilter(new JwtAuthorizationFilter(authenticationManager))
 //            .formLogin(Customizer.withDefaults()) // Enable Form Login
             .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
