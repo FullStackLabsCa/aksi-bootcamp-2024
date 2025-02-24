@@ -9,6 +9,7 @@ import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.PendingLoginUUID;
 import org.reactivestax.canada_active_life.domain.PendingSignUpUUID;
 import org.reactivestax.canada_active_life.dto.*;
+import org.reactivestax.canada_active_life.enums.ROLE;
 import org.reactivestax.canada_active_life.enums.SecurityConstants;
 import org.reactivestax.canada_active_life.exception.*;
 import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
@@ -55,6 +56,7 @@ public class FamilyManagementService {
         FamilyGroup createdFamilyGroup = createFamilyGroup(familyMemberDTO.getFamilyPin());
 
         FamilyMember createdFamilyMember = createFamilyMember(familyMemberDTO, createdFamilyGroup);
+        createdFamilyMember.setRole(ROLE.FAMILY_GROUP_OWNER);
         familyMemberRepository.save(createdFamilyMember);
         createdFamilyGroup.setCreatedBy(createdFamilyMember.getFamilyMemberId());
         familyGroupRepository.save(createdFamilyGroup);
@@ -148,6 +150,7 @@ public class FamilyManagementService {
         }
         FamilyGroup familyGroupOfActor = actor.getFamilyGroup();
         FamilyMember createdFamilyMember = createFamilyMember(familyMemberDTO, familyGroupOfActor);
+        createdFamilyMember.setRole(ROLE.FAMILY_MEMBER);
         familyMemberRepository.save(createdFamilyMember);
 
         return sendActivationLink(createdFamilyMember);
@@ -187,6 +190,7 @@ public class FamilyManagementService {
             throw new ActorNotAuthorizedException("Actor is not authorized to deactivate any account in the group");
 
         familyMember.setActive(false);
+        familyMember.setRole(ROLE.DEACTIVATED);
         familyMemberRepository.save(familyMember);
 
         return true;

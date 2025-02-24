@@ -4,5 +4,6 @@ public enum ROLE {
     ADMIN,
     FAMILY_MEMBER,
     FAMILY_GROUP_OWNER,
-    UNVERIFIED
+    UNVERIFIED,
+    DEACTIVATED
 }

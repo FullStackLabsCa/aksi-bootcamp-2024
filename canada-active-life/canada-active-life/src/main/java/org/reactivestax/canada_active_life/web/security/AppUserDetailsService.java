@@ -1,6 +1,7 @@
 package org.reactivestax.canada_active_life.web.security;
 
 import org.reactivestax.canada_active_life.domain.FamilyMember;
+import org.reactivestax.canada_active_life.enums.ROLE;
 import org.reactivestax.canada_active_life.service.FamilyManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +31,7 @@ public class AppUserDetailsService implements UserDetailsService {
 
         return User.withUsername(familyMember.getMemberLoginId())
                 .password(familyMember.getFamilyGroup().getFamilyPin())
-                .roles("UNVERIFIED")
+                .roles(ROLE.UNVERIFIED.toString())
                 .passwordEncoder(passwordEncoder::encode)
                 .build();
     }
