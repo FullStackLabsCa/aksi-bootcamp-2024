@@ -30,7 +30,7 @@ public class AppUserDetailsService implements UserDetailsService {
 
         return User.withUsername(familyMember.getMemberLoginId())
                 .password(familyMember.getFamilyGroup().getFamilyPin())
-                .authorities("UNVERIFIED")
+                .roles("UNVERIFIED")
                 .passwordEncoder(passwordEncoder::encode)
                 .build();
     }
