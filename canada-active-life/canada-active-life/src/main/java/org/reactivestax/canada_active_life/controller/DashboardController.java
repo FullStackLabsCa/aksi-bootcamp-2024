@@ -43,6 +43,7 @@ public class DashboardController {
     }
 
     @PostMapping("/login")
+    @PreAuthorize("hasAuthority('NONE')")
     public ResponseEntity<UUID> loginMember(@RequestBody UserLoginDTO userLoginDTO){
         UUID uuidToken = familyManagementService.loginMember(userLoginDTO);
         if(uuidToken != null) return ResponseEntity.ok(uuidToken);
@@ -51,11 +52,10 @@ public class DashboardController {
 
     @PostMapping("/login/2fa")
     @PreAuthorize("hasAuthority('ROLE_UNVERIFIED')")
-    public ResponseEntity<String> loginVerification(@RequestBody UserVerificationDTO userVerificationDTO, @RequestHeader("x-security-header") String uuid){
-        boolean isVerified = familyManagementService.loginVerification(userVerificationDTO, UUID.fromString(uuid));
-        if(isVerified) return ResponseEntity.ok("Member Verified :-)");
-        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Login Failed :-(");
+    public ResponseEntity<LoginVerificationResponseDTO> loginVerification(@RequestBody UserVerificationDTO userVerificationDTO){
+        LoginVerificationResponseDTO verificationResponseDTO = familyManagementService.loginVerification(userVerificationDTO);
+        if(verificationResponseDTO.isVerified()) return ResponseEntity.ok(verificationResponseDTO);
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @PostMapping("/browse_offered_courses")
