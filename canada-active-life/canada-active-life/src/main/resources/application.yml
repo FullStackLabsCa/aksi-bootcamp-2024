@@ -1,12 +1,24 @@
 server:
-  port: 40002
-  ssl:
-    key-store: classpath:keystore.p12
-    key-store-password: changeit
-    key-password: changeit
-#    client-auth: need
-    trust-store: classpath:truststore.p12
-    trust-store-password: changeit
+  port: 30002
+logging:
+  level:
+    root: error
+    org.springframework: info
+    org.springframework.security: trace
+springdoc:
+  show-actuator: true
+management:
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+#  ssl:
+#    key-store: classpath:keystore.p12
+#    key-store-password: changeit
+#    key-password: changeit
+##    client-auth: need
+#    trust-store: classpath:truststore.p12
+#    trust-store-password: changeit
 spring:
   application:
   datasource:
