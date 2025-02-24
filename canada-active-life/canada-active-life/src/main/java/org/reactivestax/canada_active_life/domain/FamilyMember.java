@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.reactivestax.canada_active_life.enums.ROLE;
 
 import java.time.LocalDate;
 
@@ -35,6 +36,8 @@ public class FamilyMember {
     private String preferredContactMethod;
 
     private String language;
+
+    private ROLE role;
 
     @Column(unique = true, nullable = false)
     private String memberLoginId;
