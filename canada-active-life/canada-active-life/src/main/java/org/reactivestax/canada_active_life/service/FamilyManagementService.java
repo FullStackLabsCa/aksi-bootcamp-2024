@@ -1,15 +1,15 @@
 package org.reactivestax.canada_active_life.service;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
 import org.reactivestax.canada_active_life.domain.PendingLoginUUID;
 import org.reactivestax.canada_active_life.domain.PendingSignUpUUID;
-import org.reactivestax.canada_active_life.dto.CustomerDTO;
-import org.reactivestax.canada_active_life.dto.FamilyMemberDTO;
-import org.reactivestax.canada_active_life.dto.UserLoginDTO;
-import org.reactivestax.canada_active_life.dto.UserVerificationDTO;
+import org.reactivestax.canada_active_life.dto.*;
+import org.reactivestax.canada_active_life.enums.SecurityConstants;
 import org.reactivestax.canada_active_life.exception.*;
 import org.reactivestax.canada_active_life.mapper.FamilyMemberMapper;
 import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
@@ -18,12 +18,14 @@ import org.reactivestax.canada_active_life.repo.PendingLoginUUIDRepository;
 import org.reactivestax.canada_active_life.repo.PendingSignUpUUIDRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -241,12 +243,28 @@ public class FamilyManagementService {
         return uuid;
     }
 
-    public boolean loginVerification(UserVerificationDTO userVerificationDTO, UUID uuid) {
-        PendingLoginUUID pendingLoginUUID =
-                pendingLoginUUIDRepository.findTopByUuidAndCreationTimeStampAfterOrderByCreationTimeStampDesc(uuid, LocalDateTime.now().minusHours(2))
-                    .orElseThrow(() -> new UUIDTokenInvalidException("Your Login UUID Token is Invalid or Expired. Please Generate a new one."));
+    public LoginVerificationResponseDTO loginVerification(UserVerificationDTO userVerificationDTO) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        FamilyMember familyMember = checkFamilyMemberValidity(user.getUsername());
+        boolean isOtpVerified = verifyOtpViaEms(userVerificationDTO.getOtpEnteredByUser(), familyMember.getFamilyMemberId());
 
-        return verifyOtpViaEms(userVerificationDTO.getOtpEnteredByUser(), pendingLoginUUID.getFamilyMember().getFamilyMemberId());
+        String token = generateJWTForSuccessfulVerification(familyMember);
+
+        return LoginVerificationResponseDTO.builder()
+                .isVerified(isOtpVerified)
+                .jwtToken(token)
+                .build();
+    }
+
+    private String generateJWTForSuccessfulVerification(FamilyMember familyMember) {
+        List<String> claims = new ArrayList<>();
+        claims.add(familyMember.getRole().toString());
+
+        return JWT.create()
+                .withSubject(familyMember.getMemberLoginId())
+                .withClaim("scopes", claims)
+                .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
+                .sign(Algorithm.HMAC512(SecurityConstants.SECRET.getBytes()));
     }
 
     private boolean verifyOtpViaEms(String otpEnteredByUser, int familyMemberId) {
