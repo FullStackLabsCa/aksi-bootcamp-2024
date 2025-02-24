@@ -23,23 +23,22 @@ public class DashboardController {
     private DashboardService dashboardService;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signUpNewMember(@RequestBody FamilyMemberDTO familyMemberDTO){
+    public ResponseEntity<ApiResponse<String>> signUpNewMember(@RequestBody FamilyMemberDTO familyMemberDTO){
 
         boolean isMemberCreated = familyManagementService.signUpNewFamilyMember(familyMemberDTO);
-
-        if(isMemberCreated) return ResponseEntity.ok("Family Member created. Please click on the Activation Link in the email to activate the account.");
+        if(isMemberCreated) return ResponseEntity.ok(ApiResponse.success("Family Member created. Please click on the Activation Link in the email to activate the account.", null));
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Family Member could not be created.");
+                .body(ApiResponse.error("Family Member could not be created."));
     }
 
     @GetMapping("/activate-account")
-    public ResponseEntity<String> activateNewMember(@RequestParam String familyMemberId, @RequestParam String uuid){
+    public ResponseEntity<ApiResponse<String>> activateNewMember(@RequestParam String familyMemberId, @RequestParam String uuid){
 
         boolean isMemberActivated = familyManagementService.activateNewSignUp(Integer.parseInt(familyMemberId), UUID.fromString(uuid));
 
-        if(isMemberActivated) return ResponseEntity.ok("Family Member activated.");
+        if(isMemberActivated) return ResponseEntity.ok(ApiResponse.success("Family Member activated.", null));
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Family Member could not be activated.");
+                .body(ApiResponse.error("Family Member could not be activated."));
     }
 
     @PostMapping("/login")
@@ -52,10 +51,10 @@ public class DashboardController {
 
     @PostMapping("/login/2fa")
     @PreAuthorize("hasAuthority('ROLE_UNVERIFIED')")
-    public ResponseEntity<LoginVerificationResponseDTO> loginVerification(@RequestBody UserVerificationDTO userVerificationDTO){
+    public ResponseEntity<ApiResponse<LoginVerificationResponseDTO>> loginVerification(@RequestBody UserVerificationDTO userVerificationDTO){
         LoginVerificationResponseDTO verificationResponseDTO = familyManagementService.loginVerification(userVerificationDTO);
-        if(verificationResponseDTO.isVerified()) return ResponseEntity.ok(verificationResponseDTO);
-        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if(verificationResponseDTO.isVerified()) return ResponseEntity.ok(ApiResponse.success("User Login Successful", verificationResponseDTO));
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error("Login Unsuccessful. Failed to Verify OTP."));
     }
 
     @PostMapping("/browse_offered_courses")
