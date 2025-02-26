@@ -16,6 +16,6 @@ public class RestTemplateConfig {
 
     @Bean
     public RestTemplate restTemplate() throws Exception {
-        return RestTemplateFactory.createRestTemplate("keystore.p12", "truststore.p12", "changeit");
+        return RestTemplateFactory.createRestTemplate("src/main/resources/keystore.p12", "src/main/resources/truststore.p12", "changeit");
     }
 }
