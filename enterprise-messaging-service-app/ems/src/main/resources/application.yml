@@ -1,5 +1,17 @@
 server:
   port: 8082
+  ssl:
+    client-auth: need
+    key-store: classpath:ems-keystore.p12
+    key-store-password: changeit
+    key-password: changeit
+    trust-store: classpath:ems-truststore.p12
+    trust-store-password: changeit
+management:
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
 
 spring:
   application:
