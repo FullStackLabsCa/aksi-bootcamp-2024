@@ -107,9 +107,9 @@ public class FamilyManagementService {
 
     private boolean sendActivationLinkViaEms(int familyMemberId, UUID uuidToken, String phoneNumber) {
         log.info("Sending Activation Link Via Ems... Family Member Id: {}, UUIDToken: {}", familyMemberId, uuidToken.toString());
-        String activationLink = "http://localhost:8080/CanadaActiveLife/v1/activate-account?uuid="+uuidToken+"&familyMemberId="+familyMemberId;
+        String activationLink = "https://EMS:8080/CanadaActiveLife/v1/activate-account?uuid="+uuidToken+"&familyMemberId="+familyMemberId;
 
-        String url = "http://localhost:8082/api/ens/sms";
+        String url = "https://EMS:8082/api/ens/sms";
         CustomerDTO customerDTO = CustomerDTO.builder()
                 .customerId("akshat11") // Admin User for ENS
                 .phoneNumber(phoneNumber)
@@ -217,7 +217,7 @@ public class FamilyManagementService {
     public void sendOTPViaEms(FamilyMember familyMember) {
         log.info("Sending OTP via EMS on preferred contact method to the member {}.", familyMember.getName());
 
-        String url = "http://localhost:8082/api/otp/sms";
+        String url = "https://EMS:8082/api/otp/sms";
         CustomerDTO customerDTO = CustomerDTO.builder()
                 .customerId("akshat11") // TODO replace with Customer Management API in EMS
                 .phoneNumber(familyMember.getHomePhoneNumber())
@@ -274,7 +274,7 @@ public class FamilyManagementService {
     private boolean verifyOtpViaEms(String otpEnteredByUser, int familyMemberId) {
         log.info("Sending OTP for Verification to EMS. OTP Entered: {} by user: {}", otpEnteredByUser, familyMemberId);
 
-        String url = "http://localhost:8082/api/otp/verify";
+        String url = "https://EMS:8082/api/otp/verify";
         CustomerDTO customerDTO = CustomerDTO.builder()
                 .customerId("akshat11") // TODO replace with Customer Management API in EMS
                 .message(otpEnteredByUser)
