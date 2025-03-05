@@ -7,17 +7,21 @@ import org.reactivestax.ems.validation.OtpVerifyGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/otp")
+@EnableMethodSecurity
 public class OtpController {
 
     @Autowired
     private OtpService otpService;
 
     @PostMapping("/sms")
+    @PreAuthorize("hasAuthority('SCOPE_fullstacklabs.sms')")
     public ResponseEntity<String> sendOTPViaSms(@RequestBody @Validated(OtpCreationGroup.class) CustomerDTO customerDTO){
         boolean otpSendStatus = otpService.sendOtpViaSms(customerDTO);
         if(otpSendStatus) return  ResponseEntity.ok("OTP Sent Via SMS.");
@@ -26,6 +30,7 @@ public class OtpController {
     }
 
     @PostMapping("/call")
+    @PreAuthorize("hasAuthority('SCOPE_fullstacklabs.call')")
     public ResponseEntity<String> sendOTPViaCall(@RequestBody @Validated(OtpCreationGroup.class) CustomerDTO customerDTO){
         boolean otpSendStatus = otpService.sendOtpViaCall(customerDTO);
         if(otpSendStatus) return  ResponseEntity.ok("OTP Sent Via Call.");
@@ -34,6 +39,7 @@ public class OtpController {
     }
 
     @PostMapping("/email")
+    @PreAuthorize("hasAuthority('SCOPE_fullstacklabs.email')")
     public ResponseEntity<String> sendOTPViaEmail(@RequestBody @Validated(OtpCreationGroup.class) CustomerDTO customerDTO){
         boolean otpSendStatus = otpService.sendOtpViaEmail(customerDTO);
         if(otpSendStatus) return  ResponseEntity.ok("OTP Sent Via Email.");
