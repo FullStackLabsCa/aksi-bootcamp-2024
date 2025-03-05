@@ -38,3 +38,8 @@ spring:
   jms:
     template:
       default-destination: myDefaultQueue
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://dev-88265011.okta.com/oauth2/ausnnzmg69q4BhhPY5d7/v1/keys
