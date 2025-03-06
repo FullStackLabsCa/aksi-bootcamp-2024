@@ -110,6 +110,7 @@ public class FamilyManagementService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + oAuthTokenService.getAccessToken());
         HttpEntity<CustomerDTO> entity = new HttpEntity<>(customerDTO, headers);
 
         ResponseEntity<String> response =  restTemplate.postForEntity(
