@@ -34,3 +34,15 @@ spring:
       name: admin
       password: admin
       roles: USER, ADMIN
+    oauth2:
+      client:
+        provider:
+          okta:
+            token-uri: https://dev-88265011.okta.com/oauth2/ausnnzmg69q4BhhPY5d7/v1/token
+        registration:
+          okta:
+            authorization-grant-type: client_credentials
+            client-id: 0oannzo70tcqZlgw15d7
+            client-name: okta-client
+            client-secret: GtshS0BE0u9pPKsBKlYtGiA68P6yDyzAQNdTFgclAF_DFkZmbxk3XpoZM4f3Yylg
+            scope: fullstacklabs.sms, fullstacklabs.call
