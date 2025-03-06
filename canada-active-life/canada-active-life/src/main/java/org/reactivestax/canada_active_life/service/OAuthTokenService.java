@@ -18,7 +18,6 @@ public class OAuthTokenService {
                 OAuth2AuthorizeRequest
                         .withClientRegistrationId("okta")
                         .principal("client")
-//                        .principal("system")
                         .build()
         );
 
