@@ -1,5 +1,6 @@
 package org.reactivestax.canada_active_life.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.Course;
 import org.reactivestax.canada_active_life.domain.Facility;
@@ -12,26 +13,19 @@ import org.reactivestax.canada_active_life.mapper.OfferedCourseMapper;
 import org.reactivestax.canada_active_life.repo.CourseRepository;
 import org.reactivestax.canada_active_life.repo.FacilityRepository;
 import org.reactivestax.canada_active_life.repo.OfferedCourseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class OfferedCourseService {
 
-    @Autowired
-    private OfferedCourseMapper offeredCourseMapper;
-
-    @Autowired
-    private OfferedCourseRepository offeredCourseRepository;
-
-    @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private FacilityRepository facilityRepository;
+    private final OfferedCourseMapper offeredCourseMapper;
+    private final OfferedCourseRepository offeredCourseRepository;
+    private final CourseRepository courseRepository;
+    private final FacilityRepository facilityRepository;
 
     public boolean createNewOfferedCourse(OfferedCourseDTO offeredCourseDTO) {
         Course course = courseRepository.findByCourseId(offeredCourseDTO.getCourseId())

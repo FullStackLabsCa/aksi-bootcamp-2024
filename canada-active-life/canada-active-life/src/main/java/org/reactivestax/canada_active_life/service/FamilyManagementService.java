@@ -3,6 +3,7 @@ package org.reactivestax.canada_active_life.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.FamilyGroup;
 import org.reactivestax.canada_active_life.domain.FamilyMember;
@@ -30,28 +31,16 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FamilyManagementService {
 
-    @Autowired
-    private FamilyMemberRepository familyMemberRepository;
-
-    @Autowired
-    private FamilyGroupRepository familyGroupRepository;
-
-    @Autowired
-    private PendingSignUpUUIDRepository pendingSignUpUUIDRepository;
-
-    @Autowired
-    private PendingLoginUUIDRepository pendingLoginUUIDRepository;
-
-    @Autowired
-    private FamilyMemberMapper familyMemberMapper;
-
-    @Autowired
-    private OAuthTokenService oAuthTokenService;
-
-    @Autowired
-    private RestTemplate restTemplate;
+    private final FamilyMemberRepository familyMemberRepository;
+    private final  FamilyGroupRepository familyGroupRepository;
+    private final PendingSignUpUUIDRepository pendingSignUpUUIDRepository;
+    private final PendingLoginUUIDRepository pendingLoginUUIDRepository;
+    private final FamilyMemberMapper familyMemberMapper;
+    private final OAuthTokenService oAuthTokenService;
+    private final RestTemplate restTemplate;
 
     @Transactional
     public boolean signUpNewFamilyMember(FamilyMemberDTO familyMemberDTO) {

@@ -1,6 +1,7 @@
 package org.reactivestax.canada_active_life.service;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.*;
 import org.reactivestax.canada_active_life.dto.CustomerDTO;
@@ -26,31 +27,17 @@ import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class RegistrationManagementService {
 
-    @Autowired
-    private FamilyManagementService familyManagementService;
-
-    @Autowired
-    private OfferedCourseService offeredCourseService;
-
-    @Autowired
-    private FamilyCourseRegistrationRepository familyCourseRegistrationRepository;
-
-    @Autowired
-    private FamilyCourseWaitlistRepository familyCourseWaitlistRepository;
-
-    @Autowired
-    private OfferedCourseFeeRepository offeredCourseFeeRepository;
-
-    @Autowired
-    private FamilyCourseRegistrationMapper familyCourseRegistrationMapper;
-
-    @Autowired
-    private FamilyCourseWaitlistMapper familyCourseWaitlistMapper;
-
-    @Autowired
-    private RestTemplate restTemplate;
+    private final FamilyManagementService familyManagementService;
+    private final OfferedCourseService offeredCourseService;
+    private final FamilyCourseRegistrationRepository familyCourseRegistrationRepository;
+    private final FamilyCourseWaitlistRepository familyCourseWaitlistRepository;
+    private final OfferedCourseFeeRepository offeredCourseFeeRepository;
+    private final FamilyCourseRegistrationMapper familyCourseRegistrationMapper;
+    private final FamilyCourseWaitlistMapper familyCourseWaitlistMapper;
+    private final RestTemplate restTemplate;
 
 //    public boolean enrollFamilyMemberInOfferedCourse(FamilyMemberCourseRegistrationDTO familyMemberCourseRegistrationDTO, String memberLoginId) {
 //        FamilyMember actor = familyManagementService.checkFamilyMemberValidity(memberLoginId);

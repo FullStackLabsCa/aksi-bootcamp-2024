@@ -1,6 +1,6 @@
 package org.reactivestax.canada_active_life.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
@@ -8,10 +8,10 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class OAuthTokenService {
 
-    @Autowired
-    private OAuth2AuthorizedClientManager authorizedClientManager;
+    private final OAuth2AuthorizedClientManager authorizedClientManager;
 
     public String getAccessToken() {
         OAuth2AuthorizedClient authorizedClient = authorizedClientManager.authorize(

@@ -1,10 +1,10 @@
 package org.reactivestax.canada_active_life.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.reactivestax.canada_active_life.service.FamilyManagementService;
 import org.reactivestax.canada_active_life.web.security.JwtAuthenticationFilter;
 import org.reactivestax.canada_active_life.web.security.JwtAuthorizationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,13 +22,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class ApplicationSecurityConfig {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private FamilyManagementService familyManagementService;
+    private final ObjectMapper objectMapper;
+    private final FamilyManagementService familyManagementService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {

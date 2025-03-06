@@ -1,6 +1,7 @@
 package org.reactivestax.canada_active_life.service;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestax.canada_active_life.domain.*;
 import org.reactivestax.canada_active_life.dto.CartDTO;
@@ -18,22 +19,14 @@ import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CartManagementService {
 
-    @Autowired
-    private FamilyManagementService familyManagementService;
-
-    @Autowired
-    private OfferedCourseService offeredCourseService;
-
-    @Autowired
-    private RegistrationManagementService registrationManagementService;
-
-    @Autowired
-    private CartRepository cartRepository;
-
-    @Autowired
-    private CartMapper cartMapper;
+    private final FamilyManagementService familyManagementService;
+    private final OfferedCourseService offeredCourseService;
+    private final RegistrationManagementService registrationManagementService;
+    private final CartRepository cartRepository;
+    private final CartMapper cartMapper;
 
     public CartDTO addOfferedCourseToCart(CartDTO cartDTO, String actorLoginId) {
         FamilyMember actor = familyManagementService.checkFamilyMemberValidity(actorLoginId);
