@@ -17,7 +17,7 @@ public class SumPrimeNumbers {
     }
 
     private static int sumOfPrimeNumbers(int n){
-        return IntStream.rangeClosed(1, n).filter(p -> isNumberPrime(p)).sum();
+        return IntStream.rangeClosed(1, n).filter(SumPrimeNumbers::isNumberPrime).sum();
     }
 
     public static void main(String[] args) {
