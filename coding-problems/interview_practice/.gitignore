@@ -16,7 +16,6 @@ target/
 mvnw
 mvnw.cmd
 .mvn
-../interview_practice.zip
 
 ### IntelliJ IDEA ###
 .idea
