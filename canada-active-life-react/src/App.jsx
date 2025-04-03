@@ -18,10 +18,10 @@ function App() {
                 <Link to="/signup">SignUp</Link>
                 <span className="not-display"> | </span>
                 <Link to="/cart" className="not-display">Cart</Link>
-                <span> | </span>
-                <Link to="/checkout">Checkout</Link>
-                <span> | </span>
-                <Link to="/dashboard">Dashboard</Link>
+                <span className="not-display"> | </span>
+                <Link to="/checkout" className="not-display">Checkout</Link>
+                <span className="not-display"> | </span>
+                <Link to="/dashboard" className="not-display">Dashboard</Link>
             </nav>
             <Routes>
                 <Route path="/" element={<Welcome/>}/>
