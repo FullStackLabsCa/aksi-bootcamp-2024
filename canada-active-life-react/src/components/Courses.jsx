@@ -18,7 +18,7 @@ function filterCoursesReducer(state, action) {
         }
         case 'initFilteredList': {
             return {
-                filteredOfferedCourses: offeredCourses
+                filteredOfferedCourses: action.offeredCourses
             }
         }
         default:
@@ -26,42 +26,30 @@ function filterCoursesReducer(state, action) {
     }
 }
 
+const fetchOfferedCourses = async (storeDispatch) => {
+    try {
+        const response = await fetch('http://localhost:30002/CanadaActiveLife/v1/browse_offered_courses', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const jsonData = await response.json()
+        storeDispatch(populateOfferedCourses({offeredCourses: jsonData}))
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 function Courses() {
     const storeDispatch = useDispatch()
 
     useEffect(() => {
-        const fetchOfferedCourses = async () => {
-            try {
-                const response = await fetch('http://localhost:30002/CanadaActiveLife/v1/browse_offered_courses', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        "startDate": "2025-01-01",
-                        "endDate": "",
-                        "facilityIds": [
-                            1,
-                            2,
-                            5
-                        ],
-                        "availableForEnrollment": "OPEN",
-                        "categoryIds": [],
-                        "subCategoryIds": []
-                    })
-                });
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const jsonData = await response.json()
-                storeDispatch(                                                                                        populateOfferedCourses({offeredCourses: jsonData}))
-            } catch (error) {
-                console.log(error)
-            }
-        }
-
-        fetchOfferedCourses()
-
+        fetchOfferedCourses(storeDispatch)
     }, []);
 
     const [state, filterDispatch] = useReducer(filterCoursesReducer, initialState)
