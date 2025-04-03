@@ -7,6 +7,7 @@ pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/d
 pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/data/
 pipeline-multithreaded-trade-processing/trade-processor-app/src/main/resources/arch/
 pipeline-multithreaded-trade-processing/trade-producer-app/src/main/resources/arch/
+coding-problems/
 .idea/
 school-cli/.idea/
 pipeline-multithreaded-trade-processing/trade-processor-app/.idea
@@ -28,3 +29,4 @@ canada-active-life/swagger-canada-active-life.yaml
 canada-active-life/swagger-contract.html
 canada-active-life/swagger-contract.json
 canada-active-life/swagger-contract_files/
+
