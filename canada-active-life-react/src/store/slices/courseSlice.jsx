@@ -7,10 +7,11 @@ const courseSlice = createSlice({
     },
     reducers: {
         populateOfferedCourses: (state, action) => {
-            const offeredCoursesList = [...state.offeredCourses, ...action.payload.offeredCourses]
+            const offeredCourses = action.payload.offeredCourses
+            localStorage.setItem('offeredCourseList', JSON.stringify(offeredCourses))
             return {
                 ...state,
-                offeredCourses: offeredCoursesList
+                offeredCourses: offeredCourses
             }
         }
     }
