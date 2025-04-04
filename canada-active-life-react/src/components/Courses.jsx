@@ -85,7 +85,7 @@ function Courses() {
                 <div className="row">
                     <div className="col-md-3">
                         <h3>Filters</h3>
-                        <input className="form-control"
+                        <input className="form-control mb-3"
                                type="text"
                                placeholder="Course Name"
                                value={filteredOfferedCoursesState.filterWord}
@@ -97,6 +97,7 @@ function Courses() {
                                        previousState: filteredOfferedCoursesState.previousState
                                    })
                                }/>
+                        <h8 className="text-muted mb-1 d-block">Availability for Enrollment</h8>
                         <ToggleButtonGroup type="radio"
                                            name="enrollmentStatus"
                                            value={filteredOfferedCoursesState.filterEnrollmentStatus}
