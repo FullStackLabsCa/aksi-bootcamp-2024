@@ -1,5 +1,5 @@
 import Course from "./Course.jsx";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {populateOfferedCourses} from "../store/slices/courseSlice.jsx";
 import {useEffect, useReducer} from "react";
 
@@ -10,17 +10,11 @@ const initialState = {
 
 function filterCoursesReducer(state, action) {
     switch (action.type) {
-        case 'filter': {
-            return {
-                filterWord: action.filterWord,
-                filteredOfferedCourses: action.offeredCourses.filter(course => course.title.includes(action.filterWord))
-            }
-        }
+        case 'filter': { // TODO
+            return {filterWord: action.filterWord,
+                filteredOfferedCourses: action.offeredCourses.filter(course => course.course.name.includes(action.filterWord))}}
         case 'initFilteredList': {
-            return {
-                filteredOfferedCourses: action.offeredCourses
-            }
-        }
+            return {filteredOfferedCourses: action.offeredCourses}}
         default:
             throw new Error("Unknown Action: ${action.type}")
     }
@@ -33,7 +27,9 @@ const fetchOfferedCourses = async (storeDispatch) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({})
+            body: JSON.stringify({
+                availableForEnrollment: "OPEN"
+            })
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -47,12 +43,21 @@ const fetchOfferedCourses = async (storeDispatch) => {
 
 function Courses() {
     const storeDispatch = useDispatch()
+    const offeredCourses = useSelector(state => state.courses.offeredCourses)
+    const [filteredOfferedCoursesState, filterDispatch] = useReducer(filterCoursesReducer, initialState)
 
     useEffect(() => {
         fetchOfferedCourses(storeDispatch)
     }, []);
 
-    const [state, filterDispatch] = useReducer(filterCoursesReducer, initialState)
+    useEffect(() => {
+        if (offeredCourses.length > 0) {
+            filterDispatch({
+                type: 'initFilteredList',
+                offeredCourses: offeredCourses
+            });
+        }
+    }, [offeredCourses]);
 
     return (
         <>
@@ -60,7 +65,7 @@ function Courses() {
             <input className="button"
                    type="text"
                    placeholder="Search Course"
-                   value={state.filterWord}
+                   value={filteredOfferedCoursesState.filterWord}
                    onChange={(e) =>
                        filterDispatch({
                            type: 'filter',
@@ -68,7 +73,7 @@ function Courses() {
                            offeredCourses: offeredCourses
                        })
                    }/>
-            {state.filteredOfferedCourses.map((offeredCourse, index) => {
+            {filteredOfferedCoursesState.filteredOfferedCourses.map((offeredCourse, index) => {
                 return <Course key={index} course={offeredCourse}/>
             })}
         </>
