@@ -5,7 +5,7 @@ export default function CourseNameFilter(props) {
                   type="text"
                   placeholder="Course Name"
                   value={props.filteredOfferedCoursesState.filterWord}
-                  onChange={props.onCourseNameFilterChange
+                  onChange={props.onChange
                   }/>;
 }
 

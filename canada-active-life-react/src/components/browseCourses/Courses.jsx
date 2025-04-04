@@ -3,7 +3,8 @@ import {useDispatch, useSelector} from "react-redux";
 import {populateOfferedCourses} from "../../store/slices/courseSlice.jsx";
 import {useEffect, useReducer} from "react";
 import CourseList from "./CourseList.jsx";
-import BrowseFilters from "./BrowseFilters.jsx";
+import CourseNameFilter from "./filters/CourseNameFilter.jsx";
+import EnrollmentStatusFilter from "./filters/EnrollmentStatusFilter.jsx";
 
 const initialState = {
     filteredOfferedCourses: [],
@@ -86,22 +87,24 @@ function Courses() {
             <h3>Offered Courses</h3>
             <div className="container">
                 <div className="row">
-                    <BrowseFilters
-                        filteredOfferedCoursesState={filteredOfferedCoursesState}
-                        onCourseNameFilterChange={(e) =>
+                    <div className="col-md-3">
+                        <h3>Filters</h3>
+                        <CourseNameFilter filteredOfferedCoursesState={filteredOfferedCoursesState} onChange={(e) =>
                             filterDispatch({
                                 type: 'filter',
                                 filterWord: e.target.value,
                                 offeredCourses: offeredCourses,
                                 previousState: filteredOfferedCoursesState.previousState
-                            })}
-                        onEnrollmentStatusFilterChange={(value) =>
-                            filterDispatch({
-                                type: 'filter',
-                                filterEnrollmentStatus: value,
-                                offeredCourses: offeredCourses,
-                                previousState: filteredOfferedCoursesState.previousState
                             })}/>
+                        <EnrollmentStatusFilter filteredOfferedCoursesState={filteredOfferedCoursesState}
+                                                onChange={(value) =>
+                                                    filterDispatch({
+                                                        type: 'filter',
+                                                        filterEnrollmentStatus: value,
+                                                        offeredCourses: offeredCourses,
+                                                        previousState: filteredOfferedCoursesState.previousState
+                                                    })}/>
+                    </div>
 
                     <CourseList filteredOfferedCoursesState={filteredOfferedCoursesState}
                                 prop1={(offeredCourse, index) => (
