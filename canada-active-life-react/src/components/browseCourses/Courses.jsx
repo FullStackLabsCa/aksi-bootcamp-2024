@@ -5,32 +5,42 @@ import {useEffect, useReducer} from "react";
 import CourseList from "./CourseList.jsx";
 import CourseNameFilter from "./filters/CourseNameFilter.jsx";
 import EnrollmentStatusFilter from "./filters/EnrollmentStatusFilter.jsx";
+import DatePicker from "react-datepicker";
 
 const initialState = {
+    previousState: {},
     filteredOfferedCourses: [],
     filterWord: '',
     filterEnrollmentStatus: '',
-    previousState: {}
+    filterStartDate: null,
+    filterEndDate: null
 }
 
 function filterCoursesReducer(state, action) {
     const previousState = action.previousState
     const filterEnrollmentStatus = (action.filterEnrollmentStatus !== undefined) ? action.filterEnrollmentStatus : previousState.filterEnrollmentStatus
     const filterWord = (action.filterWord !== undefined) ? action.filterWord : previousState.filterWord
+    const filterStartDate = (action.filterStartDate !== undefined) ? action.filterStartDate : previousState.filterStartDate
+    const filterEndDate = (action.filterEndDate !== undefined) ? action.filterEndDate : previousState.filterEndDate
     switch (action.type) {
         case 'filter': {
             return {
-                filterWord: filterWord,
-                filterEnrollmentStatus: filterEnrollmentStatus,
                 previousState: {
                     ...previousState,
                     filterWord: filterWord,
-                    filterEnrollmentStatus: filterEnrollmentStatus
+                    filterEnrollmentStatus: filterEnrollmentStatus,
+                    filterStartDate: filterStartDate,
+                    filterEndDate: filterEndDate
                 },
+                filterWord: filterWord,
+                filterEnrollmentStatus: filterEnrollmentStatus,
+                filterStartDate: filterStartDate,
+                filterEndDate: filterEndDate,
                 filteredOfferedCourses:
                     action.offeredCourses
                         .filter(course => course.course.name.toLowerCase().includes(filterWord.toLowerCase()))
                         .filter(course => (course.availableForEnrollment.toLowerCase().includes(filterEnrollmentStatus)))
+                // TODO Add a filter for Start Date and End Date
             }
         }
         case 'initFilteredList': {
@@ -104,6 +114,36 @@ function Courses() {
                                                         offeredCourses: offeredCourses,
                                                         previousState: filteredOfferedCoursesState.previousState
                                                     })}/>
+                        <h6 className="text-muted mb-1 d-block">Start Date</h6>
+                        <DatePicker
+                            showMonthYearDropdown
+                            selected={filteredOfferedCoursesState.filterStartDate}
+                            onChange={(date) =>
+                                filterDispatch({
+                                type: 'filter',
+                                filterStartDate: date,
+                                offeredCourses: offeredCourses,
+                                previousState: filteredOfferedCoursesState.previousState
+                            })}
+                            className="form-control mb-3"
+                            dateFormat="yyyy-MM-dd"
+                            placeholderText="Choose a Date"
+                        />
+                        <h6 className="text-muted mb-1 d-block">End Date</h6>
+                        <DatePicker
+                            showMonthYearDropdown
+                            selected={filteredOfferedCoursesState.filterEndDate}
+                            onChange={(date) =>
+                                filterDispatch({
+                                    type: 'filter',
+                                    filterEndDate: date,
+                                    offeredCourses: offeredCourses,
+                                    previousState: filteredOfferedCoursesState.previousState
+                                })}
+                            className="form-control mb-3"
+                            dateFormat="yyyy-MM-dd"
+                            placeholderText="Choose a Date"
+                        />
                     </div>
 
                     <CourseList filteredOfferedCoursesState={filteredOfferedCoursesState}
