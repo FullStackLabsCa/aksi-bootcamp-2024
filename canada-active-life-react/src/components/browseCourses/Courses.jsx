@@ -6,6 +6,9 @@ import CourseList from "./CourseList.jsx";
 import CourseNameFilter from "./filters/CourseNameFilter.jsx";
 import EnrollmentStatusFilter from "./filters/EnrollmentStatusFilter.jsx";
 import DatePicker from "react-datepicker";
+import * as PropTypes from "prop-types";
+import StartDateFilter from "./filters/StartDateFilter.jsx";
+import EndDateFilter from "./filters/EndDateFilter.jsx";
 
 const initialState = {
     previousState: {},
@@ -114,36 +117,20 @@ function Courses() {
                                                         offeredCourses: offeredCourses,
                                                         previousState: filteredOfferedCoursesState.previousState
                                                     })}/>
-                        <h6 className="text-muted mb-1 d-block">Start Date</h6>
-                        <DatePicker
-                            showMonthYearDropdown
-                            selected={filteredOfferedCoursesState.filterStartDate}
-                            onChange={(date) =>
-                                filterDispatch({
+                        <StartDateFilter filteredOfferedCoursesState={filteredOfferedCoursesState} onChange={(date) =>
+                            filterDispatch({
                                 type: 'filter',
                                 filterStartDate: date,
                                 offeredCourses: offeredCourses,
                                 previousState: filteredOfferedCoursesState.previousState
-                            })}
-                            className="form-control mb-3"
-                            dateFormat="yyyy-MM-dd"
-                            placeholderText="Choose a Date"
-                        />
-                        <h6 className="text-muted mb-1 d-block">End Date</h6>
-                        <DatePicker
-                            showMonthYearDropdown
-                            selected={filteredOfferedCoursesState.filterEndDate}
-                            onChange={(date) =>
-                                filterDispatch({
-                                    type: 'filter',
-                                    filterEndDate: date,
-                                    offeredCourses: offeredCourses,
-                                    previousState: filteredOfferedCoursesState.previousState
-                                })}
-                            className="form-control mb-3"
-                            dateFormat="yyyy-MM-dd"
-                            placeholderText="Choose a Date"
-                        />
+                            })}/>
+                        <EndDateFilter filteredOfferedCoursesState={filteredOfferedCoursesState} onChange={(date) =>
+                            filterDispatch({
+                                type: 'filter',
+                                filterEndDate: date,
+                                offeredCourses: offeredCourses,
+                                previousState: filteredOfferedCoursesState.previousState
+                            })}/>
                     </div>
 
                     <CourseList filteredOfferedCoursesState={filteredOfferedCoursesState}
