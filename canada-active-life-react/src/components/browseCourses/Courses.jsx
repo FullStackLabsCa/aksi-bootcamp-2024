@@ -2,9 +2,6 @@ import Course from "./Course.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {populateOfferedCourses} from "../../store/slices/courseSlice.jsx";
 import {useEffect, useReducer} from "react";
-import EnrollmentStatusFilter from "./filters/EnrollmentStatusFilter.jsx";
-import * as PropTypes from "prop-types";
-import CourseNameFilter from "./filters/CourseNameFilter.jsx";
 import CourseList from "./CourseList.jsx";
 import BrowseFilters from "./BrowseFilters.jsx";
 
@@ -24,13 +21,15 @@ function filterCoursesReducer(state, action) {
             return {
                 filterWord: filterWord,
                 filterEnrollmentStatus: filterEnrollmentStatus,
-                previousState: {...previousState,
+                previousState: {
+                    ...previousState,
                     filterWord: filterWord,
-                    filterEnrollmentStatus: filterEnrollmentStatus},
+                    filterEnrollmentStatus: filterEnrollmentStatus
+                },
                 filteredOfferedCourses:
                     action.offeredCourses
-                    .filter(course => course.course.name.toLowerCase().includes(filterWord.toLowerCase()))
-                    .filter(course => (course.availableForEnrollment.toLowerCase().includes(filterEnrollmentStatus)))
+                        .filter(course => course.course.name.toLowerCase().includes(filterWord.toLowerCase()))
+                        .filter(course => (course.availableForEnrollment.toLowerCase().includes(filterEnrollmentStatus)))
             }
         }
         case 'initFilteredList': {
@@ -87,19 +86,22 @@ function Courses() {
             <h3>Offered Courses</h3>
             <div className="container">
                 <div className="row">
-                    <BrowseFilters filteredOfferedCoursesState={filteredOfferedCoursesState} onChange={(e) =>
-                        filterDispatch({
-                            type: 'filter',
-                            filterWord: e.target.value,
-                            offeredCourses: offeredCourses,
-                            previousState: filteredOfferedCoursesState.previousState
-                        })} onChange1={(value) =>
-                        filterDispatch({
-                            type: 'filter',
-                            filterEnrollmentStatus: value,
-                            offeredCourses: offeredCourses,
-                            previousState: filteredOfferedCoursesState.previousState
-                        })}/>
+                    <BrowseFilters
+                        filteredOfferedCoursesState={filteredOfferedCoursesState}
+                        onCourseNameFilterChange={(e) =>
+                            filterDispatch({
+                                type: 'filter',
+                                filterWord: e.target.value,
+                                offeredCourses: offeredCourses,
+                                previousState: filteredOfferedCoursesState.previousState
+                            })}
+                        onEnrollmentStatusFilterChange={(value) =>
+                            filterDispatch({
+                                type: 'filter',
+                                filterEnrollmentStatus: value,
+                                offeredCourses: offeredCourses,
+                                previousState: filteredOfferedCoursesState.previousState
+                            })}/>
 
                     <CourseList filteredOfferedCoursesState={filteredOfferedCoursesState}
                                 prop1={(offeredCourse, index) => (
