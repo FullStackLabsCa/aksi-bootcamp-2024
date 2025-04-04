@@ -1,7 +1,7 @@
 import './App.css'
 
 import Welcome from "./components/Welcome.jsx";
-import Courses from "./components/Courses.jsx";
+import Courses from "./components/browseCourses/Courses.jsx";
 import Login from "./components/Login.jsx";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import NavigationBar from "./components/NavigationBar.jsx";

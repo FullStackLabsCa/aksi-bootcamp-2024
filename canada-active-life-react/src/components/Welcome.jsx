@@ -1,5 +1,5 @@
 import {Link, Route, Routes} from "react-router-dom";
-import Courses from "./Courses.jsx";
+import Courses from "./browseCourses/Courses.jsx";
 import {Button} from "react-bootstrap";
 
 function Welcome() {

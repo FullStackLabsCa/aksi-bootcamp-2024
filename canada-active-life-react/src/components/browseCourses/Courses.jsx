@@ -1,8 +1,12 @@
 import Course from "./Course.jsx";
 import {useDispatch, useSelector} from "react-redux";
-import {populateOfferedCourses} from "../store/slices/courseSlice.jsx";
+import {populateOfferedCourses} from "../../store/slices/courseSlice.jsx";
 import {useEffect, useReducer} from "react";
-import {ToggleButton, ToggleButtonGroup} from "react-bootstrap";
+import EnrollmentStatusFilter from "./filters/EnrollmentStatusFilter.jsx";
+import * as PropTypes from "prop-types";
+import CourseNameFilter from "./filters/CourseNameFilter.jsx";
+import CourseList from "./CourseList.jsx";
+import BrowseFilters from "./BrowseFilters.jsx";
 
 const initialState = {
     filteredOfferedCourses: [],
@@ -83,52 +87,26 @@ function Courses() {
             <h3>Offered Courses</h3>
             <div className="container">
                 <div className="row">
-                    <div className="col-md-3">
-                        <h3>Filters</h3>
-                        <input className="form-control mb-3"
-                               type="text"
-                               placeholder="Course Name"
-                               value={filteredOfferedCoursesState.filterWord}
-                               onChange={(e) =>
-                                   filterDispatch({
-                                       type: 'filter',
-                                       filterWord: e.target.value,
-                                       offeredCourses: offeredCourses,
-                                       previousState: filteredOfferedCoursesState.previousState
-                                   })
-                               }/>
-                        <h8 className="text-muted mb-1 d-block">Availability for Enrollment</h8>
-                        <ToggleButtonGroup type="radio"
-                                           name="enrollmentStatus"
-                                           value={filteredOfferedCoursesState.filterEnrollmentStatus}
-                                            onChange={(value) =>
-                                            filterDispatch({
-                                                type: 'filter',
-                                                filterEnrollmentStatus: value,
-                                                offeredCourses: offeredCourses,
-                                                previousState: filteredOfferedCoursesState.previousState
-                                            })}>
-                            <ToggleButton id="course-enrollment-all" value="">
-                                ALL
-                            </ToggleButton>
-                            <ToggleButton id="course-enrollment-open" value="open">
-                                OPEN
-                            </ToggleButton>
-                            <ToggleButton id="course-enrollment-closed" value="closed">
-                                CLOSED
-                            </ToggleButton>
-                        </ToggleButtonGroup>
-                    </div>
+                    <BrowseFilters filteredOfferedCoursesState={filteredOfferedCoursesState} onChange={(e) =>
+                        filterDispatch({
+                            type: 'filter',
+                            filterWord: e.target.value,
+                            offeredCourses: offeredCourses,
+                            previousState: filteredOfferedCoursesState.previousState
+                        })} onChange1={(value) =>
+                        filterDispatch({
+                            type: 'filter',
+                            filterEnrollmentStatus: value,
+                            offeredCourses: offeredCourses,
+                            previousState: filteredOfferedCoursesState.previousState
+                        })}/>
 
-                    <div className="col-md-9">
-                        <div className="row">
-                            {filteredOfferedCoursesState.filteredOfferedCourses.map((offeredCourse, index) => (
-                                <div className="col-sm-12 col-md-6 col-lg-4 mb-4" key={index}>
-                                    <Course course={offeredCourse}/>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                    <CourseList filteredOfferedCoursesState={filteredOfferedCoursesState}
+                                prop1={(offeredCourse, index) => (
+                                    <div className="col-sm-12 col-md-6 col-lg-4 mb-4" key={index}>
+                                        <Course course={offeredCourse}/>
+                                    </div>
+                                )}/>
                 </div>
             </div>
         </div>
