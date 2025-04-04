@@ -41,5 +41,8 @@ public class OfferedCourseDTO {
     private int courseId;
 
     @NotNull(groups = CreateOfferedCourse.class)
+    private String courseName;
+
+    @NotNull(groups = CreateOfferedCourse.class)
     private int facilityId;
 }
