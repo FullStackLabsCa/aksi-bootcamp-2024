@@ -2,18 +2,28 @@ import Course from "./Course.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {populateOfferedCourses} from "../store/slices/courseSlice.jsx";
 import {useEffect, useReducer} from "react";
+import {ToggleButton, ToggleButtonGroup} from "react-bootstrap";
 
 const initialState = {
     filteredOfferedCourses: [],
-    filterWord: ''
+    filterWord: '',
+    filterEnrollmentStatus: ''
 }
 
 function filterCoursesReducer(state, action) {
     switch (action.type) {
-        case 'filter': { // TODO
+        case 'filterName': {
             return {
                 filterWord: action.filterWord,
-                filteredOfferedCourses: action.offeredCourses.filter(course => course.course.name.includes(action.filterWord))
+                filteredOfferedCourses:
+                    action.offeredCourses
+                    .filter(course => course.course.name.toLowerCase().includes(action.filterWord))
+            }
+        }
+        case 'filterEnrollmentStatus': {
+            return {
+                filterEnrollmentStatus: action.filterEnrollmentStatus,
+                filteredOfferedCourses: action.offeredCourses.filter(course => (course.availableForEnrollment.toLowerCase().includes(action.filterEnrollmentStatus)))
             }
         }
         case 'initFilteredList': {
@@ -74,18 +84,37 @@ function Courses() {
                                value={filteredOfferedCoursesState.filterWord}
                                onChange={(e) =>
                                    filterDispatch({
-                                       type: 'filter',
+                                       type: 'filterName',
                                        filterWord: e.target.value,
                                        offeredCourses: offeredCourses
                                    })
                                }/>
+                        <ToggleButtonGroup type="radio"
+                                           name="enrollmentStatus"
+                                           value={filteredOfferedCoursesState.filterEnrollmentStatus}
+                                            onChange={(value) =>
+                                            filterDispatch({
+                                                type: 'filterEnrollmentStatus',
+                                                filterEnrollmentStatus: value,
+                                                offeredCourses: offeredCourses
+                                            })}>
+                            <ToggleButton id="course-enrollment-all" value="">
+                                ALL
+                            </ToggleButton>
+                            <ToggleButton id="course-enrollment-open" value="open">
+                                OPEN
+                            </ToggleButton>
+                            <ToggleButton id="course-enrollment-closed" value="closed">
+                                CLOSED
+                            </ToggleButton>
+                        </ToggleButtonGroup>
                     </div>
 
                     <div className="col-md-9">
                         <div className="row">
                             {filteredOfferedCoursesState.filteredOfferedCourses.map((offeredCourse, index) => (
                                 <div className="col-sm-12 col-md-6 col-lg-4 mb-4" key={index}>
-                                    <Course course={offeredCourse} />
+                                    <Course course={offeredCourse}/>
                                 </div>
                             ))}
                         </div>
