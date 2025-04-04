@@ -18,8 +18,18 @@ function Course({course}) {
                     <ListGroup.Item>Enrollment: {course.availableForEnrollment}</ListGroup.Item>
                 </ListGroup>
                 <Card.Body>
-                    <Button className="d-block mb-1">Add To Cart</Button>
-                    <Button className="d-block">Enroll for Course</Button>
+                    <Button
+                        disabled={course.availableForEnrollment !== 'OPEN'}
+                        variant={(course.availableForEnrollment !== 'OPEN') ? "secondary" : "primary"}
+                        className="d-block mb-1">
+                        Add To Cart
+                    </Button>
+                    <Button
+                        disabled={course.availableForEnrollment !== 'OPEN'}
+                        variant={(course.availableForEnrollment !== 'OPEN') ? "secondary" : "success"}
+                        className="d-block">
+                        Register Now
+                    </Button>
                 </Card.Body>
             </Card>
         </div>
