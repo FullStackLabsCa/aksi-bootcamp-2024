@@ -11,10 +11,14 @@ const initialState = {
 function filterCoursesReducer(state, action) {
     switch (action.type) {
         case 'filter': { // TODO
-            return {filterWord: action.filterWord,
-                filteredOfferedCourses: action.offeredCourses.filter(course => course.course.name.includes(action.filterWord))}}
+            return {
+                filterWord: action.filterWord,
+                filteredOfferedCourses: action.offeredCourses.filter(course => course.course.name.includes(action.filterWord))
+            }
+        }
         case 'initFilteredList': {
-            return {filteredOfferedCourses: action.offeredCourses}}
+            return {filteredOfferedCourses: action.offeredCourses}
+        }
         default:
             throw new Error("Unknown Action: ${action.type}")
     }
@@ -27,9 +31,7 @@ const fetchOfferedCourses = async (storeDispatch) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                availableForEnrollment: "OPEN"
-            })
+            body: JSON.stringify({})
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -60,23 +62,37 @@ function Courses() {
     }, [offeredCourses]);
 
     return (
-        <>
+        <div className="d-flex flex-column align-items-center" style={{minHeight: '100vh'}}>
             <h3>Offered Courses</h3>
-            <input className="button"
-                   type="text"
-                   placeholder="Search Course"
-                   value={filteredOfferedCoursesState.filterWord}
-                   onChange={(e) =>
-                       filterDispatch({
-                           type: 'filter',
-                           filterWord: e.target.value,
-                           offeredCourses: offeredCourses
-                       })
-                   }/>
-            {filteredOfferedCoursesState.filteredOfferedCourses.map((offeredCourse, index) => {
-                return <Course key={index} course={offeredCourse}/>
-            })}
-        </>
+            <div className="container">
+                <h3>Filters</h3>
+                <div className="row">
+                    <div className="col-md-3">
+                        <input className="form-control"
+                               type="text"
+                               placeholder="Course Name"
+                               value={filteredOfferedCoursesState.filterWord}
+                               onChange={(e) =>
+                                   filterDispatch({
+                                       type: 'filter',
+                                       filterWord: e.target.value,
+                                       offeredCourses: offeredCourses
+                                   })
+                               }/>
+                    </div>
+
+                    <div className="col-md-9">
+                        <div className="row">
+                            {filteredOfferedCoursesState.filteredOfferedCourses.map((offeredCourse, index) => (
+                                <div className="col-sm-12 col-md-6 col-lg-4 mb-4" key={index}>
+                                    <Course course={offeredCourse} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     )
 }
 
