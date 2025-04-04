@@ -3,9 +3,10 @@ import * as PropTypes from "prop-types";
 
 export default function EnrollmentStatusFilter(props) {
     return <>
-        <h8 className="text-muted mb-1 d-block">Availability for Enrollment</h8>
+        <h6 className="text-muted mb-1 d-block">Availability for Enrollment</h6>
         <ToggleButtonGroup type="radio"
                            name="enrollmentStatus"
+                           className="mb-3"
                            value={props.filteredOfferedCoursesState.filterEnrollmentStatus}
                            onChange={props.onChange}>
             <ToggleButton id="course-enrollment-all" value="">
