@@ -65,9 +65,9 @@ function Courses() {
         <div className="d-flex flex-column align-items-center" style={{minHeight: '100vh'}}>
             <h3>Offered Courses</h3>
             <div className="container">
-                <h3>Filters</h3>
                 <div className="row">
                     <div className="col-md-3">
+                        <h3>Filters</h3>
                         <input className="form-control"
                                type="text"
                                placeholder="Course Name"

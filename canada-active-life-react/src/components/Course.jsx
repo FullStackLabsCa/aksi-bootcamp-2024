@@ -5,7 +5,7 @@ import {Button} from "react-bootstrap";
 function Course({course}) {
     return (
         <div className="m-3">
-            <Card style={{width: '18rem'}}>
+            <Card style={{width: '16rem'}}>
                 <Card.Body>
                     <Card.Title>{course.course.name}</Card.Title>
                     <Card.Text>

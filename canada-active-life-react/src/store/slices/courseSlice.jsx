@@ -8,7 +8,7 @@ const courseSlice = createSlice({
     reducers: {
         populateOfferedCourses: (state, action) => {
             const offeredCourses = action.payload.offeredCourses
-            localStorage.setItem('offeredCourseList', JSON.stringify(offeredCourses))
+            sessionStorage.setItem('offeredCourseList', JSON.stringify(offeredCourses)) // TODO Remove this and put the whole store state in storage using Middleware
             return {
                 ...state,
                 offeredCourses: offeredCourses
