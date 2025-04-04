@@ -102,13 +102,14 @@ function Courses() {
                 <div className="row">
                     <div className="col-md-3">
                         <h3>Filters</h3>
-                        <CourseNameFilter filteredOfferedCoursesState={filteredOfferedCoursesState} onChange={(e) =>
-                            filterDispatch({
-                                type: 'filter',
-                                filterWord: e.target.value,
-                                offeredCourses: offeredCourses,
-                                previousState: filteredOfferedCoursesState.previousState
-                            })}/>
+                        <CourseNameFilter filteredOfferedCoursesState={filteredOfferedCoursesState}
+                                          onChange={(e) =>
+                                              filterDispatch({
+                                                  type: 'filter',
+                                                  filterWord: e.target.value,
+                                                  offeredCourses: offeredCourses,
+                                                  previousState: filteredOfferedCoursesState.previousState
+                                              })}/>
                         <EnrollmentStatusFilter filteredOfferedCoursesState={filteredOfferedCoursesState}
                                                 onChange={(value) =>
                                                     filterDispatch({
@@ -117,20 +118,22 @@ function Courses() {
                                                         offeredCourses: offeredCourses,
                                                         previousState: filteredOfferedCoursesState.previousState
                                                     })}/>
-                        <StartDateFilter filteredOfferedCoursesState={filteredOfferedCoursesState} onChange={(date) =>
-                            filterDispatch({
-                                type: 'filter',
-                                filterStartDate: date,
-                                offeredCourses: offeredCourses,
-                                previousState: filteredOfferedCoursesState.previousState
-                            })}/>
-                        <EndDateFilter filteredOfferedCoursesState={filteredOfferedCoursesState} onChange={(date) =>
-                            filterDispatch({
-                                type: 'filter',
-                                filterEndDate: date,
-                                offeredCourses: offeredCourses,
-                                previousState: filteredOfferedCoursesState.previousState
-                            })}/>
+                        <StartDateFilter filteredOfferedCoursesState={filteredOfferedCoursesState}
+                                         onChange={(date) =>
+                                             filterDispatch({
+                                                 type: 'filter',
+                                                 filterStartDate: date,
+                                                 offeredCourses: offeredCourses,
+                                                 previousState: filteredOfferedCoursesState.previousState
+                                             })}/>
+                        <EndDateFilter filteredOfferedCoursesState={filteredOfferedCoursesState}
+                                       onChange={(date) =>
+                                           filterDispatch({
+                                               type: 'filter',
+                                               filterEndDate: date,
+                                               offeredCourses: offeredCourses,
+                                               previousState: filteredOfferedCoursesState.previousState
+                                           })}/>
                     </div>
 
                     <CourseList filteredOfferedCoursesState={filteredOfferedCoursesState}
