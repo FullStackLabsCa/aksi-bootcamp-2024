@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.reactivestax.canada_active_life.domain.Course;
 import org.reactivestax.canada_active_life.validation.CreateOfferedCourse;
 
 import java.time.LocalDate;
@@ -41,8 +42,7 @@ public class OfferedCourseDTO {
     private int courseId;
 
     @NotNull(groups = CreateOfferedCourse.class)
-    private String courseName;
-
-    @NotNull(groups = CreateOfferedCourse.class)
     private int facilityId;
+
+    private Course course;
 }
