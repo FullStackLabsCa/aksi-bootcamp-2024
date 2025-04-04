@@ -38,6 +38,7 @@ public class DashboardService {
         for (OfferedCourse offeredCourse : offeredCourses){
             OfferedCourseDTO offeredCourseDTO = offeredCourseMapper.toDto(offeredCourse);
             offeredCourseDTO.setCourse(offeredCourse.getCourse());
+            offeredCourseDTO.setFacility(offeredCourse.getFacility());
             offeredCourseDTO.setCourseId(offeredCourse.getOfferedCourseId());
             offeredCourseDTO.setFacilityId(offeredCourse.getFacility().getFacilityId());
 
