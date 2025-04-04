@@ -7,27 +7,33 @@ import {ToggleButton, ToggleButtonGroup} from "react-bootstrap";
 const initialState = {
     filteredOfferedCourses: [],
     filterWord: '',
-    filterEnrollmentStatus: ''
+    filterEnrollmentStatus: '',
+    previousState: {}
 }
 
 function filterCoursesReducer(state, action) {
+    const previousState = action.previousState
+    const filterEnrollmentStatus = (action.filterEnrollmentStatus !== undefined) ? action.filterEnrollmentStatus : previousState.filterEnrollmentStatus
+    const filterWord = (action.filterWord !== undefined) ? action.filterWord : previousState.filterWord
     switch (action.type) {
-        case 'filterName': {
+        case 'filter': {
             return {
-                filterWord: action.filterWord,
+                filterWord: filterWord,
+                filterEnrollmentStatus: filterEnrollmentStatus,
+                previousState: {...previousState,
+                    filterWord: filterWord,
+                    filterEnrollmentStatus: filterEnrollmentStatus},
                 filteredOfferedCourses:
                     action.offeredCourses
-                    .filter(course => course.course.name.toLowerCase().includes(action.filterWord))
-            }
-        }
-        case 'filterEnrollmentStatus': {
-            return {
-                filterEnrollmentStatus: action.filterEnrollmentStatus,
-                filteredOfferedCourses: action.offeredCourses.filter(course => (course.availableForEnrollment.toLowerCase().includes(action.filterEnrollmentStatus)))
+                    .filter(course => course.course.name.toLowerCase().includes(filterWord.toLowerCase()))
+                    .filter(course => (course.availableForEnrollment.toLowerCase().includes(filterEnrollmentStatus)))
             }
         }
         case 'initFilteredList': {
-            return {filteredOfferedCourses: action.offeredCourses}
+            return {
+                filteredOfferedCourses: action.offeredCourses,
+                previousState: action.previousState
+            }
         }
         default:
             throw new Error("Unknown Action: ${action.type}")
@@ -66,7 +72,8 @@ function Courses() {
         if (offeredCourses.length > 0) {
             filterDispatch({
                 type: 'initFilteredList',
-                offeredCourses: offeredCourses
+                offeredCourses: offeredCourses,
+                previousState: initialState
             });
         }
     }, [offeredCourses]);
@@ -84,9 +91,10 @@ function Courses() {
                                value={filteredOfferedCoursesState.filterWord}
                                onChange={(e) =>
                                    filterDispatch({
-                                       type: 'filterName',
+                                       type: 'filter',
                                        filterWord: e.target.value,
-                                       offeredCourses: offeredCourses
+                                       offeredCourses: offeredCourses,
+                                       previousState: filteredOfferedCoursesState.previousState
                                    })
                                }/>
                         <ToggleButtonGroup type="radio"
@@ -94,9 +102,10 @@ function Courses() {
                                            value={filteredOfferedCoursesState.filterEnrollmentStatus}
                                             onChange={(value) =>
                                             filterDispatch({
-                                                type: 'filterEnrollmentStatus',
+                                                type: 'filter',
                                                 filterEnrollmentStatus: value,
-                                                offeredCourses: offeredCourses
+                                                offeredCourses: offeredCourses,
+                                                previousState: filteredOfferedCoursesState.previousState
                                             })}>
                             <ToggleButton id="course-enrollment-all" value="">
                                 ALL
