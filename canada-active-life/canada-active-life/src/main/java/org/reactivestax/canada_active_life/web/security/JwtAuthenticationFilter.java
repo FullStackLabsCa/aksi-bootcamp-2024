@@ -57,8 +57,8 @@ public class JwtAuthenticationFilter  extends UsernamePasswordAuthenticationFilt
 
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            loginUser.getUsername(),
-                            loginUser.getPassword(),
+                            loginUser.getMemberLoginId(),
+                            loginUser.getFamilyPin(),
                             new ArrayList<>())
             );
         } catch (IOException io) {
@@ -96,7 +96,7 @@ public class JwtAuthenticationFilter  extends UsernamePasswordAuthenticationFilt
     @Builder
     @AllArgsConstructor
     static class LoginUser {
-        private String username;
-        private String password;
+        private String memberLoginId;
+        private String familyPin;
     }
 }
