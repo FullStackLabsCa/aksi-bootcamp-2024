@@ -1,6 +1,7 @@
 import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
 import {Button} from "react-bootstrap";
+import {useSelector} from "react-redux";
 
 function Course({course}) {
     return (
@@ -21,14 +22,12 @@ function Course({course}) {
                     <Button
                         disabled={course.availableForEnrollment !== 'OPEN'}
                         variant={(course.availableForEnrollment !== 'OPEN') ? "secondary" : "primary"}
-                        className="d-block mb-1">
+                        className={`d-block mb-1 ${!useSelector(state => state.member.isLoggedIn) ? 'visually-hidden' : ''}`}>
                         Add To Cart
                     </Button>
                     <Button
-                        disabled={course.availableForEnrollment !== 'OPEN'}
-                        variant={(course.availableForEnrollment !== 'OPEN') ? "secondary" : "success"}
                         className="d-block">
-                        Register Now
+                        View Details
                     </Button>
                 </Card.Body>
             </Card>
