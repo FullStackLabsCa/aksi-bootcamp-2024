@@ -2,6 +2,7 @@ import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
 import {Button} from "react-bootstrap";
 import {useSelector} from "react-redux";
+import {Link} from "react-router-dom"
 
 function Course({course}) {
     return (
@@ -25,8 +26,8 @@ function Course({course}) {
                         className={`d-block mb-1 ${!useSelector(state => state.member.isLoggedIn) ? 'visually-hidden' : ''}`}>
                         Add To Cart
                     </Button>
-                    <Button
-                        className="d-block">
+                    <Button as={Link} to={`/offeredCourse/${course.course.courseId}`}
+                            className="d-block">
                         View Details
                     </Button>
                 </Card.Body>
