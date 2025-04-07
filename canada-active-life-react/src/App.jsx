@@ -2,7 +2,7 @@ import './App.css'
 
 import Welcome from "./pages/Welcome.jsx";
 import BrowseCourses from "./pages/BrowseCourses.jsx";
-import Login from "./components/Login.jsx";
+import Login from "./pages/Login.jsx";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import NavigationBar from "./components/NavigationBar.jsx";
 import OfferedCourse from "./pages/OfferedCourse.jsx";
