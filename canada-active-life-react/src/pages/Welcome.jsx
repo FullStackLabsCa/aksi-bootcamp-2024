@@ -1,5 +1,5 @@
 import {Link, Route, Routes} from "react-router-dom";
-import Courses from "./browseCourses/Courses.jsx";
+import BrowseCourses from "./BrowseCourses.jsx";
 import {Button} from "react-bootstrap";
 
 function Welcome() {
@@ -11,7 +11,7 @@ function Welcome() {
                 <Button as={Link} to="/browseCourses" className="mt-3">Browse Courses</Button>
             </div>
             <Routes>
-                <Route path="/browseCourses" element={<Courses />} />
+                <Route path="/browseCourses" element={<BrowseCourses />} />
             </Routes>
         </>
     )

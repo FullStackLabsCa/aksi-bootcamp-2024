@@ -1,7 +1,7 @@
 import './App.css'
 
-import Welcome from "./components/Welcome.jsx";
-import Courses from "./components/browseCourses/Courses.jsx";
+import Welcome from "./pages/Welcome.jsx";
+import BrowseCourses from "./pages/BrowseCourses.jsx";
 import Login from "./components/Login.jsx";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import NavigationBar from "./components/NavigationBar.jsx";
@@ -12,7 +12,7 @@ function App() {
             <NavigationBar />
             <Routes>
                 <Route path="/" element={<Welcome/>}/>
-                <Route path="/browseCourses" element={<Courses/>}/>
+                <Route path="/browseCourses" element={<BrowseCourses/>}/>
                 <Route path="/login" element={<Login/>}/>
             </Routes>
         </BrowserRouter>
