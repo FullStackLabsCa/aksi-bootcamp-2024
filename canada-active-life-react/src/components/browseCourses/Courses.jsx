@@ -8,7 +8,7 @@ import EnrollmentStatusFilter from "./filters/EnrollmentStatusFilter.jsx";
 import StartDateFilter from "./filters/StartDateFilter.jsx";
 import EndDateFilter from "./filters/EndDateFilter.jsx";
 import MultiSelectDropdown from "../custom-ui/MultiSelectDropDown.jsx";
-import {ageGroups} from "./filters/constants/filterConstants.jsx";
+import {ageGroups, categories, subCategories} from "./filters/constants/filterConstants.jsx";
 
 const initialState = {
     previousState: {},
@@ -155,6 +155,32 @@ function Courses() {
                                 filterDispatch({
                                     type: 'filter',
                                     filterAgeGroup: ageGroups,
+                                    offeredCourses: offeredCourses,
+                                    previousState: filteredOfferedCoursesState.previousState
+                                })}
+                        />
+                        <MultiSelectDropdown
+                            title='Sub Categories'
+                            placeholder='Select Sub Categories'
+                            options={subCategories}
+                            selected={filteredOfferedCoursesState.filterSubCategory}
+                            onChange={(subCategories) =>
+                                filterDispatch({
+                                    type: 'filter',
+                                    filterSubCategory: subCategories,
+                                    offeredCourses: offeredCourses,
+                                    previousState: filteredOfferedCoursesState.previousState
+                                })}
+                        />
+                        <MultiSelectDropdown
+                            title='Categories'
+                            placeholder='Select Categories'
+                            options={categories}
+                            selected={filteredOfferedCoursesState.filterCategory}
+                            onChange={(categories) =>
+                                filterDispatch({
+                                    type: 'filter',
+                                    filterCategory: categories,
                                     offeredCourses: offeredCourses,
                                     previousState: filteredOfferedCoursesState.previousState
                                 })}

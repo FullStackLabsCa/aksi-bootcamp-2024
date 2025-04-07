@@ -15,7 +15,7 @@ export default function MultiSelectDropdown({title, placeholder, options, select
     return (
         <>
             <h6 className="text-muted mb-1 d-block">{title}</h6>
-            <Dropdown>
+            <Dropdown className='mb-3'>
                 <Dropdown.Toggle variant="outline-secondary" id="multi-select-dropdown">
                     {selectedArray.length > 0 ? selectedArray.join(', ') : placeholder}
                 </Dropdown.Toggle>
