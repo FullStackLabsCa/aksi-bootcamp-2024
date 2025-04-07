@@ -59,7 +59,11 @@ function filterCoursesReducer(state, action) {
                     action.offeredCourses
                         .filter(course => course.course.name.toLowerCase().includes(filterWord.toLowerCase()))
                         .filter(course => (course.availableForEnrollment.toLowerCase().includes(filterEnrollmentStatus)))
-                // TODO Add a filter for Start Date, End Date, AgeGroup, Category, SubCategory
+                        .filter(course => ((filterFacility.length !== 0) ? filterFacility.includes(course.facility.name) : true))
+                        // .filter(course => ((filterAgeGroup.length !== 0) ? filterAgeGroup.includes(course.course.ageGroup.description) : true))
+                        .filter(course => ((filterSubCategory.length !== 0) ? filterSubCategory.includes(course.course.subCategory.name) : true))
+                        .filter(course => ((filterCategory.length !== 0) ? filterCategory.includes(course.course.subCategory.category.name) : true))
+                // TODO Add a filter for Start Date, End Date
             }
         }
         case 'initFilteredList': {
