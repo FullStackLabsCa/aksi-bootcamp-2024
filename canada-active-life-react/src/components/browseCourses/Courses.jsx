@@ -5,10 +5,10 @@ import {useEffect, useReducer} from "react";
 import CourseList from "./CourseList.jsx";
 import CourseNameFilter from "./filters/CourseNameFilter.jsx";
 import EnrollmentStatusFilter from "./filters/EnrollmentStatusFilter.jsx";
-import DatePicker from "react-datepicker";
-import * as PropTypes from "prop-types";
 import StartDateFilter from "./filters/StartDateFilter.jsx";
 import EndDateFilter from "./filters/EndDateFilter.jsx";
+import MultiSelectDropdown from "../custom-ui/MultiSelectDropDown.jsx";
+import {ageGroups} from "./filters/constants/filterConstants.jsx";
 
 const initialState = {
     previousState: {},
@@ -16,7 +16,10 @@ const initialState = {
     filterWord: '',
     filterEnrollmentStatus: '',
     filterStartDate: null,
-    filterEndDate: null
+    filterEndDate: null,
+    filterAgeGroup: [],
+    filterCategory: [],
+    filterSubCategory: []
 }
 
 function filterCoursesReducer(state, action) {
@@ -25,6 +28,9 @@ function filterCoursesReducer(state, action) {
     const filterWord = (action.filterWord !== undefined) ? action.filterWord : previousState.filterWord
     const filterStartDate = (action.filterStartDate !== undefined) ? action.filterStartDate : previousState.filterStartDate
     const filterEndDate = (action.filterEndDate !== undefined) ? action.filterEndDate : previousState.filterEndDate
+    const filterAgeGroup = Array.isArray(action.filterAgeGroup) ? action.filterAgeGroup : previousState.filterAgeGroup ?? []
+    const filterCategory = Array.isArray(action.filterCategory) ? action.filterCategory : previousState.filterCategory ?? []
+    const filterSubCategory = Array.isArray(action.filterSubCategory) ? action.filterSubCategory : previousState.filterSubCategory ?? []
     switch (action.type) {
         case 'filter': {
             return {
@@ -33,17 +39,23 @@ function filterCoursesReducer(state, action) {
                     filterWord: filterWord,
                     filterEnrollmentStatus: filterEnrollmentStatus,
                     filterStartDate: filterStartDate,
-                    filterEndDate: filterEndDate
+                    filterEndDate: filterEndDate,
+                    filterAgeGroup: filterAgeGroup,
+                    filterCategory: filterCategory,
+                    filterSubCategory: filterSubCategory
                 },
                 filterWord: filterWord,
                 filterEnrollmentStatus: filterEnrollmentStatus,
                 filterStartDate: filterStartDate,
                 filterEndDate: filterEndDate,
+                filterAgeGroup: filterAgeGroup,
+                filterCategory: filterCategory,
+                filterSubCategory: filterSubCategory,
                 filteredOfferedCourses:
                     action.offeredCourses
                         .filter(course => course.course.name.toLowerCase().includes(filterWord.toLowerCase()))
                         .filter(course => (course.availableForEnrollment.toLowerCase().includes(filterEnrollmentStatus)))
-                // TODO Add a filter for Start Date and End Date
+                // TODO Add a filter for Start Date, End Date, AgeGroup, Category, SubCategory
             }
         }
         case 'initFilteredList': {
@@ -134,6 +146,19 @@ function Courses() {
                                                offeredCourses: offeredCourses,
                                                previousState: filteredOfferedCoursesState.previousState
                                            })}/>
+                        <MultiSelectDropdown
+                            title='Age Groups'
+                            placeholder='Select Age Groups'
+                            options={ageGroups}
+                            selected={filteredOfferedCoursesState.filterAgeGroup}
+                            onChange={(ageGroups) =>
+                                filterDispatch({
+                                    type: 'filter',
+                                    filterAgeGroup: ageGroups,
+                                    offeredCourses: offeredCourses,
+                                    previousState: filteredOfferedCoursesState.previousState
+                                })}
+                        />
                     </div>
 
                     <CourseList filteredOfferedCoursesState={filteredOfferedCoursesState}
