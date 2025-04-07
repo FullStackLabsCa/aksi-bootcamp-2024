@@ -1,14 +1,14 @@
-import Course from "./Course.jsx";
+import Course from "../components/browseCourses/Course.jsx";
 import {useDispatch, useSelector} from "react-redux";
-import {populateOfferedCourses} from "../../store/slices/courseSlice.jsx";
+import {populateOfferedCourses} from "../store/slices/courseSlice.jsx";
 import {useEffect, useReducer} from "react";
-import CourseList from "./CourseList.jsx";
-import CourseNameFilter from "./filters/CourseNameFilter.jsx";
-import EnrollmentStatusFilter from "./filters/EnrollmentStatusFilter.jsx";
-import StartDateFilter from "./filters/StartDateFilter.jsx";
-import EndDateFilter from "./filters/EndDateFilter.jsx";
-import MultiSelectDropdown from "../custom-ui/MultiSelectDropDown.jsx";
-import {ageGroups, categories, facilities, subCategories} from "./filters/constants/filterConstants.jsx";
+import CourseList from "../components/browseCourses/CourseList.jsx";
+import CourseNameFilter from "../components/browseCourses/filters/CourseNameFilter.jsx";
+import EnrollmentStatusFilter from "../components/browseCourses/filters/EnrollmentStatusFilter.jsx";
+import StartDateFilter from "../components/browseCourses/filters/StartDateFilter.jsx";
+import EndDateFilter from "../components/browseCourses/filters/EndDateFilter.jsx";
+import MultiSelectDropdown from "../components/custom-ui/MultiSelectDropDown.jsx";
+import {ageGroups, categories, facilities, subCategories} from "../components/browseCourses/filters/constants/filterConstants.jsx";
 
 const initialState = {
     previousState: {},
@@ -96,7 +96,7 @@ const fetchOfferedCourses = async (storeDispatch) => {
     }
 }
 
-function Courses() {
+function BrowseCourses() {
     const storeDispatch = useDispatch()
     const offeredCourses = useSelector(state => state.courses.offeredCourses)
     const [filteredOfferedCoursesState, filterDispatch] = useReducer(filterCoursesReducer, initialState)
@@ -220,4 +220,4 @@ function Courses() {
     )
 }
 
-export default Courses
+export default BrowseCourses
