@@ -26,7 +26,7 @@ function Course({course}) {
                         className={`d-block mb-1 ${!useSelector(state => state.member.isLoggedIn) ? 'visually-hidden' : ''}`}>
                         Add To Cart
                     </Button>
-                    <Button as={Link} to={`/offeredCourse/${course.course.courseId}`}
+                    <Button as={Link} to={`/offeredCourse/${course.offeredCourseId}`}
                             className="d-block">
                         View Details
                     </Button>
