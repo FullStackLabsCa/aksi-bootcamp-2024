@@ -8,7 +8,7 @@ import EnrollmentStatusFilter from "./filters/EnrollmentStatusFilter.jsx";
 import StartDateFilter from "./filters/StartDateFilter.jsx";
 import EndDateFilter from "./filters/EndDateFilter.jsx";
 import MultiSelectDropdown from "../custom-ui/MultiSelectDropDown.jsx";
-import {ageGroups, categories, subCategories} from "./filters/constants/filterConstants.jsx";
+import {ageGroups, categories, facilities, subCategories} from "./filters/constants/filterConstants.jsx";
 
 const initialState = {
     previousState: {},
@@ -19,7 +19,8 @@ const initialState = {
     filterEndDate: null,
     filterAgeGroup: [],
     filterCategory: [],
-    filterSubCategory: []
+    filterSubCategory: [],
+    filterFacility: []
 }
 
 function filterCoursesReducer(state, action) {
@@ -31,6 +32,7 @@ function filterCoursesReducer(state, action) {
     const filterAgeGroup = Array.isArray(action.filterAgeGroup) ? action.filterAgeGroup : previousState.filterAgeGroup ?? []
     const filterCategory = Array.isArray(action.filterCategory) ? action.filterCategory : previousState.filterCategory ?? []
     const filterSubCategory = Array.isArray(action.filterSubCategory) ? action.filterSubCategory : previousState.filterSubCategory ?? []
+    const filterFacility = Array.isArray(action.filterFacility) ? action.filterFacility : previousState.filterFacility ?? []
     switch (action.type) {
         case 'filter': {
             return {
@@ -42,7 +44,8 @@ function filterCoursesReducer(state, action) {
                     filterEndDate: filterEndDate,
                     filterAgeGroup: filterAgeGroup,
                     filterCategory: filterCategory,
-                    filterSubCategory: filterSubCategory
+                    filterSubCategory: filterSubCategory,
+                    filterFacility: filterFacility
                 },
                 filterWord: filterWord,
                 filterEnrollmentStatus: filterEnrollmentStatus,
@@ -51,6 +54,7 @@ function filterCoursesReducer(state, action) {
                 filterAgeGroup: filterAgeGroup,
                 filterCategory: filterCategory,
                 filterSubCategory: filterSubCategory,
+                filterFacility: filterFacility,
                 filteredOfferedCourses:
                     action.offeredCourses
                         .filter(course => course.course.name.toLowerCase().includes(filterWord.toLowerCase()))
@@ -181,6 +185,19 @@ function Courses() {
                                 filterDispatch({
                                     type: 'filter',
                                     filterCategory: categories,
+                                    offeredCourses: offeredCourses,
+                                    previousState: filteredOfferedCoursesState.previousState
+                                })}
+                        />
+                        <MultiSelectDropdown
+                            title='Facilities'
+                            placeholder='Select Facilities'
+                            options={facilities}
+                            selected={filteredOfferedCoursesState.filterFacility}
+                            onChange={(facilities) =>
+                                filterDispatch({
+                                    type: 'filter',
+                                    filterFacility: facilities,
                                     offeredCourses: offeredCourses,
                                     previousState: filteredOfferedCoursesState.previousState
                                 })}

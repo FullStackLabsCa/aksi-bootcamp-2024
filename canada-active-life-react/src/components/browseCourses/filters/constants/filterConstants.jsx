@@ -43,3 +43,14 @@ export const categories = [
     {label: "Category 18 - Outdoor Sport", value: "Category 18 - Outdoor Sports"},
     {label: "Category 19 - Martial Arts", value: "Category 19 - Martial Arts"}
 ]
+
+export const facilities = [
+    {label: "Facility 1 - Recreation Hall", value: "Facility 1 - Recreation Hall"},
+    {label: "Facility 2 - Sports Complex", value: "Facility 2 - Sports Complex"},
+    {label: "Facility 3 - Gym", value: "Facility 3 - Gym"},
+    {label: "Facility 4 - Aquatics Center", value: "Facility 4 - Aquatics Center"},
+    {label: "Facility 5 - Sports Complex", value: "Facility 5 - Sports Complex"},
+    {label: "Facility 6 - Sports Complex", value: "Facility 6 - Sports Complex"},
+    {label: "Facility 7 - Community Center", value: "Facility 7 - Community Center"},
+    {label: "Facility 8 - Aquatics Center ", value: "Facility 8 - Aquatics Center "}
+]
