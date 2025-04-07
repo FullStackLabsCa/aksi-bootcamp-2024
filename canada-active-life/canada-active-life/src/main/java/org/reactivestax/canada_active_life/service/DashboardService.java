@@ -37,6 +37,7 @@ public class DashboardService {
         List<OfferedCourseDTO> offeredCourseDTOS = new ArrayList<>();
         for (OfferedCourse offeredCourse : offeredCourses){
             OfferedCourseDTO offeredCourseDTO = offeredCourseMapper.toDto(offeredCourse);
+            offeredCourseDTO.setOfferedCourseId(offeredCourse.getOfferedCourseId());
             offeredCourseDTO.setCourse(offeredCourse.getCourse());
             offeredCourseDTO.setFacility(offeredCourse.getFacility());
             offeredCourseDTO.setCourseId(offeredCourse.getOfferedCourseId());

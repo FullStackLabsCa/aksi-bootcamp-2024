@@ -1,6 +1,7 @@
 package org.reactivestax.canada_active_life.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OfferedCourseDTO {
+
+    @Null(groups = CreateOfferedCourse.class)
+    private int offeredCourseId;
 
     @NotNull(groups = CreateOfferedCourse.class)
     private LocalDate startDate;
