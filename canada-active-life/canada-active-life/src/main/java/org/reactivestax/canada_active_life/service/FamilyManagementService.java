@@ -99,7 +99,7 @@ public class FamilyManagementService {
 
     private boolean sendActivationLinkViaEms(int familyMemberId, UUID uuidToken, String phoneNumber) {
         log.info("Sending Activation Link Via Ems... Family Member Id: {}, UUIDToken: {}", familyMemberId, uuidToken.toString());
-        String activationLink = "https://EMS:8080/CanadaActiveLife/v1/activate-account?uuid="+uuidToken+"&familyMemberId="+familyMemberId;
+        String activationLink = "http://localhost:30002/CanadaActiveLife/v1/activate-account?uuid="+uuidToken+"&familyMemberId="+familyMemberId;
 
         String url = "https://EMS:8082/api/ens/sms";
         CustomerDTO customerDTO = CustomerDTO.builder()
