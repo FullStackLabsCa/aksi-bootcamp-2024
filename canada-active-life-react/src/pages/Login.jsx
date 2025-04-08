@@ -77,7 +77,7 @@ export default function Login() {
                     onChange={(event) => setPassword(event.target.value)}
                     required
                 >
-                    <Form.Control type="text" placeholder="Password"/>
+                    <Form.Control type="password" placeholder="Password"/>
                 </FloatingLabel>
                 <Button
                     type="submit"
