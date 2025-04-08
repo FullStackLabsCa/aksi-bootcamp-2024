@@ -4,7 +4,7 @@ import {Link, useNavigate} from "react-router-dom";
 import {useState} from "react";
 import Cookies from 'js-cookie';
 import LoginOTP from "../components/LoginOTP.jsx";
-import LoginError from "../components/LoginError.jsx";
+import ErrorToast from "../components/ErrorToast.jsx";
 import {useDispatch} from "react-redux";
 import {updateLoginStatus, updateMemberLoginId} from "../store/slices/memberSlice.jsx";
 
@@ -59,7 +59,7 @@ const useOTP = ({memberLoginId}) => {
         handleLoginOTPAuthentication({otp}).then(data => {
             alert(data.message)
             Cookies.set('jwt', data.data.jwtToken)
-            navigate('/browseCourses')
+            navigate('/browseCourses', {replace: true})
             storeDispatch(updateLoginStatus({loginStatus: true}))
             storeDispatch(updateMemberLoginId({memberLoginId: memberLoginId}))
         }).catch(e => {
@@ -184,12 +184,12 @@ export default function Login() {
                 onVerify={onVerify}
             />
             <Link to="/signup">Sign-Up</Link>
-            <LoginError
+            <ErrorToast
                 show={loginFailed}
                 message="Incorrect MemberLoginId or Password"
                 onClose={() => setLoginFailed(false)}
             />
-            <LoginError
+            <ErrorToast
                 show={otpVerificationFailed}
                 message="Incorrect OTP"
                 onClose={() => setOtpVerificationFailed(false)}

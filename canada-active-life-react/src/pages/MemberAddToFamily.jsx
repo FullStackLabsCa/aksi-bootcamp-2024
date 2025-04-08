@@ -1,6 +1,9 @@
 import {Button, FloatingLabel, Form, Modal} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
+import Cookies from "js-cookie";
+import {useSelector} from "react-redux";
+import ErrorToast from "../components/ErrorToast.jsx";
 
 function MemberAddToFamily() {
     const [name, setName] = useState("")
@@ -17,34 +20,58 @@ function MemberAddToFamily() {
     const [preferredContactMethod, setPreferredContactMethod] = useState("SMS")
     const [language, setLanguage] = useState("")
     const [memberLoginId, setMemberLoginId] = useState("")
+    const [familyMemberCreationFailed, setFamilyMemberCreationFailed] = useState(false)
 
     const navigator = useNavigate();
     const [formValidated, setFormValidated] = useState(false);
+    const actorMemberLoginId = useSelector(state => state.member.memberLoginId)
 
 
-    const handleAddFamilyMember = (e) => {
+    const handleAddFamilyMember = async (e) => {
         e.preventDefault();
         const form = e.currentTarget;
 
         if (form.checkValidity() === false) {
             e.stopPropagation();
         } else {
-            console.log({
-                name,
-                dob,
-                gender,
-                emailAddress,
-                streetNumber,
-                streetName,
-                city,
-                province,
-                country,
-                homePhoneNumber,
-                businessPhoneNumber,
-                preferredContactMethod,
-                language,
-                memberLoginId,
-            });
+            await fetch("http://localhost:30002/CanadaActiveLife/v1/members", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-security-header': actorMemberLoginId,
+                    Authorization: `Bearer ${Cookies.get('jwt')}`
+                },
+                body: JSON.stringify({
+                    "name": name,
+                    "dob": dob,
+                    "gender": gender,
+                    "emailAddress": emailAddress,
+                    "streetNumber": streetNumber,
+                    "streetName": streetName,
+                    "city": city,
+                    "province": province,
+                    "country": country,
+                    "homePhoneNumber": homePhoneNumber,
+                    "businessPhoneNumber": businessPhoneNumber,
+                    "preferredContactMethod": emailAddress,
+                    "language": language,
+                    "memberLoginId": memberLoginId
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text()
+                })
+                .then(data => {
+                    alert(data)
+                    navigator('/browseCourses',{replace: true})
+                })
+                .catch(e => {
+                    console.error("FETCH FAILED:", e);
+                    setFamilyMemberCreationFailed(true)
+                })
         }
 
         setFormValidated(true);
@@ -155,8 +182,7 @@ function MemberAddToFamily() {
                     <FloatingLabel controlId="homePhNum" label="Home Phone Number">
                         <Form.Control
                             type="tel"
-                            placeholder="123-456-7890"
-                            pattern="\d{3}-\d{3}-\d{4}"
+                            placeholder="1234567890"
                             value={homePhoneNumber}
                             onChange={(e) => setHomePhoneNumber(e.target.value)}
                         />
@@ -167,8 +193,7 @@ function MemberAddToFamily() {
                     <FloatingLabel controlId="busPhNum" label="Business Phone Number">
                         <Form.Control
                             type="tel"
-                            placeholder="123-456-7890"
-                            pattern="\d{3}-\d{3}-\d{4}"
+                            placeholder="1234567890"
                             value={businessPhoneNumber}
                             onChange={(e) => setBusinessPhoneNumber(e.target.value)}
                         />
@@ -213,8 +238,12 @@ function MemberAddToFamily() {
                     <Button variant="secondary" onClick={() => navigator('/browseCourses')}>Cancel</Button>
                     <Button variant="primary" type='submit'>Add Family Member</Button>
                 </Modal.Footer>
+                <ErrorToast
+                    show={familyMemberCreationFailed}
+                    message="Failed to Add Family Member to the Group"
+                    onClose={() => setFamilyMemberCreationFailed(false)}
+                />
             </Form>
-
         </Modal>
     )
 }

@@ -2,7 +2,7 @@ import Toast from 'react-bootstrap/Toast';
 import {useEffect} from "react";
 import {ToastContainer} from "react-bootstrap";
 
-function LoginError({show, message, onClose}) {
+function ErrorToast({show, message, onClose}) {
 
     useEffect(() => {
         if (show) {
@@ -26,4 +26,4 @@ function LoginError({show, message, onClose}) {
     );
 }
 
-export default LoginError;
+export default ErrorToast;
