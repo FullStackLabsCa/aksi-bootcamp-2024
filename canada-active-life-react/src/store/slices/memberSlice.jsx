@@ -4,7 +4,8 @@ const memberSlice = createSlice({
     name: 'member',
     initialState: {
         isLoggedIn: false,
-        memberLoginId: ''
+        memberLoginId: '',
+        isAdmin: true
     },
     reducers: {
         updateLoginStatus: (state, action) => {
