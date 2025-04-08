@@ -48,7 +48,7 @@ function NavigationBar() {
                             <NavDropdown.Item
                                 className={useSelector(state => state.member.isLoggedIn && state.member.isAdmin) ? 'show' : 'visually-hidden'}
                                 as={Link}
-                                to="/addNewFamilyMember"
+                                to="/addFamilyMemberToGroup"
                             >
                                 Add Family Member
                             </NavDropdown.Item>
