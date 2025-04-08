@@ -1,11 +1,11 @@
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useState } from 'react';
 
-function LoginOTP({ show, onHide, onVerify }) {
+function LoginOTP({ show, onHide, onVerify, setOtpVerificationFailed, storeDispatch, navigate }) {
     const [otp, setOtp] = useState('');
 
     const handleSubmit = () => {
-        onVerify({otp: otp});
+        onVerify({setOtpVerificationFailed, otp: otp, storeDispatch, navigate});
     };
 
     return (

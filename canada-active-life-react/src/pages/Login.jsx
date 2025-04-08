@@ -1,6 +1,6 @@
 import {Button, FloatingLabel} from "react-bootstrap";
 import Form from 'react-bootstrap/Form';
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useState} from "react";
 import Cookies from 'js-cookie';
 import LoginOTP from "../components/LoginOTP.jsx";
@@ -42,7 +42,7 @@ const handleLoginAuthentication = async ({event, memberLoginId, password, setSho
         });
 }
 
-const handleLoginOTPAuthentication = async ({setOtpVerificationFailed, otp, storeDispatch}) => {
+const handleLoginOTPAuthentication = async ({setOtpVerificationFailed, otp, storeDispatch, navigate}) => {
     console.log('Sending Request for Handle Verify')
     return await fetch("http://localhost:30002/CanadaActiveLife/v1/login/2fa", {
         method: 'POST',
@@ -61,6 +61,7 @@ const handleLoginOTPAuthentication = async ({setOtpVerificationFailed, otp, stor
     }).then(data => {
         alert(data.message)
         Cookies.set('jwt', data.data.jwtToken)
+        navigate('/browseCourses')
         storeDispatch(updateLoginStatus({loginStatus: true}))
     }).catch(e => {
         console.error("FETCH FAILED:", e);
@@ -75,6 +76,7 @@ export default function Login() {
     const [loginFailed, setLoginFailed] = useState(false);
     const [otpVerificationFailed, setOtpVerificationFailed] = useState(false);
     const storeDispatch = useDispatch()
+    const navigate = useNavigate();
 
     return (
         <div className="d-flex flex-column align-items-center justify-content-center" style={{minHeight: '70vh'}}>
@@ -123,7 +125,10 @@ export default function Login() {
             <LoginOTP
                 show={showOtpPopUp}
                 onHide={() => setShowOtpPopUp(false)}
-                onVerify={() => handleLoginOTPAuthentication({setOtpVerificationFailed, storeDispatch})}
+                setOtpVerificationFailed={setOtpVerificationFailed}
+                storeDispatch={storeDispatch}
+                navigate={navigate}
+                onVerify={handleLoginOTPAuthentication}
             />
             <Link to="/signup">Sign-Up</Link>
             <LoginError
