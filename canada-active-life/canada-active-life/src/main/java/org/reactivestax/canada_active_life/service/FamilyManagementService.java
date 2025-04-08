@@ -18,16 +18,13 @@ import org.reactivestax.canada_active_life.repo.FamilyGroupRepository;
 import org.reactivestax.canada_active_life.repo.FamilyMemberRepository;
 import org.reactivestax.canada_active_life.repo.PendingLoginUUIDRepository;
 import org.reactivestax.canada_active_life.repo.PendingSignUpUUIDRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -134,7 +131,6 @@ public class FamilyManagementService {
         return true;
     }
 
-    @Transactional
     public boolean addFamilyMember(FamilyMemberDTO familyMemberDTO, String memberLoginId) {
         FamilyMember actor = checkFamilyMemberValidity(memberLoginId);
         if(!actor.isActive()) {
