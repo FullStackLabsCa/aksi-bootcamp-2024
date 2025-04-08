@@ -41,13 +41,13 @@ public class DashboardController {
                 .body(ApiResponse.error("Family Member could not be activated."));
     }
 
-    @PostMapping("/login")
-    @PreAuthorize("hasAuthority('NONE')")
-    public ResponseEntity<UUID> loginMember(@RequestBody UserLoginDTO userLoginDTO){
-        UUID uuidToken = familyManagementService.loginMember(userLoginDTO);
-        if(uuidToken != null) return ResponseEntity.ok(uuidToken);
-        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
+//    @PostMapping("/login")
+//    @PreAuthorize("hasAuthority('NONE')")
+//    public ResponseEntity<UUID> loginMember(@RequestBody UserLoginDTO userLoginDTO){
+//        UUID uuidToken = familyManagementService.loginMember(userLoginDTO);
+//        if(uuidToken != null) return ResponseEntity.ok(uuidToken);
+//        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+//    }
 
     @PostMapping("/login/2fa")
     @PreAuthorize("hasAuthority('ROLE_UNVERIFIED')")
