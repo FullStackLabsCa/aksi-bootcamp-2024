@@ -1,6 +1,5 @@
 import Toast from 'react-bootstrap/Toast';
 import {useEffect} from "react";
-import ToastContext from "react-bootstrap/ToastContext";
 import {ToastContainer} from "react-bootstrap";
 
 function LoginError({show, message, onClose}) {

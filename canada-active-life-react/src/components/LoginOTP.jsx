@@ -5,7 +5,7 @@ function LoginOTP({ show, onHide, onVerify }) {
     const [otp, setOtp] = useState('');
 
     const handleSubmit = () => {
-        onVerify(otp);
+        onVerify({otp: otp});
     };
 
     return (

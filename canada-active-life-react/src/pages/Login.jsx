@@ -5,6 +5,8 @@ import {useState} from "react";
 import Cookies from 'js-cookie';
 import LoginOTP from "../components/LoginOTP.jsx";
 import LoginError from "../components/LoginError.jsx";
+import {useDispatch} from "react-redux";
+import {updateLoginStatus} from "../store/slices/memberSlice.jsx";
 
 const handleLoginAuthentication = async ({event, memberLoginId, password, setShowOtpPopUp, setLoginFailed}) => {
     event.preventDefault()
@@ -40,8 +42,30 @@ const handleLoginAuthentication = async ({event, memberLoginId, password, setSho
         });
 }
 
-const handleLoginOTPAuthentication = ({setOtpVerificationFailed}) => {
+const handleLoginOTPAuthentication = async ({setOtpVerificationFailed, otp, storeDispatch}) => {
     console.log('Sending Request for Handle Verify')
+    return await fetch("http://localhost:30002/CanadaActiveLife/v1/login/2fa", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${Cookies.get('jwt')}`
+        },
+        body: JSON.stringify({
+            "otpEnteredByUser": otp
+        })
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json()
+    }).then(data => {
+        alert(data.message)
+        Cookies.set('jwt', data.data.jwtToken)
+        storeDispatch(updateLoginStatus({loginStatus: true}))
+    }).catch(e => {
+        console.error("FETCH FAILED:", e);
+        setOtpVerificationFailed(true)
+    })
 }
 
 export default function Login() {
@@ -50,6 +74,7 @@ export default function Login() {
     const [showOtpPopUp, setShowOtpPopUp] = useState(false);
     const [loginFailed, setLoginFailed] = useState(false);
     const [otpVerificationFailed, setOtpVerificationFailed] = useState(false);
+    const storeDispatch = useDispatch()
 
     return (
         <div className="d-flex flex-column align-items-center justify-content-center" style={{minHeight: '70vh'}}>
@@ -67,7 +92,11 @@ export default function Login() {
                     onChange={(event) => setMemberLoginId(event.target.value)}
                     required
                 >
-                    <Form.Control type="text" placeholder="Member Login Id"/>
+                    <Form.Control
+                        type="text"
+                        placeholder="Member Login Id"
+                        autoComplete='username'
+                    />
                 </FloatingLabel>
                 <FloatingLabel
                     className="mb-4"
@@ -77,7 +106,11 @@ export default function Login() {
                     onChange={(event) => setPassword(event.target.value)}
                     required
                 >
-                    <Form.Control type="password" placeholder="Password"/>
+                    <Form.Control
+                        type="password"
+                        placeholder="Password"
+                        autoComplete='current-password'
+                    />
                 </FloatingLabel>
                 <Button
                     type="submit"
@@ -90,7 +123,7 @@ export default function Login() {
             <LoginOTP
                 show={showOtpPopUp}
                 onHide={() => setShowOtpPopUp(false)}
-                onVerify={() => handleLoginOTPAuthentication({setOtpVerificationFailed})}
+                onVerify={() => handleLoginOTPAuthentication({setOtpVerificationFailed, storeDispatch})}
             />
             <Link to="/signup">Sign-Up</Link>
             <LoginError
