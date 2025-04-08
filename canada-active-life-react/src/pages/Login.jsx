@@ -20,7 +20,7 @@ const tryLogin = async ({event, memberLoginId, password}) => {
         body: raw
     };
 
-    const response = await fetch("http://localhost:30002/CanadaActiveLife/v1/login", requestOptions)
+    return await fetch("http://localhost:30002/CanadaActiveLife/v1/login", requestOptions)
         .then((response) => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -31,10 +31,8 @@ const tryLogin = async ({event, memberLoginId, password}) => {
             console.log(data)
             return data
         }).catch(e => {
-        console.error("FETCH FAILED:", e);
-    });
-
-    return response;
+            console.error("FETCH FAILED:", e);
+        });
 }
 
 export default function Login() {
