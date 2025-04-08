@@ -2,18 +2,19 @@ import {Button, FloatingLabel} from "react-bootstrap";
 import Form from 'react-bootstrap/Form';
 import {Link} from "react-router-dom";
 import {useState} from "react";
+import Cookies from 'js-cookie';
+import LoginOTP from "../components/LoginOTP.jsx";
+import LoginError from "../components/LoginError.jsx";
 
-const tryLogin = async ({event, memberLoginId, password}) => {
+const handleLoginAuthentication = async ({event, memberLoginId, password, setShowOtpPopUp, setLoginFailed}) => {
     event.preventDefault()
     // Make a call to the backend using ID and Password
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-
     const raw = JSON.stringify({
         "memberLoginId": memberLoginId,
         "familyPin": password
     });
-
     const requestOptions = {
         method: "POST",
         headers: myHeaders,
@@ -28,23 +29,34 @@ const tryLogin = async ({event, memberLoginId, password}) => {
             return response.json();
         })
         .then((data) => {
-            console.log(data)
+            // console.log(data)
+            Cookies.set('jwt', data.token)
+            setShowOtpPopUp(true)
             return data
         }).catch(e => {
             console.error("FETCH FAILED:", e);
+            setLoginFailed(true)
+            return undefined;
         });
+}
+
+const handleLoginOTPAuthentication = ({setOtpVerificationFailed}) => {
+    console.log('Sending Request for Handle Verify')
 }
 
 export default function Login() {
     const [memberLoginId, setMemberLoginId] = useState('');
     const [password, setPassword] = useState('');
+    const [showOtpPopUp, setShowOtpPopUp] = useState(false);
+    const [loginFailed, setLoginFailed] = useState(false);
+    const [otpVerificationFailed, setOtpVerificationFailed] = useState(false);
 
     return (
         <div className="d-flex flex-column align-items-center justify-content-center" style={{minHeight: '70vh'}}>
             <h1 className="mb-4">Login</h1>
             <Form
                 onSubmit={(event) =>
-                    tryLogin({event, memberLoginId, password})}
+                    handleLoginAuthentication({event, memberLoginId, password, setShowOtpPopUp, setLoginFailed})}
                 className="d-flex flex-column align-items-center justify-content-center"
             >
                 <FloatingLabel
@@ -75,7 +87,22 @@ export default function Login() {
                     Login
                 </Button>
             </Form>
+            <LoginOTP
+                show={showOtpPopUp}
+                onHide={() => setShowOtpPopUp(false)}
+                onVerify={() => handleLoginOTPAuthentication({setOtpVerificationFailed})}
+            />
             <Link to="/signup">Sign-Up</Link>
+            <LoginError
+                show={loginFailed}
+                message="Incorrect MemberLoginId or Password"
+                onClose={() => setLoginFailed(false)}
+            />
+            <LoginError
+                show={otpVerificationFailed}
+                message="Incorrect OTP"
+                onClose={() => setOtpVerificationFailed(false)}
+            />
         </div>
     )
 }
