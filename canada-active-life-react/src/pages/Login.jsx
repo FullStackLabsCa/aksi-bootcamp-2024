@@ -6,10 +6,9 @@ import Cookies from 'js-cookie';
 import LoginOTP from "../components/LoginOTP.jsx";
 import LoginError from "../components/LoginError.jsx";
 import {useDispatch} from "react-redux";
-import {updateLoginStatus} from "../store/slices/memberSlice.jsx";
+import {updateLoginStatus, updateMemberLoginId} from "../store/slices/memberSlice.jsx";
 
-const handleLoginAuthentication = async ({event, memberLoginId, password, setShowOtpPopUp, setLoginFailed}) => {
-    event.preventDefault()
+const handleLoginAuthentication = async ({memberLoginId, password, setShowOtpPopUp, setLoginFailed}) => {
     // Make a call to the backend using ID and Password
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -30,19 +29,9 @@ const handleLoginAuthentication = async ({event, memberLoginId, password, setSho
             }
             return response.json();
         })
-        .then((data) => {
-            // console.log(data)
-            Cookies.set('jwt', data.token)
-            setShowOtpPopUp(true)
-            return data
-        }).catch(e => {
-            console.error("FETCH FAILED:", e);
-            setLoginFailed(true)
-            return undefined;
-        });
 }
 
-const handleLoginOTPAuthentication = async ({setOtpVerificationFailed, otp, storeDispatch, navigate}) => {
+const handleLoginOTPAuthentication = async ({otp}) => {
     console.log('Sending Request for Handle Verify')
     return await fetch("http://localhost:30002/CanadaActiveLife/v1/login/2fa", {
         method: 'POST',
@@ -58,32 +47,99 @@ const handleLoginOTPAuthentication = async ({setOtpVerificationFailed, otp, stor
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json()
-    }).then(data => {
-        alert(data.message)
-        Cookies.set('jwt', data.data.jwtToken)
-        navigate('/browseCourses')
-        storeDispatch(updateLoginStatus({loginStatus: true}))
-    }).catch(e => {
-        console.error("FETCH FAILED:", e);
-        setOtpVerificationFailed(true)
     })
 }
 
-export default function Login() {
-    const [memberLoginId, setMemberLoginId] = useState('');
-    const [password, setPassword] = useState('');
-    const [showOtpPopUp, setShowOtpPopUp] = useState(false);
-    const [loginFailed, setLoginFailed] = useState(false);
+const useOTP = ({memberLoginId}) => {
     const [otpVerificationFailed, setOtpVerificationFailed] = useState(false);
     const storeDispatch = useDispatch()
     const navigate = useNavigate();
+
+    const onVerify = ({otp}) => {
+        handleLoginOTPAuthentication({otp}).then(data => {
+            alert(data.message)
+            Cookies.set('jwt', data.data.jwtToken)
+            navigate('/browseCourses')
+            storeDispatch(updateLoginStatus({loginStatus: true}))
+            storeDispatch(updateMemberLoginId({memberLoginId: memberLoginId}))
+        }).catch(e => {
+            console.error("FETCH FAILED:", e);
+            setOtpVerificationFailed(true)
+        })
+    }
+
+    return {
+        onVerify,
+        otpVerificationFailed,
+        setOtpVerificationFailed
+    }
+
+}
+
+const useLogin = () => {
+    const [memberLoginId, setMemberLoginId] = useState('');
+    const [password, setPassword] = useState('');
+    const [loginFailed, setLoginFailed] = useState(false);
+    const [showOtpPopUp, setShowOtpPopUp] = useState(false);
+
+
+    const onLoginSubmit = (event) => {
+        event.preventDefault()
+        handleLoginAuthentication({
+            memberLoginId, password
+        })
+            .then((data) => {
+                // console.log(data)
+                Cookies.set('jwt', data.token)
+                setShowOtpPopUp(true)
+                return data
+            })
+            .catch(e => {
+                console.error("FETCH FAILED:", e);
+                setLoginFailed(true)
+                return undefined;
+            })
+    }
+
+
+    return {
+        memberLoginId,
+        setMemberLoginId,
+        loginFailed,
+        setLoginFailed,
+        password,
+        setPassword,
+        showOtpPopUp,
+        setShowOtpPopUp,
+        onLoginSubmit
+    }
+}
+
+export default function Login() {
+    const {
+        memberLoginId,
+        setMemberLoginId,
+        loginFailed,
+        setLoginFailed,
+        password,
+        setPassword,
+        showOtpPopUp,
+        setShowOtpPopUp,
+        onLoginSubmit
+    } = useLogin()
+
+    const {
+        onVerify,
+        otpVerificationFailed,
+        setOtpVerificationFailed
+    } = useOTP({memberLoginId})
+
 
     return (
         <div className="d-flex flex-column align-items-center justify-content-center" style={{minHeight: '70vh'}}>
             <h1 className="mb-4">Login</h1>
             <Form
-                onSubmit={(event) =>
-                    handleLoginAuthentication({event, memberLoginId, password, setShowOtpPopUp, setLoginFailed})}
+                onSubmit={onLoginSubmit}
                 className="d-flex flex-column align-items-center justify-content-center"
             >
                 <FloatingLabel
@@ -125,10 +181,7 @@ export default function Login() {
             <LoginOTP
                 show={showOtpPopUp}
                 onHide={() => setShowOtpPopUp(false)}
-                setOtpVerificationFailed={setOtpVerificationFailed}
-                storeDispatch={storeDispatch}
-                navigate={navigate}
-                onVerify={handleLoginOTPAuthentication}
+                onVerify={onVerify}
             />
             <Link to="/signup">Sign-Up</Link>
             <LoginError

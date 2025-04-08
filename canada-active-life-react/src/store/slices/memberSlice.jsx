@@ -3,21 +3,28 @@ import {createSlice} from "@reduxjs/toolkit";
 const memberSlice = createSlice({
     name: 'member',
     initialState: {
-        isLoggedIn: false
+        isLoggedIn: false,
+        memberLoginId: ''
     },
     reducers: {
         updateLoginStatus: (state, action) => {
-            const isMemberLoggedIn = action.payload.loginStatus
             return {
                 ...state,
-                isLoggedIn: isMemberLoggedIn
+                isLoggedIn: action.payload.loginStatus
+            }
+        },
+        updateMemberLoginId: (state, action) => {
+            return {
+                ...state,
+                memberLoginId: action.payload.memberLoginId
             }
         }
     }
 })
 
 export const {
-    updateLoginStatus
+    updateLoginStatus,
+    updateMemberLoginId
 } = memberSlice.actions
 
 export default memberSlice.reducer
