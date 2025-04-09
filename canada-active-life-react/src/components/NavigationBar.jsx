@@ -5,6 +5,7 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {updateLoginStatus, updateMemberLoginId} from "../store/slices/memberSlice.jsx";
+import Cookies from "js-cookie";
 
 function NavigationBar() {
 
@@ -13,6 +14,7 @@ function NavigationBar() {
     const handleLogOut = () => {
         dispatch(updateLoginStatus({loginStatus: false}))
         dispatch(updateMemberLoginId({memberLoginId: ''}))
+        Cookies.remove('jwt')
     }
 
     return (
