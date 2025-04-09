@@ -1,4 +1,4 @@
-import {Button, FloatingLabel, Form, Modal} from "react-bootstrap";
+import {Button, Col, FloatingLabel, Form, Modal, Row} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
 import Cookies from "js-cookie";
@@ -88,108 +88,114 @@ function MemberAddToFamily() {
                 onSubmit={handleAddFamilyMember}
             >
                 <Modal.Body>
-                    <FloatingLabel className="mb-1" controlId="fullName" label="Full Name">
-                        <Form.Control
-                            type="text"
-                            placeholder="Full Name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            Please enter your name.
-                        </Form.Control.Feedback>
-                    </FloatingLabel>
-                    <FloatingLabel className="mb-1" controlId="dateOfBirth" label="Date Of Birth">
-                        <Form.Control
-                            type="date"
-                            placeholder="Date of Birth"
-                            value={dob || ''}
-                            onChange={(e) => setDob(e.target.value)}
-                            required
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            Please enter your DOB.
-                        </Form.Control.Feedback>
-                    </FloatingLabel>
-                    <FloatingLabel className="mb-1" controlId="gender" label="Gender">
-                        <Form.Select
-                            value={gender}
-                            onChange={(e) => setGender(e.target.value)}
-                            required
-                        >
-                            <option value="">Select Gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </Form.Select>
-                    </FloatingLabel>
-                    <FloatingLabel className="mb-1" controlId="email" label="Email Address">
-                        <Form.Control
-                            type="email"
-                            placeholder="Email Address"
-                            value={emailAddress}
-                            onChange={(e) => setEmailAddress(e.target.value)}
-                            required
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            Please enter valid Email Address.
-                        </Form.Control.Feedback>
-                    </FloatingLabel>
-                    <FloatingLabel className="mb-1" controlId="stNum" label="Street Number">
-                        <Form.Control
-                            type="text"
-                            placeholder="Street Number"
-                            value={streetNumber}
-                            onChange={(e) => setStreetNumber(e.target.value)}
-                        />
-                    </FloatingLabel>
-                    <FloatingLabel className="mb-1" controlId="stName" label="Street Name">
-                        <Form.Control
-                            type="text"
-                            placeholder="Street Name"
-                            value={streetName}
-                            onChange={(e) => setStreetName(e.target.value)}
-                        />
-                    </FloatingLabel>
-                    <FloatingLabel className="mb-1" controlId="city" label="City">
-                        <Form.Control
-                            type="text"
-                            placeholder="City"
-                            value={city}
-                            onChange={(e) => setCity(e.target.value)}
-                            required
-                        />
-                    </FloatingLabel>
-                    <FloatingLabel className="mb-1" controlId="province" label="Province">
-                        <Form.Control
-                            type="text"
-                            placeholder="Province"
-                            value={province}
-                            onChange={(e) => setProvince(e.target.value)}
-                            required
-                        />
-                    </FloatingLabel>
-                    <FloatingLabel className="mb-1" controlId="country" label="Country">
-                        <Form.Control
-                            type="text"
-                            placeholder="Country"
-                            value={country}
-                            onChange={(e) => setCountry(e.target.value)}
-                            required
-                        />
-                    </FloatingLabel>
-                    <FloatingLabel className="mb-1" controlId="homePhNum" label="Home Phone Number">
-                        <Form.Control
-                            type="tel"
-                            placeholder="1234567890"
-                            value={homePhoneNumber}
-                            onChange={(e) => setHomePhoneNumber(e.target.value)}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            Please enter valid Phone Number.
-                        </Form.Control.Feedback>
-                    </FloatingLabel>
+                    <Row>
+                        <Col md={6}>
+                            <FloatingLabel className="mb-1" controlId="fullName" label="Full Name">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Full Name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    Please enter your name.
+                                </Form.Control.Feedback>
+                            </FloatingLabel>
+                            <FloatingLabel className="mb-1" controlId="dateOfBirth" label="Date Of Birth">
+                                <Form.Control
+                                    type="date"
+                                    placeholder="Date of Birth"
+                                    value={dob || ''}
+                                    onChange={(e) => setDob(e.target.value)}
+                                    required
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    Please enter your DOB.
+                                </Form.Control.Feedback>
+                            </FloatingLabel>
+                            <FloatingLabel className="mb-1" controlId="gender" label="Gender">
+                                <Form.Select
+                                    value={gender}
+                                    onChange={(e) => setGender(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </Form.Select>
+                            </FloatingLabel>
+                            <FloatingLabel className="mb-1" controlId="email" label="Email Address">
+                                <Form.Control
+                                    type="email"
+                                    placeholder="Email Address"
+                                    value={emailAddress}
+                                    onChange={(e) => setEmailAddress(e.target.value)}
+                                    required
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    Please enter valid Email Address.
+                                </Form.Control.Feedback>
+                            </FloatingLabel>
+                            <FloatingLabel className="mb-1" controlId="homePhNum" label="Home Phone Number">
+                                <Form.Control
+                                    type="tel"
+                                    placeholder="1234567890"
+                                    value={homePhoneNumber}
+                                    onChange={(e) => setHomePhoneNumber(e.target.value)}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    Please enter valid Phone Number.
+                                </Form.Control.Feedback>
+                            </FloatingLabel>
+                        </Col>
+                        <Col md={6}>
+                            <FloatingLabel className="mb-1" controlId="stNum" label="Street Number">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Street Number"
+                                    value={streetNumber}
+                                    onChange={(e) => setStreetNumber(e.target.value)}
+                                />
+                            </FloatingLabel>
+                            <FloatingLabel className="mb-1" controlId="stName" label="Street Name">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Street Name"
+                                    value={streetName}
+                                    onChange={(e) => setStreetName(e.target.value)}
+                                />
+                            </FloatingLabel>
+                            <FloatingLabel className="mb-1" controlId="city" label="City">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="City"
+                                    value={city}
+                                    onChange={(e) => setCity(e.target.value)}
+                                    required
+                                />
+                            </FloatingLabel>
+                            <FloatingLabel className="mb-1" controlId="province" label="Province">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Province"
+                                    value={province}
+                                    onChange={(e) => setProvince(e.target.value)}
+                                    required
+                                />
+                            </FloatingLabel>
+                            <FloatingLabel className="mb-1" controlId="country" label="Country">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Country"
+                                    value={country}
+                                    onChange={(e) => setCountry(e.target.value)}
+                                    required
+                                />
+                            </FloatingLabel>
+                        </Col>
+                    </Row>
                     <FloatingLabel className="mb-1" controlId="busPhNum" label="Business Phone Number">
                         <Form.Control
                             type="tel"
