@@ -23,7 +23,7 @@ export function FamilyMember({member}) {
                 </ListGroup.Item>
             </ListGroup>
             <Button className={member.isActive ? "showing mb-1" : "visually-hidden"}  variant="outline-primary">View Registrations</Button>
-            <Button className={!member.isActive ? "showing mb-1" : "visually-hidden"} variant="success">Activate</Button>
+            <Button className={!member.isActive ? "showing mb-1" : "visually-hidden"} variant="outline-success">Activate</Button>
             <Button className={member.isActive ? "showing mb-1" : "visually-hidden"} variant="outline-danger">DeActivate</Button>
         </Card.Body>
     </Card>;
