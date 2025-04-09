@@ -66,7 +66,7 @@ function MemberAddToFamily() {
                 })
                 .then(data => {
                     alert(data)
-                    navigator('/browseCourses',{replace: true})
+                    navigator('/browseCourses', {replace: true})
                 })
                 .catch(e => {
                     console.error("FETCH FAILED:", e);
@@ -88,7 +88,7 @@ function MemberAddToFamily() {
                 onSubmit={handleAddFamilyMember}
             >
                 <Modal.Body>
-                    <FloatingLabel controlId="fullName" label="Full Name">
+                    <FloatingLabel className="mb-1" controlId="fullName" label="Full Name">
                         <Form.Control
                             type="text"
                             placeholder="Full Name"
@@ -100,7 +100,7 @@ function MemberAddToFamily() {
                             Please enter your name.
                         </Form.Control.Feedback>
                     </FloatingLabel>
-                    <FloatingLabel controlId="dateOfBirth" label="Date Of Birth">
+                    <FloatingLabel className="mb-1" controlId="dateOfBirth" label="Date Of Birth">
                         <Form.Control
                             type="date"
                             placeholder="Date of Birth"
@@ -112,7 +112,7 @@ function MemberAddToFamily() {
                             Please enter your DOB.
                         </Form.Control.Feedback>
                     </FloatingLabel>
-                    <FloatingLabel controlId="gender" label="Gender">
+                    <FloatingLabel className="mb-1" controlId="gender" label="Gender">
                         <Form.Select
                             value={gender}
                             onChange={(e) => setGender(e.target.value)}
@@ -124,7 +124,7 @@ function MemberAddToFamily() {
                             <option value="Other">Other</option>
                         </Form.Select>
                     </FloatingLabel>
-                    <FloatingLabel controlId="email" label="Email Address">
+                    <FloatingLabel className="mb-1" controlId="email" label="Email Address">
                         <Form.Control
                             type="email"
                             placeholder="Email Address"
@@ -136,7 +136,7 @@ function MemberAddToFamily() {
                             Please enter valid Email Address.
                         </Form.Control.Feedback>
                     </FloatingLabel>
-                    <FloatingLabel controlId="stNum" label="Street Number">
+                    <FloatingLabel className="mb-1" controlId="stNum" label="Street Number">
                         <Form.Control
                             type="text"
                             placeholder="Street Number"
@@ -144,7 +144,7 @@ function MemberAddToFamily() {
                             onChange={(e) => setStreetNumber(e.target.value)}
                         />
                     </FloatingLabel>
-                    <FloatingLabel controlId="stName" label="Street Name">
+                    <FloatingLabel className="mb-1" controlId="stName" label="Street Name">
                         <Form.Control
                             type="text"
                             placeholder="Street Name"
@@ -152,7 +152,7 @@ function MemberAddToFamily() {
                             onChange={(e) => setStreetName(e.target.value)}
                         />
                     </FloatingLabel>
-                    <FloatingLabel controlId="city" label="City">
+                    <FloatingLabel className="mb-1" controlId="city" label="City">
                         <Form.Control
                             type="text"
                             placeholder="City"
@@ -161,7 +161,7 @@ function MemberAddToFamily() {
                             required
                         />
                     </FloatingLabel>
-                    <FloatingLabel controlId="province" label="Province">
+                    <FloatingLabel className="mb-1" controlId="province" label="Province">
                         <Form.Control
                             type="text"
                             placeholder="Province"
@@ -170,7 +170,7 @@ function MemberAddToFamily() {
                             required
                         />
                     </FloatingLabel>
-                    <FloatingLabel controlId="country" label="Country">
+                    <FloatingLabel className="mb-1" controlId="country" label="Country">
                         <Form.Control
                             type="text"
                             placeholder="Country"
@@ -179,7 +179,7 @@ function MemberAddToFamily() {
                             required
                         />
                     </FloatingLabel>
-                    <FloatingLabel controlId="homePhNum" label="Home Phone Number">
+                    <FloatingLabel className="mb-1" controlId="homePhNum" label="Home Phone Number">
                         <Form.Control
                             type="tel"
                             placeholder="1234567890"
@@ -190,7 +190,7 @@ function MemberAddToFamily() {
                             Please enter valid Phone Number.
                         </Form.Control.Feedback>
                     </FloatingLabel>
-                    <FloatingLabel controlId="busPhNum" label="Business Phone Number">
+                    <FloatingLabel className="mb-1" controlId="busPhNum" label="Business Phone Number">
                         <Form.Control
                             type="tel"
                             placeholder="1234567890"
@@ -201,7 +201,7 @@ function MemberAddToFamily() {
                             Please enter valid Phone Number.
                         </Form.Control.Feedback>
                     </FloatingLabel>
-                    <FloatingLabel controlId="contactMethod" label="Preferred Contact Method">
+                    <FloatingLabel className="mb-1" controlId="contactMethod" label="Preferred Contact Method">
                         <Form.Select
                             value={preferredContactMethod}
                             onChange={(e) => setPreferredContactMethod(e.target.value)}
@@ -211,7 +211,7 @@ function MemberAddToFamily() {
                             <option value="Phone">Phone</option>
                         </Form.Select>
                     </FloatingLabel>
-                    <FloatingLabel controlId="lang" label="Mother Tongue">
+                    <FloatingLabel className="mb-1" controlId="lang" label="Mother Tongue">
                         <Form.Control
                             type="text"
                             placeholder="Language"
@@ -219,7 +219,7 @@ function MemberAddToFamily() {
                             onChange={(e) => setLanguage(e.target.value)}
                         />
                     </FloatingLabel>
-                    <FloatingLabel controlId="memberLoginId" label="Member Login Id">
+                    <FloatingLabel className="mb-1" controlId="memberLoginId" label="Member Login Id">
                         <Form.Control
                             type="text"
                             placeholder="Member Login ID"
