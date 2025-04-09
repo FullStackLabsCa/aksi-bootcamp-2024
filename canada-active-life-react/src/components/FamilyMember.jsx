@@ -2,16 +2,29 @@ import Card from "react-bootstrap/Card";
 import ListGroup from "react-bootstrap/ListGroup";
 import {Button} from "react-bootstrap";
 
-export function FamilyMember() {
-    return <Card style={{width: "18rem", alignContent: "center"}}>
+export function FamilyMember({member}) {
+    return <Card style={{width: "20rem", alignContent: "center"}}>
         <Card.Body>
-            <Card.Title>Family Member Name</Card.Title>
+            <Card.Title>{member.name}</Card.Title>
             <ListGroup className="list-group-flush mb-3 w-100">
-                <ListGroup.Item>Phone Number: </ListGroup.Item>
-                <ListGroup.Item>Email Address: </ListGroup.Item>
-                <ListGroup.Item>Is Active: </ListGroup.Item>
+                <ListGroup.Item>Ph. No.: {member.phone}</ListGroup.Item>
+                <ListGroup.Item>Email Address: {member.email}</ListGroup.Item>
+                <ListGroup.Item className="align-items-center">
+                    Active Status:
+                    <span
+                        className={`ms-2 rounded-circle`}
+                        style={{
+                            width: '12px',
+                            height: '12px',
+                            backgroundColor: member.isActive ? 'green' : 'red',
+                            display: 'inline-block'
+                        }}
+                    />
+                </ListGroup.Item>
             </ListGroup>
-            <Button className="" variant="primary">View Registrations</Button>
+            <Button className={member.isActive ? "showing mb-1" : "visually-hidden"}  variant="outline-primary">View Registrations</Button>
+            <Button className={!member.isActive ? "showing mb-1" : "visually-hidden"} variant="success">Activate</Button>
+            <Button className={member.isActive ? "showing mb-1" : "visually-hidden"} variant="outline-danger">DeActivate</Button>
         </Card.Body>
     </Card>;
 }
