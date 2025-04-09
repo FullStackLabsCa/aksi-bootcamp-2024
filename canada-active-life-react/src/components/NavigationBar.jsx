@@ -64,7 +64,7 @@ function NavigationBar() {
                                 Add Family Member
                             </NavDropdown.Item>
                         </NavDropdown>
-                        <Nav.Link as={Link} to="/aboutUs">About Us</Nav.Link>
+                        <Nav.Link className='visually-hidden' as={Link} to="/aboutUs">About Us</Nav.Link>
                         <Nav.Link
                             className={useSelector(state => state.member.isLoggedIn) ? 'showing' : 'visually-hidden'}
                             as={Link}
