@@ -178,12 +178,12 @@ export default function Login() {
                     Login
                 </Button>
             </Form>
+            <Link className='link-secondary small' to="/signup">Sign-Up</Link>
             <LoginOTP
                 show={showOtpPopUp}
                 onHide={() => setShowOtpPopUp(false)}
                 onVerify={onVerify}
             />
-            <Link to="/signup">Sign-Up</Link>
             <ErrorToast
                 show={loginFailed}
                 message="Incorrect MemberLoginId or Password"
