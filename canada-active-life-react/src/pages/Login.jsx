@@ -172,7 +172,7 @@ export default function Login() {
                 </FloatingLabel>
                 <Button
                     type="submit"
-                    variant="primary"
+                    variant="outline-primary"
                     className="mb-2"
                 >
                     Login

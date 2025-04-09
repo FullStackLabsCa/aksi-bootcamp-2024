@@ -48,8 +48,8 @@ export default function OfferedCourse() {
             <Card className="d-flex flex-column align-items-center mb-4">
                 <Button
                     disabled={offeredCourse[0]?.availableForEnrollment !== 'OPEN'}
-                    variant={(offeredCourse[0]?.availableForEnrollment !== 'OPEN') ? "secondary" : "primary"}
-                    className={`d-block ${!useSelector(state => state.member.isLoggedIn) ? 'visually-hidden' : 'show'}`}>
+                    variant={(offeredCourse[0]?.availableForEnrollment !== 'OPEN') ? "outline-secondary" : "outline-success"}
+                    className={`d-block ${!useSelector(state => state.member.isLoggedIn) ? 'visually-hidden' : 'showing'}`}>
                     Add To Cart
                 </Button>
             </Card>

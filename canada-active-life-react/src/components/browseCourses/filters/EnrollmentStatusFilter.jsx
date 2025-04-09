@@ -9,13 +9,13 @@ export default function EnrollmentStatusFilter(props) {
                            className="mb-3"
                            value={props.filteredOfferedCoursesState.filterEnrollmentStatus}
                            onChange={props.onChange}>
-            <ToggleButton id="course-enrollment-all" value="">
+            <ToggleButton variant="outline-primary" id="course-enrollment-all" value="">
                 ALL
             </ToggleButton>
-            <ToggleButton id="course-enrollment-open" value="open">
+            <ToggleButton variant="outline-success" id="course-enrollment-open" value="open">
                 OPEN
             </ToggleButton>
-            <ToggleButton id="course-enrollment-closed" value="closed">
+            <ToggleButton variant="outline-secondary" id="course-enrollment-closed" value="closed">
                 CLOSED
             </ToggleButton>
         </ToggleButtonGroup>

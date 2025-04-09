@@ -240,8 +240,8 @@ function SignUp() {
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => navigator('/', {replace: true})}>Cancel</Button>
-                    <Button variant="primary" type='submit'>Sign-Up</Button>
+                    <Button variant="outline-secondary" onClick={() => navigator('/', {replace: true})}>Cancel</Button>
+                    <Button variant="outline-primary" type='submit'>Sign-Up</Button>
                 </Modal.Footer>
                 <ErrorToast
                     show={signUpFailed}

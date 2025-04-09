@@ -241,8 +241,8 @@ function MemberAddToFamily() {
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => navigator('/browseCourses')}>Cancel</Button>
-                    <Button variant="primary" type='submit'>Add Family Member</Button>
+                    <Button variant="outline-secondary" onClick={() => navigator('/browseCourses')}>Cancel</Button>
+                    <Button variant="outline-primary" type='submit'>Add Family Member</Button>
                 </Modal.Footer>
                 <ErrorToast
                     show={familyMemberCreationFailed}

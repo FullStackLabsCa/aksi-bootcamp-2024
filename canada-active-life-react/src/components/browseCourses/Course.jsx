@@ -22,11 +22,12 @@ function Course({course}) {
                 <Card.Body>
                     <Button
                         disabled={course.availableForEnrollment !== 'OPEN'}
-                        variant={(course.availableForEnrollment !== 'OPEN') ? "secondary" : "primary"}
+                        variant={(course.availableForEnrollment !== 'OPEN') ? "outline-secondary" : "outline-success"}
                         className={`d-block mb-1 ${!useSelector(state => state.member.isLoggedIn) ? 'visually-hidden' : ''}`}>
                         Add To Cart
                     </Button>
                     <Button as={Link} to={`/offeredCourse/${course.offeredCourseId}`}
+                            variant="outline-primary"
                             className="d-block">
                         View Details
                     </Button>

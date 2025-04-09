@@ -23,8 +23,8 @@ function LoginOTP({ show, onHide, onVerify }) {
                 />
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>Cancel</Button>
-                <Button variant="primary" onClick={handleSubmit}>Submit</Button>
+                <Button variant="outline-secondary" onClick={onHide}>Cancel</Button>
+                <Button variant="outline-primary" onClick={handleSubmit}>Submit</Button>
             </Modal.Footer>
         </Modal>
     );
