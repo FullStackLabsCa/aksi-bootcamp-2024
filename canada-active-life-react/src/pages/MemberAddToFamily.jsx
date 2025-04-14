@@ -1,6 +1,6 @@
 import {Button, Col, FloatingLabel, Form, Modal, Row} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import Cookies from "js-cookie";
 import {useSelector} from "react-redux";
 import ErrorToast from "../components/ErrorToast.jsx";
@@ -26,6 +26,11 @@ function MemberAddToFamily() {
     const [formValidated, setFormValidated] = useState(false);
     const actorMemberLoginId = useSelector(state => state.member.memberLoginId)
 
+    useEffect(() => {
+        if (!actorMemberLoginId) {
+            navigator('/login');
+        }
+    }, [memberLoginId, navigator]);
 
     const handleAddFamilyMember = async (e) => {
         e.preventDefault();
