@@ -3,8 +3,8 @@ import {createSlice} from "@reduxjs/toolkit";
 const memberSlice = createSlice({
     name: 'member',
     initialState: {
-        isLoggedIn: sessionStorage.getItem('isLoggedIn'),
-        memberLoginId: '',
+        isLoggedIn: sessionStorage.getItem('isLoggedIn') || false,
+        memberLoginId: sessionStorage.getItem('memberLoginId') || '',
         isAdmin: true
     },
     reducers: {
@@ -16,6 +16,7 @@ const memberSlice = createSlice({
             }
         },
         updateMemberLoginId: (state, action) => {
+            sessionStorage.setItem('memberLoginId', action.payload.memberLoginId)
             return {
                 ...state,
                 memberLoginId: action.payload.memberLoginId
