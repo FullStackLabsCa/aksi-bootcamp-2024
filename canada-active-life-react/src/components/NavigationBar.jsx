@@ -16,42 +16,13 @@ function NavigationBar() {
     const isAdmin = useSelector(state => state.member.isAdmin)
     const [showCart, setShowCart] = useState(false);
 
-    const cartItems = [
-        {
-            id: 1,
-            name: "Yoga for Beginners",
-            price: 25.0,
-        },
-        {
-            id: 2,
-            name: "Swimming Lessons - Intermediate",
-            price: 40.0,
-        },
-        {
-            id: 3,
-            name: "Zumba Dance Session",
-            price: 15.0,
-        },
-        {
-            id: 11,
-            name: "Yoga 11 for Beginners",
-            price: 25.0,
-        },
-        {
-            id: 21,
-            name: "Swimming 21 Lessons - Intermediate",
-            price: 40.0,
-        },
-    ];
-
+    const handleCloseCart = () => setShowCart(false);
+    const handleShowCart = () => setShowCart(true);
     const handleLogOut = () => {
         dispatch(updateLoginStatus({loginStatus: false}))
         dispatch(updateMemberLoginId({memberLoginId: ''}))
         Cookies.remove('jwt')
     }
-
-    const handleCloseCart = () => setShowCart(false);
-    const handleShowCart = () => setShowCart(true);
 
     return (
         <>
@@ -124,7 +95,6 @@ function NavigationBar() {
             <CartDrawer
                 show={showCart}
                 onHide={handleCloseCart}
-                cartItems={cartItems}
             />
         </>
     );

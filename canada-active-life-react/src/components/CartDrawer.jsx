@@ -1,6 +1,33 @@
 import { Offcanvas, Card, Button, Stack } from 'react-bootstrap';
 
-export default function CartDrawer({ show, onHide, cartItems = [] }) {
+export default function CartDrawer({ show, onHide }) {
+    const cartItems = [
+        {
+            id: 1,
+            name: "Yoga for Beginners",
+            price: 25.0,
+        },
+        {
+            id: 2,
+            name: "Swimming Lessons - Intermediate",
+            price: 40.0,
+        },
+        {
+            id: 3,
+            name: "Zumba Dance Session",
+            price: 15.0,
+        },
+        {
+            id: 11,
+            name: "Yoga 11 for Beginners",
+            price: 25.0,
+        },
+        {
+            id: 21,
+            name: "Swimming 21 Lessons - Intermediate",
+            price: 40.0,
+        },
+    ];
     const total = cartItems.reduce((sum, item) => sum + item.price, 0);
 
     const onRemove = () => {
