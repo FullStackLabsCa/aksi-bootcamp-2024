@@ -6,11 +6,9 @@ public class FindSumOfUniqueElements {
 
     public static int findSumOfUniqueElements(int[] array){
 
-        int sum = Arrays.stream(array)
+        return Arrays.stream(array)
                 .distinct()
                 .sum();
-
-        return sum;
     }
 
     public static void main(String[] args) {
