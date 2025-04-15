@@ -3,7 +3,7 @@ import {createSlice} from "@reduxjs/toolkit";
 const memberSlice = createSlice({
     name: 'member',
     initialState: {
-        isLoggedIn: sessionStorage.getItem('isLoggedIn') || false,
+        isLoggedIn: sessionStorage.getItem('isLoggedIn') === 'true',
         memberLoginId: sessionStorage.getItem('memberLoginId') || '',
         isAdmin: true
     },

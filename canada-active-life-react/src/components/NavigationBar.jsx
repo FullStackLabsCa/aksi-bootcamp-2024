@@ -33,14 +33,14 @@ function NavigationBar() {
                         <Nav.Link as={Link} to="/browseCourses">Courses</Nav.Link>
                         <NavDropdown title="Account" id="collapsible-nav-dropdown">
                             <NavDropdown.Item
-                                className={isMemberLoggedIn === "true" ? 'visually-hidden' : 'showing'}
+                                className={isMemberLoggedIn ? 'visually-hidden' : 'showing'}
                                 as={Link}
                                 to="/login"
                             >
                                 Login
                             </NavDropdown.Item>
                             <NavDropdown.Item
-                                className={isMemberLoggedIn === "true" ? 'showing' : 'visually-hidden'}
+                                className={isMemberLoggedIn ? 'showing' : 'visually-hidden'}
                                 as={Link}
                                 to="/dashboard"
                             >
@@ -48,18 +48,18 @@ function NavigationBar() {
                             </NavDropdown.Item>
 
                             <NavDropdown.Divider
-                                className={useSelector(state => state.member.isLoggedIn && !state.member.isAdmin) ? 'visually-hidden' : 'showing'}
+                                className={(isMemberLoggedIn && !isAdmin) ? 'visually-hidden' : 'showing'}
                             />
 
                             <NavDropdown.Item
-                                className={isMemberLoggedIn === "true" ? 'visually-hidden' : 'showing'}
+                                className={isMemberLoggedIn ? 'visually-hidden' : 'showing'}
                                 as={Link}
                                 to="/signup"
                             >
                                 Sign Up
                             </NavDropdown.Item>
                             <NavDropdown.Item
-                                className={(isMemberLoggedIn === "true" && isAdmin === true) ? 'showing' : 'visually-hidden'}
+                                className={(isMemberLoggedIn && isAdmin === true) ? 'showing' : 'visually-hidden'}
                                 as={Link}
                                 to="/addFamilyMemberToGroup"
                             >
@@ -68,7 +68,7 @@ function NavigationBar() {
                         </NavDropdown>
                         <Nav.Link className='visually-hidden' as={Link} to="/aboutUs">About Us</Nav.Link>
                         <Nav.Link
-                            className={isMemberLoggedIn === "true" ? 'showing' : 'visually-hidden'}
+                            className={isMemberLoggedIn ? 'showing' : 'visually-hidden'}
                             as={Link}
                             to="/"
                             onClick={handleLogOut}
