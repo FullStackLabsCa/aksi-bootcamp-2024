@@ -9,7 +9,6 @@ import OfferedCourse from "./pages/OfferedCourse.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import MemberAddToFamily from "./pages/MemberAddToFamily.jsx";
-import Cart from "./pages/Cart.jsx";
 
 function App() {
     return (
@@ -23,7 +22,6 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard/>}/>
                 <Route path="/signup" element={<SignUp />}/>
                 <Route path="/addFamilyMemberToGroup" element={<MemberAddToFamily />}/>
-                <Route path="/cart" element={<Cart />}/>
             </Routes>
         </BrowserRouter>
     )
