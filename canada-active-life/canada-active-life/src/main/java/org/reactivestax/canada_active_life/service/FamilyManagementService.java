@@ -186,6 +186,21 @@ public class FamilyManagementService {
         return true;
     }
 
+    public boolean activateFamilyMember(String memberLoginId, String actorMemberLoginId) {
+        FamilyMember actor = checkFamilyMemberValidity(actorMemberLoginId);
+        FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(memberLoginId)
+                .orElseThrow(() -> new FamilyMemberNotFoundException(""));
+
+        if(familyMember.getFamilyGroup().getCreatedBy() != actor.getFamilyMemberId())
+            throw new ActorNotAuthorizedException("Actor is not authorized to activate any account in the group");
+
+        familyMember.setActive(true);
+        familyMember.setRole(ROLE.FAMILY_MEMBER);
+        familyMemberRepository.save(familyMember);
+
+        return true;
+    }
+
     public UUID loginMember(UserLoginDTO userLoginDTO) {
         /**
          * Log in the LoginRequest Table

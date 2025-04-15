@@ -52,4 +52,14 @@ public class FamilyManagementController {
                 .body("Family Member could not be deactivated.");
     }
 
+    @GetMapping("/activate")
+    @PreAuthorize("hasAuthority('ROLE_FAMILY_GROUP_OWNER')")
+    public ResponseEntity<String> activateFamilyMember(@RequestParam String memberLoginId, @RequestHeader("x-security-header") String actorId){
+        boolean isActivated = familyManagementService.activateFamilyMember(memberLoginId, actorId);
+
+        if(isActivated) return ResponseEntity.ok("Family Member Activated");
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Family Member could not be Activated.");
+    }
+
 }
