@@ -47,11 +47,11 @@ function Dashboard() {
     }, [memberLoginId]);
 
     const familyMembers = [
-        {name: "Alice", phone: "123-456-7890", email: "alice@example.com", isActive: true},
-        {name: "Bob", phone: "987-654-3210", email: "bob@example.com", isActive: false},
-        {name: "Bob", phone: "987-654-3210", email: "bob@example.com", isActive: false},
-        {name: "Bob", phone: "987-654-3210", email: "bob@example.com", isActive: false},
-        {name: "Charlie", phone: "555-555-5555", email: "charlie@example.com", isActive: true},
+        {name: "Alice", homePhoneNumber: "123-456-7890", emailAddress: "alice@example.com", active: true},
+        {name: "Bob", homePhoneNumber: "987-654-3210", emailAddress: "bob@example.com", active: false},
+        {name: "Bob", homePhoneNumber: "987-654-3210", emailAddress: "bob@example.com", active: false},
+        {name: "Bob", homePhoneNumber: "987-654-3210", emailAddress: "bob@example.com", active: false},
+        {name: "Charlie", homePhoneNumber: "555-555-5555", emailAddress: "charlie@example.com", active: true},
     ];
 
     return (
