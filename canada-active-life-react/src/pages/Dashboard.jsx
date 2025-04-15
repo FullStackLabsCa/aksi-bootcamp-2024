@@ -28,13 +28,11 @@ function Dashboard() {
                         Authorization: `Bearer ${Cookies.get('jwt')}`
                     }
                 });
-                console.log("Fetch response:", response);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const data = await response.json();
-                console.log("Fetched data:", data);
                 setFamilyMemberInfo(data);
             } catch (error) {
                 console.error("Error fetching family member info:", error);
@@ -59,8 +57,6 @@ function Dashboard() {
     return (
         <div>
             <Row className="mt-4 mb-3 d-flex flex-column align-content-center text-center">
-                {console.log("Member Login Id: " + memberLoginId)}
-                {console.log("Family Member Info: " + familyMemberInfo)}
                 {familyMemberInfo ? <FamilyMember member={familyMemberInfo}/> :
                     <p>Family Member Info Could Not be fetched...</p>}
             </Row>
