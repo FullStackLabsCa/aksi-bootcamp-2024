@@ -1,10 +1,8 @@
 package com.example.stream_questions;
 
-import org.hibernate.Hibernate;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.stream.Collectors;
 
 public class RearrangeNumbersHighestLowestValues {
 
