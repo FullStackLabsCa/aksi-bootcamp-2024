@@ -6,6 +6,7 @@ import {Provider} from "react-redux";
 import {store} from "./store/store.jsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-datepicker/dist/react-datepicker.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
