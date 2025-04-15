@@ -1,6 +1,6 @@
-import { Offcanvas, Card, Button, Stack } from 'react-bootstrap';
+import {Offcanvas, Card, Button, Stack} from 'react-bootstrap';
 
-export default function CartDrawer({ show, onHide }) {
+export default function CartDrawer({show, onHide}) {
     const cartItems = [
         {
             id: 1,
@@ -28,11 +28,12 @@ export default function CartDrawer({ show, onHide }) {
             price: 40.0,
         },
     ];
-    const total = cartItems.reduce((sum, item) => sum + item.price, 0);
 
     const onRemove = () => {
         console.log("Item will be removed from the cart. Making a backend Call.")
     }
+
+    const total = cartItems.reduce((sum, item) => sum + item.price, 0);
 
     return (
         <Offcanvas show={show} onHide={onHide} placement="end">
