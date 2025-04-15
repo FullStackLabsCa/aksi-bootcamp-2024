@@ -46,6 +46,8 @@ function Dashboard() {
         }
     }, [memberLoginId]);
 
+    // TODO use effect to fetch all familyMembers for this particular group.
+
     const familyMembers = [
         {name: "Alice", homePhoneNumber: "123-456-7890", emailAddress: "alice@example.com", active: true},
         {name: "Bob", homePhoneNumber: "987-654-3210", emailAddress: "bob@example.com", active: false},
