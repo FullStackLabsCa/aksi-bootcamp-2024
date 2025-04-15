@@ -172,12 +172,12 @@ public class FamilyManagementService {
         /**
          * If the memberBeingDeactivated is the last member in the group, then deactivate the group - Optional
          */
-        FamilyMember actor = checkFamilyMemberValidity(actorMemberLoginId);
+        checkFamilyMemberValidity(actorMemberLoginId);
         FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(memberLoginId)
                 .orElseThrow(() -> new FamilyMemberNotFoundException(""));
 
-        if(familyMember.getFamilyGroup().getCreatedBy() != actor.getFamilyMemberId())
-            throw new ActorNotAuthorizedException("Actor is not authorized to deactivate any account in the group");
+//        if(familyMember.getFamilyGroup().getCreatedBy() != actor.getFamilyMemberId())
+//            throw new ActorNotAuthorizedException("Actor is not authorized to deactivate any account in the group");
 
         familyMember.setActive(false);
         familyMember.setRole(ROLE.DEACTIVATED);
@@ -187,12 +187,12 @@ public class FamilyManagementService {
     }
 
     public boolean activateFamilyMember(String memberLoginId, String actorMemberLoginId) {
-        FamilyMember actor = checkFamilyMemberValidity(actorMemberLoginId);
+        checkFamilyMemberValidity(actorMemberLoginId);
         FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(memberLoginId)
                 .orElseThrow(() -> new FamilyMemberNotFoundException(""));
 
-        if(familyMember.getFamilyGroup().getCreatedBy() != actor.getFamilyMemberId())
-            throw new ActorNotAuthorizedException("Actor is not authorized to activate any account in the group");
+//        if(familyMember.getFamilyGroup().getCreatedBy() != actor.getFamilyMemberId())
+//            throw new ActorNotAuthorizedException("Actor is not authorized to activate any account in the group");
 
         familyMember.setActive(true);
         familyMember.setRole(ROLE.FAMILY_MEMBER);

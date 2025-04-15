@@ -43,7 +43,7 @@ public class FamilyManagementController {
     }
 
     @DeleteMapping
-    @PreAuthorize("hasAuthority('ROLE_FAMILY_GROUP_OWNER')")
+    @PreAuthorize("hasAuthority('ROLE_FAMILY_GROUP_OWNER', 'ROLE_FAMILY_MEMBER')")
     public ResponseEntity<String> deactivateFamilyMember(@RequestParam String memberLoginId, @RequestHeader("x-security-header") String actorId){
         boolean isDeactivated = familyManagementService.deactivateFamilyMember(memberLoginId, actorId);
 
@@ -53,7 +53,7 @@ public class FamilyManagementController {
     }
 
     @GetMapping("/activate")
-    @PreAuthorize("hasAuthority('ROLE_FAMILY_GROUP_OWNER')")
+    @PreAuthorize("hasAuthority('ROLE_FAMILY_GROUP_OWNER', 'ROLE_FAMILY_MEMBER')")
     public ResponseEntity<String> activateFamilyMember(@RequestParam String memberLoginId, @RequestHeader("x-security-header") String actorId){
         boolean isActivated = familyManagementService.activateFamilyMember(memberLoginId, actorId);
 
