@@ -41,5 +41,7 @@ public class FamilyMemberDTO {
 
     private String memberLoginId;
 
+    private boolean isActive;
+
     private String familyPin;
 }

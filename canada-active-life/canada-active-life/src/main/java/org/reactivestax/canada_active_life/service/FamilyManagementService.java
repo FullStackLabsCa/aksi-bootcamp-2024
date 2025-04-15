@@ -153,8 +153,9 @@ public class FamilyManagementService {
     public FamilyMemberDTO getFamilyMember(String memberLoginId) {
         FamilyMember familyMember = familyMemberRepository.findByMemberLoginId(memberLoginId)
                 .orElseThrow(() -> new FamilyMemberNotFoundException("Family Member not found for the given Member Login Id."));
-
-        return familyMemberMapper.toDto(familyMember);
+        FamilyMemberDTO familyMemberDto = familyMemberMapper.toDto(familyMember);
+        familyMemberDto.setActive(familyMember.isActive());
+        return familyMemberDto;
     }
 
     public FamilyMemberDTO updateFamilyMemberInfo(FamilyMemberDTO familyMemberDTO, String memberLoginId) {
