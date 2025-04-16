@@ -6,9 +6,8 @@ import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.repo.jdbc.JDBCRawPayloadRepo;
 import io.reactivestax.utility.exceptions.InvalidMessagingTechnologyException;
 import io.reactivestax.utility.exceptions.InvalidPersistenceTechException;
-import io.reactivestax.utility.messaging.MessageSender;
-import io.reactivestax.utility.messaging.inmemory.InMemorySender;
-import io.reactivestax.utility.messaging.rabbitmq.RabbitMQSender;
+import io.reactivestax.utility.messaging.KafkaMessageSender;
+import io.reactivestax.utility.messaging.kafka.KafkaSender;
 
 import static io.reactivestax.utility.ApplicationPropertyUtils.getFileProperty;
 
@@ -22,8 +21,7 @@ public class BeanFactory {
 
     private static final String JDBC_PERSISTENCE_TECH = "jdbc";
     private static final String HIBERNATE_PERSISTENCE_TECH = "hibernate";
-    private static final String RABBIT_MQ_QUEUE_TECH = "rabbitmq";
-    private static final String IN_MEMORY_QUEUE_TECH = "in-memory";
+    private static final String KAFKA_STREAMING_TECH = "kafka";
 
 
     public static RawPayloadRepo getRawPayloadRepo() {
@@ -40,13 +38,11 @@ public class BeanFactory {
         return rawPayloadRepo;
     }
 
-    public static MessageSender<TradeIdAndAccNum> getMessageSender() {
-        MessageSender<TradeIdAndAccNum> messageSender;
+    public static KafkaMessageSender<TradeIdAndAccNum, String> getMessageSender() {
+        KafkaMessageSender<TradeIdAndAccNum, String> messageSender;
 
-        if(RABBIT_MQ_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
-            messageSender = RabbitMQSender.getInstance();
-        } else if (IN_MEMORY_QUEUE_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))){
-            messageSender = InMemorySender.getInstance();
+        if (KAFKA_STREAMING_TECH.equals(getFileProperty(MESSAGING_TECHNOLOGY))) {
+            messageSender = KafkaSender.getInstance();
         } else {
             throw new InvalidMessagingTechnologyException();
         }
