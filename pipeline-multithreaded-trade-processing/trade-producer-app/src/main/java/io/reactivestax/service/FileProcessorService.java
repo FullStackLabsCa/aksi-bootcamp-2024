@@ -6,6 +6,7 @@ import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.service.interfaces.ChunkProcessing;
 import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 import io.reactivestax.utility.exceptions.FilepathProcessingException;
+import io.reactivestax.utility.messaging.KafkaMessageSender;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -13,18 +14,18 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
-public class ChunkProcessorService implements ChunkProcessing {
-    private static final String splitter = ",";
+public class FileProcessorService implements ChunkProcessing {
+    private static final String SPLITTER = ",";
     private static final String VALID = "Valid";
     private static final String INVALID = "Invalid";
     private static final String NOT_POSTED = "Not Posted";
-    private static ChunkProcessorService instance;
+    private static FileProcessorService instance;
 
-    private ChunkProcessorService() {
+    private FileProcessorService() {
     }
 
-    public static synchronized ChunkProcessorService getInstance() {
-        if (instance == null) instance = new ChunkProcessorService();
+    public static synchronized FileProcessorService getInstance() {
+        if (instance == null) instance = new FileProcessorService();
         return instance;
     }
 
@@ -52,7 +53,7 @@ public class ChunkProcessorService implements ChunkProcessing {
     @Override
     public String checkPayloadValidity(String payload) {
         try {
-            return (payload.split(splitter).length == 7) ? VALID : INVALID;
+            return (payload.split(SPLITTER).length == 7) ? VALID : INVALID;
         } catch (Exception e) {
             System.out.println("Failed to Check Payload Validity because " + e.getMessage());
             return INVALID;
@@ -64,7 +65,7 @@ public class ChunkProcessorService implements ChunkProcessing {
             return new TradeIdAndAccNum(INVALID, INVALID);
         }
 
-        String[] fieldsOfTrade = payload.split(splitter);
+        String[] fieldsOfTrade = payload.split(SPLITTER);
 
         String tradeId = (fieldsOfTrade.length > 0 && fieldsOfTrade[0] != null)
                 ? fieldsOfTrade[0]
@@ -81,7 +82,7 @@ public class ChunkProcessorService implements ChunkProcessing {
     public RawPayload getRawPayloadFromStringPayload(String payload) {
         if (payload == null || payload.trim().isEmpty())
             return RawPayload.builder().build();
-        String[] fieldsOfPayload = payload.split(splitter);
+        String[] fieldsOfPayload = payload.split(SPLITTER);
         return RawPayload.builder()
                 .tradeID(fieldsOfPayload[0])
                 .payload(payload)
@@ -98,7 +99,8 @@ public class ChunkProcessorService implements ChunkProcessing {
     }
 
     @Override
-    public void sendForProcessing(TradeIdAndAccNum tradeIdentifiersAsKey, String payloadAsValue) { // TODO Move this to Kafka Topic
-        System.out.println("Sending Data to kafka topic");
+    public void sendForProcessing(TradeIdAndAccNum tradeIdentifiersAsKey, String payloadAsValue) {
+        KafkaMessageSender<TradeIdAndAccNum, String> messageSender = BeanFactory.getMessageSender();
+        messageSender.sendMessage(tradeIdentifiersAsKey, payloadAsValue);
     }
 }
