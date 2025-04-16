@@ -6,7 +6,6 @@ import io.reactivestax.repo.RawPayloadRepo;
 import io.reactivestax.service.interfaces.ChunkProcessing;
 import io.reactivestax.service.interfaces.TradeIdAndAccNum;
 import io.reactivestax.utility.exceptions.FilepathProcessingException;
-import io.reactivestax.utility.messaging.MessageSender;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -24,15 +23,15 @@ public class ChunkProcessorService implements ChunkProcessing {
     private ChunkProcessorService() {
     }
 
-    public static synchronized ChunkProcessorService getInstance(){
-        if(instance == null) instance = new ChunkProcessorService();
+    public static synchronized ChunkProcessorService getInstance() {
+        if (instance == null) instance = new ChunkProcessorService();
         return instance;
     }
 
     @Override
     public void processChunk(String filePath) {
         try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
-                lines.forEach(this::processPayload);
+            lines.skip(1).forEach(this::processPayload);
         } catch (NullPointerException | IOException | UncheckedIOException e) {
             throw new FilepathProcessingException("Failed to process provided chunk: " + filePath);
         }
@@ -46,7 +45,7 @@ public class ChunkProcessorService implements ChunkProcessing {
         writePayloadToPayloadDatabase(rawPayload);
 
         if (VALID.equals(rawPayload.getStatus())) {
-            sendForProcessing(tradeIdentifiers);
+            sendForProcessing(tradeIdentifiers, rawPayload.getPayload());
         }
     }
 
@@ -79,8 +78,8 @@ public class ChunkProcessorService implements ChunkProcessing {
     }
 
     // This can be made Private!!! (Will have to update tests accordingly)
-    public RawPayload getRawPayloadFromStringPayload(String payload){
-        if(payload == null || payload.trim().isEmpty())
+    public RawPayload getRawPayloadFromStringPayload(String payload) {
+        if (payload == null || payload.trim().isEmpty())
             return RawPayload.builder().build();
         String[] fieldsOfPayload = payload.split(splitter);
         return RawPayload.builder()
@@ -99,8 +98,7 @@ public class ChunkProcessorService implements ChunkProcessing {
     }
 
     @Override
-    public void sendForProcessing(TradeIdAndAccNum tradeIdentifiers) {
-        MessageSender<TradeIdAndAccNum> sender = BeanFactory.getMessageSender();
-        sender.sendMessage(tradeIdentifiers);
+    public void sendForProcessing(TradeIdAndAccNum tradeIdentifiersAsKey, String payloadAsValue) { // TODO Move this to Kafka Topic
+        System.out.println("Sending Data to kafka topic");
     }
 }

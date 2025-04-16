@@ -8,6 +8,6 @@ public interface ChunkProcessing {
     void processPayload(String payload);
     String checkPayloadValidity(String payload);
     void writePayloadToPayloadDatabase(RawPayload rawPayload);
-    void sendForProcessing(TradeIdAndAccNum tradeIdentifiers);
+    void sendForProcessing(TradeIdAndAccNum tradeIdentifiersAsKey, String payloadAsValue);
 
 }
