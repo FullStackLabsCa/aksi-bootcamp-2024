@@ -1,13 +1,13 @@
 package io.reactivestax;
 
-import io.reactivestax.service.TradeProcessor;
+import io.reactivestax.utility.messaging.kafka.KafkaConsumer;
 
 public class TradeProcessingAppRunner {
 
     public static void main(String[] args) {
-        TradeProcessor tradeProcessor = new TradeProcessor();
-        (new Thread(tradeProcessor::startTradesProcessing)).start();
-
+        new KafkaConsumer().startConsuming();
+        new KafkaConsumer().startConsuming();
+        new KafkaConsumer().startConsuming();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutdown hook triggered. Cleaning up...")));
     }
 }

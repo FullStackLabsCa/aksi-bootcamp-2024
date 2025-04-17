@@ -9,12 +9,10 @@ import io.reactivestax.repo.SecuritiesReferenceRepo;
 import io.reactivestax.service.interfaces.TradeProcessing;
 import io.reactivestax.utility.database.TransactionUtil;
 import io.reactivestax.utility.exceptions.*;
-import io.reactivestax.utility.messaging.MessageProvider;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Optional;
 
 public class TradeProcessorService implements TradeProcessing {
     private static TradeProcessorService instance;
@@ -25,27 +23,6 @@ public class TradeProcessorService implements TradeProcessing {
     public static synchronized TradeProcessorService getInstance(){
         if(instance == null) instance = new TradeProcessorService();
         return instance;
-    }
-
-    public void runTradeProcessor(MessageProvider messageProvider) {
-        while (true) {
-            Optional<String> tradeID = getTradeID(messageProvider);
-            if(tradeID.isEmpty()) break;
-            tradeID.flatMap(this::readPayloadFromRawPayloadDB)
-                    .map(this::validatePayloadAndCreateTrade)
-                    .ifPresent(this::processTrade);
-        }
-    }
-
-    @Override
-    public Optional<String> getTradeID(MessageProvider messageProvider){
-        return BeanFactory.getMessageReceiver().receiveMessage(messageProvider);
-    }
-
-    @Override
-    public Optional<String> readPayloadFromRawPayloadDB(String tradeID) {
-        RawPayloadRepo rawPayloadRepo = BeanFactory.getPersistenceBean(RawPayloadRepo.class);
-        return rawPayloadRepo.readPayloadFromRawPayloadsTable(tradeID);
     }
 
     @Override
@@ -82,7 +59,7 @@ public class TradeProcessorService implements TradeProcessing {
         }
     }
 
-    private void processTrade(Trade trade){
+    public void processTrade(Trade trade){
         if (trade != null) {
             String lookupStatus = validateBusinessLogic(trade); // TODO:: This could Return the SecurityID if Valid otherwise Invalid and I could create DTO below and pass it over to UpdateJEAndPositionsTable
             updateTradeSecurityLookupInPayloadTable(trade, lookupStatus); // TODO:: This could be merged into updateJEPostedStatusInRawPayload
@@ -116,8 +93,9 @@ public class TradeProcessorService implements TradeProcessing {
                 BeanFactory.getPersistenceBean(TransactionUtil.class).rollbackTransaction();
                 BeanFactory.getMessageRetryer().retryMessage(trade);
             }
-        } else
-            System.out.println("Invalid Cusip, Not Being Processed for Journal Entry and Positions Update");
+        }
+//        else
+//            System.out.println("Invalid Cusip, Not Being Processed for Journal Entry and Positions Update");
     }
 
     @Override
