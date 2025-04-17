@@ -10,6 +10,9 @@ import java.util.Properties;
 
 public class KafkaUtils {
 
+    private KafkaUtils() {
+    }
+
     private static Consumer<String, String> configureConsumer() {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
