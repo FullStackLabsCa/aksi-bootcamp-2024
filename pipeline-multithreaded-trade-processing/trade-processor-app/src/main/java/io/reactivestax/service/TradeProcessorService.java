@@ -91,7 +91,7 @@ public class TradeProcessorService implements TradeProcessing {
                      OptimisticLockingOccurrence | PositionUpdateFailed | UpdatePositionStatusInJournalEntryFailed e) {
                 System.out.println("Failed to Update Journal Entry and Positions");
                 BeanFactory.getPersistenceBean(TransactionUtil.class).rollbackTransaction();
-                BeanFactory.getMessageRetryer().retryMessage(trade);
+//                BeanFactory.getMessageRetryer().retryMessage(trade);
             }
         }
 //        else
