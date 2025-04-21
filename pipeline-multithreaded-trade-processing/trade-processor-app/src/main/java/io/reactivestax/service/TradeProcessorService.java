@@ -61,30 +61,30 @@ public class TradeProcessorService implements TradeProcessing {
 
     public void processTrade(Trade trade){
         if (trade != null) {
-            String lookupStatus = validateBusinessLogic(trade); // TODO:: This could Return the SecurityID if Valid otherwise Invalid and I could create DTO below and pass it over to UpdateJEAndPositionsTable
-            updateTradeSecurityLookupInPayloadTable(trade, lookupStatus); // TODO:: This could be merged into updateJEPostedStatusInRawPayload
-            updateJournalEntryAndPositions(trade, lookupStatus);
+            int securityId = validateBusinessLogic(trade);
+            updateTradeSecurityLookupInRawPayloadTable(trade, securityId); // TODO:: This could be merged into updateJEPostedStatusInRawPayload
+            updateJournalEntryAndPositions(trade, securityId);
         }
     }
 
     @Override
-    public String validateBusinessLogic(Trade trade) {
+    public int validateBusinessLogic(Trade trade) {
         SecuritiesReferenceRepo securitiesReferenceRepo = BeanFactory.getPersistenceBean(SecuritiesReferenceRepo.class);
         return securitiesReferenceRepo.checkIfValidCusip(trade);
     }
 
-    private void updateTradeSecurityLookupInPayloadTable(Trade trade, String lookupStatus) {
+    private void updateTradeSecurityLookupInRawPayloadTable(Trade trade, int securityId) {
         RawPayloadRepo rawPayloadRepo = BeanFactory.getPersistenceBean(RawPayloadRepo.class);
-        rawPayloadRepo.updateSecurityLookupStatusInRawPayloadsTable(trade, lookupStatus);
+        rawPayloadRepo.updateSecurityLookupStatusInRawPayloadsTable(trade, securityId);
     }
 
-    private void updateJournalEntryAndPositions(Trade trade, String lookupStatus){
-        if ("Valid".equals(lookupStatus)) {
+    private void updateJournalEntryAndPositions(Trade trade, int securityId){
+        if (securityId != -1) {
             BeanFactory.getPersistenceBean(TransactionUtil.class).startTransaction();
             try {
-                writeToJournalTable(trade);
+                writeToJournalTable(trade, securityId);
                 updateJEPostedStatusInRawPayload(trade);
-                writeToPositionsTable(trade);
+                writeToPositionsTable(trade, securityId);
                 updatePositionPostedStatusInJournalEntry(trade);
                 BeanFactory.getPersistenceBean(TransactionUtil.class).commitTransaction();
             } catch (WriteToJournalEntryFailed | UpdateJournalEntryStatusInRawPayloadFailed |
@@ -99,15 +99,15 @@ public class TradeProcessorService implements TradeProcessing {
     }
 
     @Override
-    public void writeToJournalTable(Trade trade) throws WriteToJournalEntryFailed{
+    public void writeToJournalTable(Trade trade, int securityId) throws WriteToJournalEntryFailed{
         JournalEntryRepo journalEntryRepo = BeanFactory.getPersistenceBean(JournalEntryRepo.class);
-        journalEntryRepo.writeTradeToJournalEntryTable(trade);
+        journalEntryRepo.writeTradeToJournalEntryTable(trade, securityId);
     }
 
     @Override
-    public void writeToPositionsTable(Trade trade) throws OptimisticLockingOccurrence, PositionUpdateFailed {
+    public void writeToPositionsTable(Trade trade, int securityId) throws OptimisticLockingOccurrence, PositionUpdateFailed {
         PositionsRepo positionsRepo = BeanFactory.getPersistenceBean(PositionsRepo.class);
-        positionsRepo.updatePositionsTable(trade);
+        positionsRepo.updatePositionsTable(trade, securityId);
     }
 
     private void updateJEPostedStatusInRawPayload(Trade trade) throws UpdateJournalEntryStatusInRawPayloadFailed{
