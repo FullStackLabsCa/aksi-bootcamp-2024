@@ -61,9 +61,11 @@ public class TradeProcessorService implements TradeProcessing {
 
     public void processTrade(Trade trade){
         if (trade != null) {
+            System.out.println("Processing Trade: " + trade.getTradeID());
             int securityId = validateBusinessLogic(trade);
             updateTradeSecurityLookupInRawPayloadTable(trade, securityId); // TODO:: This could be merged into updateJEPostedStatusInRawPayload
             updateJournalEntryAndPositions(trade, securityId);
+            System.out.println("Finished Processing Trade: " + trade.getTradeID());
         }
     }
 
