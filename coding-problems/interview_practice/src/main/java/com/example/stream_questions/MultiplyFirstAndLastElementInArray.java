@@ -6,7 +6,7 @@ public class MultiplyFirstAndLastElementInArray {
 
     public static int multiplyFirstAndLastElementInArray(int[] numbers) {
 
-        IntStream.range(0, numbers.length % 2 == 0 ? (numbers.length / 2) : (numbers.length) / 2 + 1)
+        IntStream.range(0, numbers.length % 2 == 0 ? (numbers.length / 2) : (numbers.length / 2)     + 1)
                 .map(index -> numbers[index] * numbers[numbers.length - index - 1])
                 .forEach(System.out::println);
         System.out.println();
