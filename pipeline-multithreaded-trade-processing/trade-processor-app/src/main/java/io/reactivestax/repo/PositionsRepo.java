@@ -6,6 +6,6 @@ import io.reactivestax.utility.exceptions.PositionUpdateFailed;
 
 public interface PositionsRepo {
 
-    void updatePositionsTable(Trade trade) throws OptimisticLockingOccurrence, PositionUpdateFailed;
+    void updatePositionsTable(Trade trade, int securityId) throws OptimisticLockingOccurrence, PositionUpdateFailed;
 
 }

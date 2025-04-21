@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.sql.Connection;
 
 public class JDBCSecuritiesReferenceRepo implements SecuritiesReferenceRepo {
-    private static final String CUSIP_LOOKUP_QUERY = "select 1 from SecuritiesReferenceV2 where cusip = ?";
+    private static final String CUSIP_LOOKUP_QUERY = "select security_id from SecuritiesReferenceV2 where cusip = ?";
     private static final String LOOKUP_SECURITY_ID_QUERY = "Select security_id from SecuritiesReferenceV2 where cusip = ?";
     private static JDBCSecuritiesReferenceRepo instance;
 
@@ -24,18 +24,18 @@ public class JDBCSecuritiesReferenceRepo implements SecuritiesReferenceRepo {
     }
 
     @Override
-    public String checkIfValidCusip(Trade trade) {
+    public int checkIfValidCusip(Trade trade) {
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement psLookUp = connection.prepareStatement(CUSIP_LOOKUP_QUERY)) {
             psLookUp.setString(1, trade.getCusip());
             ResultSet rsLookUp = psLookUp.executeQuery();
 
             if (rsLookUp.next())
-                return "Valid";
-            else return "Invalid";
+                return rsLookUp.getInt("security_id");
+            else return -1;
 
         } catch (Exception e) {
-            return "Unable to Check CUSIP.";
+            return -1;
         }
     }
 

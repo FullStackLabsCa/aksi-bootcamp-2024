@@ -35,19 +35,19 @@ public class HibernateRawPayloadRepo implements RawPayloadRepo {
         query.select(root).where(builder.equal(root.get("tradeID"), tradeID));
         List<RawPayload> students = session.createQuery(query).getResultList();
 
-        if(students.isEmpty()) return Optional.empty();
+        if (students.isEmpty()) return Optional.empty();
         else return Optional.ofNullable(students.get(0).getPayload());
     }
 
     @Override
-    public void updateSecurityLookupStatusInRawPayloadsTable(Trade trade, String lookupStatus) { // TODO:: This will be merged into the method below updateJournalEntryStatusInRawPayloadsTable
+    public void updateSecurityLookupStatusInRawPayloadsTable(Trade trade, int securityId) { // TODO:: This will be merged into the method below updateJournalEntryStatusInRawPayloadsTable
         Session session = HibernateUtils.getInstance().getConnection();
         HibernateUtils.getInstance().startTransaction();
         try {
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaUpdate<RawPayload> criteriaUpdate = builder.createCriteriaUpdate(RawPayload.class);
             Root<RawPayload> root = criteriaUpdate.from(RawPayload.class);
-            if ("Valid".equals(lookupStatus)) {
+            if (securityId != -1) {
                 criteriaUpdate.set(root.get("lookupStatus"), "Succeeded");
             } else {
                 criteriaUpdate.set(root.get("lookupStatus"), "Failed");

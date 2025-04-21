@@ -14,27 +14,26 @@ public class JDBCJournalEntryRepo implements JournalEntryRepo {
 
     private static JDBCJournalEntryRepo instance;
     private static final String WRITE_TO_JOURNAL_ENTRY_QUERY = """
-                insert into journal_entry (accountNumber, security_id, direction, quantity, positionPostedStatus, tradeExecutionTime, trade_id)
-                values (?,?,?,?,?,?,?)
-                """;
+            insert into journal_entry (accountNumber, security_id, direction, quantity, positionPostedStatus, tradeExecutionTime, trade_id)
+            values (?,?,?,?,?,?,?)
+            """;
     private static final String UPDATE_JE_POSITION_POSTING_STATUS_QUERY = "update journal_entry set positionPostedStatus = ? where trade_id = ?";
 
-    private JDBCJournalEntryRepo(){
+    private JDBCJournalEntryRepo() {
         //Private Constructor to avoid anyone creating instance of this Class
     }
 
-    public static synchronized JDBCJournalEntryRepo getInstance(){
-        if(instance == null) instance = new JDBCJournalEntryRepo();
+    public static synchronized JDBCJournalEntryRepo getInstance() {
+        if (instance == null) instance = new JDBCJournalEntryRepo();
         return instance;
     }
 
     @Override
-    public void writeTradeToJournalEntryTable(Trade trade) throws WriteToJournalEntryFailed {
+    public void writeTradeToJournalEntryTable(Trade trade, int securityId) throws WriteToJournalEntryFailed {
         Connection connection = JDBCUtils.getInstance().getConnection();
-        JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         try (PreparedStatement insertionQuery = connection.prepareStatement(WRITE_TO_JOURNAL_ENTRY_QUERY)) {
             insertionQuery.setString(1, trade.getAccountNumber());
-            insertionQuery.setInt(2, securitiesReference.getSecurityIdForCusip(trade.getCusip()));
+            insertionQuery.setInt(2, securityId);
             insertionQuery.setString(3, trade.getActivity());
             insertionQuery.setInt(4, trade.getQuantity());
             insertionQuery.setString(5, "Not Posted");

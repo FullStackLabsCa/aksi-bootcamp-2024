@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface RawPayloadRepo {
 
     Optional<String> readPayloadFromRawPayloadsTable(String tradeID);
-    void updateSecurityLookupStatusInRawPayloadsTable(Trade trade, String lookupStatus);
+    void updateSecurityLookupStatusInRawPayloadsTable(Trade trade, int securityId);
     void updateJournalEntryStatusInRawPayloadsTable(Trade trade) throws UpdateJournalEntryStatusInRawPayloadFailed;
 }

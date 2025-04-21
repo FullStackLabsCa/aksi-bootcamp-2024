@@ -6,18 +6,18 @@ import io.reactivestax.repo.SecuritiesReferenceRepo;
 public class HibernateSecuritiesReferenceRepo implements SecuritiesReferenceRepo {
     private static HibernateSecuritiesReferenceRepo instance;
 
-    private HibernateSecuritiesReferenceRepo(){
+    private HibernateSecuritiesReferenceRepo() {
         // Private Constructor to avoid anyone creating instance of this class
     }
 
-    public static synchronized HibernateSecuritiesReferenceRepo getInstance(){
-        if(instance == null) instance = new HibernateSecuritiesReferenceRepo();
+    public static synchronized HibernateSecuritiesReferenceRepo getInstance() {
+        if (instance == null) instance = new HibernateSecuritiesReferenceRepo();
         return instance;
     }
 
     @Override
-    public String checkIfValidCusip(Trade trade) {
-        return "";
+    public int checkIfValidCusip(Trade trade) {
+        return -1;
     }
 
     @Override

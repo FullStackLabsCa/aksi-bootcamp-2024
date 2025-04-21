@@ -3,7 +3,6 @@ package io.reactivestax.repo.hibernate;
 import io.reactivestax.entity.JournalEntry;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.JournalEntryRepo;
-import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.exceptions.UpdatePositionStatusInJournalEntryFailed;
 import io.reactivestax.utility.exceptions.WriteToJournalEntryFailed;
@@ -15,26 +14,25 @@ import org.hibernate.Session;
 public class HibernateJournalEntryRepo implements JournalEntryRepo {
     private static HibernateJournalEntryRepo instance;
 
-    private HibernateJournalEntryRepo(){
+    private HibernateJournalEntryRepo() {
         // Private Constructor to avoid anyone creating instance of this class
     }
 
-    public static synchronized HibernateJournalEntryRepo getInstance(){
-        if(instance == null) instance = new HibernateJournalEntryRepo();
+    public static synchronized HibernateJournalEntryRepo getInstance() {
+        if (instance == null) instance = new HibernateJournalEntryRepo();
         return instance;
     }
 
     @Override
-    public void writeTradeToJournalEntryTable(Trade trade) throws WriteToJournalEntryFailed {
+    public void writeTradeToJournalEntryTable(Trade trade, int securityId) throws WriteToJournalEntryFailed {
         try {
             Session session = HibernateUtils.getInstance().getConnection();
-            JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
             JournalEntry journalEntry = JournalEntry.builder()
                     .accountNumber(trade.getAccountNumber())
                     .activity(trade.getActivity())
                     .positionPostedStatus("Not Posted")
                     .quantity(trade.getQuantity())
-                    .securityID(securitiesReference.getSecurityIdForCusip(trade.getCusip()))
+                    .securityID(securityId)
                     .tradeExecutionTime(trade.getTransactionTime())
                     .tradeID(trade.getTradeID())
                     .build();

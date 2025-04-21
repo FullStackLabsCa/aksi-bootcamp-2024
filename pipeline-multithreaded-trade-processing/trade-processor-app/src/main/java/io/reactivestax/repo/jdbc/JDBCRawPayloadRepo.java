@@ -21,8 +21,8 @@ public class JDBCRawPayloadRepo implements RawPayloadRepo {
         //Private Constructor to avoid anyone creating instance of this Class
     }
 
-    public static synchronized JDBCRawPayloadRepo getInstance(){
-        if(instance == null) instance = new JDBCRawPayloadRepo();
+    public static synchronized JDBCRawPayloadRepo getInstance() {
+        if (instance == null) instance = new JDBCRawPayloadRepo();
         return instance;
     }
 
@@ -44,12 +44,12 @@ public class JDBCRawPayloadRepo implements RawPayloadRepo {
     }
 
     @Override
-    public void updateSecurityLookupStatusInRawPayloadsTable(Trade trade, String lookupStatus) { // TODO:: This could be merged with updateJournalEntryStatusInRawPayloadsTable
+    public void updateSecurityLookupStatusInRawPayloadsTable(Trade trade, int securityId) { // TODO:: This could be merged with updateJournalEntryStatusInRawPayloadsTable
         Connection connection = JDBCUtils.getInstance().getConnection();
         try (PreparedStatement psLookupQuery = connection.prepareStatement(LOOKUP_UPDATE_QUERY)) {
 
             psLookupQuery.setString(2, trade.getTradeID());
-            if ("Valid".equals(lookupStatus)) {
+            if (securityId != -1) {
                 psLookupQuery.setString(1, "Succeeded");
             } else {
                 psLookupQuery.setString(1, "Failed");

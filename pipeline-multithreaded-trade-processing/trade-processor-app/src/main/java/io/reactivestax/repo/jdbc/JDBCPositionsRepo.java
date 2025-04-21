@@ -24,21 +24,19 @@ public class JDBCPositionsRepo implements PositionsRepo {
         //Private Constructor to avoid anyone creating instance of this Class
     }
 
-    public static synchronized JDBCPositionsRepo getInstance(){
-        if(instance == null) instance = new JDBCPositionsRepo();
+    public static synchronized JDBCPositionsRepo getInstance() {
+        if (instance == null) instance = new JDBCPositionsRepo();
         return instance;
     }
 
     @Override
-    public void updatePositionsTable(Trade trade) throws OptimisticLockingOccurrence, PositionUpdateFailed {
+    public void updatePositionsTable(Trade trade, int securityID) throws OptimisticLockingOccurrence, PositionUpdateFailed {
         Connection connection = JDBCUtils.getInstance().getConnection();
-        JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         JDBCPositionsRepo positionsReference = JDBCPositionsRepo.getInstance();
 
         try (PreparedStatement psPositionInsertQuery = connection.prepareStatement(POSITION_INSERT_QUERY);
              PreparedStatement psPositionUpdateQuery = connection.prepareStatement(POSITION_UPDATE_QUERY)) {
 
-            int securityID = securitiesReference.getSecurityIdForCusip(trade.getCusip());
             int version = positionsReference.getVersionIdForPosition(trade, securityID);
 
             if (version == -1) {

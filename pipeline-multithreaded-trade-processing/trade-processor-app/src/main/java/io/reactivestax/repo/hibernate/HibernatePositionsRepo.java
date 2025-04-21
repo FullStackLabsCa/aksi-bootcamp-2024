@@ -4,7 +4,6 @@ import io.reactivestax.entity.Position;
 import io.reactivestax.entity.PositionCompositeKey;
 import io.reactivestax.model.Trade;
 import io.reactivestax.repo.PositionsRepo;
-import io.reactivestax.repo.jdbc.JDBCSecuritiesReferenceRepo;
 import io.reactivestax.utility.database.HibernateUtils;
 import io.reactivestax.utility.exceptions.OptimisticLockingOccurrence;
 import io.reactivestax.utility.exceptions.PositionUpdateFailed;
@@ -32,13 +31,11 @@ public class HibernatePositionsRepo implements PositionsRepo {
     }
 
     @Override
-    public void updatePositionsTable(Trade trade) throws OptimisticLockingOccurrence, PositionUpdateFailed {
+    public void updatePositionsTable(Trade trade, int securityID) throws OptimisticLockingOccurrence, PositionUpdateFailed {
         Session session = HibernateUtils.getInstance().getConnection();
-        JDBCSecuritiesReferenceRepo securitiesReference = JDBCSecuritiesReferenceRepo.getInstance();
         HibernatePositionsRepo positionsReference = HibernatePositionsRepo.getInstance();
 
         try {
-            int securityID = securitiesReference.getSecurityIdForCusip(trade.getCusip());
             int version = positionsReference.getVersionIdForPosition(trade, securityID);
 
             if (version == -1) {
